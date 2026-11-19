@@ -7,6 +7,10 @@
 //              /api/stated-positions serves (cardsBody, review flags applied)
 //   seats      roster seat changes logged by scripts/gen-roster-changes.mjs
 //              (db/roster-changes.json)
+//   committees, cosponsorships, statuses
+//              committee-membership, co-sponsorship and federal bill-status
+//              changes between pulls of the official record, logged by
+//              scripts/gen-congress-changes.mjs (db/congress-changes.json)
 // Nothing here writes. A lane that cannot be read is named as unavailable and
 // the rest of the feed is still served.
 import type { Config } from "@netlify/functions";
@@ -19,9 +23,10 @@ import { loadReviewFlags, reviewFor } from "../lib/evidence-locker-core.mjs";
 import reviewFile from "../../db/evidence-locker-review.json" with { type: "json" };
 import shareIndex from "../../db/share-index.json" with { type: "json" };
 import rosterChanges from "../../db/roster-changes.json" with { type: "json" };
+import congressChanges from "../../db/congress-changes.json" with { type: "json" };
 import { publishDeps } from "../lib/vote-actions-db.js";
 import { recentPublishedRolls } from "../lib/vote-actions-publish.js";
-import { voteItems, positionItems, seatItems, feedBody, changesPageHtml } from "../lib/coverage-pages.js";
+import { voteItems, positionItems, seatItems, committeeItems, cosponsorItems, statusItems, feedBody, changesPageHtml } from "../lib/coverage-pages.js";
 
 const LIMIT = 30;
 const names: Record<string, string> = {};
@@ -48,7 +53,10 @@ export default async (req: Request): Promise<Response> => {
     errors.push("stated positions");
   }
   const seats = seatItems(rosterChanges as any, LIMIT);
-  const feed = feedBody({ votes, positions, seats }, new Date().toISOString(), errors);
+  const committees = committeeItems(congressChanges as any, LIMIT);
+  const cosponsorships = cosponsorItems(congressChanges as any, LIMIT);
+  const statuses = statusItems(congressChanges as any, LIMIT);
+  const feed = feedBody({ votes, positions, seats, committees, cosponsorships, statuses }, new Date().toISOString(), errors);
   const cache = errors.length ? "public, max-age=60" : "public, max-age=300";
   if (url.pathname === "/api/changes") {
     return new Response(JSON.stringify(feed), { status: 200, headers: { "content-type": "application/json", "cache-control": cache } });

@@ -14,7 +14,10 @@
 //
 // then runs scripts/check-generators.mjs --fix, which re-derives everything
 // downstream (bill docs and pages, person-committees.json, cosponsorships.json,
-// the sitemap) exactly as a manual pull would. Commit the result.
+// the sitemap) exactly as a manual pull would, and logs what changed since the
+// previous pull to db/congress-changes.json (scripts/gen-congress-changes.mjs —
+// the /changes feed's committee, co-sponsorship and bill-status lanes). Commit
+// the result.
 //
 // A file is copied only when its pass finished (state/<job> is "done"), the
 // file carries that pass's id, it parses, and it is not older than the copy
