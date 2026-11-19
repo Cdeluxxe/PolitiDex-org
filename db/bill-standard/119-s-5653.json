@@ -1013,22 +1013,6 @@
    "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm"
   },
   {
-   "issueKey": "tribal_consultation",
-   "weight": 35,
-   "primaryLabel": false,
-   "supportMeaning": "yea_supports",
-   "provisionRefs": [
-    "Div. B, Title II, Sec. 2212",
-    "Div. B, Title III, Sec. 2301 (Tribal property definition)",
-    "Div. B, Title III, Sec. 2302",
-    "Div. B, Title III, Sec. 2301"
-   ],
-   "quote": "``(1) Definition of property of traditional religious or cultural importance.--In this subsection, the term `property of traditional religious or cultural importance' means an identifiable geographic location or feature at which an event of continuing religious or cultural significance to a living",
-   "quoteRef": "Div. B, Title III, Sec. 2301 (Tribal property definition)",
-   "rationale": "Scope: government-to-government consultation, Tribal sovereignty, and protection of Tribal land, resources and cultural sites. Sec. 2212 lets a Tribe grant rights-of-way over its own land without Interior approval, Sec. 2301 writes a definition of property of traditional religious or cultural importance into law, and Sec. 2302 creates grants for Tribal Historic Preservation Officers. These run with the key. Sec. 2301 also narrows what counts as an \"adverse effect\" and lets Interior suspend Tribal preservation programs that miss its timelines, which runs against it; the substitute adds that agencies keep their duty to consult Tribes under section 302706(b). The read is mixed and disputed (see claim tribal-consultation), so it carries a middle weight, not the primary label.",
-   "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm"
-  },
-  {
    "issueKey": "cost_living",
    "weight": 30,
    "primaryLabel": false,
@@ -1055,6 +1039,36 @@
    "quoteRef": "Div. A, Title VI, Sec. 1602 (substitute only)",
    "rationale": "Chip: \"Protect clean air and water while keeping responsible jobs.\" Brownfield cleanup-and-reuse grants (1602, substitute only) are the clearest fit, alongside the conservation and preservation fund authorizations. Precedent: H.R. 7567 conservation programs on this key.",
    "sourceUrl": "https://www.congress.gov/119/crec/2026/11/10/172/169/modified/CREC-2026-11-10-pt1-PgS5471-2.htm"
+  },
+  {
+   "issueKey": "tribal_consultation",
+   "weight": 20,
+   "primaryLabel": false,
+   "supportMeaning": "yea_supports",
+   "provisionRefs": [
+    "Div. B, Title II, Sec. 2212",
+    "Div. B, Title III, Sec. 2301 (Tribal property definition)",
+    "Div. B, Title III, Sec. 2302"
+   ],
+   "quote": "``(1) Definition of property of traditional religious or cultural importance.--In this subsection, the term `property of traditional religious or cultural importance' means an identifiable geographic location or feature at which an event of continuing religious or cultural significance to a living",
+   "quoteRef": "Div. B, Title III, Sec. 2301 (Tribal property definition)",
+   "rationale": "Scope: government-to-government consultation, Tribal sovereignty, and protection of Tribal land, resources and cultural sites. Sec. 2212 lets a Tribe grant rights-of-way over its own land without Interior approval, Sec. 2301 writes a definition of property of traditional religious or cultural importance into law, and Sec. 2302 creates grants for Tribal Historic Preservation Officers. Split row: the sections that run against this key are in the yea_opposes row below. Contested: see claim tribal-consultation.",
+   "claimRef": "tribal-consultation",
+   "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm"
+  },
+  {
+   "issueKey": "tribal_consultation",
+   "weight": 15,
+   "primaryLabel": false,
+   "supportMeaning": "yea_opposes",
+   "provisionRefs": [
+    "Div. B, Title III, Sec. 2301"
+   ],
+   "quote": "the Secretary shall disapprove the tribal program and suspend in whole or in part any contracts or cooperative agreements with the Indian tribe and the Tribal Historic Preservation Officer under this division, until the program is consistent with this division, unless the Secretary determines",
+   "quoteRef": "Div. B, Title III, Sec. 2301",
+   "rationale": "Sec. 2301 narrows what counts as an \"adverse effect\" (visual, atmospheric and audible elements generally excluded), which shrinks the set of effects on Tribal cultural sites that trigger review. It also adds 54 U.S.C. 302707, under which Interior must disapprove a Tribal preservation program, and suspend its contracts, if the Tribal Historic Preservation Officer does not regularly meet consultation timelines. Both cut against the key. The substitute adds that agencies keep their duty to consult Tribes under section 302706(b), which limits but does not remove these effects. Split row: the sections that run with this key are in the yea_supports row above. Contested: see claim tribal-consultation.",
+   "claimRef": "tribal-consultation",
+   "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm"
   },
   {
    "issueKey": "gov_transparency",
@@ -1086,6 +1100,7 @@
    "sourceUrl": "https://www.congress.gov/119/crec/2026/11/10/172/169/modified/CREC-2026-11-10-pt1-PgS5471-2.htm"
   }
  ],
+ "splitMappingRule": "When a bill's text supports an issue key in some sections and opposes it in others, record one mapping row per direction for that key (yea_supports and yea_opposes), each citing its own sections with its own weight and a short quote; do not collapse conflicting effects into one direction.",
  "considered": [
   {
    "issueKey": "climate_action",
@@ -5488,7 +5503,7 @@
   },
   "E_issue_mapping": {
    "mark": "present",
-   "note": "13 keys mapped, 17 considered and declined. Tribal consultation, listed as a vocabulary gap in the first pass, is now mapped to tribal_consultation (added to the register 2026-11-19)."
+   "note": "13 keys mapped in 14 rows, 17 considered and declined. tribal_consultation (added to the register 2026-11-19, listed as a vocabulary gap in the first pass) is split into a yea_supports row (Secs. 2212, 2301 definition, 2302) and a yea_opposes row (Sec. 2301 adverse-effect standard and program suspension) under splitMappingRule."
   },
   "F_positions": {
    "mark": "partial",
