@@ -83,12 +83,13 @@ export function rawKey(src, fetchedAt) {
   return `${parts.join("/")}/${ts}.json`;
 }
 
-export async function pullOne(src, { fetch, store, now = () => new Date(), onRecord, log }) {
-  // Social sources write one raw item record per video and skip the scorer hook.
-  if (src.source_class === "youtube") return pullYouTube(src, { fetch, store, now, log: log ?? console.log, storeName: RAW_STORE_NAME });
-  // A cited video from the politician's own channel (tier 2): one page-shaped
-  // raw record (transcript, else description) that IS scored like any page.
-  if (src.source_class === "youtube_video") return pullYouTubeVideo(src, { fetch, store, now, onRecord, log: log ?? console.log, storeName: RAW_STORE_NAME, rawKey });
+export async function pullOne(src, { fetch, store, now = () => new Date(), onRecord, log, transcriptStore = null }) {
+  // A channel video with a cached transcript is scored like a page; the rest
+  // stay unscored mentions and are queued for the background transcriber.
+  if (src.source_class === "youtube") return pullYouTube(src, { fetch, store, now, onRecord, log: log ?? console.log, storeName: RAW_STORE_NAME, transcriptStore });
+  // A cited video from the politician's own channel (tier 2): with a cached
+  // transcript, one page-shaped raw record that IS scored like any page.
+  if (src.source_class === "youtube_video") return pullYouTubeVideo(src, { fetch, store, now, onRecord, log: log ?? console.log, storeName: RAW_STORE_NAME, transcriptStore });
   const fetchedAt = now().toISOString();
   try {
     const res = await fetch(src.url, {

@@ -229,31 +229,54 @@ await t("implied stances (R15) on a tier-2 page become weak items exactly as on 
   assert.equal(locker.buildLockerItem(c1, raw(null), d.strength).source_tier, 1);
 });
 
-await t("a tier-2 own-channel YouTube video is pulled like a page, scored, and written as tier 2", async () => {
+await t("a tier-2 own-channel YouTube video with a cached transcript is scored and written as tier 2, linked to the second", async () => {
+  const vt = await import("../netlify/lib/video-transcripts.mjs");
   const id = "c7mYbUvbHq4";
   const src = { politician_id: "tier_test", topic: "healthcare_costs", source_type: "campaign YouTube video (own channel)", source_class: "youtube_video", source_tier: 2, source_id: `tier2-watch-${id.toLowerCase()}`, url: `https://www.youtube.com/watch?v=${id}` };
-  const tracks = JSON.stringify([{ baseUrl: `https://www.youtube.com/api/timedtext?v=${id}&lang=en`, languageCode: "en", kind: "asr" }]);
-  const watch = `<html><head><meta property="og:title" content="My health care plan"></head><script>var x = {"captions":{"playerCaptionsTracklistRenderer":{"captionTracks":${tracks}}}};"shortDescription":"Our campaign."</script></html>`;
-  const transcript = "I will fight to lower prescription drug costs and cap insulin co-pays. We will reduce insurance premiums for families. Our bill to bring down out-of-pocket costs for patients passed.";
+  const oembed = JSON.stringify({ title: "My health care plan", author_name: "Tier Test", author_url: "https://www.youtube.com/@tiertest" });
+  const watched = [];
   const fetchFn = async (url) => {
-    if (url.includes("/watch?v=")) return res(url, 200, watch);
-    if (url.includes("/api/timedtext")) return res(url, 200, JSON.stringify({ events: [{ segs: [{ utf8: transcript }] }] }), "application/json");
+    if (url.includes("/oembed?")) return { ...res(url, 200, oembed, "application/json"), json: async () => JSON.parse(oembed) };
+    if (url.includes("/watch?v=")) watched.push(url);
     return res(url, 404, "");
   };
-  const { store, own, report } = await runOne(src, fetchFn);
+  const ts = rawStore();
+  await ts.setJSON(vt.cacheKey(id), { video_id: id, status: "ok", provider: "gemini", segments: [
+    { t: 0, text: "Hi, I'm running for the state house.", own: true },
+    { t: 14, text: "I will fight to lower prescription drug costs and cap insulin co-pays.", own: true },
+    { t: 21, text: "We will reduce insurance premiums for families.", own: true },
+  ] });
+  const store = rawStore(), ls = lockerStore(), logs = [];
+  const { value } = await quiet(() => fn.run({ fetch: fetchFn, store, lockerStore: ls, transcriptStore: ts, now: NOW, sources: [src], log: (l) => logs.push(l) }));
+  const report = await value.json();
+  const own = [...ls.data.values()].filter((i) => !i.page_topic);
   const raw = [...store.data.values()][0];
+  assert.equal(watched.length, 0, "the watch page is never fetched");
   assert.equal(raw.source_tier, 2);
+  assert.equal(raw.type, "video");
+  assert.equal(raw.title, "My health care plan", "title from oEmbed");
   assert.ok(raw.body.includes("insurance premiums"), "body is the transcript");
   assert.equal(report.youtube?.transcript, 1, "transcript tallied");
   assert.equal(own.length, 1, "the video is scored and written");
   assert.equal(own[0].source_tier, 2);
   assert.equal(own[0].position, "support");
   assert.equal(own[0].attribution, "Source: campaign YouTube channel");
-  // No transcript → the description is used (logged), never a crash.
-  const noCap = async (url) => res(url, 200, `<html><title>Clip - YouTube</title>"shortDescription":"Lower drug costs now."</html>`);
-  const fb = await runOne(src, noCap);
-  assert.ok([...fb.store.data.values()][0].body.includes("Lower drug costs now."));
-  assert.ok(fb.logs.some((l) => l.startsWith("raw-ingest: TRANSCRIPT FALLBACK tier_test")));
+  assert.match(own[0].link, new RegExp(`^https://www\\.youtube\\.com/watch\\?v=${id}&t=(14|21)s$`), "linked to the second the cited words are spoken");
+  // No cached transcript → queued for the background transcriber; ok, nothing scored, no "empty body".
+  const ts2 = rawStore(), st2 = rawStore(), ls2 = lockerStore(), l2 = [];
+  const { value: v2 } = await quiet(() => fn.run({ fetch: fetchFn, store: st2, lockerStore: ls2, transcriptStore: ts2, now: NOW, sources: [src], log: (l) => l2.push(l) }));
+  const r2 = await v2.json();
+  assert.equal(r2.results[0].ok, true, "a queued video is not a failure");
+  assert.equal(r2.youtube.queued, 1);
+  assert.ok(ts2.data.has(vt.queueKey(id)), "queued by video id");
+  assert.equal(st2.data.size, 0, "no raw record yet");
+  assert.equal(ls2.data.size, 0, "no Locker item yet");
+  assert.ok(l2.some((l) => l.startsWith("raw-ingest: TRANSCRIPT FALLBACK tier_test") && l.includes("queued")));
+  // A private / removed video fails with the oEmbed reason.
+  const gone = await quiet(() => fn.run({ fetch: async (u) => res(u, 404, ""), store: rawStore(), lockerStore: lockerStore(), transcriptStore: rawStore(), now: NOW, sources: [src], log: () => {} }));
+  const r3 = await gone.value.json();
+  assert.equal(r3.results[0].ok, false);
+  assert.match(r3.results[0].error, /oEmbed HTTP 404/);
 });
 
 // ── 5. Pool version ─────────────────────────────────────────────────────────

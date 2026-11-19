@@ -5,33 +5,34 @@
 // show no posts to an anonymous fetch, so they are not configured).
 //
 // One configured channel = ONE source slot in the planner. Pulling it reads the
-// channel's public Atom feed (recent uploads) and writes ONE raw record per new
-// video, in the locked item shape:
-//   type "video" · date (YYYY-MM-DD) · link (watch URL) · excerpt · weight
-// plus the identity fields every raw record carries (politician_id, topic,
-// source_type, source_id, url, fetched_at). No scoring, no stance fields, and
-// the scorer / Locker hook is NOT run on these records.
+// channel's public Atom feed (recent uploads, with title + description). Per
+// new video:
+//   · a cached transcript in which the politician speaks
+//     (video-transcripts.mjs) → ONE page-shaped raw record (body = the
+//     politician's own words, title as a field, `segments` for timestamped links, tier 2) that IS
+//     handed to the scorer / Locker hook, exactly like a campaign page;
+//   · otherwise the unscored item in the locked shape —
+//       type "video" · date (YYYY-MM-DD) · link (watch URL) · excerpt · weight
+//     plus the identity fields every raw record carries — with the description
+//     (the title when it is blank) as the excerpt, and, when nothing is cached
+//     yet, a queue entry for the background transcriber. One
+//     "raw-ingest: TRANSCRIPT FALLBACK …" line per such video.
+// Videos already in the store (same channel + video id key) are skipped, so a
+// channel costs one feed fetch per run once its recent uploads are stored.
 //
-// EXCERPT. The auto-generated (or uploaded) English transcript is tried first.
-// If it cannot be fetched or comes back empty, the video description is used
-// instead (the title when the description is blank) and the run logs one
-// "raw-ingest: TRANSCRIPT FALLBACK …" line per video, so how often transcripts
-// actually work is visible in the function logs and in report.youtube.
+// TRANSCRIPTS. The watch page cannot be read from a server (YouTube answers
+// with a bot check and no caption track), so captions are no longer scraped.
+// Transcripts come from the background transcriber (Gemini via the Netlify AI
+// Gateway, cached once per video id); this module only reads that cache.
 //
-// Videos already in the store (same channel + video id key) are skipped before
-// any transcript fetch, so a channel costs one feed fetch per run once its
-// recent uploads are stored.
-//
-// CITED OWN-CHANNEL VIDEOS (source_class "youtube_video", evidence tier 2 —
-// pool v2). A video the site already cites from the politician's OWN channel is
-// pulled like a page: its watch page gives the title, description and caption
-// track; the raw record's body is the title plus the transcript (the
-// description when no transcript comes back — logged as TRANSCRIPT FALLBACK).
-// Unlike channel feeds, this record IS handed to the scorer / Locker hook, so a
-// stance in the video becomes a weak or clear item exactly as on a page, tagged
-// source_tier 2.
+// CITED OWN-CHANNEL VIDEOS (source_class "youtube_video", evidence tier 2).
+// Title and channel come from YouTube oEmbed (youtube-oembed.mjs, shared with
+// /api/yt-verify). With a cached transcript the video is scored like a page;
+// without one it is queued and the run moves on (not a failure).
 
 import { cleanReadableText } from "./evidence-locker-core.mjs";
+import { fetchOEmbed } from "./youtube-oembed.mjs";
+import { readTranscript, hasOwnSpeech, enqueueTranscript, buildVideoRecord, videoRecordKey } from "./video-transcripts.mjs";
 
 export const SOCIAL_CLASSES = {
   youtube: "official YouTube channel — recent videos (transcript, else description)",
@@ -42,7 +43,7 @@ export const isSocial = (s) => SOCIAL_CLASS_SET.has(s?.source_class);
 
 export const YOUTUBE_MAX_VIDEOS = 3;          // most recent uploads read per channel per run
 export const SOCIAL_FEED_TIMEOUT_MS = 6_000;  // channel feed fetch
-export const TRANSCRIPT_TIMEOUT_MS = 5_000;   // watch page + caption track, per video
+export const VIDEO_META_TIMEOUT_MS = 6_000;   // oEmbed lookup for one cited video
 export const SOCIAL_EXCERPT_MAX = 280;        // same ceiling as a Locker excerpt
 export const SOCIAL_WEIGHT = "mention";       // unscored: the lowest weight
 
@@ -77,167 +78,119 @@ export function trimExcerpt(s, max = SOCIAL_EXCERPT_MAX) {
   return t.length > max ? t.slice(0, max - 1).trimEnd() + "…" : t;
 }
 
-/** The JSON array that follows `"captionTracks":` in a watch page (bracket-matched). */
-export function extractCaptionTracks(html) {
-  const at = String(html || "").indexOf('"captionTracks":');
-  if (at < 0) return null;
-  const start = html.indexOf("[", at);
-  if (start < 0) return null;
-  let depth = 0, inStr = false, esc = false;
-  for (let i = start; i < html.length; i++) {
-    const ch = html[i];
-    if (inStr) { if (esc) esc = false; else if (ch === "\\") esc = true; else if (ch === '"') inStr = false; continue; }
-    if (ch === '"') inStr = true;
-    else if (ch === "[") depth++;
-    else if (ch === "]" && --depth === 0) { try { return JSON.parse(html.slice(start, i + 1)); } catch { return null; } }
-  }
-  return null;
-}
-
-/** English track, auto-generated preferred; else any English; else the first. */
-export function pickCaptionTrack(tracks) {
-  if (!Array.isArray(tracks) || !tracks.length) return null;
-  const en = tracks.filter((t) => /^en\b/i.test(t?.languageCode || ""));
-  return en.find((t) => t.kind === "asr") || en[0] || tracks[0];
-}
-
-/** Caption body (json3 or XML timedtext) → plain text. */
-export function captionText(body) {
-  const b = String(body || "").trim();
-  if (!b) return "";
-  if (b.startsWith("{")) {
-    try {
-      const j = JSON.parse(b);
-      return (j.events || []).flatMap((ev) => (ev.segs || []).map((s) => s.utf8 || "")).join("").replace(/\s+/g, " ").trim();
-    } catch { return ""; }
-  }
-  return [...b.matchAll(/<(?:text|p)\b[^>]*>([\s\S]*?)<\/(?:text|p)>/g)].map((m) => decode(decode(m[1]).replace(/<[^>]+>/g, ""))).join(" ").replace(/\s+/g, " ").trim();
-}
-
-/** The transcript from an already fetched watch page. Never throws. */
-async function transcriptFromWatchHtml(html, { fetch, signal, timeoutMs }) {
-  try {
-    const track = pickCaptionTrack(extractCaptionTracks(html));
-    if (!track?.baseUrl) return { text: "", why: "no caption track on the watch page" };
-    const base = String(track.baseUrl).replace(/\\u0026/g, "&");
-    const cap = await fetch(`${base}${base.includes("fmt=") ? "" : "&fmt=json3"}`, { headers: { "user-agent": UA }, signal });
-    if (!cap.ok) return { text: "", why: `caption track HTTP ${cap.status}` };
-    const text = captionText(await cap.text());
-    return text ? { text, kind: track.kind === "asr" ? "auto-generated" : "uploaded" } : { text: "", why: "caption track came back empty" };
-  } catch (e) {
-    return { text: "", why: e?.name === "TimeoutError" ? `timed out after ${timeoutMs}ms` : (e?.message || String(e)) };
-  }
-}
-
-/** Try the transcript for one video. Never throws: { text } or { text: "", why }. */
-export async function fetchTranscript(videoId, { fetch, timeoutMs = TRANSCRIPT_TIMEOUT_MS } = {}) {
-  const signal = AbortSignal.timeout(timeoutMs);
-  try {
-    const res = await fetch(`${youtubeWatchUrl(videoId)}&hl=en`, { headers: { "user-agent": UA, "accept-language": "en" }, redirect: "follow", signal });
-    if (!res.ok) return { text: "", why: `watch page HTTP ${res.status}` };
-    return await transcriptFromWatchHtml(await res.text(), { fetch, signal, timeoutMs });
-  } catch (e) {
-    return { text: "", why: e?.name === "TimeoutError" ? `timed out after ${timeoutMs}ms` : (e?.message || String(e)) };
-  }
-}
-
 /** The 11-character video id of a watch / youtu.be / embed URL, or null. */
 export function youtubeVideoId(url) {
   const m = /(?:youtube\.com\/(?:watch\?(?:[^#]*&)?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/.exec(String(url || ""));
   return m ? m[1] : null;
 }
 
-/** { title, description } from a watch page (og:title / <title>; shortDescription). */
-export function watchPageMeta(html) {
-  const h = String(html || "");
-  const og = /<meta\s+(?:property|name)=["']og:title["']\s+content=["']([^"']*)["']/i.exec(h);
-  const tt = /<title>([\s\S]*?)<\/title>/i.exec(h);
-  const title = decode(og ? og[1] : tt ? tt[1].replace(/\s*-\s*YouTube\s*$/i, "") : "").trim();
-  let description = "";
-  const d = /"shortDescription":"((?:[^"\\]|\\.)*)"/.exec(h);
-  if (d) { try { description = JSON.parse(`"${d[1]}"`); } catch { description = d[1]; } }
-  return { title, description: String(description).trim() };
+export function youtubeItemKey(src, videoId) {
+  return videoRecordKey(src, videoId);
 }
 
-export const VIDEO_PAGE_TIMEOUT_MS = 8_000; // watch page + caption track for one cited video
-const MAX_VIDEO_BODY_CHARS = 2_000_000;
+async function storedRecord(store, key) {
+  if (typeof store?.get !== "function") return null;
+  try {
+    let v = await store.get(key);
+    if (typeof v === "string") { try { v = JSON.parse(v); } catch { /* present, unreadable */ } }
+    return v ?? null;
+  } catch { return null; }
+}
+
+/**
+ * A video with a cached transcript in which the politician speaks: store the
+ * page-shaped record and run the scorer / Locker hook on it. Returns the key,
+ * or null when the cache holds no words by the politician.
+ */
+async function storeTranscriptRecord(src, videoId, doc, { store, onRecord, fetchedAt, title, published, channel, storeName }) {
+  if (!hasOwnSpeech(doc)) return null;
+  const record = buildVideoRecord({ src, videoId, title, doc, fetchedAt, published, channel });
+  const key = videoRecordKey(src, videoId);
+  await store.setJSON(key, record);
+  console.log(`raw-ingest: OK ${youtubeWatchUrl(videoId)} → ${storeName}/${key} (${record.body_chars} chars, transcript (${doc.provider || "cached"}), ${record.segments.length} timed segment(s), tier 2)`);
+  if (onRecord) {
+    try { await onRecord(Object.freeze({ ...record, key })); }
+    catch (e) { console.log(`raw-ingest: hook error for ${key} — ${e?.message || e}`); }
+  }
+  return key;
+}
+
+/** The unscored mention item for a video with no usable transcript (locked item shape). */
+function mentionRecord(src, v, excerpt, fetchedAt) {
+  return {
+    type: "video",
+    date: String(v.published || fetchedAt).slice(0, 10),
+    link: youtubeWatchUrl(v.video_id),
+    excerpt,
+    weight: SOCIAL_WEIGHT,
+    politician_id: src.politician_id,
+    topic: src.topic,
+    source_type: src.source_type,
+    source_id: src.source_id,
+    url: src.url,
+    fetched_at: fetchedAt,
+  };
+}
+
+/** Why a video has no transcript to score, for the TRANSCRIPT FALLBACK line. */
+const fallbackWhy = (doc, queued) => !doc
+  ? (queued ? "transcript queued for the background transcriber" : "no transcript cached (no transcript store)")
+  : doc.status === "failed" ? `transcription failed (${doc.error || "error"})`
+  : doc.status === "empty" ? "no speech in the video"
+  : "the politician does not speak in it";
 
 /**
  * Pull one cited own-channel video (source_class "youtube_video"). Never
- * throws. Writes ONE page-shaped raw record (body = title + transcript, else
- * description) and runs `onRecord` on it like any page, so the scorer and the
- * Locker writer read it. `rawKey(src, fetchedAt)` is the page key function.
+ * throws. Title + channel come from oEmbed (the watch page is a bot check to
+ * server fetches). With a cached transcript in which the politician speaks it
+ * writes ONE page-shaped raw record and runs `onRecord` on it, so the scorer
+ * and the Locker writer read it like any page. Without one, the video is
+ * queued for the background transcriber (`transcriptStore`) and the run moves
+ * on — that is not a failure; the background run scores it once transcribed.
  */
-export async function pullYouTubeVideo(src, { fetch, store, now = () => new Date(), onRecord, log = console.log, storeName = "raw-ingest", rawKey }) {
+export async function pullYouTubeVideo(src, { fetch, store, now = () => new Date(), onRecord, log = console.log, storeName = "raw-ingest", transcriptStore = null }) {
   const fetchedAt = now().toISOString();
-  const stats = { videos: 1, stored: 0, transcript: 0, fallback: 0, seen: 0 };
+  const stats = { videos: 1, stored: 0, transcript: 0, fallback: 0, seen: 0, queued: 0 };
   const id = youtubeVideoId(src.url);
   try {
     if (!id) throw new Error("not a YouTube video URL");
-    const signal = AbortSignal.timeout(VIDEO_PAGE_TIMEOUT_MS);
-    const res = await fetch(`${youtubeWatchUrl(id)}&hl=en`, { headers: { "user-agent": UA, "accept-language": "en", accept: "text/html,*/*" }, redirect: "follow", signal });
-    const html = await res.text();
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const meta = watchPageMeta(html);
-    const tr = await transcriptFromWatchHtml(html, { fetch, signal, timeoutMs: VIDEO_PAGE_TIMEOUT_MS });
-    let text = String(tr.text || "").replace(/\s+/g, " ").trim();
-    if (text) stats.transcript++;
-    else {
-      stats.fallback++;
-      text = meta.description;
-      log(`raw-ingest: TRANSCRIPT FALLBACK ${src.politician_id} ${youtubeWatchUrl(id)} — ${tr.why} → video ${text ? "description" : "title only (description empty)"}`);
+    const meta = await fetchOEmbed(id, { fetch, timeoutMs: VIDEO_META_TIMEOUT_MS });
+    if (!meta.ok) throw new Error(`oEmbed ${meta.status ? `HTTP ${meta.status}` : "unreachable"} — ${meta.error}`);
+    const doc = await readTranscript(transcriptStore, id);
+    if (hasOwnSpeech(doc)) {
+      const key = await storeTranscriptRecord(src, id, doc, { store, onRecord, fetchedAt, title: meta.title, channel: meta.channel, storeName });
+      stats.stored++; stats.transcript++;
+      return { ok: true, key, url: src.url, fetched_at: fetchedAt, youtube: stats };
     }
-    const body = [meta.title, text].filter(Boolean).join("\n\n").slice(0, MAX_VIDEO_BODY_CHARS);
-    if (!body.trim()) throw new Error("empty body");
-    const record = {
-      url: src.url,
-      final_url: youtubeWatchUrl(id),
-      fetched_at: fetchedAt,
-      source_type: src.source_type,
-      politician_id: src.politician_id,
-      topic: src.topic,
-      ...(src.source_id ? { source_id: src.source_id } : {}),
-      ...(src.source_tier ? { source_tier: Number(src.source_tier) === 2 ? 2 : 1 } : {}),
-      http_status: res.status,
-      content_type: "text/plain; source=youtube-" + (stats.transcript ? `transcript (${tr.kind})` : "description"),
-      body_chars: body.length,
-      body,
-      type: "video",
-      link: youtubeWatchUrl(id),
-    };
-    const key = rawKey ? rawKey(src, fetchedAt) : `${[src.politician_id, src.topic, src.source_id].filter(Boolean).join("/")}/${fetchedAt.replace(/[:.]/g, "-")}.json`;
-    await store.setJSON(key, record);
-    stats.stored++;
-    console.log(`raw-ingest: OK ${src.url} → ${storeName}/${key} (${body.length} chars, ${stats.transcript ? "transcript" : "description fallback"}, tier ${record.source_tier || 1})`);
-    if (onRecord) {
-      try { await onRecord(Object.freeze({ ...record, key })); }
-      catch (e) { console.log(`raw-ingest: hook error for ${key} — ${e?.message || e}`); }
-    }
-    return { ok: true, key, url: src.url, fetched_at: fetchedAt, body_chars: body.length, youtube: stats };
+    const queued = !doc && transcriptStore ? await enqueueTranscript(transcriptStore, src, { videoId: id, title: meta.title, channel: meta.channel }) : false;
+    if (queued) stats.queued++;
+    const pending = !doc && transcriptStore;
+    stats.fallback++;
+    log(`raw-ingest: TRANSCRIPT FALLBACK ${src.politician_id} ${youtubeWatchUrl(id)} — ${fallbackWhy(doc, pending)} → ${pending ? "nothing scored this run" : "video title (mention)"}`);
+    if (pending) return { ok: true, key: null, queued: true, url: src.url, fetched_at: fetchedAt, youtube: stats };
+    // No words by the politician to score: an unscored mention, like a channel video.
+    const excerpt = trimExcerpt(meta.title);
+    const key = videoRecordKey(src, id);
+    if (excerpt) { await store.setJSON(key, mentionRecord(src, { video_id: id, published: "" }, excerpt, fetchedAt)); stats.stored++; }
+    return { ok: true, key: excerpt ? key : null, url: src.url, fetched_at: fetchedAt, youtube: stats };
   } catch (e) {
-    const error = e?.name === "TimeoutError" ? `timed out after ${VIDEO_PAGE_TIMEOUT_MS}ms` : (e?.message || String(e));
+    const error = e?.message || String(e);
     console.log(`raw-ingest: FAIL ${src.url} at ${fetchedAt} — ${error}`);
     return { ok: false, url: src.url, fetched_at: fetchedAt, error, youtube: stats };
   }
 }
 
-export function youtubeItemKey(src, videoId) {
-  return `${[src.politician_id, src.topic, src.source_id].filter(Boolean).join("/")}/${videoId}.json`;
-}
-
-async function alreadyStored(store, key) {
-  if (typeof store?.get !== "function") return false;
-  try { return (await store.get(key)) != null; } catch { return false; }
-}
-
 /**
- * Pull one YouTube channel source. Never throws. Writes one raw item record per
- * new video. Returns the same result shape as pullOne plus `items` and
- * `youtube` ({ videos, stored, transcript, fallback, seen }).
+ * Pull one YouTube channel source. Never throws. Per new video (not already in
+ * the raw store): with a cached transcript in which the politician speaks, a
+ * page-shaped record that IS scored (`onRecord`); otherwise the unscored
+ * mention item (description, else title) and — when nothing is cached yet —
+ * a queue entry for the background transcriber. Returns the pullOne result
+ * shape plus `items` and `youtube` ({ videos, stored, transcript, fallback, seen, queued }).
  */
-export async function pullYouTube(src, { fetch, store, now = () => new Date(), log = console.log, storeName = "raw-ingest" }) {
+export async function pullYouTube(src, { fetch, store, now = () => new Date(), log = console.log, storeName = "raw-ingest", transcriptStore = null, onRecord = null }) {
   const fetchedAt = now().toISOString();
-  const stats = { videos: 0, stored: 0, transcript: 0, fallback: 0, seen: 0 };
+  const stats = { videos: 0, stored: 0, transcript: 0, fallback: 0, seen: 0, queued: 0 };
   try {
     const res = await fetch(src.url, { headers: { "user-agent": UA, accept: "application/atom+xml,application/xml,*/*" }, redirect: "follow", signal: AbortSignal.timeout(SOCIAL_FEED_TIMEOUT_MS) });
     const body = await res.text();
@@ -248,34 +201,39 @@ export async function pullYouTube(src, { fetch, store, now = () => new Date(), l
     const keys = [];
     await Promise.all(videos.map(async (v) => {
       const key = youtubeItemKey(src, v.video_id);
-      if (await alreadyStored(store, key)) { stats.seen++; return; }
-      const tr = await fetchTranscript(v.video_id, { fetch });
-      let excerpt = trimExcerpt(tr.text);
-      if (excerpt) stats.transcript++;
-      else {
-        stats.fallback++;
-        excerpt = trimExcerpt(v.description) || trimExcerpt(v.title);
-        log(`raw-ingest: TRANSCRIPT FALLBACK ${src.politician_id} ${youtubeWatchUrl(v.video_id)} — ${tr.why} → video ${trimExcerpt(v.description) ? "description" : "title (description empty)"}`);
+      const stored = await storedRecord(store, key);
+      const doc = stored && (stored.body || !transcriptStore) ? null : await readTranscript(transcriptStore, v.video_id);
+      if (stored) {
+        stats.seen++;
+        // Already scored (page-shaped record), or no transcript store: nothing to do.
+        if (stored.body || !transcriptStore) return;
+        // A video stored as a mention before transcripts existed (the backlog):
+        // score it if its transcript is cached by now, else queue it once
+        // (write-once; a transcribed video is never queued again).
+        if (hasOwnSpeech(doc)) {
+          await storeTranscriptRecord(src, v.video_id, doc, { store, onRecord, fetchedAt, title: v.title, published: v.published, storeName });
+          keys.push(key); stats.transcript++;
+        } else if (!doc && await enqueueTranscript(transcriptStore, src, { videoId: v.video_id, title: v.title, published: v.published })) stats.queued++;
+        return;
       }
-      if (!excerpt) return;
-      const record = {
-        type: "video",
-        date: String(v.published || fetchedAt).slice(0, 10),
-        link: youtubeWatchUrl(v.video_id),
-        excerpt,
-        weight: SOCIAL_WEIGHT,
-        politician_id: src.politician_id,
-        topic: src.topic,
-        source_type: src.source_type,
-        source_id: src.source_id,
-        url: src.url,
-        fetched_at: fetchedAt,
-      };
-      await store.setJSON(key, record);
-      keys.push(key);
-      stats.stored++;
+      if (hasOwnSpeech(doc)) {
+        await storeTranscriptRecord(src, v.video_id, doc, { store, onRecord, fetchedAt, title: v.title, published: v.published, storeName });
+        keys.push(key); stats.stored++; stats.transcript++;
+        return;
+      }
+      stats.fallback++;
+      const excerpt = trimExcerpt(v.description) || trimExcerpt(v.title);
+      log(`raw-ingest: TRANSCRIPT FALLBACK ${src.politician_id} ${youtubeWatchUrl(v.video_id)} — ${fallbackWhy(doc, !doc && !!transcriptStore)} → video ${trimExcerpt(v.description) ? "description" : "title (description empty)"} (mention)`);
+      // The mention goes in first; the background transcriber later replaces
+      // it (same key) with the scored page-shaped record.
+      if (excerpt) {
+        await store.setJSON(key, mentionRecord(src, v, excerpt, fetchedAt));
+        keys.push(key);
+        stats.stored++;
+      }
+      if (!doc && transcriptStore && await enqueueTranscript(transcriptStore, src, { videoId: v.video_id, title: v.title, published: v.published })) stats.queued++;
     }));
-    console.log(`raw-ingest: OK ${src.url} → ${storeName} (${stats.stored} new video(s), ${stats.seen} already stored; transcript ${stats.transcript}, description fallback ${stats.fallback})`);
+    console.log(`raw-ingest: OK ${src.url} → ${storeName} (${stats.stored} new video(s), ${stats.seen} already stored; transcript ${stats.transcript}, description fallback ${stats.fallback}, queued ${stats.queued})`);
     return { ok: true, key: keys[0] || null, keys, items: stats.stored, url: src.url, fetched_at: fetchedAt, youtube: stats };
   } catch (e) {
     const error = e?.message || String(e);
