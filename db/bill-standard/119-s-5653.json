@@ -572,12 +572,29 @@
    "issueKeys": [
     "infrastructure",
     "states_federal_power",
-    "permitting_reform"
+    "permitting_reform",
+    "property_rights"
    ],
    "presentIn": [
     "S. 5653",
     "S.Amdt. 6883"
    ]
+  },
+  {
+   "ref": "Div. B, Title I, Sec. 2101(d) (FPA 216(e) rights-of-way)",
+   "label": "Condemnation procedure for transmission rights-of-way",
+   "plain": "Has condemnation actions brought by FERC transmission permit holders follow the federal rule for condemning property (Rule 71.1) instead of the practice of the State's courts. The substitute also strikes \"or a State\" from sec. 216(e)(1), so State-owned land is no longer excluded from that condemnation authority.",
+   "textQuote": "Section 216(e)(3) of the Federal Power Act (16 U.S.C. 824p(e)(3)) is amended by striking ``shall conform'' and all that follows through the period at the end and inserting ``shall be in accordance with rule 71.1 of the Federal Rules of Civil Procedure.''.",
+   "quoteFrom": "S. 5653 (is)",
+   "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm",
+   "issueKeys": [
+    "property_rights"
+   ],
+   "presentIn": [
+    "S. 5653",
+    "S.Amdt. 6883"
+   ],
+   "amendmentHistory": "S.Amdt. 6883 also strikes \"or a State\" in sec. 216(e)(1): \"is amended by striking ``or a State'' in paragraph (1)\"."
   },
   {
    "ref": "Div. B, Title I, Secs. 2102-2106, 2109-2110",
@@ -694,7 +711,8 @@
    "quoteFrom": "S. 5653 (is)",
    "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm",
    "issueKeys": [
-    "energy_production"
+    "energy_production",
+    "property_rights"
    ],
    "presentIn": [
     "S. 5653",
@@ -1013,22 +1031,6 @@
    "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm"
   },
   {
-   "issueKey": "tribal_consultation",
-   "weight": 35,
-   "primaryLabel": false,
-   "supportMeaning": "yea_supports",
-   "provisionRefs": [
-    "Div. B, Title II, Sec. 2212",
-    "Div. B, Title III, Sec. 2301 (Tribal property definition)",
-    "Div. B, Title III, Sec. 2302",
-    "Div. B, Title III, Sec. 2301"
-   ],
-   "quote": "``(1) Definition of property of traditional religious or cultural importance.--In this subsection, the term `property of traditional religious or cultural importance' means an identifiable geographic location or feature at which an event of continuing religious or cultural significance to a living",
-   "quoteRef": "Div. B, Title III, Sec. 2301 (Tribal property definition)",
-   "rationale": "Scope: government-to-government consultation, Tribal sovereignty, and protection of Tribal land, resources and cultural sites. Sec. 2212 lets a Tribe grant rights-of-way over its own land without Interior approval, Sec. 2301 writes a definition of property of traditional religious or cultural importance into law, and Sec. 2302 creates grants for Tribal Historic Preservation Officers. These run with the key. Sec. 2301 also narrows what counts as an \"adverse effect\" and lets Interior suspend Tribal preservation programs that miss its timelines, which runs against it; the substitute adds that agencies keep their duty to consult Tribes under section 302706(b). The read is mixed and disputed (see claim tribal-consultation), so it carries a middle weight, not the primary label.",
-   "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm"
-  },
-  {
    "issueKey": "cost_living",
    "weight": 30,
    "primaryLabel": false,
@@ -1055,6 +1057,63 @@
    "quoteRef": "Div. A, Title VI, Sec. 1602 (substitute only)",
    "rationale": "Chip: \"Protect clean air and water while keeping responsible jobs.\" Brownfield cleanup-and-reuse grants (1602, substitute only) are the clearest fit, alongside the conservation and preservation fund authorizations. Precedent: H.R. 7567 conservation programs on this key.",
    "sourceUrl": "https://www.congress.gov/119/crec/2026/11/10/172/169/modified/CREC-2026-11-10-pt1-PgS5471-2.htm"
+  },
+  {
+   "issueKey": "tribal_consultation",
+   "weight": 20,
+   "primaryLabel": false,
+   "supportMeaning": "yea_supports",
+   "provisionRefs": [
+    "Div. B, Title II, Sec. 2212",
+    "Div. B, Title III, Sec. 2301 (Tribal property definition)",
+    "Div. B, Title III, Sec. 2302"
+   ],
+   "quote": "``(1) Definition of property of traditional religious or cultural importance.--In this subsection, the term `property of traditional religious or cultural importance' means an identifiable geographic location or feature at which an event of continuing religious or cultural significance to a living",
+   "quoteRef": "Div. B, Title III, Sec. 2301 (Tribal property definition)",
+   "rationale": "Scope: government-to-government consultation, Tribal sovereignty, and protection of Tribal land, resources and cultural sites. Sec. 2212 lets a Tribe grant rights-of-way over its own land without Interior approval, Sec. 2301 writes a definition of property of traditional religious or cultural importance into law, and Sec. 2302 creates grants for Tribal Historic Preservation Officers. Split row: the sections that run against this key are in the yea_opposes row below. Contested: see claim tribal-consultation.",
+   "claimRef": "tribal-consultation",
+   "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm"
+  },
+  {
+   "issueKey": "tribal_consultation",
+   "weight": 15,
+   "primaryLabel": false,
+   "supportMeaning": "yea_opposes",
+   "provisionRefs": [
+    "Div. B, Title III, Sec. 2301"
+   ],
+   "quote": "the Secretary shall disapprove the tribal program and suspend in whole or in part any contracts or cooperative agreements with the Indian tribe and the Tribal Historic Preservation Officer under this division, until the program is consistent with this division, unless the Secretary determines",
+   "quoteRef": "Div. B, Title III, Sec. 2301",
+   "rationale": "Sec. 2301 narrows what counts as an \"adverse effect\" (visual, atmospheric and audible elements generally excluded), which shrinks the set of effects on Tribal cultural sites that trigger review. It also adds 54 U.S.C. 302707, under which Interior must disapprove a Tribal preservation program, and suspend its contracts, if the Tribal Historic Preservation Officer does not regularly meet consultation timelines. Both cut against the key. The substitute adds that agencies keep their duty to consult Tribes under section 302706(b), which limits but does not remove these effects. Split row: the sections that run with this key are in the yea_supports row above. Contested: see claim tribal-consultation.",
+   "claimRef": "tribal-consultation",
+   "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm"
+  },
+  {
+   "issueKey": "property_rights",
+   "weight": 20,
+   "primaryLabel": false,
+   "supportMeaning": "yea_opposes",
+   "provisionRefs": [
+    "Div. B, Title I, Sec. 2101",
+    "Div. B, Title I, Sec. 2101(d) (FPA 216(e) rights-of-way)"
+   ],
+   "quote": "Section 216(e) of the Federal Power Act (16 U.S.C. 824p(e)) is amended by striking ``or a State'' in paragraph (1) and by striking ``shall conform as nearly as practicable to the practice and procedure in a similar action or proceeding in the courts of the State",
+   "quoteRef": "Div. B, Title I, Sec. 2101(d) (FPA 216(e) rights-of-way)",
+   "rationale": "Scope: what a government may do to a parcel its owner holds, including eminent domain and condemnation. Sec. 2101 directs FERC to issue construction permits for interstate lines it finds in the national interest, and a permit holder may acquire rights-of-way by eminent domain under existing Federal Power Act sec. 216(e). Sec. 2101(d) amends that condemnation subsection: actions follow federal Rule 71.1 rather than State-court practice, and the substitute removes the exclusion for State-owned land. More permits carrying the same taking power run against the key. Split row: the section that runs with this key is in the yea_supports row below.",
+   "sourceUrl": "https://www.congress.gov/119/crec/2026/11/10/172/169/modified/CREC-2026-11-10-pt1-PgS5471-2.htm"
+  },
+  {
+   "issueKey": "property_rights",
+   "weight": 10,
+   "primaryLabel": false,
+   "supportMeaning": "yea_supports",
+   "provisionRefs": [
+    "Div. B, Title II, Sec. 2211"
+   ],
+   "quote": "(1) the well is located on non-Federal land and the Federal Government owns less than 50 percent of the oil and gas minerals within the oil and gas drilling or spacing unit;",
+   "quoteRef": "Div. B, Title II, Sec. 2211",
+   "rationale": "Scope covers a government forbidding a use of a parcel. Sec. 2211 bars Interior from requiring a federal drilling permit for wells on non-Federal land where the federal share of the unit's minerals is under 50 percent, leaving State and Tribal rules in place. That removes a federal condition on a use of non-federal land, which runs with the key. It is one section about a permit, not a taking, so it carries the floor weight. Split row: the sections that run against this key are in the yea_opposes row above.",
+   "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm"
   },
   {
    "issueKey": "gov_transparency",
@@ -1086,6 +1145,7 @@
    "sourceUrl": "https://www.congress.gov/119/crec/2026/11/10/172/169/modified/CREC-2026-11-10-pt1-PgS5471-2.htm"
   }
  ],
+ "splitMappingRule": "When a bill's text supports an issue key in some sections and opposes it in others, record one mapping row per direction for that key (yea_supports and yea_opposes), each citing its own sections with its own weight and a short quote; do not collapse conflicting effects into one direction.",
  "considered": [
   {
    "issueKey": "climate_action",
@@ -1106,10 +1166,6 @@
   {
    "issueKey": "water_storage",
    "whyNot": "Hydropower provisions concern generation licensing, not water-supply storage."
-  },
-  {
-   "issueKey": "property_rights",
-   "whyNot": "Runs both ways. Sec. 2211 removes a federal permit for owners drilling on non-federal land, strengthening the owner. Sec. 2101 widens FERC transmission permits, which carry existing Federal Power Act sec. 216(e) eminent domain, strengthening the government's hand. One support_meaning cannot hold both."
   },
   {
    "issueKey": "gov_regulation",
@@ -5488,7 +5544,7 @@
   },
   "E_issue_mapping": {
    "mark": "present",
-   "note": "13 keys mapped, 17 considered and declined. Tribal consultation, listed as a vocabulary gap in the first pass, is now mapped to tribal_consultation (added to the register 2026-11-19)."
+   "note": "14 keys mapped in 16 rows, 16 considered and declined. Two keys are split under splitMappingRule: tribal_consultation (added to the register 2026-11-19, listed as a vocabulary gap in the first pass) into a yea_supports row (Secs. 2212, 2301 definition, 2302) and a yea_opposes row (Sec. 2301 adverse-effect standard and program suspension); property_rights, first declined as running both ways, into a yea_opposes row (Sec. 2101 transmission permits and the 216(e) condemnation changes) and a yea_supports row (Sec. 2211 drilling permits on non-federal land)."
   },
   "F_positions": {
    "mark": "partial",
