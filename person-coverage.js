@@ -8,9 +8,15 @@
      #pdx-attendance       Roll-call attendance: how many of this person's
                            PUBLISHED roll calls list them as not voting. A count
                            of the roll calls on this site, labelled as such —
-                           not an official attendance score.
+                           not an official attendance score. Each roll call
+                           counted as not voting is listed and linked to its
+                           /vote/<congress>/<chamber>/<session>/<roll> page.
      #pdx-committees       Committee memberships, as the House Clerk's and the
-                           Senate's own membership files list them.
+                           Senate's own membership files list them, each
+                           linked to its /committee/<code> page.
+
+   Committees, Bills co-sponsored and Committee money each print the date their
+   source file was read ("Data as of …"), from the generator's own record.
      #pdx-cosponsorships   Bills co-sponsored in the current Congress, as
                            Congress.gov lists them. Its own section, separate
                            from "Bills sponsored" (#pdx-sponsored), which it
@@ -44,6 +50,16 @@
   function money(n) { return '$' + Math.round(Number(n) || 0).toLocaleString('en-US'); }
   function ord(n) { var s = ['th', 'st', 'nd', 'rd'], v = n % 100; return n + (s[(v - 20) % 10] || s[v] || s[0]); }
   function plural(n, one, many) { return n + ' ' + (n === 1 ? one : (many || one + 's')); }
+  // "Data as of <date>": the day the section's source file was read, as the
+  // generator recorded it. Drawn only when the data carries one.
+  function asOfHtml(d) {
+    var v = String(d || '').trim();
+    return v ? '<p class="pdx-cov-asof">Data as of <span data-pdx-asof>' + esc(v) + '</span></p>' : '';
+  }
+  function cmtePage(code) {
+    return /^[A-Z]{2,6}[0-9]{2}$/.test(String(code || '')) ? '/committee/' + encodeURIComponent(code) : '';
+  }
+  var MISSED_FIRST = 10;
 
   var _cache = {};
   function load(pid) {
@@ -66,7 +82,29 @@
       '<p class="modal-section-sub" data-pdx-att-label>This is a count of the roll calls published on PolitiDex' + esc(span) + ', not an official attendance score. ' +
       'It covers only the roll calls that have passed PolitiDex’s automatic publish checks, so it can differ from the chamber’s own record. ' +
       'Voted on ' + a.voted + (a.present ? ' (including ' + a.present + ' “present”)' : '') + '.</p>' +
+      missedHtml(a.missed) +
       '</div>';
+  }
+
+  // The specific roll calls the count is made of, newest first, each linked to
+  // its own roll-call page. Only rolls the API sent with a page address.
+  function missedRow(m) {
+    var ch = m.chamber === 'senate' ? 'Senate' : 'House';
+    var label = esc(ch + ' roll ' + m.roll);
+    var page = /^\/vote\/\d+\/(house|senate)\/\d+\/\d+$/.test(String(m.page || '')) ? m.page : '';
+    return '<li data-pdx-att-missed="' + esc(m.chamber + '|' + m.congress + '|' + m.session + '|' + m.roll) + '">' +
+      (page ? '<a href="' + esc(page) + '">' + label + '</a>' : label) +
+      (m.bill ? ' · ' + esc(m.bill) : '') + (m.date ? ' · ' + esc(m.date) : '') +
+      (m.question ? '<span class="pdx-cov-meta">' + esc(m.question) + '</span>' : '') + '</li>';
+  }
+  function missedHtml(list) {
+    list = (list || []).filter(function (m) { return m && m.roll != null; });
+    if (!list.length) return '';
+    var first = list.slice(0, MISSED_FIRST).map(missedRow).join('');
+    var rest = list.slice(MISSED_FIRST);
+    return '<div class="pdx-cov-h">Roll calls listed as not voting</div>' +
+      '<ul class="pdx-cov-list" data-pdx-att-missed-list="' + list.length + '">' + first + '</ul>' +
+      (rest.length ? '<details class="pdx-cov-more"><summary>Show all ' + list.length + '</summary><ul class="pdx-cov-list">' + rest.map(missedRow).join('') + '</ul></details>' : '');
   }
 
   function committeesHtml(c) {
@@ -77,12 +115,18 @@
     c.committees.forEach(function (x) { chambers[x.chamber] = 1; });
     if ((chambers.house || chambers.joint) && s.house) srcs.push('<a href="' + esc(httpUrl(s.house.url)) + '" target="_blank" rel="noopener">House Clerk member data</a>' + (s.house.asOf ? ' (' + esc(s.house.asOf) + ')' : ''));
     if ((chambers.senate || chambers.joint) && s.senate) srcs.push('<a href="' + esc(httpUrl(s.senate.url)) + '" target="_blank" rel="noopener">Senate committee assignments</a>' + (s.senate.asOf ? ' (' + esc(s.senate.asOf) + ')' : ''));
+    function nameLink(x, cls) {
+      var href = cmtePage(x.code);
+      return href
+        ? '<a href="' + esc(href) + '"' + (cls ? ' class="' + cls + '"' : '') + ' data-pdx-cmte-link>' + esc(x.name) + '</a>'
+        : (cls ? '<span class="' + cls + '">' + esc(x.name) + '</span>' : esc(x.name));
+    }
     var rows = c.committees.map(function (x) {
-      return '<li data-pdx-cmte="' + esc(x.code) + '"><span class="pdx-cov-name">' + esc(x.name) + '</span>' +
+      return '<li data-pdx-cmte="' + esc(x.code) + '">' + nameLink(x, 'pdx-cov-name') +
         (x.title ? ' <span class="pdx-cov-tag">' + esc(x.title) + '</span>' : '') +
         (x.subcommittees && x.subcommittees.length
           ? '<ul class="pdx-cov-sub">' + x.subcommittees.map(function (y) {
-              return '<li data-pdx-cmte="' + esc(y.code) + '">' + esc(y.name) + (y.title ? ' <span class="pdx-cov-tag">' + esc(y.title) + '</span>' : '') + '</li>';
+              return '<li data-pdx-cmte="' + esc(y.code) + '">' + nameLink(y, '') + (y.title ? ' <span class="pdx-cov-tag">' + esc(y.title) + '</span>' : '') + '</li>';
             }).join('') + '</ul>'
           : '') + '</li>';
     }).join('');
@@ -90,6 +134,7 @@
       '<div class="modal-section-title">Committees</div>' +
       '<ul class="pdx-cov-list">' + rows + '</ul>' +
       '<p class="modal-section-sub pdx-cov-src">From the official membership files: ' + srcs.join(' · ') + '. Only assignments those files list are shown.</p>' +
+      asOfHtml(c.asOf || s.fetchedOn) +
       '</div>';
   }
 
@@ -111,6 +156,7 @@
       '<p class="pdx-cov-count">' + plural(c.bills.length, 'measure') + '</p>' +
       '<ul class="pdx-cov-list">' + first + '</ul>' +
       (rest.length ? '<details class="pdx-cov-more"><summary>Show all ' + c.bills.length + '</summary><ul class="pdx-cov-list">' + rest.map(billRow).join('') + '</ul></details>' : '') +
+      asOfHtml(c.asOf || c.fetchedOn) +
       '</div>';
   }
 
@@ -132,6 +178,7 @@
       (f.fec ? ' <a href="https://www.fec.gov/data/candidate/' + esc(encodeURIComponent(f.fec)) + '/" target="_blank" rel="noopener">FEC candidate ' + esc(f.fec) + '</a>.' : '') + '</p>' +
       '<div class="pdx-cov-h">By kind of committee</div><ul class="pdx-cov-list">' + kinds + '</ul>' +
       '<div class="pdx-cov-h">Largest committees</div><ul class="pdx-cov-list">' + top + '</ul>' +
+      asOfHtml(f.asOf) +
       '</div>';
   }
 
@@ -152,6 +199,8 @@
       '.pdx-cov-tag{font-family:"Barlow Condensed",sans-serif;font-size:0.7rem;letter-spacing:0.05em;text-transform:uppercase;border:1px solid rgba(245,200,66,0.45);color:#f5c842;border-radius:999px;padding:0 0.45rem;}' +
       '.pdx-cov-sub{margin:0.3rem 0 0 0.8rem;padding:0;list-style:disc;color:#c9d8f2;font-size:0.8rem;}' +
       '.pdx-cov-src a{color:#9fdbff;}' +
+      '.pdx-cov-asof{color:#9fb4d4;font-size:0.74rem;margin:0.35rem 0 0;}' +
+      '.pdx-cov-sub a{color:#c9d8f2;text-decoration:underline;text-decoration-color:rgba(159,219,255,0.45);}' +
       '.pdx-cov-more summary{cursor:pointer;color:#9fdbff;font-size:0.82rem;margin:0.2rem 0 0.5rem;}';
     (document.head || document.documentElement).appendChild(st);
   }
@@ -237,7 +286,8 @@
 
   window.PDXPersonCoverage = {
     scan: scan, load: load,
-    attendanceHtml: attendanceHtml, committeesHtml: committeesHtml, cosponsorshipsHtml: cosponsorshipsHtml, fundingHtml: fundingHtml
+    attendanceHtml: attendanceHtml, committeesHtml: committeesHtml, cosponsorshipsHtml: cosponsorshipsHtml, fundingHtml: fundingHtml,
+    missedHtml: missedHtml
   };
 
   function boot() {

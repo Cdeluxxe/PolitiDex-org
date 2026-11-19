@@ -7,6 +7,7 @@
 //   · the person-file coverage  /api/person-coverage?pid= (committees,
 //                               co-sponsorships, committee money, attendance)
 //   · the bill co-sponsor list  /api/bill-cosponsors?bill=<sitting>|<number>
+//   · the committee page        /committee/<code> (data: committee-index.mjs)
 // No database, no network: the functions in netlify/functions/ fetch and pass
 // the data in, and scripts/test-coverage-*.mjs drive these directly.
 //
@@ -15,6 +16,8 @@
 // the feed only receives rolls recentPublishedRolls let through and stance
 // cards cardsBody (stated-positions-core.mjs) would serve.
 // ─────────────────────────────────────────────────────────────────────────────
+
+import { committeePath } from "./committee-index.mjs";
 
 export const ORIGIN = "https://politidex.fyi";
 
@@ -150,6 +153,44 @@ export function rollNotFoundHtml(r: { congress: number; chamber: string; session
     body: `<h1>We don’t have that roll call published.</h1><p class="sub">${text(msg)}</p><p><a href="/changes">See recently published votes</a></p>` });
 }
 
+// ── the committee page ─────────────────────────────────────────────────────
+// /committee/<code>, rendered by netlify/functions/committee-page.mts from
+// db/person-committees.json (committeeData in committee-index.mjs). The
+// committee's name, its chamber, its members with a PolitiDex file (each linked
+// to /p/<pid>, with the title the House Clerk's file prints), and its
+// subcommittees, each linked to its own page.
+const CHAMBER_LABEL: Record<string, string> = { house: "House committee", senate: "Senate committee", joint: "Joint committee" };
+
+export function committeePageHtml(d: any): string {
+  const kind = d.parent ? "Subcommittee" : (CHAMBER_LABEL[d.chamber] || "Committee");
+  const n = (d.members || []).length;
+  const desc = `${d.name}${d.parent ? `, a subcommittee of the ${d.parent.name}` : ""}: ${n} member${n === 1 ? "" : "s"} with a PolitiDex file, as the official ${d.chamber === "senate" ? "Senate" : d.chamber === "joint" ? "House and Senate" : "House Clerk"} membership file${d.chamber === "joint" ? "s list" : " lists"} them.`;
+  const members = (d.members || []).map((m: any) =>
+    `<li data-pdx-cmte-member="${attr(m.pid)}"><a href="/p/${attr(encodeURIComponent(m.pid))}">${text(m.name)}</a>` +
+    `${m.party || m.state ? ` <span>${text([m.party, m.state].filter(Boolean).join(" · "))}</span>` : ""}` +
+    `${m.title ? ` <strong data-pdx-cmte-title>${text(m.title)}</strong>` : ""}</li>`).join("");
+  const subs = (d.subcommittees || []).map((x: any) =>
+    `<li data-pdx-cmte-sub="${attr(x.code)}"><a href="${attr(x.page || `/committee/${encodeURIComponent(x.code)}`)}">${text(x.name)}</a>` +
+    ` <span>${x.members} member${x.members === 1 ? "" : "s"} with a file</span></li>`).join("");
+  const srcs = (d.sources || []).filter((x: any) => httpUrl(x.url)).map((x: any) =>
+    `<a href="${attr(x.url)}" target="_blank" rel="noopener">${text(x.label)}</a>${x.asOf ? ` (${text(x.asOf)})` : ""}`).join(" · ");
+  const body = `<h1>${text(d.name)}</h1>
+<p class="sub" data-pdx-cmte-kind>${text(kind)}${d.parent ? ` of the <a href="${attr(`/committee/${encodeURIComponent(d.parent.code)}`)}" data-pdx-cmte-parent="${attr(d.parent.code)}">${text(d.parent.name)}</a>` : ""} · code ${text(d.code)}</p>
+<div class="group" data-pdx-cmte-members="${n}"><h2>Members with a PolitiDex file (${n})</h2>${n ? `<ul>${members}</ul>` : "<p class=\"sub\">None of this committee's listed members has a PolitiDex file yet.</p>"}</div>
+${subs ? `<div class="group" data-pdx-cmte-subs><h2>Subcommittees</h2><ul>${subs}</ul></div>` : ""}
+<p class="note" data-pdx-cmte-source>From the official membership files${srcs ? `: ${srcs}` : ""}.${d.asOf ? ` Data as of <span data-pdx-asof>${text(d.asOf)}</span>.` : ""} Only members PolitiDex has a file for are listed, and titles are shown only where the file prints one. Membership is not a measure of anything.</p>
+<p class="sub"><a href="/changes">What changed recently</a></p>`;
+  return page({ title: `${d.name} · PolitiDex`, description: desc, canonical: ORIGIN + `/committee/${encodeURIComponent(d.code)}`, eyebrow: d.parent ? "Subcommittee" : "Committee", body });
+}
+
+export function committeeNotFoundHtml(code: string | null): string {
+  const msg = code
+    ? `PolitiDex has no committee with the code ${code} on file. Committee pages cover the committees the House Clerk's and the Senate's membership files list for members with a PolitiDex file.`
+    : "A committee page address looks like /committee/AG00 — the committee code the House Clerk or the Senate uses.";
+  return page({ title: "That committee isn’t on file · PolitiDex", description: msg, noindex: true, eyebrow: "Committee",
+    body: `<h1>We don’t have that committee on file.</h1><p class="sub">${text(msg)}</p><p><a href="/">Back to PolitiDex</a></p>` });
+}
+
 // ── the "what changed" feed ────────────────────────────────────────────────
 export type ChangeItem = {
   kind: "vote" | "position" | "seat";
@@ -269,16 +310,16 @@ export function committeesFor(pid: string, file: any) {
   for (const [code, lead] of rows) {
     const c = C[code];
     if (!c) continue;
-    const row = { code, name: c[0], chamber: c[1], title: lead || null, subcommittees: [] as any[] };
+    const row = { code, name: c[0], chamber: c[1], title: lead || null, page: committeePath(code), subcommittees: [] as any[] };
     if (c[2]) {
       const parent = byCode[c[2]];
-      if (parent) parent.subcommittees.push({ code, name: c[0], title: lead || null });
+      if (parent) parent.subcommittees.push({ code, name: c[0], title: lead || null, page: committeePath(code) });
       continue;
     }
     byCode[code] = row;
     top.push(row);
   }
-  return { sources: file.sources || {}, committees: top };
+  return { sources: file.sources || {}, asOf: file.sources?.fetchedOn || null, committees: top };
 }
 
 export function cosponsorshipsFor(pid: string, file: any) {
@@ -286,7 +327,7 @@ export function cosponsorshipsFor(pid: string, file: any) {
   if (!idx || !idx.length) return null;
   const congress = file.congress;
   return {
-    congress, fetchedOn: file.fetchedOn || "", source: file.source || "",
+    congress, fetchedOn: file.fetchedOn || "", asOf: file.fetchedOn || null, source: file.source || "",
     bills: idx.map((i: number) => file.bills[i]).filter(Boolean).map(([number, title, introduced, area, url, page]: any[]) => ({
       number, title, introduced, policyArea: area || null, url,
       page: page ? `/b/${encodeURIComponent(String(congress))}/${encodeURIComponent(number)}` : null,
@@ -299,7 +340,7 @@ export function fundingFor(pid: string, file: any) {
   if (!p) return null;
   const C = file.committees || {};
   return {
-    cycles: file.cycles || [], source: file.source || "", fec: p.fec, total: p.total, committees: p.n,
+    cycles: file.cycles || [], source: file.source || "", asOf: file.asOf || null, fec: p.fec, total: p.total, committees: p.n,
     kinds: Object.entries(p.kinds || {}).map(([k, n]) => ({ kind: k, label: (file.kinds || {})[k] || k, total: n }))
       .sort((a: any, b: any) => b.total - a.total),
     top: (p.top || []).map(([id, n]: [string, number]) => ({ id, name: (C[id] || [id])[0], kind: (C[id] || [])[1] || "other", label: (file.kinds || {})[(C[id] || [])[1]] || "Other PAC", total: n })),

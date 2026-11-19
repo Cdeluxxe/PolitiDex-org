@@ -20,6 +20,13 @@
 //   gen-aipac-pac.mjs       --pas2 <itpas2.txt> --legislators <json>
 //   gen-aipac-tracker.mjs   --listing <html> --as-of YYYY-MM-DD
 //   gen-funding.mjs         --pas2 … --cm … --legislators … (the same FEC files)
+//   vr-gen-member-map.mjs   has a --check, but it reads the congress-legislators
+//                           dataset over the network when no local copy sits
+//                           next to it, and without that dataset it skips the
+//                           portrait identity cross-check. Run offline it would
+//                           pass a map it never cross-checked, so it stays a
+//                           by-hand step (db/vr-member-map.json is reviewed on
+//                           purpose — a wrong bioguide mis-attributes votes).
 // The pull stages of gen-committees.mjs and gen-cosponsorships.mjs (--fetch)
 // read the network and are not run here; their derive stages ARE registered,
 // because those read only committed files.
@@ -39,6 +46,10 @@ export const GENERATORS = [
   { script: "gen-reader-rationale.mjs" },
   // Stance / person derived tables.
   { script: "gen-person-directional-keys.mjs" },
+  // The share index (db/share-index.json) is read by the stance-name table,
+  // the raw-ingest rotation builders and the share-preview edge, so it runs
+  // ahead of all of them.
+  { script: "gen-share-index.mjs" },
   { script: "gen-stance-person-names.mjs" },
   { script: "gen-spotlight-index.mjs" },
   { script: "gen-aipac-tracker-pages.mjs" },

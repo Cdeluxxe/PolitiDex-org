@@ -35,6 +35,20 @@ for (const g of GENERATORS) {
 }
 eq(GENERATORS[GENERATORS.length - 1].script, "gen-sitemap.mjs", "the sitemap runs last (it reads the others' output)");
 ok(GENERATORS.findIndex((g) => g.script === "gen-district-boards.mjs") < GENERATORS.findIndex((g) => g.script === "gen-seat-holders.mjs"), "boards before seat holders");
+// The share index feeds the stance-name table and the raw-ingest rotation builders.
+{
+  const at = (s) => GENERATORS.findIndex((g) => g.script === s);
+  ok(at("gen-share-index.mjs") >= 0, "gen-share-index is registered");
+  ok(at("gen-share-index.mjs") < at("gen-stance-person-names.mjs"), "share index before the stance-name table");
+  for (const b of ["build-raw-ingest-official-cited-2026-11.mjs", "build-raw-ingest-direct-cited-2026-11.mjs", "build-raw-ingest-full-roster-2026-11.mjs"]) {
+    ok(at("gen-share-index.mjs") < at(b), `share index before ${b}`);
+  }
+  // The member map stays by hand (its cross-check reads the network), and the registry says why.
+  ok(at("vr-gen-member-map.mjs") === -1, "vr-gen-member-map is not registered");
+  ok(/vr-gen-member-map\.mjs[\s\S]{0,400}network/.test(readFileSync(join(ROOT, "scripts/generators.mjs"), "utf8")), "the registry explains why vr-gen-member-map is left out");
+}
+// The workflow file is kept in scripts/ci/ until the owner copies it into .github/workflows/.
+ok(existsSync(join(ROOT, "scripts/ci/generator-freshness.yml")), "the freshness workflow is committed under scripts/ci/");
 
 // A fake world: `stale` holds scripts whose check fails until written.
 function world(stale, { errors = {}, sticky = [] } = {}) {

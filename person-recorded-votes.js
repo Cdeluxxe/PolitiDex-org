@@ -3,6 +3,7 @@
    ────────────────────────────────────────────────────────────────────────────
    The roll calls this person voted in, as the official House or Senate record
    lists them: the bill, the question put, and the vote cast. Nothing else.
+   Each roll call links to its own page, /vote/<congress>/<chamber>/<session>/<roll>.
 
    THE RAW RECORD, AND ONLY THAT. No verdict, no score, no tally of sides, no
    comparison with a stated position, no Direction Match. Each row is one cast
@@ -42,6 +43,17 @@
   }
   function day(d) { return d ? String(d).slice(0, 10) : ''; }
   function httpUrl(u) { return /^https?:\/\//.test(String(u || '')) ? String(u) : ''; }
+  // The roll call's own page, /vote/<congress>/<chamber>/<session>/<roll> — the
+  // same address rollPagePath (netlify/lib/vote-actions-publish.ts) gives it and
+  // netlify/functions/vote-page.mts serves. Every roll call in this list has
+  // passed the publish gate, so every one has a page. '' for a row that does not
+  // carry the four parts.
+  function rollPage(r) {
+    if (!r || !/^(house|senate)$/.test(String(r.chamber)) || !/^\d+$/.test(String(r.congress)) ||
+      !/^\d+$/.test(String(r.session)) || !/^\d+$/.test(String(r.roll))) return '';
+    return '/vote/' + encodeURIComponent(String(r.congress)) + '/' + encodeURIComponent(String(r.chamber)) + '/' +
+      encodeURIComponent(String(r.session)) + '/' + encodeURIComponent(String(r.roll));
+  }
 
   var _cache = {};
   function load(pid) {
@@ -76,11 +88,13 @@
     var ch = r.chamber === 'senate' ? 'Senate' : 'House';
     var word = r.voteRaw || VOTE_WORD[r.vote] || r.vote;
     var src = httpUrl(r.sourceUrl);
+    var page = rollPage(r);
+    var label = esc(ch + ' roll ' + r.roll);
     return '<li data-pdx-rv-roll="' + esc(r.chamber + '|' + r.congress + '|' + r.session + '|' + r.roll) + '">' +
       '<span class="pdx-rv-vote" data-vote="' + esc(r.vote) + '">' + esc(word) + '</span>' +
       '<span class="pdx-rv-what">' +
         (r.question ? esc(r.question) : esc(ch + ' roll call')) +
-        '<span class="pdx-rv-meta">' + esc(ch + ' roll ' + r.roll) + (r.date ? ' · ' + esc(day(r.date)) : '') +
+        '<span class="pdx-rv-meta">' + (page ? '<a href="' + esc(page) + '" data-pdx-rv-page>' + label + '</a>' : label) + (r.date ? ' · ' + esc(day(r.date)) : '') +
         (r.procedural ? ' · procedural' : '') +
         (src ? ' · <a href="' + esc(src) + '" target="_blank" rel="noopener">official record</a>' : '') +
         '</span>' +
@@ -183,7 +197,7 @@
     if (host) fill(host);
   }
 
-  window.PDXRecordedVotes = { scan: scan, billsFrom: billsFrom, html: html, load: load };
+  window.PDXRecordedVotes = { scan: scan, billsFrom: billsFrom, html: html, load: load, rollPage: rollPage };
 
   function boot() {
     scan();

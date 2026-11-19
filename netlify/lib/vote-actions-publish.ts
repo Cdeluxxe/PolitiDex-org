@@ -363,16 +363,28 @@ export async function recentPublishedRolls(deps: PublishDeps, limit = 30) {
 // output): how many they were recorded on, and how many of those list them as
 // not voting. A count of the roll calls on this site, not an official score:
 // it covers only the roll calls that have passed the gate.
-export function attendanceFrom(published: { billKeys?: Record<string, any[]> } | null | undefined) {
-  const out = { rolls: 0, voted: 0, notVoting: 0, present: 0, missedPct: null as number | null, first: null as string | null, last: null as string | null };
+// `missed` lists each published roll call that records them as not voting,
+// newest first, with its roll-call page address (rollPagePath) and the bill it
+// was on, so the person file can name the rolls and not only count them.
+export type MissedRoll = { chamber: string; congress: number; session: number; roll: number; date: string | null; question: string | null; bill: string | null; page: string };
+export function attendanceFrom(published: { billKeys?: Record<string, any[]>; info?: Record<string, any> } | null | undefined) {
+  const out = { rolls: 0, voted: 0, notVoting: 0, present: 0, missedPct: null as number | null, first: null as string | null, last: null as string | null, missed: [] as MissedRoll[] };
   const seen = new Set<string>();
-  for (const list of Object.values(published?.billKeys || {})) {
+  const info = published?.info || {};
+  for (const [billKey, list] of Object.entries(published?.billKeys || {})) {
     for (const r of list || []) {
       const k = `${r.chamber}|${r.congress}|${r.session}|${r.roll}`;
       if (seen.has(k)) continue;
       seen.add(k);
       out.rolls++;
-      if (r.vote === "not_voting") out.notVoting++;
+      if (r.vote === "not_voting") {
+        out.notVoting++;
+        out.missed.push({
+          chamber: r.chamber, congress: Number(r.congress), session: Number(r.session), roll: Number(r.roll),
+          date: r.date ? String(r.date).slice(0, 10) : null, question: r.question ?? null,
+          bill: info[billKey]?.number ?? null, page: rollPagePath(r),
+        });
+      }
       else { out.voted++; if (r.vote === "present") out.present++; }
       const d = r.date ? String(r.date).slice(0, 10) : null;
       if (d && (!out.first || d < out.first)) out.first = d;
@@ -380,5 +392,6 @@ export function attendanceFrom(published: { billKeys?: Record<string, any[]> } |
     }
   }
   if (out.rolls) out.missedPct = Math.round((out.notVoting / out.rolls) * 1000) / 10;
+  out.missed.sort((a, b) => String(b.date || "").localeCompare(String(a.date || "")) || a.chamber.localeCompare(b.chamber) || b.session - a.session || b.roll - a.roll);
   return out;
 }

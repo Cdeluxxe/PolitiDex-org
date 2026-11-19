@@ -233,8 +233,14 @@ for (const priv of ["/ballot", "/me"])
 // naming it. /ballot itself stays unadvertised above — these are not the desk.
 const BALLOT_QUESTIONS = [ORIGIN + "/ballot/ut-amendment-a", ORIGIN + "/ballot/ut-amendment-b"];
 for (const q of BALLOT_QUESTIONS) eq(locs.filter((u) => u === q).length, 1, `${q} is advertised exactly once`);
+// THE COMMITTEE PAGES. One /committee/<code> per committee in
+// db/person-committees.json with a member on file — exactly the list
+// committeeCodes (netlify/lib/committee-index.mjs) gives the page function.
+const { committeeCodes } = await import(new URL("../netlify/lib/committee-index.mjs", import.meta.url).href);
+const COMMITTEES = committeeCodes(JSON.parse(readFileSync(new URL("../db/person-committees.json", import.meta.url), "utf8"))).map((c) => `${ORIGIN}/committee/${c}`);
+eq(locs.filter((u) => u.startsWith(ORIGIN + "/committee/")).sort().join(" "), [...COMMITTEES].sort().join(" "), "every committee page is advertised once, and no other /committee/ address");
 const unaccounted = locs.filter((u) =>
-  u !== ORIGIN + "/" && !ROOMS.includes(u) && !BALLOT_QUESTIONS.includes(u) && !u.startsWith(ORIGIN + "/p/") &&
+  u !== ORIGIN + "/" && !ROOMS.includes(u) && !BALLOT_QUESTIONS.includes(u) && !COMMITTEES.includes(u) && !u.startsWith(ORIGIN + "/p/") &&
   !u.startsWith(ORIGIN + "/issue/") && !u.startsWith(ORIGIN + "/b/") &&
   !u.startsWith(ORIGIN + "/i/") && !u.startsWith(ORIGIN + "/d/"));
 eq(unaccounted.length, 0, `the sitemap carries ${unaccounted.length} address(es) of an unaccounted kind (e.g. ${unaccounted.slice(0, 3).join(", ")})`);

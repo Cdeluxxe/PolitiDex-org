@@ -8,7 +8,9 @@
 //                 person file that clears the publication floor, one
 //                 /b/<sitting>/<number> entry per bill that has an address the
 //                 app can actually open, and one /i/<key> entry per issue key
-//                 that has something on file to read
+//                 that has something on file to read, and one
+//                 /committee/<code> entry per committee page
+//                 (db/person-committees.json, members on file)
 //   db/sitemap-floor-pending.json
 //                 the person files below the floor that pipeline positions
 //                 would publish, and how many each needs — the edge reads it
@@ -116,6 +118,7 @@ import vm from "node:vm";
 import { measureAddresses, billPath } from "./vr-measure-addresses.mjs";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { STANCE_FILES } from "./stance-bundle-files.mjs";
+import { committeeCodes, committeePath } from "../netlify/lib/committee-index.mjs";
 
 const ROOT = path.resolve(path.dirname(url.fileURLToPath(import.meta.url)), "..");
 const CHECK = process.argv.includes("--check");
@@ -627,6 +630,15 @@ const urls = [
   // spelling each.
   "/ballot/ut-amendment-a",
   "/ballot/ut-amendment-b",
+  // ── THE COMMITTEE PAGES ───────────────────────────────────────────────────
+  // One /committee/<code> per committee and subcommittee in
+  // db/person-committees.json that has at least one member with a PolitiDex
+  // file (committeeCodes, the same module the page function reads, so the list
+  // and the pages cannot disagree). Each is a server-rendered record page with
+  // its own canonical (netlify/functions/committee-page.mts), drawn from the
+  // official House Clerk and Senate membership files. Appended last on the
+  // same convention: no existing line moves.
+  ...committeeCodes(JSON.parse(fs.readFileSync(path.join(ROOT, "db", "person-committees.json"), "utf8"))).map(committeePath),
 ];
 
 // Two addresses reaching the same page would be this file recommending a record
