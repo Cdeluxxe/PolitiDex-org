@@ -27,6 +27,7 @@
 //   POST /proposals/:id/reject      turn a proposal down (kept, so it is not re-proposed)
 //        body: { note?, reviewer? }
 //   POST /propose-issues            propose for named measures that have no mapping yet
+//   POST /reconcile                 vr_member_votes ← pdx_vote_actions ({"dryRun": true} to preview)
 //        body: { measureIds: number[] }   (the ingest does this automatically per run)
 // Each proposal carries a 0..100 confidence; those at or above 60 are auto-approved
 // at write time (reviewed_by 'auto'; yea_opposes when the text has a reversal/restriction
@@ -109,6 +110,18 @@ export default async (req: Request): Promise<Response> => {
       if (!ids.length) return json({ error: "measureIds must be a non-empty array of measure ids" }, 400);
       if (ids.length > 500) return json({ error: "at most 500 measureIds per call" }, 400);
       return json({ ran: true, proposals: await proposeIssuesForMeasures(ids) });
+    }
+
+    // Bring vr_member_votes into line with pdx_vote_actions (the source of truth
+    // for member positions). {"dryRun": true} lists what would change, writes nothing.
+    if (method === "POST" && path === "/reconcile") {
+      let body: any = {};
+      try { body = await req.json(); } catch { body = {}; }
+      const dryRun = body.dryRun === true;
+      // Loaded on demand: the reconcile path is the only route that needs it.
+      const { reconcileAndRefresh } = await import("../lib/vr-reconcile.js");
+      const report = await reconcileAndRefresh({ limit: Number(body.limit) || 200, write: !dryRun });
+      return json({ ran: true, dryRun, report });
     }
 
     if (method === "POST" && (path === "" || path === "/run")) {
