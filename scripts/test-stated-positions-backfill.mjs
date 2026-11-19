@@ -121,9 +121,14 @@ const LOCKER_READ_UNDO = [
   ["    const docs = await readLockerDocs(store, keys);", '    const docs = await Promise.all(keys.map(async (key) => ({ key, doc: await store.get(key, { type: "json" }).catch(() => null) })));'],
 ];
 const undoLockerRead = (f, src) => f === "netlify/lib/evidence-locker-core.mjs" ? LOCKER_READ_UNDO.reduce((s, [a, b]) => s.split(a).join(b), src) : src;
+// The citation pass changed evidence-locker-core.mjs on purpose (clear-position
+// items now carry a citation record and must come from the politician's own
+// page) — scripts/test-evidence-locker-citations.mjs covers it, so it is only
+// held to HEAD here when it matches HEAD or the bounded-reader undo.
+const CITATION_PASS = (f, src) => f === "netlify/lib/evidence-locker-core.mjs" && /export function citationExcerpts\(/.test(src);
 for (const f of ["netlify/lib/evidence-locker-core.mjs", "politician-stances.js", "politician-stances-core.js", "politician-stances-ext.js", "state-senate-stances.js"]) {
   const base = git(f);
-  ok(base == null || base === R(f) || base === undoLockerRead(f, R(f)), `${f} is unchanged`);
+  ok(base == null || base === R(f) || base === undoLockerRead(f, R(f)) || CITATION_PASS(f, R(f)), `${f} is unchanged`);
 }
 
 console.log(`\n${failures.length ? "✗" : "✓"} stated-positions backfill: ${passed} passed, ${failures.length} failed`);
