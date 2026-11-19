@@ -32,6 +32,14 @@
 // or reviewed mapping and are skipped by every public read until a reviewer
 // promotes them (POST /api/vr-ingest/proposals/:id/review), so the read path is
 // never polluted with an unreviewed verdict signal.
+//
+// WHO DECIDES HOW A MEMBER VOTED: pdx_vote_actions (the vote-actions cron), not
+// this file. Every RawVote this ingest is about to load has its member positions
+// replaced with vote-actions' rows for the same roll call when it holds them
+// (netlify/lib/vr-vote-source.ts); a roll call it does not hold yet keeps the
+// positions it was read with. reconcileMemberVotes() (vr-vote-source-db.ts,
+// run by vr-ingest-cron) brings rows stored before that rule into line. The
+// editorial half (measures, mappings, packs) is still decided here.
 
 import { and, eq, inArray, sql } from "drizzle-orm";
 import { getStore } from "@netlify/blobs";
@@ -52,6 +60,7 @@ import { proposeIssuesForMeasures } from "./vr-issue-proposals-db.js";
 import { fetchSenateRollcalls } from "./vr-senate-source.js";
 import { readHouseMembers } from "./vr-house-members-source.js";
 import { RAW_VOTES_STORE_NAME, type RawStore } from "./vote-actions-core.js";
+import { overlayFromVoteActions, senateRollcallsFromVoteActions } from "./vr-vote-source-db.js";
 import {
   ISSUE_KEYS,
   canonicalMeasureNumber,
@@ -846,13 +855,19 @@ async function fetchChamberRollcalls(opts: {
   offset?: number;
   recent?: boolean;
 }): Promise<RawVote[]> {
-  if (String(opts.chamber).toLowerCase() === "senate") {
-    return fetchSenateRollcalls({ congress: opts.congress, limit: opts.limit });
-  }
   let rawStore: RawStore | null = null;
   try { rawStore = getStore(RAW_VOTES_STORE_NAME) as unknown as RawStore; }
-  catch (e: any) { console.log(`vr-ingest: raw store unavailable — fetching every roll call (${e?.message || e})`); }
-  return fetchRollcallsFromCongress({ ...opts, rawStore });
+  catch (e: any) { console.log(`vr-ingest: raw store unavailable — ${opts.chamber === "senate" ? "no stored Senate XML" : "fetching every roll call"} (${e?.message || e})`); }
+  const read = String(opts.chamber).toLowerCase() === "senate"
+    ? await fetchSenateRollcalls({
+        congress: opts.congress, limit: opts.limit,
+        // The live Senate path (VR_SENATE_XML=1) reads the senate.gov XML the
+        // vote-actions cron already fetched and stored, instead of fetching it again.
+        stored: () => senateRollcallsFromVoteActions({ store: rawStore, congress: opts.congress, limit: opts.limit }),
+      })
+    : await fetchRollcallsFromCongress({ ...opts, rawStore });
+  // Member positions: pdx_vote_actions wins wherever it holds the roll call.
+  return (await overlayFromVoteActions(read)).votes;
 }
 
 // ── Verification: an integrity report over the vr_* tables ────────────────────

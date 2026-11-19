@@ -385,7 +385,14 @@ ok(!importsOf(core).some((p) => /raw-ingest|stance-score|evidence-locker|stated-
 ok(!/vote-actions/.test(read("netlify/functions/raw-ingest-cron.mts")), "stance generator does not call the action layer");
 const readers = readdirSync(join(ROOT, "netlify/functions")).filter((f) => !f.startsWith("vote-actions"))
   .filter((f) => /pdx_vote_actions|pdx_action_bills|pdxVoteActions|pdxActionBills|vote-actions/.test(read(`netlify/functions/${f}`)));
-eq(readers, [], "no other function reads the action tables");
+// Phase 4 joined the two roll-call paths: pdx_vote_actions is the source of truth
+// for member positions and the vr ingest READS it (overlay + reconcile), through
+// netlify/lib/vr-vote-source-db.ts only. Those two functions are the only other
+// readers, and nothing outside vote-actions writes the action tables.
+eq(readers, ["vr-ingest-cron.mts", "vr-ingest.mts"], "only the vr ingest reads the action tables (Phase 4 join)");
+for (const f of readers) ok(!/pdxVoteActions|pdxActionBills/.test(read(`netlify/functions/${f}`)), `${f} reaches the action tables only through vr-vote-source-db`);
+const bridge = read("netlify/lib/vr-vote-source-db.ts").replace(/^\/\/.*$/gm, "");
+ok(!/\.(insert|update|delete)\(\s*pdx(VoteActions|ActionBills)/.test(bridge) && !/(INSERT INTO|UPDATE|DELETE FROM)\s+pdx_/i.test(bridge), "the bridge never writes the action tables");
 const edge = readdirSync(join(ROOT, "netlify/edge-functions")).filter((f) => /vote-actions|pdx_vote_actions/.test(read(`netlify/edge-functions/${f}`)));
 eq(edge, [], "no edge function reads the action tables");
 ok(/path: "\/api\/admin\/vote-actions"/.test(read("netlify/functions/vote-actions-status.mts")) && /requireAdmin/.test(read("netlify/functions/vote-actions-status.mts")), "status endpoint is curator-only");
