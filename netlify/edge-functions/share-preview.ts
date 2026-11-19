@@ -36,6 +36,7 @@ import {
   pageTitle,
   canonicalPath,
   billDocPath,
+  positionsPhrase,
   type Resolved,
   type RecordLine,
   type BillDoc,
@@ -203,6 +204,10 @@ function placeText(s: string): string {
 //   · the FORMAL RECORD named first, because that is what the file leads with.
 //   · Word vs Action named as what it is: a narrow integrity check that applies
 //     only where a stated position exists.
+//   · how many documented positions are on file — the page's own "N positions",
+//     curated cards plus pipeline positions on keys the curated list lacks,
+//     counted in share-target.ts (positionsOnFile). A count of what the page
+//     lists, not a score; omitted when there are none.
 //   · up to six lines of the FORMAL RECORD ITSELF (see recordSection below).
 //   · a link to the canonical address, so the block is useful to a reader who
 //     arrives with JavaScript off rather than being crawler furniture.
@@ -319,6 +324,11 @@ function personCrawlBlock(r: Resolved, canonical: string, forPath: string): stri
   // Empty string when the snapshot holds nothing, and an empty string concatenates
   // to nothing — so the omission needs no branch and cannot half-render.
   const record = recordSection(who.record || []);
+  // The position count the page prints ("N positions"), curated plus pipeline,
+  // counted in share-target.ts the same way. Omitted when there are none.
+  const positions = Number(who.positions) > 0
+    ? `<p data-pdx-crawl-positions="${attr(String(who.positions))}">${text(positionsPhrase(Number(who.positions)))}.</p>`
+    : "";
   return (
     CRAWL_STYLE +
     `<header id="pdx-crawl-person" data-pdx-crawl-person data-pid="${attr(who.pid)}"` +
@@ -326,6 +336,7 @@ function personCrawlBlock(r: Resolved, canonical: string, forPath: string): stri
     `<h1>${text(who.name)}</h1>` +
     `<p>${line}</p>` +
     `<p>Person file. Formal record first. Word vs Action is a separate integrity check only where a stated position exists.</p>` +
+    positions +
     record +
     `<p><a href="${attr(canonical)}">Open the full file</a></p>` +
     `</header>`

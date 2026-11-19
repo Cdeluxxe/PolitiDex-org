@@ -16,6 +16,9 @@
 // fetches this once and merges the cards into _resolveStanceList / _polPositionMap
 // for issue keys the person's curated cards do not carry — curated always wins.
 //
+// ?view=keys answers { keys: { <pid>: [issueKey] }, count, version } — the same
+// rows, issue keys only — for the edge functions that count pipeline positions.
+//
 // A row whose every evidence item has since been hidden by a review flag
 // (db/evidence-locker-review.json) is not served, even before the cron
 // withdraws it. A database failure answers 503 with an empty body, so the
@@ -25,7 +28,7 @@ import type { Config } from "@netlify/functions";
 import { eq } from "drizzle-orm";
 import { db } from "../../db/index.js";
 import { pdxStatedPositions } from "../../db/schema.js";
-import { cardsBody } from "../lib/stated-positions-core.mjs";
+import { cardsBody, keysBody } from "../lib/stated-positions-core.mjs";
 import { ISSUE_TOPIC_LABELS } from "../lib/stance-topic-vocab.mjs";
 import { loadReviewFlags, reviewFor } from "../lib/evidence-locker-core.mjs";
 import reviewFile from "../../db/evidence-locker-review.json" with { type: "json" };
@@ -37,10 +40,14 @@ export default async (req: Request): Promise<Response> => {
     const flags = loadReviewFlags(reviewFile);
     const hiddenKey = (k: string) => reviewFor({}, k, flags)?.status === "hidden";
     const body = cardsBody(rows, ISSUE_TOPIC_LABELS, { hiddenKey });
-    return Response.json(body, { headers: { "cache-control": "public, max-age=300" } });
+    // ?view=keys — the same served set as issue keys only, for the edge (the
+    // sitemap's floor merge and the person share preview / crawl block).
+    const out = new URL(req.url).searchParams.get("view") === "keys" ? keysBody(body) : body;
+    return Response.json(out, { headers: { "cache-control": "public, max-age=300" } });
   } catch (e: any) {
     console.log(`stated-positions: ERROR ${e?.message || e}`);
-    return Response.json({ cards: {}, count: 0, error: "unavailable" }, { status: 503, headers: { "cache-control": "no-store" } });
+    const empty = new URL(req.url).searchParams.get("view") === "keys" ? { keys: {}, count: 0 } : { cards: {}, count: 0 };
+    return Response.json({ ...empty, error: "unavailable" }, { status: 503, headers: { "cache-control": "no-store" } });
   }
 };
 

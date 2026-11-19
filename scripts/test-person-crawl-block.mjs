@@ -285,9 +285,27 @@ must(typeof EDGE.default === "function", "share-preview.ts no longer default-exp
 // context.next() is the origin: the real index.html, exactly as the CDN would
 // hand it over. Nothing else is stubbed, and fetch is poisoned so a resolver that
 // quietly grew a network call on the anonymous person path fails here.
+//
+// ONE READ IS ALLOWED, AND IT IS NOT THE VOTING RECORD. The block names how many
+// positions are on file, the way the page counts them: curated cards plus the
+// pipeline positions (stance cards promoted from Evidence Locker items, in the
+// database) on keys the curated list lacks. That half is one CDN-cached read,
+// GET /api/stated-positions?view=keys, held for minutes in a warm isolate and
+// soft on failure. It is answered here from a fixture — never the real network —
+// and any OTHER request still counts as a network call on the anonymous path.
 const realFetch = globalThis.fetch;
 let fetches = 0;
-globalThis.fetch = async (...a) => { fetches++; return realFetch(...a); };
+const PIPELINE_FIXTURE = { keys: { lee: ["gun_rights", "tariffs_trade_pipeline_fixture"] }, count: 2 };
+let pipelineReads = 0;
+globalThis.fetch = async (...a) => {
+  const u = String(a[0] && a[0].url ? a[0].url : a[0]);
+  if (/\/api\/stated-positions\?view=keys$/.test(u)) {
+    pipelineReads++;
+    return new Response(JSON.stringify(PIPELINE_FIXTURE), { status: 200, headers: { "content-type": "application/json" } });
+  }
+  fetches++;
+  return realFetch(...a);
+};
 const ctxNext = {
   next: async () =>
     new Response(INDEX_HTML, { status: 200, headers: { "content-type": "text/html; charset=utf-8" } }),
@@ -367,6 +385,21 @@ must(LEE && LEE.html, "the edge returned nothing for /p/lee — it used to rewri
   eq(count(html, /<h1[\s>]/g), count(INDEX_HTML, /<h1[\s>]/g) + 1, "the block adds exactly one h1 to the document");
 
   eq(fetches, 0, "no network call was made on the anonymous person-file path");
+  ok(pipelineReads <= 1, `the pipeline keys were read at most once for the run (${pipelineReads}) — held in the isolate, not re-read per request`);
+  // The position count: lee's curated cards, plus the one fixture pipeline key the
+  // curated list does not carry ("gun_rights" is curated, so it is not counted —
+  // curated always wins on the page, and so here).
+  {
+    const pos = JSON.parse(R("db/share-stances.json")).positions.lee;
+    must(pos && pos.n > 0, "db/share-stances.json no longer carries lee's curated position count");
+    const want = pos.n + 1;
+    has(block, `data-pdx-crawl-positions="${want}"`, "block: the position count is curated + pipeline on keys the curated list lacks");
+    has(block, `${want} documented positions on file.`, "block: …in the page's own words");
+    const posAt = block.indexOf("data-pdx-crawl-positions");
+    ok(posAt > framedAt && posAt < recAt, "the position count sits between the framing line and the record section");
+    ok(/documented positions? on file[^<]*· every claim links to its source|documented positions on file\./.test(html),
+       "the share description carries the same count");
+  }
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -1121,9 +1154,13 @@ section("9 · the engines did not move");
   // the alternative to naming it once, and four private copies cannot promise "byte for
   // byte". The colour table itself, every hex in it, getIssueColor(), styleFor(),
   // isCore() and cssText() are all in the half still compared byte for byte.
+  // publication-floor.js LEFT THIS LIST in the generator-cleanup pass that taught
+  // the floor to count pipeline positions (stance cards promoted from Evidence
+  // Locker items) as stated positions, on the page's own terms. That is a change
+  // of source, not of rule: MIN_CITED_POSITIONS and the three doors are pinned by
+  // scripts/test-sitemap-floor.mjs, which also runs the floor against the sitemap.
   const ENGINES = [
     "say-vs-do.js", "exec-record.js",
-    "publication-floor.js",
     "netlify/lib/vr-pack.ts", "netlify/lib/vr-normalize.ts", "db/issue-keys.json",
   ];
   const sha = (s) => createHash("sha256").update(s).digest("hex").slice(0, 16);

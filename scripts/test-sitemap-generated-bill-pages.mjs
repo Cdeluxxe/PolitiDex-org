@@ -31,6 +31,11 @@ const ok = (c, m) => { if (c) passed++; else failures.push(m); };
 const eq = (a, b, m) => ok(JSON.stringify(a) === JSON.stringify(b), `${m} — expected ${JSON.stringify(b)}, got ${JSON.stringify(a)}`);
 const section = (t) => console.log(`   ── ${t}`);
 
+// No network: the edge also reads the live pipeline keys for the person-file
+// floor merge (scripts/test-one-truth-surfaces.mjs covers that). Here it must
+// fail soft, so every committed entry is compared against the bill merge alone.
+globalThis.fetch = async () => { throw new Error("offline: no network in this test"); };
+
 const dir = mkdtempSync(join(tmpdir(), "sitemap-bp-"));
 const blobsStub = {
   name: "blobs-stub",

@@ -444,8 +444,19 @@ section("6 · the gate reads published counts, and moves nothing");
         "publication-floor.js gained a line of the slice pass — the sentence is rendered, never published");
       const floors = (src) => (src.match(/var MIN_[A-Z_]+ = \d+;/g) || []).join(" | ");
       eq(floors(PF), floors(h), "a publication floor constant moved");
-      const contentOk = (src) => (/var contentOk =[\s\S]*?;\n/.exec(src) || [""])[0];
-      eq(contentOk(PF), contentOk(h), "the publishability test itself changed");
+      // THE RULE, NOT ITS SPELLING. The generator-cleanup pass (phase 3) moved
+      // the three-door expression into contentClears(stated, promises, formal)
+      // so the sitemap's pending table could ask it, and fed it `stated` —
+      // curated cited positions plus pipeline positions. Both spellings are
+      // reduced to the same normal form, so the doors and the numbers are still
+      // compared token for token.
+      const rule = (src) => {
+        const m = /function contentClears\(stated, promises, formal\) \{\s*return ([\s\S]*?);\n/.exec(src);
+        const e = m ? m[1] : ((/var contentOk =([\s\S]*?);\n/.exec(src) || ["", ""])[1]
+          .replace(/out\.cited/g, "stated").replace(/out\.promises/g, "promises").replace(/out\.formal/g, "formal"));
+        return e.replace(/\s+/g, " ").trim();
+      };
+      eq(rule(PF), rule(h), "the publishability test itself changed");
     }
   }
   for (const f of ["consistency.js", "voting-record.js", "inventory.js", "stance-helpers.js",

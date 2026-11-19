@@ -15,7 +15,8 @@
 // Writes only pdx_action_bills / pdx_vote_actions (+ its own Blobs ledger and
 // per-Congress progress, "vote-actions-state"; the unmodified source payloads,
 // "raw-ingest-votes"; and the generated bill page records, "bill-pages", which
-// the /b/ document reads). No score, no direction, no contradiction flag, no
+// the /b/ document reads, plus that store's one page index, "index/pages-v1",
+// which site search and the person file's sponsored-bills list read). No score, no direction, no contradiction flag, no
 // curated card or stance store is touched.
 //
 // Without CONGRESS_GOV_API_KEY the House side is skipped (logged), the Senate
@@ -28,12 +29,15 @@ import { runVoteActions, summaryLine, STATE_STORE_NAME, STATE_KEY, RAW_VOTES_STO
 import { BILL_PAGES_STORE_NAME } from "../lib/vote-actions-pages.js";
 import { voteActionsRepo } from "../lib/vote-actions-db.js";
 import { loadMemberMap } from "../lib/vr-ingest.js";
+import { refreshBillPagesIndex } from "../lib/bill-pages-index.js";
+import { groupOf } from "../../scripts/bill-record-core.mjs";
 import billDocsFile from "../../db/bill-docs.json" with { type: "json" };
 
 // Bills the build-time snapshot already gives a page: "<sitting>|<number>".
 const SNAPSHOT_PAGES = new Set(Object.keys((billDocsFile as any).docs || {}));
 
 export default async (): Promise<void> => {
+  const startedAt = Date.now();
   if (process.env.VOTE_ACTIONS_DISABLED === "1") {
     console.log("vote-actions: disabled (VOTE_ACTIONS_DISABLED=1) — no-op.");
     return;
@@ -66,6 +70,16 @@ export default async (): Promise<void> => {
   catch (e: any) { console.log(`vote-actions: state not saved — ${e?.message || e}`); }
   console.log(summaryLine(report));
   for (const err of report.errors.slice(0, 10)) console.log(`vote-actions: ERROR ${err}`);
+  // The page index (Blobs "bill-pages", key "index/pages-v1"): one small record
+  // of every generated page, read by the edge so site search and the person
+  // file's sponsored-bills list include generated pages (bill-pages-index.ts).
+  // Refreshed from the store itself, by etag, so it heals on its own.
+  // Inside what is left of the ~30 s a scheduled function gets; a backlog is
+  // worked off over the next runs.
+  const left = 27_000 - (Date.now() - startedAt);
+  if (pageStore && left > 1500) {
+    await refreshBillPagesIndex(pageStore, { groupOf, budgetMs: left - 1000, log: (l) => console.log(l) });
+  }
 };
 
 export const config: Config = {
