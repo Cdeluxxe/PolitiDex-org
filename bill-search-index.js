@@ -183,6 +183,7 @@ window.PDX_BILL_SEARCH = [
   ["119","S. 2296","S. 2296 — National Defense Authorization Act for Fiscal Year 2026","passed_senate","senate",["back_police","housing_build","end_dei","homeless","strong_defense","immig_fentanyl","israel_support"]],
   ["119","S. 2403","Retire through Ownership Act","enacted","senate",[]],
   ["119","S. 5005","Epstein Files Transparency Act II","pending","senate",["gov_transparency"]],
+  ["119","S. 5653","Bipartisan American Affordability and Jobs Act of 2026 (BAAJA)","pending","senate",["judicial_check","datacenter_power","lands_energy","energy_production","permitting_reform","mine_cleanup","enviro_balance","property_rights","lands_preserve","infrastructure","cost_living","gov_transparency","tribal_consultation","states_federal_power","disaster_resilience"]],
   ["119","S.Amdt. 8","Ernst amendment adding crimes causing death or serious bodily injury to the mandatory-detention list (S.Amdt. 8)","adopted","senate",["deportations","tough_on_crime"]],
   ["119","S.Amdt. 14","Cornyn amendment expanding the offences that trigger mandatory detention (S.Amdt. 14)","adopted","senate",["deportations","tough_on_crime"]],
   ["119","S.Amdt. 23","Coons amendment striking the State attorney general cause of action (S.Amdt. 23)","failed","senate",["state_standing"]],

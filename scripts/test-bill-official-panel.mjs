@@ -46,9 +46,13 @@ const failures = [];
 const ok = (c, m) => { if (c) passed++; else failures.push(m); };
 const section = (t) => console.log(`\n   ── ${t}`);
 
-const DOCS = JSON.parse(R("db/bill-docs.json")).docs;
+// A bill file published from its ground-truth ledger (db/bill-standard/, `ld`)
+// has no row in the migrations or db/bill-record.json to hold it to; the ledger
+// standard (test-bill-standard.mjs) and test-baaja-bill-file.mjs check it.
+const DOCS = Object.fromEntries(Object.entries(JSON.parse(R("db/bill-docs.json")).docs).filter(([, d]) => !d.ld));
 const RECORDS = JSON.parse(R("db/bill-record.json")).records;
-const OFFICIAL = JSON.parse(R("bill-official.json")).docs;
+const LEDGER_KEYS = new Set(Object.entries(JSON.parse(R("db/bill-docs.json")).docs).filter(([, d]) => d.ld).map(([k]) => k));
+const OFFICIAL = Object.fromEntries(Object.entries(JSON.parse(R("bill-official.json")).docs).filter(([k]) => !LEDGER_KEYS.has(k)));
 const SHARE = JSON.parse(R("db/share-index.json"));
 const PB = JSON.parse(R("person-bills.json"));
 const T = rosterTables(ROOT);
@@ -99,7 +103,7 @@ section("1. bill-official.json is current, and every record has every block");
   try { execFileSync(process.execPath, [join(ROOT, "scripts/gen-bill-docs.mjs"), "--check"], { stdio: "pipe" }); }
   catch (e) { fresh = false; }
   ok(fresh, "gen-bill-docs.mjs --check fails: a generated file is stale");
-  const rebuilt = billOfficial(billDocs(ROOT), SHARE.people);
+  const rebuilt = billOfficial(billDocs(ROOT, { noLedgers: true }), SHARE.people);
   ok(JSON.stringify(rebuilt) === JSON.stringify(OFFICIAL), "bill-official.json is not what the generator writes");
   for (const key of Object.keys(RECORDS)) {
     const d = DOCS[key];

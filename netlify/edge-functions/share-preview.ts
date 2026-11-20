@@ -417,6 +417,11 @@ function genericCrawlBlock(forPath: string): string {
 // line is what the act did to one issue; how a vote on it reads is the panel's
 // business, with its sources beside it.
 //
+// THE ONE EXCEPTION IS A LEDGER-PUBLISHED FILE (billLedgerBlock): a bill file
+// generated from its ground-truth ledger prints the ledger's mapping rows, and
+// each row carries the direction the ledger records for it, beside the quote
+// and rationale it rests on. Still no weight, no primary label, no rank.
+//
 // A MEASURE WE DO NOT HOLD IS NEVER PRINTED. An address the archive cannot match
 // gets billEmptyBlock instead — the same seam, the same id, no number in the
 // <h1>, no title, no lines. Not a plausible bill; the plain answer.
@@ -535,6 +540,53 @@ function billHistoryBlock(d: BillDoc): string {
     `</section>`;
 }
 
+// ── The ledger's mapping table (a bill file published from its ledger) ──────
+// Only a bill file published from a ground-truth ledger (db/bill-standard/,
+// via gen-bill-docs.mjs) has one. Every mapping row the ledger holds, in the
+// ledger's order, each with its issue (a link to /i/<key>) and key, its
+// direction as the ledger records it, the sections it rests on, the quote from
+// the text and the rationale. Above the rows, the ledger's own equality
+// statement; below them, its completeness note for the mapping. The rows are a
+// plain list in the template's issue-row style: no weight, no primary label,
+// no rank, and the list order is the ledger's, not a ranking.
+const DIRECTION_WORD: Record<string, string> = {
+  yea_supports: "A yea vote supports this issue",
+  yea_opposes: "A yea vote opposes this issue",
+};
+function billShortNames(d: BillDoc): string {
+  const names = (d.ledger && d.ledger.shortNames) || [];
+  if (!names.length) return "";
+  return `<p class="pdx-bill-aka" data-pdx-bill-aka><span class="pdx-bill-k">Short names</span> ${names.map(text).join(" · ")}</p>`;
+}
+function billLedgerBlock(d: BillDoc): string {
+  const L = d.ledger;
+  if (!L || !L.rows.length) return "";
+  return (
+    `<section class="pdx-bill-issues pdx-bill-ledger" data-pdx-bill-ledger>` +
+    `<h2>Every mapped provision · ${L.rows.length} rows</h2>` +
+    (L.equality ? `<p class="pdx-bill-ledger-eq" data-pdx-bill-ledger-equality>${text(L.equality)}</p>` : "") +
+    `<ul>` +
+    L.rows.map((x) =>
+      `<li data-pdx-bill-map data-key="${attr(x.key)}" data-direction="${attr(x.direction)}">` +
+      `<span class="pdx-bill-iss-i">${x.issue ? text(x.issue) : text(x.key)}</span>` +
+      `<p><span class="pdx-bill-k">Issue key</span> <a class="pdx-bill-tag" href="/i/${attr(encodeURIComponent(x.key))}" data-pdx-bill-tag="${attr(x.key)}"><code data-pdx-bill-map-key>${text(x.key)}</code></a></p>` +
+      `<p><span class="pdx-bill-k">Direction</span> <span data-pdx-bill-map-direction="${attr(x.direction)}">${text(DIRECTION_WORD[x.direction] || x.direction)}</span></p>` +
+      (x.refs.length ? `<p><span class="pdx-bill-k">Sections</span> <span data-pdx-bill-map-refs>${x.refs.map(text).join("; ")}</span></p>` : "") +
+      (x.quote
+        ? `<blockquote data-pdx-bill-map-quote${x.url ? ` cite="${attr(x.url)}"` : ""}>“${text(x.quote)}”</blockquote>` +
+          `<p class="pdx-bill-src"><span data-pdx-bill-map-section>${text(x.quoteRef)}</span>` +
+          (x.url ? ` · <a href="${attr(x.url)}" rel="noopener" target="_blank">${text(new URL(x.url).hostname.replace(/^www\./, ""))}</a>` : "") +
+          `</p>`
+        : "") +
+      (x.rationale ? `<p data-pdx-bill-map-rationale><span class="pdx-bill-k">Rationale</span> ${text(x.rationale)}</p>` : "") +
+      `</li>`
+    ).join("") +
+    `</ul>` +
+    (L.completenessNote ? `<p class="pdx-bill-ledger-cn" data-pdx-bill-ledger-completeness><span class="pdx-bill-k">Completeness</span> ${text(L.completenessNote)}</p>` : "") +
+    `</section>`
+  );
+}
+
 function billDocBlock(d: BillDoc, forPath: string): string {
   const kicker = ["Bill file", d.sittingText].filter(Boolean).map(text).join(" · ");
   const issues = d.issues.length
@@ -556,11 +608,13 @@ function billDocBlock(d: BillDoc, forPath: string): string {
     `<p class="pdx-bill-kicker">${kicker}</p>` +
     `<h1 class="pdx-bill-num">${text(d.number)}</h1>` +
     (d.title ? `<p class="pdx-bill-title">${text(d.title)}</p>` : "") +
+    billShortNames(d) +
     billOriginLine(d) +
     billSponsorBlock(d) +
     billHistoryBlock(d) +
     billAlsoLine(d) +
     issues +
+    billLedgerBlock(d) +
     // The document's ONE control. The seam is the page; this opens the panel over
     // it — roll calls, members, the bundle — and closing the panel returns here.
     // The empty below has none: there is no measure to open.

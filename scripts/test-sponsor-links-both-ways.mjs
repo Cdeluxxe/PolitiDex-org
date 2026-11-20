@@ -39,8 +39,12 @@ const failures = [];
 const ok = (c, m) => { if (c) passed++; else failures.push(m); };
 const section = (t) => console.log(`\n   ── ${t}`);
 
-const DOCS = JSON.parse(R("db/bill-docs.json")).docs;
-const OFFICIAL = JSON.parse(R("bill-official.json")).docs;
+// A bill file published from its ground-truth ledger (db/bill-standard/, `ld`)
+// links its sponsors one way only: person files are left as they are until the
+// measure reaches them through the record (test-baaja-bill-file.mjs holds that).
+const LEDGER_KEYS = new Set(Object.entries(JSON.parse(R("db/bill-docs.json")).docs).filter(([, d]) => d.ld).map(([k]) => k));
+const DOCS = Object.fromEntries(Object.entries(JSON.parse(R("db/bill-docs.json")).docs).filter(([k]) => !LEDGER_KEYS.has(k)));
+const OFFICIAL = Object.fromEntries(Object.entries(JSON.parse(R("bill-official.json")).docs).filter(([k]) => !LEDGER_KEYS.has(k)));
 const TABLE = JSON.parse(R("person-bills.json"));
 const SHARE = JSON.parse(R("db/share-index.json"));
 

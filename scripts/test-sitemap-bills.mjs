@@ -122,7 +122,11 @@ section("3 · every listed bill clears the floor, every refused one is absent");
 const index = measureAddresses(ROOT);
 must(index.published.length > 100, `the address index rebuilt from the migrations (${index.published.length})`);
 
-const wanted = index.published.map((a) => ORIGIN + billPath(a));
+// Plus the bill files published from a ground-truth ledger (db/bill-standard/):
+// db/bill-docs.json carries them with `ld`, and the ledger is their floor.
+const LEDGER_DOCS = Object.values(JSON.parse(readFileSync(join(ROOT, "db/bill-docs.json"), "utf8")).docs).filter((d) => d.ld);
+const wanted = index.published.map((a) => ORIGIN + billPath(a))
+  .concat(LEDGER_DOCS.map((d) => ORIGIN + billPath({ sitting: d.s, number: d.n })));
 const extras = bills.filter((u) => wanted.indexOf(u) === -1);
 const missing = wanted.filter((u) => bills.indexOf(u) === -1);
 eq(extras.length, 0, `the sitemap advertises ${extras.length} bill address(es) the migrations do not support (e.g. ${extras.slice(0, 3).join(", ")})`);

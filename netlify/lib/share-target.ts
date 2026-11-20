@@ -103,6 +103,12 @@ type BillDocRec = {
   st?: string; sl?: string; o?: { c?: string; d?: string };
   sp?: { s?: string[]; f?: string[]; c?: string[] }; su?: { s?: number; f?: number; c?: number };
   h?: { d: string; a: string; x: string }[]; rs?: string;
+  // A bill file published from its ground-truth ledger (db/bill-standard/).
+  ld?: LedgerRec;
+};
+type LedgerRec = {
+  rows?: { k?: string; i?: string; d?: string; r?: string[]; qr?: string; q?: string; w?: string; u?: string }[];
+  cn?: string; eq?: string; a?: string[]; f?: string;
 };
 const BILL_DOCS: Record<string, BillDocRec> =
   (billDocsFile as unknown as { docs: Record<string, BillDocRec> }).docs || {};
@@ -137,6 +143,17 @@ export type BillDoc = {
   others: { sponsor: number; floor_sponsor: number; cosponsor: number };
   history: { date: string; stage: string; text: string }[];
   recordUrl: string;
+  // THE LEDGER'S MAPPING TABLE, only on a bill file published from a ledger
+  // (scripts/gen-bill-docs.mjs ledgerDocs): every row in ledger order, each
+  // with its key, label, direction, sections, quote and rationale; the
+  // completeness note for the mapping, the equality statement and the short
+  // names. Null everywhere else. No weight, no primary label, no rank.
+  ledger: {
+    rows: { key: string; issue: string; direction: "yea_supports" | "yea_opposes"; refs: string[]; quoteRef: string; quote: string; rationale: string; url: string }[];
+    completenessNote: string;
+    equality: string;
+    shortNames: string[];
+  } | null;
   held: "doc" | "live";
 };
 
@@ -154,6 +171,30 @@ function sponsorsOf(r: BillDocRec): BillDoc["sponsors"] {
     }
   }
   return out;
+}
+
+const str = (v: unknown) => (typeof v === "string" ? v : "");
+function ledgerOf(ld: LedgerRec | undefined): BillDoc["ledger"] {
+  if (!ld || !Array.isArray(ld.rows) || !ld.rows.length) return null;
+  const rows = ld.rows
+    .filter((x) => x && typeof x.k === "string" && /^[A-Za-z0-9_]+$/.test(x.k) && (x.d === "yea_supports" || x.d === "yea_opposes"))
+    .map((x) => ({
+      key: x.k as string,
+      issue: str(x.i),
+      direction: x.d as "yea_supports" | "yea_opposes",
+      refs: (Array.isArray(x.r) ? x.r : []).filter((y) => typeof y === "string"),
+      quoteRef: str(x.qr),
+      quote: str(x.q),
+      rationale: str(x.w),
+      url: /^https:\/\//.test(str(x.u)) ? str(x.u) : "",
+    }));
+  if (!rows.length) return null;
+  return {
+    rows,
+    completenessNote: str(ld.cn),
+    equality: str(ld.eq),
+    shortNames: (Array.isArray(ld.a) ? ld.a : []).filter((y) => typeof y === "string" && y),
+  };
 }
 
 function billDocOf(r: BillDocRec): BillDoc {
@@ -175,6 +216,7 @@ function billDocOf(r: BillDocRec): BillDoc {
     others: { sponsor: (r.su && r.su.s) || 0, floor_sponsor: (r.su && r.su.f) || 0, cosponsor: (r.su && r.su.c) || 0 },
     history: (r.h || []).filter((x) => x && x.a).map((x) => ({ date: x.d || "", stage: x.a, text: x.x || "" })),
     recordUrl: typeof r.rs === "string" && /^https:\/\/(www\.congress\.gov|le\.utah\.gov)\//.test(r.rs) ? r.rs : "",
+    ledger: ledgerOf(r.ld),
     held: "doc",
   };
 }
@@ -1002,6 +1044,7 @@ export async function resolveTarget(
         others: { sponsor: 0, floor_sponsor: 0, cosponsor: 0 },
         history: [],
         recordUrl: "",
+        ledger: null,
         held: "live",
       };
     }
