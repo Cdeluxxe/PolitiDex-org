@@ -375,10 +375,27 @@ const ocOf = (html) => {
 for (const [who, pid] of [["congressional", MEMBER], ["executive", PREZ]]) {
   const idx = ocOf(WA.headlineHtml(pid, ctx.PROFILES[pid]));
   ok(idx.length > 0, `index (${who}): the index did not render`);
-  const rowCount = (idx.match(/<button type="button" class="pdxwa-oc-row/g) || []).length;
+  const allRows = (idx.match(/<button type="button" class="pdxwa-oc-row/g) || []).length;
   const pubCount = (idx.match(/class="pdxwa-oc-pub[ "]/g) || []).length;
-  ok(rowCount > 0, `index (${who}): no rows rendered`);
-  eq(pubCount, rowCount, `index (${who}): the public tally does not appear on every row`);
+  ok(allRows > 0, `index (${who}): no rows rendered`);
+  // THE TALLY STANDS DOWN ON A SCORED ROW. A row already showing its own
+  // Direction Match figure and a Contradicted / Mixed / Backed up word has its
+  // answer on its face; the outside-the-score line is printed on every OTHER
+  // row — no usable stated position, or no Direction Match result — and only
+  // there. `rowCount` below is that population.
+  const lis = idx.match(/<li class="pdxwa-oc-li"[\s\S]*?<\/li>/g) || [];
+  const isScored = (li) => /class="pdxwa-oc-pct-v"/.test(li) &&
+    /<span class="pdxwa-oc-cue"[^>]*>(Contradicted|Mixed|Backed up)<\/span>/.test(li);
+  const scoredLis = lis.filter(isScored);
+  const rowCount = lis.length - scoredLis.length;
+  ok(!scoredLis.some((li) => /pdxwa-oc-pub/.test(li)),
+    `index (${who}): the outside-the-score line is printed under a row that already shows its Direction Match result`);
+  ok(lis.filter((li) => !isScored(li)).every((li) => /class="pdxwa-oc-pub[ "]/.test(li)),
+    `index (${who}): a row with no Direction Match result on its face lost its outside-the-score line`);
+  // A figure is printed only beside a result word, never under a coverage pile.
+  ok(lis.every((li) => !/class="pdxwa-oc-pct-v"/.test(li) || isScored(li)),
+    `index (${who}): a per-issue figure is printed on a row filed outside the three result buckets`);
+  eq(pubCount, rowCount, `index (${who}): the public tally does not appear on every unscored row`);
   // NO SECOND SCOREBOARD — and the public lane did not become one either. A row
   // may carry its own Direction Match figure (the per-issue one, in
   // .pdxwa-oc-pct, labelled with its scope — see scripts/test-issue-index.mjs
@@ -395,28 +412,30 @@ for (const [who, pid] of [["congressional", MEMBER], ["executive", PREZ]]) {
   // tally of receipts, and a percentage on it would read as the public lane
   // scoring the issue the formal lane just decided.
   const pubBlocks = idx.match(/class="pdxwa-oc-pub[ "][\s\S]*?<\/button>/g) || [];
-  ok(pubBlocks.length > 0 && !pubBlocks.some((b) => /%/.test(b.replace(/<[^>]+>/g, " "))),
+  ok(!pubBlocks.some((b) => /%/.test(b.replace(/<[^>]+>/g, " "))),
     `index (${who}): the public tally printed a percentage — it counts receipts, it does not\n` +
     `    score the issue`);
   // A <button> inside a <button> is invalid markup browsers repair unpredictably.
   // The tally is a SIBLING in the same <li>, which is also what keeps the row's own
   // handler and its origin-id contract untouched.
   const rowInner = idx.match(/<button type="button" class="pdxwa-oc-row[\s\S]*?<\/button>/g) || [];
-  ok(rowInner.length === rowCount, `index (${who}): the row buttons do not close where expected`);
+  ok(rowInner.length === allRows, `index (${who}): the row buttons do not close where expected`);
   ok(!rowInner.some((b) => /pdxwa-oc-pub/.test(b)),
     `index (${who}): the public tally is nested inside the row button`);
-  eq((idx.match(/data-pdxwa-dos="/g) || []).length, rowCount,
+  eq((idx.match(/data-pdxwa-dos="/g) || []).length, allRows,
     `index (${who}): the public control reuses the row's own tap attributes`);
   eq((idx.match(/data-pdxwa-pub="/g) || []).length, rowCount,
     `index (${who}): the public control does not name the issue it opens`);
   eq((idx.match(/data-pdxwa-pub-origin="pdxwa-oc-/g) || []).length, rowCount,
     `index (${who}): the public control does not carry its row's id, so closing the dossier\n` +
     `    cannot return the reader to the line they left`);
-  has(idx, "Not in Direction Match", `index (${who}): the index rows drop the non-score disclosure`);
   const tags = (idx.match(/Not in Direction Match/g) || []).length;
-  eq(tags, rowCount, `index (${who}): the disclosure is not on every row`);
-  has(idx, ">Outside the score<", `index (${who}): the rows do not name the lane by its status`);
-  has(idx, "statements &amp; coverage", `index (${who}): the rows do not say what the lane is made of`);
+  eq(tags, rowCount, `index (${who}): the disclosure is not on every unscored row`);
+  if (rowCount) {
+    has(idx, "Not in Direction Match", `index (${who}): the index rows drop the non-score disclosure`);
+    has(idx, ">Outside the score<", `index (${who}): the rows do not name the lane by its status`);
+    has(idx, "statements &amp; coverage", `index (${who}): the rows do not say what the lane is made of`);
+  }
   // The bucket cue is the formal verdict's word and the tally is not inside it.
   const cues = idx.match(/<span class="pdxwa-oc-cue"[\s\S]*?<\/span>/g) || [];
   ok(cues.length > 0, `index (${who}): the formal result cue is gone from the rows`);
@@ -432,7 +451,7 @@ for (const [who, pid] of [["congressional", MEMBER], ["executive", PREZ]]) {
   has(foot, "none of it is inside the Direction Match", `index (${who}): the note does not name what it is outside of`);
   ok(!/\d+%/.test(foot), `index (${who}): the coverage note prints a percentage`);
   // Its denominator is the index's own row count, not a second one.
-  has(foot, " of " + rowCount + " issue", `index (${who}): the note's denominator is not the index's own`);
+  has(foot, " of " + allRows + " issue", `index (${who}): the note's denominator is not the index's own`);
   // The row still says what it always said.
   has(idx, 'class="pdxwa-oc-issue"', `index (${who}): the issue name left the row`);
   has(idx, 'class="pdxwa-oc-foot"', `index (${who}): the index's own denominator line was dropped`);
@@ -442,17 +461,23 @@ for (const [who, pid] of [["congressional", MEMBER], ["executive", PREZ]]) {
 const prezIdx = ocOf(WA.headlineHtml(PREZ, ctx.PROFILES[PREZ]));
 ok((prezIdx.match(/data-pdxwa-pub-state="empty"/g) || []).length > 0,
   "index: no row shows the empty public state");
-ok((prezIdx.match(/data-pdxwa-pub-state="tally"/g) || []).length > 0,
-  "index: no row shows a populated public tally");
 has(prezIdx, "pdxwa-oc-pub-0", "index: the empty state is not drawn any quieter than a populated tally");
-// And the counts on the row are the model's, for a named issue.
-const named = pRows.filter((r) => r.public && r.public.count > 0 && r.tested)[0];
-ok(!!named, "index: no tested row with public items to check the printed counts against");
-if (named) {
-  const t = CS.publicTally(named);
-  const seg = prezIdx.slice(prezIdx.indexOf('data-pdxwa-pub="' + named.key + '"'));
-  has(seg.slice(0, 700), t.text, "index: the printed tally does not match the model's own words");
-}
+// And the counts on the row are the model's, for a named issue. A row whose
+// index line carries the tally prints the model's words; a row showing its own
+// Direction Match result prints no tally at all, populated or not.
+const named = pRows.filter((r) => r.public && r.public.count > 0)[0];
+ok(!!named, "index: no row with public items to check the printed counts against");
+const printed = pRows.filter((r) => r.public && r.public.count > 0 && prezIdx.indexOf('data-pdxwa-pub="' + r.key + '"') !== -1);
+eq((prezIdx.match(/data-pdxwa-pub-state="tally"/g) || []).length, printed.length,
+  "index: a populated tally is printed for a row the model holds no public items for");
+printed.forEach((r) => {
+  const seg = prezIdx.slice(prezIdx.indexOf('data-pdxwa-pub="' + r.key + '"'));
+  has(seg.slice(0, 700), CS.publicTally(r).text, "index: the printed tally does not match the model's own words");
+});
+pRows.filter((r) => r.public && r.public.count > 0 && printed.indexOf(r) === -1).forEach((r) => {
+  const li = (prezIdx.match(new RegExp('<li class="pdxwa-oc-li"[^>]*data-pdxwa-issue="' + r.key + '"[\\s\\S]*?</li>')) || [""])[0];
+  ok(!li || /class="pdxwa-oc-pct-v"/.test(li), `index: ${r.key} lost its public tally without a Direction Match result on its face`);
+});
 
 // ═════════════════════════════════════════════════════════════════════════════
 // 4. The empty state is honest, and it is a door

@@ -3555,8 +3555,25 @@
     };
   }
 
-  function _outcomeRow(r) {
-    var o = outcomeFor(r.verdict.token);
+  // THE ROW SPEAKS FOR THE BUCKET IT IS FILED UNDER. outcomeBuckets() files a
+  // row by the tested set read() scores, and that is not always the row's own
+  // verdict: a row whose stated word was written up from the record (the
+  // circularity rule) keeps its own Contradicted / Backed up verdict but is filed
+  // under "Not enough on file", and a row with no stated position is filed under
+  // "Record only". Printing the row's own word and figure there put a
+  // Contradicted 50% under "Not enough on file" — thirteen labelled results on a
+  // profile whose header and summary count six. So the cue is the filed bucket's
+  // word, and the per-issue figure is printed only in the three result buckets,
+  // which are exactly the issues the header percentage is taken over.
+  //
+  // And the outside-the-score line is printed only where the row has no
+  // Direction Match result on its face. A row already showing its figure and a
+  // Contradicted, Mixed or Backed up word has its answer; the public receipts
+  // stay one tap away in the dossier and are counted in the index's foot.
+  function _outcomeRow(r, fileTok) {
+    var tok = fileTok || r.verdict.token;
+    var o = outcomeFor(tok);
+    var judged = !!JUDGED_TOKENS[tok];
     var bits = [];
     // The count and the lane, so the depth behind the cue is legible without
     // opening anything. Not the strength word — that is what the Thin evidence
@@ -3586,7 +3603,8 @@
     // (pid, key) pair every surface already agrees on; see wordActionRowId() in
     // consistency.js, which must build the same string.
     var rid = 'pdxwa-oc-' + _idPart(r.pid) + '-' + _idPart(r.key);
-    var pct = _outcomePct(r);
+    var pct = judged ? _outcomePct(r) : { html: '', aria: '' };
+    var scored = judged && !!pct.html;
     var aria = 'Open the issue dossier: ' + r.label +
       (o ? ' — ' + o.short : '') + (r.stance.label ? ' · they said: ' + r.stance.label : '') + pct.aria;
     return '<li class="pdxwa-oc-li" id="' + esc(rid) + '" data-pdxwa-issue="' + esc(r.key) + '">' +
@@ -3615,7 +3633,7 @@
             : '') +
           '<span class="pdxwa-oc-go" aria-hidden="true">›</span>' +
         '</button>' +
-        _outcomePub(r, rid) +
+        (scored ? '' : _outcomePub(r, rid)) +
       '</li>';
   }
 
@@ -3690,7 +3708,7 @@
       var panels = live.map(function (o) {
         var list = buckets[o.token] || [];
         var body = list.length
-          ? '<ul class="pdxwa-oc-l">' + list.map(_outcomeRow).join('') + '</ul>'
+          ? '<ul class="pdxwa-oc-l">' + list.map(function (r) { return _outcomeRow(r, o.token); }).join('') + '</ul>'
           // The empty state says which of the two zeroes this is: nothing on this
           // pile, out of a stated denominator. It is the sentence the missing chip
           // used to withhold.

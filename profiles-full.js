@@ -6123,15 +6123,16 @@
       <!-- A face taken from the person's own campaign site prints one line under
            it, window.pdxPortraitDisclosure(id); an official portrait prints none. -->
       <div class="profile-hero">
+        <!-- The PolitiDex mark, in the letterhead's top-left corner: the same
+             compact tile the shell bar, the bill page and the issue drawer
+             carry, so a screenshot of the letterhead still says whose file it
+             is. It sits above the portrait, never on it. -->
+        <span class="pdx-hdr-mark profile-hero-mark"><img src="/assets/pdx-mark-192.png" alt="PolitiDex" width="26" height="26" decoding="async"></span>
         <div class="profile-hero-face">
         <div class="profile-hero-photo">
           ${(function(){ var _hp = ((typeof window.pdxPortrait === 'function') ? window.pdxPortrait(id) : '') || ((typeof window._getPhotoUrl === 'function') ? window._getPhotoUrl(id) : '') || (p.photo || ''); return _hp ? `<img loading="lazy" decoding="async" src="${_hp}" alt="${p.name}" onerror="this.parentElement.innerHTML='<div class=&quot;ph-fallback&quot;>${p.icon}</div>'">` : `<div class="ph-fallback">${p.icon}</div>`; })()}
         </div>
           ${(function(){ var _hn = (typeof window.pdxPortraitDisclosure === 'function') ? window.pdxPortraitDisclosure(id) : ''; return _hn ? '<p class="profile-hero-photo-note">' + _hn + '</p>' : ''; })()}
-          <!-- The PolitiDex mark, seated on the portrait's corner: the same
-               compact tile the shell bar and the share card carry, so a
-               screenshot of the letterhead still says whose file it is. -->
-          <span class="pdx-hdr-mark profile-hero-mark"><img src="/assets/pdx-mark-192.png" alt="PolitiDex" width="26" height="26" decoding="async"></span>
         </div>
         <div class="profile-hero-id">
           <div class="profile-eyebrow">${p.office || 'Public Official'}</div>

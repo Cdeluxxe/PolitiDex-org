@@ -261,7 +261,10 @@ if (HEAD_SRC && HEAD_SRC !== SRC) {
   // The two things this pass changes, undone, so the rest can be compared byte for byte.
   const norm = (s) => String(s || "")
     .replace(NOTE_RE, "")
-    .replace(/: what it did, full title, the bill/g, ": full title, the bill");
+    .replace(/: what it did, full title, the bill/g, ": full title, the bill")
+    // The "In the issue index" line names the bucket the index files the issue
+    // under (v591), which can differ from the row's own verdict; set aside.
+    .replace(/<div class="pdxdos-bucket"[\s\S]*?<\/span><\/div>/g, "");
   for (const pid of SAMPLE_PIDS) {
     const a = JSON.stringify(hw.PDXConsistency.issueRows(pid)), b = JSON.stringify(nw.PDXConsistency.issueRows(pid));
     if (a === b) parityPass++; else parity.push(`${pid}: issue rows (scores, Direction Match) differ from HEAD`);

@@ -406,9 +406,22 @@ section("6 · the marker, on the surfaces a reader sees without expanding anythi
     has(li, "Single measure", `${pid}/${r.key}: the face says single measure in the open`);
     has(li, 'data-pdxwa-docs="1"', `${pid}/${r.key}: …and pins the document count`);
     // THE MARKER IS DEPTH, NOT A DIFFERENT OUTCOME.
-    has(li, `${res.pct}%`, `${pid}/${r.key}: …with the per-issue figure unchanged`);
-    const o = WA.outcomeFor(r.verdict.token);
-    if (o) has(li, o.short, `${pid}/${r.key}: …and the verdict word unsoftened`);
+    // …on a row filed in a result bucket. A row the index files outside the
+    // tested set (Not enough on file / Record only) speaks for that pile and
+    // prints no figure — the header counts only the three result buckets.
+    const filedIn = (() => {
+      const b = WA.outcomeBuckets(pid);
+      for (const t of Object.keys((b && b.buckets) || {})) if ((b.buckets[t] || []).some((x) => x.key === r.key)) return t;
+      return r.verdict.token;
+    })();
+    const fo = WA.outcomeFor(filedIn);
+    if (["contradicts", "mixed", "consistent"].includes(filedIn)) {
+      has(li, `${res.pct}%`, `${pid}/${r.key}: …with the per-issue figure unchanged`);
+      if (fo) has(li, fo.short, `${pid}/${r.key}: …and the verdict word unsoftened`);
+    } else {
+      lacks(li, 'class="pdxwa-oc-pct-v"', `${pid}/${r.key}: a row outside the tested set prints a per-issue figure`);
+      if (fo) has(li, fo.short, `${pid}/${r.key}: …and speaks for the pile it is filed in`);
+    }
     marked++;
   }
   ok(facesChecked > 0, "index faces were rendered and checked");

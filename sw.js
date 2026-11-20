@@ -12431,7 +12431,19 @@
 //   related-issues.js, voting-record.js), so the shell moves; the precache
 //   list is unchanged.
 //   MIGRATION COST: none.
-const CACHE_VERSION = 'v590';
+// v591 - ONE SCORED SET, AND THE MARK OFF THE PORTRAIT. On the person file the
+//   compact PDX mark moves from the portrait's corner to the letterhead's
+//   top-left. Word vs Action's issue lists now speak for the bucket each issue
+//   is filed under: only Contradicted, Mixed and Backed up rows carry a result
+//   word and a Direction Match figure, so the header pill, the summary counts
+//   and the lists describe the same tested set. The "Outside the score" line is
+//   dropped under rows that already show a Direction Match result, and the
+//   tension block follows the scored set once it has loaded. Scoring rules,
+//   cutoffs, stances and records are unchanged. Precached files changed
+//   (app.css, profiles-full.js, word-action.js, consistency.js,
+//   related-issues.js), so the shell moves; the precache list is unchanged.
+//   MIGRATION COST: none.
+const CACHE_VERSION = 'v591';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

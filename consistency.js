@@ -16418,6 +16418,26 @@
     } catch (e) {}
     return null;
   }
+  // THE BUCKET THE INDEX FILED IT UNDER, where the index has filed it. The index
+  // files by the scored set, which is not always the row's own verdict — a row
+  // whose stated word was written up from the record keeps its own Contradicted
+  // or Backed up but is filed under Not enough on file — and a surface naming
+  // "the issue index" has to name the bucket the issue is actually in there.
+  function _filedToken(r) {
+    try {
+      var WA = window.PDXWordAction;
+      if (!r || !r.key || r.pid == null || !WA || typeof WA.outcomeBuckets !== 'function') return null;
+      var b = WA.outcomeBuckets(r.pid);
+      var bs = (b && b.buckets) || null;
+      if (!bs) return null;
+      for (var t in bs) {
+        if (!Object.prototype.hasOwnProperty.call(bs, t)) continue;
+        var list = bs[t] || [];
+        for (var i = 0; i < list.length; i++) if (list[i] && list[i].key === r.key) return t;
+      }
+    } catch (e) {}
+    return null;
+  }
   //   AND THE SUB-LINE IS SIZED TO THE EVIDENCE. The bucket's own sub-line speaks
   // about "the record" — which is right for a row with a record and wrong for a row
   // holding one instrument. On those rows the inventory replaces it: same bucket,
@@ -16425,6 +16445,10 @@
   function _dosBucketHtml(r) {
     var o = _dosBucket(r);
     if (!o) return '';
+    var filed = _filedToken(r);
+    if (filed && filed !== o.token) {
+      try { o = window.PDXWordAction.outcomeFor(filed) || o; } catch (e) {}
+    }
     var one = _oneInstrumentVoiceRow(r);
     var sub = one ? one.sentence : (o.sub || '');
     return '<div class="pdxdos-bucket" style="--c:' + o.col + ';">' +
