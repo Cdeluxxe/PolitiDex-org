@@ -10,12 +10,12 @@
 //      with its chips) and the record verdict ("No pattern yet" when there is no
 //      word to print) in one row. A small share icon sits in the corner.
 //   2. THE ISSUE IN ONE SENTENCE — ISSUE_MAP[key].chip, word for word.
-//   3. POSITION AND CONNECTIONS — the stance signal, the related-issues lines,
-//      then Where this conflicts (unchanged, after the related lines).
-//   4. EVIDENCE — one block per source behind the stance (the stance card's
-//      sources, or a matching Evidence Locker item): summary, then link. Absent
-//      when there is none; never a placeholder.
-//   5. FORMAL RECORD — the existing record, vote table and notes.
+//   3. POSITION — the stance signal.
+//   4. FORMAL RECORD — the existing record, opening on the for / against
+//      tally, then the vote table and notes (moved above the connections).
+//   5. CONNECTIONS AND EVIDENCE — the related-issues lines, Where this
+//      conflicts, then one block per source behind the stance. Evidence is
+//      absent when there is none; never a placeholder.
 //   6. SHARE — a quiet text button at the foot. The old bar is gone.
 //
 // Checked on the real corpus, under both vocabularies the four pages load
@@ -78,7 +78,7 @@ const M = {
   record: 'data-pdxgap-sec="record"',
   text: 'data-pdxgap-share="text"',
 };
-const ORDER = ["header", "sentence", "signal", "related", "conflicts", "evidence", "record", "text"];
+const ORDER = ["header", "sentence", "signal", "record", "related", "conflicts", "evidence", "text"];
 function orderFaults(h, tag) {
   const out = [];
   let last = -1, lastName = "";
@@ -194,7 +194,7 @@ for (const [page, vocab] of [["index.html", "alignment-tool.js"], ["person.html"
   ok(/First excerpt behind the stance\.[\s\S]*href="https:\/\/example\.org\/one"[\s\S]*First source ↗/.test(items[0] || ""), "the first block lacks its excerpt then link");
   ok(/Second summary behind the stance\.[\s\S]*href="https:\/\/example\.org\/two"[\s\S]*Second source ↗/.test(items[1] || ""), "the second block lacks its summary then link");
   ok(!/javascript:|never printed|example\.org\/single/.test(ev), "a non-link source, or the superseded single source, was printed");
-  ok(h.indexOf(M.evidence) > h.indexOf(M.signal) && h.indexOf(M.evidence) < h.indexOf(M.record), "evidence is not between connections and the formal record");
+  ok(h.indexOf(M.evidence) > h.indexOf(M.signal) && h.indexOf(M.evidence) > h.indexOf(M.record), "evidence does not sit below the formal record");
 }
 
 // ── 3 · a promoted Locker stance, and a Locker item behind a curated one ─────
@@ -303,7 +303,7 @@ for (const [page, vocab] of [["index.html", "alignment-tool.js"], ["person.html"
   const c0 = h.indexOf(M.conflicts), at = h.indexOf(M.related);
   ok(c0 > 0, "the conflicts section did not print when the rules are met");
   ok(at >= 0 && c0 > at, "the conflicts section is not after the related-issues lines");
-  ok(c0 < h.indexOf(M.record) && c0 < h.indexOf('data-pdxlg-tally="1"'), "the conflicts section is not before the record");
+  ok(c0 > h.indexOf(M.record) && c0 > h.indexOf('data-pdxlg-tally="1"'), "the conflicts section is not below the record");
   orderFaults(h, "conflicts").forEach((f) => failures.push(f));
 }
 

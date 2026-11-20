@@ -1123,6 +1123,13 @@
 }
 .pdxwa-oc-go { flex: 0 0 auto; color: #6f88ab; font-size: 0.9rem; line-height: 1; }
 .pdxwa-oc-said { color: #a9bdd8; overflow-wrap: break-word; min-width: 0; }
+/* Stated stance on file / No stated stance · voting pattern used / No stance on
+   file — on every row, whatever bucket it sits in. */
+.pdxwa-oc-cov { font-size: 0.62rem; color: #9fb4d4; border: 1px solid rgba(159,180,212,0.35);
+  border-radius: 999px; padding: 0 0.4rem; white-space: nowrap; justify-self: start; align-self: start; }
+.pdxwa-oc-cov.pdx-cov-stated { color: #cfe0f8; }
+.pdxwa-oc-cov.pdx-cov-pattern { border-style: dashed; }
+.pdxwa-oc-cov.pdx-cov-none { color: #8fa2c0; border-style: dotted; }
 .pdxwa-oc-issue { color: #dbe6f5; font-weight: 600; overflow-wrap: break-word; min-width: 0; }
 .pdxwa-oc-meta { color: #6f88ab; font-size: 0.68rem; }
 

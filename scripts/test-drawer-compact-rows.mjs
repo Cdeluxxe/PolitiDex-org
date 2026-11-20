@@ -256,7 +256,19 @@ let headNote = null;
 const parity = [];
 let parityPass = 0;
 if (HEAD_SRC && HEAD_SRC !== SRC) {
-  const hw = boot(HEAD_SRC), nw = boot(SRC);
+  // The drawer's section order moved (Formal record first, then Related issues
+  // and Evidence). Replay that move on HEAD's source so the rest still compares
+  // byte for byte; a HEAD already in the new order passes through unchanged.
+  const recFirst = (src) => {
+    const a = "      _gapRelatedHtml(pid, issueKey) +\n      _gapConflictsHtml(pid, issueKey) +\n      _gapWvaHtml(pid, issueKey) +\n";
+    const recH = "      '<div class=\"pdxgap-sec-h pdxgap-recsec\" data-pdxgap-sec=\"record\">Formal record</div>' +\n";
+    const endM = "      _dosQueueHtml(pid, issueKey, off) +\n";
+    const i = src.indexOf(a), r = src.indexOf(recH);
+    if (i < 0 || r < 0 || r < i) return src;
+    const j = src.indexOf(endM, r) + endM.length;
+    return src.slice(0, i) + src.slice(r, j) + src.slice(i, r) + src.slice(j);
+  };
+  const hw = boot(recFirst(HEAD_SRC)), nw = boot(SRC);
   headNote = (NOTE_RE.exec(hw.PDXConsistency.gapViewHtml(PID, KEY) || "") || [""])[0];
   // The two things this pass changes, undone, so the rest can be compared byte for byte.
   const norm = (s) => String(s || "")
@@ -264,7 +276,14 @@ if (HEAD_SRC && HEAD_SRC !== SRC) {
     .replace(/: what it did, full title, the bill/g, ": full title, the bill")
     // The "In the issue index" line names the bucket the index files the issue
     // under (v591), which can differ from the row's own verdict; set aside.
-    .replace(/<div class="pdxdos-bucket"[\s\S]*?<\/span><\/div>/g, "");
+    .replace(/<div class="pdxdos-bucket"[\s\S]*?<\/span><\/div>/g, "")
+    // The large for / against tally at the top of the Formal record; set aside.
+    .replace(/<div class="pdxlg-big"[\s\S]*?<\/span><\/span><\/div>/g, "")
+    // The header's stance slot now says Stated / Voting pattern / No stance on
+    // file (test-stance-coverage owns that); set the slot and its line aside.
+    // Everything from the slot's start up to the verdict that follows it.
+    .replace(/(<div class="pdxgap-meta pdxgap-hmeta"[^>]*>)[\s\S]*?(?=<div class="pdxlg-find"|<span class="pdxgap-nopat"|<button type="button" class="pdxgap-torec"|<[a-z]+ class="pdx(?:gap|dv)-rel)/, "$1")
+    .replace(/<span class="pdx-cov[^"]*" data-pdx-cov="\w+">[^<]*<\/span>/g, "");
   for (const pid of SAMPLE_PIDS) {
     const a = JSON.stringify(hw.PDXConsistency.issueRows(pid)), b = JSON.stringify(nw.PDXConsistency.issueRows(pid));
     if (a === b) parityPass++; else parity.push(`${pid}: issue rows (scores, Direction Match) differ from HEAD`);

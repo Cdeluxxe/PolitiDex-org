@@ -2479,6 +2479,19 @@
       '.pdxlg-tally{font-size:0.8rem;line-height:1.45;color:#c6d4ec;}' +
       '.pdxlg-tally b{color:#e8eefc;font-weight:700;}' +
       '.pdxlg-side{font-size:0.72rem;color:#8fa2c0;line-height:1.5;}' +
+      '.pdx-cov{display:inline-block;font-size:0.66rem;line-height:1.35;padding:0.05rem 0.4rem;border-radius:999px;' +
+        'border:1px solid rgba(159,180,212,0.35);color:#b9c8e0;white-space:nowrap;}' +
+      '.pdx-cov-stated{color:#cfe0f8;border-color:rgba(207,224,248,0.45);}' +
+      '.pdx-cov-pattern{border-style:dashed;}' +
+      '.pdx-cov-none{color:#8fa2c0;border-style:dotted;}' +
+      '.pdxst-cov{margin-top:0.2rem;}' +
+      '.pdxlg-big{display:flex;gap:0.5rem;margin:0.35rem 0 0.25rem;}' +
+      '.pdxlg-big>span{display:flex;align-items:baseline;gap:0.35rem;padding:0.2rem 0.6rem;' +
+        'border-radius:0.45rem;border:1px solid;font-family:"Barlow Condensed",sans-serif;}' +
+      '.pdxlg-big b{font-size:1.9rem;font-weight:800;line-height:1;}' +
+      '.pdxlg-big>span>span{font-size:0.82rem;font-weight:700;letter-spacing:0.02em;}' +
+      '.pdxlg-big-a{color:#7fd4c1;border-color:rgba(127,212,193,0.55);background:rgba(127,212,193,0.1);}' +
+      '.pdxlg-big-o{color:#f2a3a3;border-color:rgba(242,163,163,0.55);background:rgba(242,163,163,0.1);}' +
       '.pdxlg-same{margin-top:0.2rem;font-size:0.72rem;color:#f0cd8c;line-height:1.5;}' +
       '.pdxst{margin-top:0.6rem;font-size:0.73rem;line-height:1.5;color:#c6d4ec;}' +
       '.pdxst-fold{border-top:1px solid rgba(143,162,192,0.2);}' +
@@ -5599,6 +5612,55 @@
     } catch (e) {}
     return null;
   }
+  // ── STATED STANCE OR VOTING PATTERN — ONE ANSWER PER ISSUE ──────────────────
+  // Every issue on the profile and in the drawer header says which of three
+  // things PolitiDex holds for it:
+  //   'stated'  — a position they said or implied, from a curated card or the
+  //               pipeline: the stance store's one entry (statedStance).
+  //               Chip: "Stated: Supports".
+  //   'pattern' — no stated position; the voting record stands in for one. This
+  //               is the record baseline (baselineFor) the alignment tool and
+  //               Where this conflicts already fall back to. Chip: "Voting
+  //               pattern: Supports" — never worded as "Stated", and never in
+  //               Word vs Action (baselines are kept out of the stated map).
+  //   'none'    — neither. "No stance on file".
+  // Display only: nothing here feeds a verdict, a count or a score.
+  var COVERAGE = {
+    stated:  { kind: 'stated',  lead: 'Stated:',         label: 'Stated stance on file' },
+    pattern: { kind: 'pattern', lead: 'Voting pattern:', label: 'No stated stance · voting pattern used' },
+    none:    { kind: 'none',    lead: '',                label: 'No stance on file' }
+  };
+  function stanceCoverage(pid, issueKey) {
+    var mk = function (c, side) {
+      var m = side ? _OR_STANCE[side] : null;
+      return { kind: c.kind, label: c.label, lead: c.lead, side: m ? side : null, sideLabel: m ? m.lb : '',
+        chip: m ? c.lead + ' ' + m.lb : '' };
+    };
+    if (!pid || !issueKey) return mk(COVERAGE.none, null);
+    var s = null;
+    try { s = statedStance(pid, issueKey); } catch (e) { s = null; }
+    if (s && _OR_STANCE[s.side]) return mk(COVERAGE.stated, s.side);
+    var b = null;
+    try { b = baselineFor(pid, issueKey); } catch (e2) { b = null; }
+    if (b && _OR_STANCE[b.stance]) return mk(COVERAGE.pattern, b.stance);
+    return mk(COVERAGE.none, null);
+  }
+  // The chip and the coverage line, as markup. The chip is '' on 'none'.
+  function stanceCoverageChipHtml(c) {
+    if (!c || !c.chip) return '';
+    var m = _OR_STANCE[c.side];
+    return '<span class="pdxor-stance pdx-cov-chip" data-pdx-cov-chip="' + escAttr(c.kind) + '"' +
+      ' style="--c:' + (c.kind === 'stated' ? m.c : '#9fb4d4') + '"' +
+      ' title="' + escAttr(c.kind === 'stated' ? 'Their stated position'
+        : 'No stated position on file — this is the direction of their voting record, not something they said, and it is not scored in Word vs Action') + '">' +
+      (c.kind === 'stated' ? m.ico : '\uD83C\uDFDB') + ' ' + esc(c.chip) + '</span>';
+  }
+  function stanceCoverageLineHtml(c, cls) {
+    if (!c) return '';
+    return '<span class="pdx-cov' + (cls ? ' ' + cls : '') + ' pdx-cov-' + c.kind + '" data-pdx-cov="' + escAttr(c.kind) + '">' +
+      esc(c.label) + '</span>';
+  }
+
   // Every stance in the store for one person: curated issues in row-model order,
   // then promoted Locker issues in the Locker's own order. Each key once.
   function statedStances(pid) {
@@ -8750,6 +8812,11 @@
     setTimeout(function () { _stFocus(document.getElementById(originId)); }, 420);
   }
 
+  function _stCovChip(r) {
+    var c = stanceCoverage(r.pid, r.key);
+    if (c.kind === 'stated') return r.stance.label ? _orStanceChip(r.pid, r.key, COVERAGE.stated.lead) : stanceCoverageChipHtml(c);
+    return stanceCoverageChipHtml(c);
+  }
   function _stRowHtml(r) {
     var txt = r.stance.text ? String(r.stance.text) : '';
     if (txt.length > 190) txt = txt.slice(0, 187).replace(/\s+\S*$/, '') + '…';
@@ -8816,8 +8883,13 @@
           // leads and the chip is the record's only voice, and on rows with nothing
           // formal on file, where neither prints anything.
           (_stLeadSlot(r, res) ? '' : _stPatternHtml(r)) +
-          (r.stance.label ? _orStanceChip(r.pid, r.key) : '') +
+          // STATED OR VOTING PATTERN, SAID ON THE CHIP. A stated position reads
+          // "Stated: …"; where the voting record stands in for one it reads "Voting
+          // pattern: …" and never "Stated". See stanceCoverage.
+          _stCovChip(r) +
         '</div>' +
+        // And which of the three PolitiDex holds, on every row, whatever bucket.
+        '<div class="pdxst-cov">' + stanceCoverageLineHtml(stanceCoverage(r.pid, r.key)) + '</div>' +
         _stResultHtml(r, res) +
         // THE COMPOSITION LINE, WHERE IT STILL HAS TO BE ITS OWN LINE. On a scored
         // row `_stResultHtml` has already placed it beside the percentage it
@@ -17808,6 +17880,16 @@
           '</b> · <b>' + t.acts + ' formal ' + (t.acts === 1 ? 'act' : 'acts') + '</b> of ' + t.all + ' on this issue</div>'
         : '<div class="pdxlg-tally" data-pdxlg-tally="1">On this issue: <b>' + t.bills + ' ' + noun +
         '</b> · <b>' + t.acts + ' formal ' + (t.acts === 1 ? 'act' : 'acts') + '</b></div>') +
+      // THE BIG TALLY. The same two numbers as the "Acts: N for · N against" line
+      // below, read at a glance: acts that advance the issue in the Advances chip's
+      // green, acts that cut against it in the Cuts against chip's red. Same `t`,
+      // so the two can never disagree; no-pole issues get neither.
+      (_DOS_LEDGER_NO_SIDE[issueKey] ? '' :
+      '<div class="pdxlg-big" data-pdxlg-big="1" role="group" aria-label="' +
+        escAttr(t.advances + ' ' + (t.advances === 1 ? 'act' : 'acts') + ' for, ' + t.opposes + ' against') + '">' +
+        '<span class="pdxlg-big-a" data-pdxlg-big-for="' + t.advances + '"><b>' + t.advances + '</b><span>▲ for</span></span>' +
+        '<span class="pdxlg-big-o" data-pdxlg-big-against="' + t.opposes + '"><b>' + t.opposes + '</b><span>▼ against</span></span>' +
+      '</div>') +
       // FOR AND AGAINST WHAT. The issue, not the stated position — those are two
       // different questions with two different answers, and the second one lives
       // inside the scoring disclosure under its own label ("1 aligned · 2
@@ -20411,16 +20493,26 @@
 
   var _GAP_STANCE_LEAD = 'Stated:';
   function _gapStanceHtml(pid, issueKey) {
+    // Every header says what PolitiDex holds on this issue: a stated stance, a
+    // voting pattern standing in for one, or nothing. The coverage line always
+    // prints; the chip prints for the first two, worded for which one it is.
+    var cov = stanceCoverage(pid, issueKey);
+    var covLine = stanceCoverageLineHtml(cov, 'pdxgap-cov');
+    if (cov.kind !== 'stated') {
+      return (cov.kind === 'pattern'
+        ? '<span class="pdxgap-stance pdxgap-stance-pattern" data-pdx-cov-side="' + escAttr(cov.side) + '">' + stanceCoverageChipHtml(cov) + '</span>'
+        : '') + covLine;
+    }
     var s = statedStance(pid, issueKey);
-    if (!s) return '';
+    if (!s) return covLine;
     var inner = '';
     if (s.source === 'pipeline') {
       inner = statedStanceLineHtml(s, 'span', 'pdxgap-locker-said', { style: 'display:inline;margin:0;', lead: _GAP_STANCE_LEAD });
-      if (!inner) return '';
+      if (!inner) return covLine;
     } else {
       inner = _orStanceChip(pid, issueKey, _GAP_STANCE_LEAD) + statedStanceNoteHtml(s);
     }
-    return '<span class="pdxgap-stance"' + statedStanceAttrs(s) + '>' + inner + '</span>';
+    return '<span class="pdxgap-stance"' + statedStanceAttrs(s) + '>' + inner + '</span>' + covLine;
   }
   // ── THE DRAWER, AS A SOURCED STORY ──────────────────────────────────────────
   // The drawer runs top to bottom in one order: the header row (issue, stated
@@ -20944,13 +21036,8 @@
       // stated line and / or a record line for each, then WHERE THIS CONFLICTS.
       // Read-only; each part is '' when it has nothing to say.
       _gapSignalHtml(_st) +
-      _gapRelatedHtml(pid, issueKey) +
-      _gapConflictsHtml(pid, issueKey) +
-      _gapWvaHtml(pid, issueKey) +
-      // EVIDENCE — the sources attached to the stance, one block per link. Only
-      // when the stance card or the Evidence Locker holds one; never a placeholder.
-      _gapEvidenceHtml(pid, issueKey, _st) +
-      // THE FORMAL RECORD — everything below, as it always was.
+      // THE FORMAL RECORD FIRST — the section header, the tally and the ledger,
+      // then Related issues and Evidence below it.
       '<div class="pdxgap-sec-h pdxgap-recsec" data-pdxgap-sec="record">Formal record</div>' +
       // Not in Direction Match: once, never on each row. On a ledger sheet it is
       // the first thing inside How this is scored rather than a gray box between
@@ -20984,6 +21071,13 @@
       // face so a sheet full of unexplained mappings cannot look like a finished one.
       // Prints nothing at zero — see _dosQueueHtml.
       _dosQueueHtml(pid, issueKey, off) +
+      // RELATED ISSUES, then WHERE THIS CONFLICTS and WORDS VS. ACTIONS.
+      _gapRelatedHtml(pid, issueKey) +
+      _gapConflictsHtml(pid, issueKey) +
+      _gapWvaHtml(pid, issueKey) +
+      // EVIDENCE — the sources attached to the stance, one block per link. Only
+      // when the stance card or the Evidence Locker holds one; never a placeholder.
+      _gapEvidenceHtml(pid, issueKey, _st) +
       // Sideways, not backwards: the next issue's dossier without a trip through
       // the profile and back.
       _dosStepHtml(pid, issueKey) +
@@ -21985,6 +22079,9 @@
     // The one stance store, read one way (see statedStance). The person-file
     // "Said" list, Word vs Action and the issue drawer all print these entries.
     statedStance: statedStance,
+    stanceCoverage: stanceCoverage,
+    stanceCoverageChipHtml: stanceCoverageChipHtml,
+    stanceCoverageLineHtml: stanceCoverageLineHtml,
     statedStances: statedStances,
     statedStanceAttrs: statedStanceAttrs,
     statedStanceNoteHtml: statedStanceNoteHtml,

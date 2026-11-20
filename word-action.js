@@ -3605,8 +3605,20 @@
     var rid = 'pdxwa-oc-' + _idPart(r.pid) + '-' + _idPart(r.key);
     var pct = judged ? _outcomePct(r) : { html: '', aria: '' };
     var scored = judged && !!pct.html;
+    // STATED OR VOTING PATTERN, on every row in every bucket — consistency.js's
+    // stanceCoverage, so the index, the stance rows and the drawer agree.
+    var cov = null;
+    try {
+      var CSc = window.PDXConsistency;
+      if (CSc && typeof CSc.stanceCoverage === 'function') cov = CSc.stanceCoverage(r.pid, r.key);
+    } catch (eC) { cov = null; }
+    // A stated row keeps its own stance wording after the lead ("Stated: Cut
+    // taxes"); a voting pattern is the record's side and never says "Stated".
+    var said = !cov ? (r.stance.label || '')
+      : cov.kind === 'stated' ? (cov.lead + ' ' + (r.stance.label || cov.sideLabel))
+      : cov.chip;
     var aria = 'Open the issue dossier: ' + r.label +
-      (o ? ' — ' + o.short : '') + (r.stance.label ? ' · they said: ' + r.stance.label : '') + pct.aria;
+      (o ? ' — ' + o.short : '') + (said ? ' · ' + said : '') + (cov ? ' · ' + cov.label : '') + pct.aria;
     return '<li class="pdxwa-oc-li" id="' + esc(rid) + '" data-pdxwa-issue="' + esc(r.key) + '">' +
         '<button type="button" class="pdxwa-oc-row' + skin.cls + friction + '" style="' + skin.style + '"' +
           ' data-pdxwa-dos="' + esc(r.key) + '" data-pdxwa-dos-pid="' + esc(String(r.pid)) + '"' +
@@ -3614,7 +3626,8 @@
           ' aria-label="' + esc(aria) + '">' +
           '<span class="pdxwa-oc-main">' +
             '<span class="pdxwa-oc-issue">' + esc(r.label) + '</span>' +
-            (r.stance.label ? '<span class="pdxwa-oc-said">' + esc(r.stance.label) + '</span>' : '') +
+            (said ? '<span class="pdxwa-oc-said"' + (cov ? ' data-pdx-cov-chip="' + esc(cov.kind) + '"' : '') + '>' + esc(said) + '</span>' : '') +
+            (cov ? '<span class="pdxwa-oc-cov pdx-cov pdx-cov-' + esc(cov.kind) + '" data-pdx-cov="' + esc(cov.kind) + '">' + esc(cov.label) + '</span>' : '') +
             (bits.length ? '<span class="pdxwa-oc-meta">' + esc(bits.join(' · ')) + '</span>' : '') +
             flags +
           '</span>' +

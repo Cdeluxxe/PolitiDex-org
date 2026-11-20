@@ -223,7 +223,7 @@ ctx.EXEC_ACTIONS = {
 // is for. Everything the index reads off a row is present; nothing is invented.
 const stubRow = (key, label, token, over = {}) => ({
   pid: MEMBER, key, label, tier: 1, category: "econ", categoryLabel: "Economy",
-  stance: { key, label: "Cut taxes", direction: "support", text: "said a thing", source: "" },
+  stance: { key: "support", label: "Cut taxes", direction: "support", text: "said a thing", source: "" },
   lane: "record", tested: true, scored: true, testability: "high",
   actions: { count: 2, lane: "record", judged: 2 },
   verdict: { token, label: token, cls: "x", ico: "•", color: "#fff", score: null, basis: "action" },
@@ -436,12 +436,13 @@ eq((IDX.match(/data-pdxwa-dos-pid="/g) || []).length, 5, "rows: a row does not n
 eq((IDX.match(/data-pdxwa-dos-origin="pdxwa-oc-/g) || []).length, 5,
   "rows: a row does not carry its own id as the origin, so closing the dossier cannot return the\n" +
   "    reader to the line they left");
-has(IDX, 'aria-label="Open the issue dossier: Lower Taxes — Contradicted · they said: Cut taxes"',
+has(IDX, 'aria-label="Open the issue dossier: Lower Taxes — Contradicted · Stated: Cut taxes · Stated stance on file"',
   "rows: the control does not say what it opens, in the index's own words");
 // Compact: issue, said direction, result cue, markers. The deep explanation is one
 // tap down, and a row that explains itself is a row nobody taps.
 has(IDX, '<span class="pdxwa-oc-issue">Lower Taxes</span>', "rows: the issue name is not on the row");
-has(IDX, '<span class="pdxwa-oc-said">Cut taxes</span>', "rows: the stated direction is not on the row");
+has(IDX, '<span class="pdxwa-oc-said" data-pdx-cov-chip="stated">Stated: Cut taxes</span>', "rows: the stated direction is not on the row");
+has(IDX, 'data-pdx-cov="stated">Stated stance on file</span>', "rows: the row does not say a stated stance is on file");
 has(IDX, 'class="pdxwa-oc-cue"', "rows: the row carries no short result cue of its own");
 has(IDX, "2 receipts", "rows: the row does not report the depth behind its result");
 hasnt(IDX, "set aside", "rows: the counter-evidence prose is back on the row — that is dossier depth, and it\n" +
