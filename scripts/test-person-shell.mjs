@@ -665,10 +665,10 @@ for (const [a, b, what] of COPIES) {
 // from becoming a fork.
 {
   const at = read("alignment-tool.js").split("\n");
-  const region = at.slice(109, 1413).join("\n");     // lines 110–1413
+  const region = at.slice(109, 1422).join("\n");     // lines 110–1422
   const im = read("issue-map.js");
   ok(im.includes(region),
-    "copy: issue-map.js is NOT byte-identical to alignment-tool.js lines 110–1413 — the issue register has forked");
+    "copy: issue-map.js is NOT byte-identical to alignment-tool.js lines 110–1422 — the issue register has forked");
   for (const g of ["ISSUE_MAP", "CORE_NATIONAL_ISSUES", "coreIssueForKey", "_pdxIssueCatOf", "_pdxCategoryOf", "_pdxEvidenceCategories"]) {
     ok(new RegExp(`window\\.${g}\\s*=`).test(im), `copy: issue-map.js publishes window.${g}`);
   }

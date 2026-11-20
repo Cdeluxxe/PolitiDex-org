@@ -158,16 +158,16 @@
 
   // Issue key → related issue keys. Order here is print order.
   var MAP = {
-    lands_preserve: ['lands_keep_public', 'energy_production', 'gov_regulation', 'lands_local', 'lands_balance', 'lands_energy', 'property_rights', 'permitting_reform', 'water', 'water_storage', 'datacenter_water', 'disaster_resilience', 'climate_action', 'tribal_consultation'],
-    lands_keep_public: ['lands_preserve', 'energy_production', 'gov_regulation', 'lands_local', 'lands_balance', 'lands_energy', 'property_rights', 'permitting_reform', 'water', 'water_storage', 'datacenter_water', 'housing_build'],
+    lands_preserve: ['lands_keep_public', 'energy_production', 'gov_regulation', 'lands_local', 'lands_balance', 'lands_energy', 'property_rights', 'permitting_reform', 'water', 'water_storage', 'datacenter_water', 'disaster_resilience', 'climate_action', 'tribal_consultation', 'mine_cleanup'],
+    lands_keep_public: ['lands_preserve', 'energy_production', 'gov_regulation', 'lands_local', 'lands_balance', 'lands_energy', 'property_rights', 'permitting_reform', 'water', 'water_storage', 'datacenter_water', 'housing_build', 'mine_cleanup'],
     lands_local: ['lands_preserve', 'lands_keep_public', 'lands_balance', 'lands_energy', 'property_rights', 'disaster_resilience', 'climate_action', 'states_federal_power', 'state_standing', 'guard_authority', 'housing_build', 'tribal_consultation'],
     lands_balance: ['lands_preserve', 'lands_keep_public', 'lands_local', 'lands_energy', 'property_rights', 'disaster_resilience', 'climate_action'],
-    lands_energy: ['lands_preserve', 'lands_keep_public', 'lands_local', 'lands_balance', 'property_rights', 'energy_production', 'permitting_reform', 'gov_regulation', 'enviro_energy', 'climate_action', 'enviro_balance', 'datacenter_power'],
+    lands_energy: ['lands_preserve', 'lands_keep_public', 'lands_local', 'lands_balance', 'property_rights', 'energy_production', 'permitting_reform', 'gov_regulation', 'enviro_energy', 'climate_action', 'enviro_balance', 'datacenter_power', 'mine_cleanup'],
     property_rights: ['lands_preserve', 'lands_keep_public', 'lands_local', 'lands_balance', 'lands_energy'],
     energy_production: ['lands_preserve', 'lands_keep_public', 'lands_energy', 'permitting_reform', 'gov_regulation', 'enviro_energy', 'climate_action', 'enviro_balance', 'datacenter_power', 'cost_living', 'econ_growth'],
     permitting_reform: ['lands_preserve', 'lands_keep_public', 'lands_energy', 'energy_production', 'gov_regulation', 'enviro_energy', 'climate_action', 'enviro_balance', 'datacenter_power', 'econ_growth', 'infrastructure', 'broadband', 'transit', 'water_storage', 'housing_build', 'tribal_consultation'],
     gov_regulation: ['lands_preserve', 'lands_keep_public', 'lands_energy', 'energy_production', 'permitting_reform', 'climate_action', 'enviro_balance', 'econ_growth', 'econ_smallbiz', 'econ_balance', 'econ_workers', 'econ_corp_account', 'lower_taxes', 'civil_service_control', 'gov_waste', 'housing_build', 'public_health_vs_chemical_liability'],
-    water: ['water_storage', 'datacenter_water', 'lands_preserve', 'lands_keep_public', 'datacenter_growth', 'datacenter_power', 'tech_innovation', 'rural_ag', 'health_rural', 'broadband'],
+    water: ['water_storage', 'datacenter_water', 'lands_preserve', 'lands_keep_public', 'datacenter_growth', 'datacenter_power', 'tech_innovation', 'rural_ag', 'health_rural', 'broadband', 'mine_cleanup'],
     water_storage: ['water', 'datacenter_water', 'lands_preserve', 'lands_keep_public', 'rural_ag', 'health_rural', 'broadband', 'infrastructure', 'transit', 'permitting_reform'],
     datacenter_water: ['water', 'water_storage', 'lands_preserve', 'lands_keep_public', 'datacenter_growth', 'datacenter_power', 'tech_innovation'],
     disaster_resilience: ['lands_preserve', 'lands_balance', 'lands_local', 'climate_action'],
@@ -293,7 +293,8 @@
     safety_net_work_requirements: ['healthcare', 'health_rural', 'cut_spending', 'family_support'],
     fed_independence: ['audit_spending', 'cost_living', 'checks_balances', 'sound_money'],
     senate_filibuster: ['checks_balances', 'power_of_purse', 'voting_access', 'term_limits'],
-    tribal_consultation: ['lands_preserve', 'lands_local', 'permitting_reform', 'states_federal_power']
+    tribal_consultation: ['lands_preserve', 'lands_local', 'permitting_reform', 'states_federal_power'],
+    mine_cleanup: ['lands_energy', 'lands_preserve', 'lands_keep_public', 'water']
   };
 
   var WORD = { support: 'supports', oppose: 'opposes' };

@@ -210,7 +210,7 @@ ok(reg.includes('"gen-committees.mjs"'), "gen-committees is registered");
 ok(!/\{ script: "gen-funding\.mjs" \}/.test(reg), "gen-funding is not registered (its inputs are not in the repo)");
 ok(/loadScript\('\/person-coverage\.js'/.test(R("person-bills.js")) && !/person-coverage/.test(R("person.html")), "person-bills.js loads person-coverage.js as a companion; person.html is unchanged");
 ok(/<script defer src="\/bill-cosponsors\.js"><\/script>/.test(R("bill.html")), "bill.html loads bill-cosponsors.js (root-absolute)");
-ok(/const CACHE_VERSION = 'v586';/.test(R("sw.js")), "the service worker moved a version (person-bills.js and bill.html are precached)");
+ok(Number((/const CACHE_VERSION = 'v(\d+)';/.exec(R("sw.js")) || [])[1]) >= 586, "the service worker moved a version (person-bills.js and bill.html are precached)");
 ok(!/person-recorded-votes/.test(R("person-coverage.js").replace(/#pdx-recorded-votes|'#pdx-recorded-votes'/g, "")), "person-coverage.js does not load or change Recorded votes");
 
 rmSync(dir, { recursive: true, force: true });

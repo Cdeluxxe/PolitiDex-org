@@ -759,12 +759,29 @@
    "quoteFrom": "S. 5653 (is)",
    "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm",
    "issueKeys": [
-    "lands_energy"
+    "lands_energy",
+    "mine_cleanup"
    ],
    "presentIn": [
     "S. 5653",
     "S.Amdt. 6883"
    ]
+  },
+  {
+   "ref": "Div. B, Title II, Sec. 2215(d) (Abandoned Hardrock Mine Fund)",
+   "label": "Abandoned Hardrock Mine Fund",
+   "plain": "Creates a Treasury account, the Abandoned Hardrock Mine Fund, filled by claim maintenance fees on the new mill sites and by receipts from hardrock mineral leases on acquired lands. Interior may spend it without further appropriation, only on the abandoned hardrock mine reclamation program in Infrastructure Investment and Jobs Act sec. 40704, with up to 5 percent for administration.",
+   "textQuote": "The Secretary of the Interior may make expenditures from amounts available in the Fund, without further appropriations or fiscal year limitation, only to carry out section 40704 of the Infrastructure Investment and Jobs Act (30 U.S.C. 1245).",
+   "quoteFrom": "S. 5653 (is)",
+   "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm",
+   "issueKeys": [
+    "mine_cleanup"
+   ],
+   "presentIn": [
+    "S. 5653",
+    "S.Amdt. 6883"
+   ],
+   "amendmentHistory": "S. 5653 cross-references the fund as \"established by section 205(d)\"; S.Amdt. 6883 corrects it to \"established by section 2215(d)\"."
   },
   {
    "ref": "Div. B, Title II, Subtitle C, Secs. 2221-2229",
@@ -909,8 +926,6 @@
  "issues": [
   {
    "issueKey": "permitting_reform",
-   "weight": 100,
-   "primaryLabel": true,
    "supportMeaning": "yea_supports",
    "provisionRefs": [
     "Div. A, Title I, Sec. 1106",
@@ -928,8 +943,6 @@
   },
   {
    "issueKey": "datacenter_power",
-   "weight": 70,
-   "primaryLabel": false,
    "supportMeaning": "yea_supports",
    "provisionRefs": [
     "Div. B, Title I, Sec. 2107",
@@ -942,8 +955,6 @@
   },
   {
    "issueKey": "energy_production",
-   "weight": 50,
-   "primaryLabel": false,
    "supportMeaning": "yea_supports",
    "provisionRefs": [
     "Div. B, Title II, Sec. 2211",
@@ -959,8 +970,6 @@
   },
   {
    "issueKey": "lands_energy",
-   "weight": 45,
-   "primaryLabel": false,
    "supportMeaning": "yea_supports",
    "provisionRefs": [
     "Div. B, Title II, Sec. 2215",
@@ -974,8 +983,6 @@
   },
   {
    "issueKey": "lands_preserve",
-   "weight": 35,
-   "primaryLabel": false,
    "supportMeaning": "yea_opposes",
    "provisionRefs": [
     "Div. A, Title III, Sec. 1302",
@@ -991,8 +998,6 @@
   },
   {
    "issueKey": "states_federal_power",
-   "weight": 35,
-   "primaryLabel": false,
    "supportMeaning": "yea_opposes",
    "provisionRefs": [
     "Div. A, Title II, Sec. 1202",
@@ -1005,8 +1010,6 @@
   },
   {
    "issueKey": "judicial_check",
-   "weight": 35,
-   "primaryLabel": false,
    "supportMeaning": "yea_opposes",
    "provisionRefs": [
     "Div. A, Title I, Sec. 1110"
@@ -1018,8 +1021,6 @@
   },
   {
    "issueKey": "infrastructure",
-   "weight": 35,
-   "primaryLabel": false,
    "supportMeaning": "yea_supports",
    "provisionRefs": [
     "Div. B, Title I, Sec. 2101",
@@ -1032,8 +1033,6 @@
   },
   {
    "issueKey": "cost_living",
-   "weight": 30,
-   "primaryLabel": false,
    "supportMeaning": "yea_supports",
    "provisionRefs": [
     "Div. B, Title I, Sec. 2107"
@@ -1045,8 +1044,6 @@
   },
   {
    "issueKey": "enviro_balance",
-   "weight": 20,
-   "primaryLabel": false,
    "supportMeaning": "yea_supports",
    "provisionRefs": [
     "Div. A, Title VI, Sec. 1602 (substitute only)",
@@ -1060,8 +1057,6 @@
   },
   {
    "issueKey": "tribal_consultation",
-   "weight": 20,
-   "primaryLabel": false,
    "supportMeaning": "yea_supports",
    "provisionRefs": [
     "Div. B, Title II, Sec. 2212",
@@ -1076,8 +1071,6 @@
   },
   {
    "issueKey": "tribal_consultation",
-   "weight": 15,
-   "primaryLabel": false,
    "supportMeaning": "yea_opposes",
    "provisionRefs": [
     "Div. B, Title III, Sec. 2301"
@@ -1090,8 +1083,6 @@
   },
   {
    "issueKey": "property_rights",
-   "weight": 20,
-   "primaryLabel": false,
    "supportMeaning": "yea_opposes",
    "provisionRefs": [
     "Div. B, Title I, Sec. 2101",
@@ -1104,21 +1095,39 @@
   },
   {
    "issueKey": "property_rights",
-   "weight": 10,
-   "primaryLabel": false,
    "supportMeaning": "yea_supports",
    "provisionRefs": [
     "Div. B, Title II, Sec. 2211"
    ],
    "quote": "(1) the well is located on non-Federal land and the Federal Government owns less than 50 percent of the oil and gas minerals within the oil and gas drilling or spacing unit;",
    "quoteRef": "Div. B, Title II, Sec. 2211",
-   "rationale": "Scope covers a government forbidding a use of a parcel. Sec. 2211 bars Interior from requiring a federal drilling permit for wells on non-Federal land where the federal share of the unit's minerals is under 50 percent, leaving State and Tribal rules in place. That removes a federal condition on a use of non-federal land, which runs with the key. It is one section about a permit, not a taking, so it carries the floor weight. Split row: the sections that run against this key are in the yea_opposes row above.",
+   "rationale": "Scope covers a government forbidding a use of a parcel. Sec. 2211 bars Interior from requiring a federal drilling permit for wells on non-Federal land where the federal share of the unit's minerals is under 50 percent, leaving State and Tribal rules in place. That removes a federal condition on a use of non-federal land, which runs with the key. It is one section about a permit, not a taking. Split row: the sections that run against this key are in the yea_opposes row above.",
+   "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm"
+  },
+  {
+   "issueKey": "mine_cleanup",
+   "supportMeaning": "yea_supports",
+   "provisionRefs": [
+    "Div. B, Title II, Sec. 2215(d) (Abandoned Hardrock Mine Fund)"
+   ],
+   "quote": "There is established in the Treasury of the United States a separate account, to be known as the ``Abandoned Hardrock Mine Fund''",
+   "quoteRef": "Div. B, Title II, Sec. 2215(d) (Abandoned Hardrock Mine Fund)",
+   "rationale": "Scope: cleaning up abandoned mines and handling mining waste. Sec. 2215(d) creates a dedicated fund, paid by mill-site claim fees and hardrock lease receipts and spendable without further appropriation, only for the IIJA sec. 40704 abandoned hardrock mine reclamation program. New mandatory money for cleanup runs with the key. It is one subsection of Sec. 2215. Split row: the sections that run against this key are in the yea_opposes row below.",
+   "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm"
+  },
+  {
+   "issueKey": "mine_cleanup",
+   "supportMeaning": "yea_opposes",
+   "provisionRefs": [
+    "Div. B, Title II, Sec. 2215"
+   ],
+   "quote": "locate and include within the plan of operations as many mill site claims under this subsection as are reasonably necessary for its operations",
+   "quoteRef": "Div. B, Title II, Sec. 2215",
+   "rationale": "Scope covers where waste rock and tailings may go. Sec. 2215(a) defines a mill site as public land reasonably necessary for waste rock or tailings disposal and lets a claimant locate as many as are reasonably necessary, notwithstanding the existing limits in Revised Statutes sec. 2337(a) and (b). Each site is capped at 5 acres, but the number is not. Widening where mining waste may be placed on public land runs against the key. It is the operative body of the section. Split row: the subsection that runs with this key is in the yea_supports row above.",
    "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm"
   },
   {
    "issueKey": "gov_transparency",
-   "weight": 15,
-   "primaryLabel": false,
    "supportMeaning": "yea_supports",
    "provisionRefs": [
     "Div. A, Title I, Sec. 1132",
@@ -1128,24 +1137,22 @@
    ],
    "quote": "(1) Public announcement.--Not later than 72 hours after altering a directive or safety standard relating to covered DOE nuclear facilities, the Secretary of Energy shall post, on a publicly accessible website of the Department of Energy, an announcement regarding such alteration. (2)",
    "quoteRef": "Div. B, Title II, Sec. 2261 (substitute only)",
-   "rationale": "Scope includes publishing the basis for decisions. A public permitting tracker (1132), EIA data-center load reporting (2114), and a 72-hour DOE notice of nuclear safety-standard changes (2261) all require more disclosure. These are narrow links at the floor weight.",
+   "rationale": "Scope includes publishing the basis for decisions. A public permitting tracker (1132), EIA data-center load reporting (2114), and a 72-hour DOE notice of nuclear safety-standard changes (2261) all require more disclosure. These are narrow links.",
    "sourceUrl": "https://www.congress.gov/119/crec/2026/11/10/172/169/modified/CREC-2026-11-10-pt1-PgS5471-2.htm"
   },
   {
    "issueKey": "disaster_resilience",
-   "weight": 10,
-   "primaryLabel": false,
    "supportMeaning": "yea_supports",
    "provisionRefs": [
     "Div. A, Title VI, Sec. 1601 (substitute only)"
    ],
    "quote": "``(ii) Inclusion.--The term `prescribed fire' includes cultural burning activities, as determined by an Indian tribe.''; (B) in paragraph (2), by striking subparagraph (B) and inserting the following: ``(B) Revision of regulations.-- ``(i) Proposed revisions.--Not later than 270 days after the date",
    "quoteRef": "Div. A, Title VI, Sec. 1601 (substitute only)",
-   "rationale": "Chip: \"Prepare for wildfires.\" Sec. 1601 (substitute only) makes prescribed fire, including Tribal cultural burning, an exceptional event for air-quality data, easing fuel-reduction burns. One section, at the floor weight.",
+   "rationale": "Chip: \"Prepare for wildfires.\" Sec. 1601 (substitute only) makes prescribed fire, including Tribal cultural burning, an exceptional event for air-quality data, easing fuel-reduction burns. It is one section.",
    "sourceUrl": "https://www.congress.gov/119/crec/2026/11/10/172/169/modified/CREC-2026-11-10-pt1-PgS5471-2.htm"
   }
  ],
- "splitMappingRule": "When a bill's text supports an issue key in some sections and opposes it in others, record one mapping row per direction for that key (yea_supports and yea_opposes), each citing its own sections with its own weight and a short quote; do not collapse conflicting effects into one direction.",
+ "splitMappingRule": "When a bill's text supports an issue key in some sections and opposes it in others, record one mapping row per direction for that key (yea_supports and yea_opposes), each citing its own sections with a short quote; do not collapse conflicting effects into one direction.",
  "considered": [
   {
    "issueKey": "climate_action",
@@ -1206,13 +1213,9 @@
   {
    "issueKey": "national_debt",
    "whyNot": "CBO's preliminary estimate is under $1 billion over 2027-2036. That is not a net fiscal direction large enough to read as a deficit vote, and it is shown as the scorekeeper finding instead."
-  },
-  {
-   "issueKey": "(not in text) abandoned-mine reclamation",
-   "whyNot": "Neither S. 5653 nor S.Amdt. 6883 contains an abandoned-mine reclamation provision (\"abandoned\" appears 0 times in S. 5653 and only in unrelated contexts in the substitute). The nearest text is Sec. 2215's mill sites for waste rock and tailings, and Sec. 1602 brownfields."
   }
  ],
- "primaryLabelNote": "Primary is a display label only. It carries no scoring weight and does not decide what is shown. One label is used (permitting_reform, from the official title \"To prescribe permitting reform\"). Weights describe how central the issue is to the text.",
+ "mappingEqualityNote": "Every mapping row is equal. Rows carry no weight, no primary label and no rank, and their order is not a ranking. Each row records a key, a direction, the sections it rests on, a quote and a rationale.",
  "sponsors": [
   {
    "politicianId": "capito",
@@ -5454,25 +5457,6 @@
    ],
    "plainRead": "States keep certification authority but may weigh only water-quality requirements, and must deny or condition only on clear and convincing evidence. Discharge permits may last 10 years instead of 5.",
    "independentRead": null
-  },
-  {
-   "id": "abandoned-mine-reclamation",
-   "question": "Does the bill fund or change abandoned-mine reclamation?",
-   "provisionRefs": [
-    "Div. B, Title II, Sec. 2215",
-    "Div. A, Title VI, Sec. 1602 (substitute only)"
-   ],
-   "supportersSay": [],
-   "opponentsSay": [],
-   "whatTheTextSays": [
-    {
-     "ref": "Div. B, Title II, Sec. 2215",
-     "quote": "the proprietor may-- ``(A) locate and include within the plan of operations as many mill site claims under this subsection as are reasonably necessary for its operations; and ``(B) use or occupy public land in accordance with an approved plan of operations. ``(3) Mill sites convey no mineral",
-     "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm"
-    }
-   ],
-   "plainRead": "Not a live claim on this text. Neither version contains an abandoned-mine reclamation program, and no sponsor or opponent statement found raises one (checked 2026-11-19). The closest provisions are mill sites for waste rock and tailings on public land (2215) and brownfield cleanup grants (1602, substitute only). Kept so the requested topic is answered, not dropped.",
-   "independentRead": null
   }
  ],
  "scorekeepers": [
@@ -5544,7 +5528,7 @@
   },
   "E_issue_mapping": {
    "mark": "present",
-   "note": "14 keys mapped in 16 rows, 16 considered and declined. Two keys are split under splitMappingRule: tribal_consultation (added to the register 2026-11-19, listed as a vocabulary gap in the first pass) into a yea_supports row (Secs. 2212, 2301 definition, 2302) and a yea_opposes row (Sec. 2301 adverse-effect standard and program suspension); property_rights, first declined as running both ways, into a yea_opposes row (Sec. 2101 transmission permits and the 216(e) condemnation changes) and a yea_supports row (Sec. 2211 drilling permits on non-federal land)."
+   "note": "15 keys mapped in 18 rows, 15 considered and declined. Three keys are split under splitMappingRule: tribal_consultation (added to the register 2026-11-19, listed as a vocabulary gap in the first pass) into a yea_supports row (Secs. 2212, 2301 definition, 2302) and a yea_opposes row (Sec. 2301 adverse-effect standard and program suspension); property_rights, first declined as running both ways, into a yea_opposes row (Sec. 2101 transmission permits and the 216(e) condemnation changes) and a yea_supports row (Sec. 2211 drilling permits on non-federal land); mine_cleanup (added to the register 2026-11-20) into a yea_supports row (Sec. 2215(d) Abandoned Hardrock Mine Fund) and a yea_opposes row (Sec. 2215 unlimited mill sites for waste rock and tailings)."
   },
   "F_positions": {
    "mark": "partial",
@@ -5556,7 +5540,7 @@
   },
   "H_contested_claims": {
    "mark": "present",
-   "note": "5 claims with both sides and the text; the abandoned-mine topic recorded as not in the text."
+   "note": "5 claims with both sides and the text. The abandoned-mine claim was removed 2026-11-19: Sec. 2215(d) does create an Abandoned Hardrock Mine Fund in both versions, and the sponsors' fact sheet promotes it, but no primary-source statement opposing it from a member was found, so it does not have two sides."
   },
   "I_citations": {
    "mark": "partial",

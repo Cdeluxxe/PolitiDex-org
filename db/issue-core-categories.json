@@ -1,6 +1,6 @@
 {
   "_generatedBy": "scripts/gen-issue-core-categories.mjs (from CORE_NATIONAL_ISSUES in issue-map.js)",
-  "count": 136,
+  "count": 137,
   "categoryOf": {
     "america_first": "foreign_policy_defense",
     "america_first_fp": "foreign_policy_defense",
@@ -85,6 +85,7 @@
     "lgbtq_rights": "civil_rights_culture",
     "lower_taxes": "spending_debt_waste",
     "medical_freedom": "healthcare",
+    "mine_cleanup": "climate_energy",
     "national_debt": "spending_debt_waste",
     "no_new_wars": "foreign_policy_defense",
     "paid_leave": "economy_cost_of_living",

@@ -1,6 +1,6 @@
 {
   "_generatedBy": "scripts/gen-issue-keys.mjs (from ISSUE_MAP in alignment-tool.js)",
-  "count": 136,
+  "count": 137,
   "keys": [
     "america_first",
     "america_first_fp",
@@ -85,6 +85,7 @@
     "lgbtq_rights",
     "lower_taxes",
     "medical_freedom",
+    "mine_cleanup",
     "national_debt",
     "no_new_wars",
     "paid_leave",
@@ -1329,6 +1330,18 @@
       "conscience",
       "natural immunity",
       "bodily autonomy"
+    ],
+    "mine_cleanup": [
+      "abandoned mine",
+      "abandoned mines",
+      "mine cleanup",
+      "mine reclamation",
+      "hardrock",
+      "mining waste",
+      "waste rock",
+      "tailings",
+      "mill site",
+      "good samaritan"
     ],
     "national_debt": [
       "national debt",
