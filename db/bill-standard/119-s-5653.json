@@ -1206,10 +1206,6 @@
   {
    "issueKey": "national_debt",
    "whyNot": "CBO's preliminary estimate is under $1 billion over 2027-2036. That is not a net fiscal direction large enough to read as a deficit vote, and it is shown as the scorekeeper finding instead."
-  },
-  {
-   "issueKey": "(not in text) abandoned-mine reclamation",
-   "whyNot": "Neither S. 5653 nor S.Amdt. 6883 contains an abandoned-mine reclamation provision (\"abandoned\" appears 0 times in S. 5653 and only in unrelated contexts in the substitute). The nearest text is Sec. 2215's mill sites for waste rock and tailings, and Sec. 1602 brownfields."
   }
  ],
  "primaryLabelNote": "Primary is a display label only. It carries no scoring weight and does not decide what is shown. One label is used (permitting_reform, from the official title \"To prescribe permitting reform\"). Weights describe how central the issue is to the text.",
@@ -5525,7 +5521,7 @@
   },
   "E_issue_mapping": {
    "mark": "present",
-   "note": "14 keys mapped in 16 rows, 16 considered and declined. Two keys are split under splitMappingRule: tribal_consultation (added to the register 2026-11-19, listed as a vocabulary gap in the first pass) into a yea_supports row (Secs. 2212, 2301 definition, 2302) and a yea_opposes row (Sec. 2301 adverse-effect standard and program suspension); property_rights, first declined as running both ways, into a yea_opposes row (Sec. 2101 transmission permits and the 216(e) condemnation changes) and a yea_supports row (Sec. 2211 drilling permits on non-federal land)."
+   "note": "14 keys mapped in 16 rows, 15 considered and declined. Two keys are split under splitMappingRule: tribal_consultation (added to the register 2026-11-19, listed as a vocabulary gap in the first pass) into a yea_supports row (Secs. 2212, 2301 definition, 2302) and a yea_opposes row (Sec. 2301 adverse-effect standard and program suspension); property_rights, first declined as running both ways, into a yea_opposes row (Sec. 2101 transmission permits and the 216(e) condemnation changes) and a yea_supports row (Sec. 2211 drilling permits on non-federal land)."
   },
   "F_positions": {
    "mark": "partial",
