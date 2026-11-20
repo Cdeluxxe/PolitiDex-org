@@ -51,6 +51,7 @@
 
 import { createHash } from "node:crypto";
 import { TOPIC_RULES, SCORED_TOPICS, NO_POLE_TOPICS, hasRulesFor, extractSentences } from "./stance-score-core.mjs";
+import { preferWordGaps } from "./raw-ingest-word-gap.mjs";
 
 export const FRONTIER_KEY = "frontier.json";
 export const SEEN_KEY = "seen.json";
@@ -410,7 +411,7 @@ export const FRESH_SKIP_LOG_LIMIT = 20;
  * per swap, one "discovery: frontier SKIP …" per passed-over candidate (up to
  * FRESH_SKIP_LOG_LIMIT) and a "discovery: frontier —" summary line.
  */
-export function addFreshSources(sources, state, { politicians, max, perPolitician, per = FRESH_PER_POLITICIAN, protect = new Set(), skipHosts = new Set(), spare = 0, log = console.log } = {}) {
+export function addFreshSources(sources, state, { politicians, max, perPolitician, per = FRESH_PER_POLITICIAN, protect = new Set(), skipHosts = new Set(), spare = 0, log = console.log, wordGaps = null } = {}) {
   const out = [...sources];
   const known = new Set(out.map((s) => normUrl(s.url)));
   const added = [], displaced = [], skipped = [];
@@ -420,7 +421,8 @@ export function addFreshSources(sources, state, { politicians, max, perPoliticia
   const planned = politicians || [...new Set(out.map((s) => s.politician_id))];
 
   const take = (pid, { spareSlot }) => {
-    const list = state.frontier[pid] || [];
+    // Word vs Action gaps first (by harvested topic); stable, so frontier rank breaks ties.
+    const list = preferWordGaps(state.frontier[pid] || [], wordGaps);
     let n = 0, i = 0;
     for (; i < list.length; i++) {
       const cand = list[i];
