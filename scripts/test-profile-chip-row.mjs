@@ -137,8 +137,11 @@ for (const c of CASES) {
   eq(s.label, "Status", `${c.pid}: Status chip label`);
   eq(s.value, c.status, `${c.pid}: Status chip wording`);
   eq(s.value, W.PDXStatus.label(W.CMP_DATA[c.pid]), `${c.pid}: Status chip = the badge-by-the-name's wording`);
-  ok(nav.indexOf('data-pdxnav-fact="term"') < nav.indexOf('data-pdxnav-fact="status"') &&
-     nav.indexOf('data-pdxnav-fact="status"') < nav.indexOf("<button"), `${c.pid}: Term, then Status, lead the row`);
+  // Term and Status lead the "More sections" track; the compact lead row
+  // (Funding · Activity · Word vs Action) sits above the disclosure.
+  const track = nav.slice(nav.indexOf('class="pdx-pnav-track"'));
+  ok(track.indexOf('data-pdxnav-fact="term"') < track.indexOf('data-pdxnav-fact="status"') &&
+     track.indexOf('data-pdxnav-fact="status"') < track.indexOf("<button"), `${c.pid}: Term, then Status, lead the row`);
   ok(!/data-pdxnav-fact="[^"]*"[^>]*data-target/.test(nav), `${c.pid}: the fact chips jump nowhere`);
 }
 

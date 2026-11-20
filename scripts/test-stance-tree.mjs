@@ -187,7 +187,10 @@ const vote = (n, issueKey, position, opts) => {
 const SEED = [];
 for (let i = 0; i < 12; i++) SEED.push(vote(i, ALIGNS, "yea"));
 for (let i = 0; i < 12; i++) SEED.push(vote(20 + i, CUTS, "nay"));
-for (let i = 0; i < 6; i++) SEED.push(vote(40 + i, SPLITCUE, i % 2 ? "nay" : "yea"));
+// Four with, two against: 67% is inside the 65%–<95% Mixed band and still short of
+// the 75% bar a record needs to be characterised one way. (3 and 3 is 50%, which
+// reads Contradicted on the match cutoffs.)
+for (let i = 0; i < 6; i++) SEED.push(vote(40 + i, SPLITCUE, i % 3 === 2 ? "nay" : "yea"));
 for (let i = 0; i < 12; i++) SEED.push(vote(50 + i, MIXCUE, "yea"));
 for (let i = 0; i < 12; i++) SEED.push(vote(70 + i, ONLY_STRONG, "nay"));
 SEED.push(vote(85, ONLY_THIN, "yea"));
@@ -1295,8 +1298,16 @@ section("13 · a handful of leaves renders flat");
     "…and keeps the filter bar exactly where the profile has something to narrow");
 
   // NARROWING BELOW THE THRESHOLD DROPS THE CHROME TOO — which is the deep-profile
-  // case the brief is really about: four contradictions, one flat list, no hunting.
-  const TP = "trump";
+  // case the brief is really about: a few contradictions, one flat list, no hunting.
+  // The fixture is the first deep profile (a tree when unfiltered) whose
+  // contradictions narrow below the threshold — trump led until the 95 / 65 match
+  // cutoffs moved more of his rows into Contradicted.
+  const TP = ["trump"].concat(Object.keys(A.CMP_DATA || {})).find((pid) => {
+    try {
+      const n = T.filter(T.leaves(pid), "cuts").length;
+      return n > 0 && n <= T.FLAT.maxLeaves && T.count(pid) > T.FLAT.maxLeaves;
+    } catch (e) { return false; }
+  }) || "trump";
   const cuts = T.filter(T.leaves(TP), "cuts");
   must(cuts.length > 0 && cuts.length <= T.FLAT.maxLeaves,
     `the deep fixture no longer narrows below the threshold (${cuts.length})`);

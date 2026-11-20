@@ -472,11 +472,13 @@
     // ._pdxMixedGate) so a homepage tally and a profile issue row cannot reach
     // different conclusions from the same evidence.
     //
-    // Dominance is 2/3 of the combined weight. Below that the split is real and the
-    // row says so; at or above it the leading side is the record and Mixed would be
-    // hedging. A lone tested action therefore always resolves — 100% of the weight
-    // sits on one side — which is why a signature law that breaks the claim reads
-    // "Says one thing, does another" rather than sliding into the middle.
+    // The split is read against the match cutoffs (_pdxMatchBand below): the share
+    // of the weight that backs the word must reach 95% to be "Backed up", 65% to
+    // < 95% is Mixed, and under 65% is a contradiction. A lone tested action
+    // therefore always resolves — 100% of the weight sits on one side — which is
+    // why a signature law that breaks the claim reads "Says one thing, does
+    // another" rather than sliding into the middle. _MIXED_DOMINANCE is kept as an
+    // exported constant for older readers; the gate no longer uses it.
     var _MIXED_DOMINANCE = 2 / 3;
 
     // …and weight alone was not enough. A single item can carry weight in BOTH
@@ -511,14 +513,34 @@
       if (cons <= 0) return 'contradicts';
       var n = (typeof judgedItems === 'number' && isFinite(judgedItems)) ? Math.floor(judgedItems) : 1;
       if (n < _MIXED_MIN_ITEMS) {
-        if (contra > cons) return 'contradicts';
-        if (cons > contra) return 'consistent';
-        return 'no_position';                          // one item, dead even — thin, not Mixed
+        // One item cannot be split, but it still has to clear the cutoffs: below
+        // 95% it is not "Backed up", below 65% it is a contradiction, and the band
+        // in between is thin rather than Mixed.
+        var one = _pdxMatchBand(100 * cons / total);
+        return one === 'mixed' ? 'no_position' : one;
       }
-      if (contra >= total * _MIXED_DOMINANCE) return 'contradicts';
-      if (cons >= total * _MIXED_DOMINANCE) return 'consistent';
-      return 'mixed';                                  // materially split, no dominant side
+      return _pdxMatchBand(100 * cons / total);       // ≥95 backed up · 65–<95 mixed · <65 contradicted
     }
+
+    // ── THE MATCH CUTOFFS — one ladder, every surface ─────────────────────────
+    // The share of a record that backs the word decides its bucket:
+    //   Backed up     ≥ 95%
+    //   Mixed         65% to < 95%
+    //   Contradicted  < 65%
+    // Nothing under 95% is "Backed up". The share is rounded first, so the label
+    // always agrees with the whole-number percentage printed beside it.
+    var _MATCH_BACKED_MIN = 95;
+    var _MATCH_MIXED_MIN = 65;
+    function _pdxMatchBand(pct) {
+      if (typeof pct !== 'number' || !isFinite(pct)) return null;
+      var r = Math.round(pct);
+      if (r >= _MATCH_BACKED_MIN) return 'consistent';
+      if (r >= _MATCH_MIXED_MIN) return 'mixed';
+      return 'contradicts';
+    }
+    window._pdxMatchBand = _pdxMatchBand;
+    window._PDX_MATCH_BACKED_MIN = _MATCH_BACKED_MIN;
+    window._PDX_MATCH_MIXED_MIN = _MATCH_MIXED_MIN;
     window._pdxMixedGate = _pdxMixedGate;
     window._PDX_MIXED_DOMINANCE = _MIXED_DOMINANCE;
     window._PDX_MIXED_MIN_ITEMS = _MIXED_MIN_ITEMS;
@@ -567,6 +589,15 @@
       else if (stance === 'mixed') netVerdict = 'no_position';
       else netVerdict = _pdxMixedGate(consistentScore, contradictScore,
         counts.consistent + counts.contradicts);
+      // The verdict follows the percentage every surface prints for this issue —
+      // the count share, consistent ÷ (consistent + contradicts) — on the match
+      // cutoffs, so the summary, the row and the card cannot name different buckets.
+      var _judged = counts.consistent + counts.contradicts;
+      if (_judged > 0 && (netVerdict === 'consistent' || netVerdict === 'mixed' || netVerdict === 'contradicts')) {
+        var _cb = _pdxMatchBand(100 * counts.consistent / _judged);
+        if (_cb === 'mixed' && _judged < _MIXED_MIN_ITEMS) _cb = 'no_position';
+        if (_cb) netVerdict = _cb;
+      }
 
       return {
         issueKey: issueKey,

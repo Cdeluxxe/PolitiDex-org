@@ -1226,39 +1226,40 @@ section("15 · one verdict engine, and a narrow Mixed");
   eq(g(0, 0, 0), "no_position", "the gate mints a verdict from nothing");
   eq(g(100, 0, 4), "consistent", "an all-backing record does not read as backed");
   eq(g(0, 100, 4), "contradicts", "an all-breaking record does not read as broken");
-  eq(g(50, 50, 2), "mixed", "a genuinely even split does not read as Mixed — Mixed must still be reachable");
+  // THE MATCH CUTOFFS: >= 95% Backed up · 65% to < 95% Mixed · < 65% Contradicted.
+  eq(win._PDX_MATCH_BACKED_MIN, 95, "the Backed up cutoff moved");
+  eq(win._PDX_MATCH_MIXED_MIN, 65, "the Mixed cutoff moved");
+  eq(g(80, 20, 4), "mixed", "a record that backs the word 80% of the way does not read as Mixed — Mixed must still be reachable");
+  eq(g(50, 50, 2), "contradicts", "an even split is under 65% and must read as Contradicted");
   // The soft middle: a clear break with a token amount of agreement beside it.
   eq(g(10, 90, 4), "contradicts",
     "a record that breaks the claim 9 times out of 10 reads as Mixed — this is the soft landing the\n" +
     "    tightened rule exists to close");
-  eq(g(90, 10, 4), "consistent", "the same leniency in the other direction — a mostly-kept record hedged into Mixed");
-  // The threshold itself, pinned from both sides so it cannot drift silently.
-  const D = win._PDX_MIXED_DOMINANCE;
-  eq(D, 2 / 3, "the Mixed dominance threshold moved");
-  eq(g(0, 2, 2), "contradicts", "exactly at the threshold the dominant direction must win outright");
-  eq(g(2, 1, 3), "consistent", "exactly at the threshold the dominant direction must win outright");
-  eq(g(3, 2, 5), "mixed", "just under the threshold the record is genuinely split and must say so");
+  eq(g(90, 10, 4), "mixed", "a 90% record reads as Backed up — nothing under 95% may");
+  // The cutoffs themselves, pinned from both sides so they cannot drift silently.
+  eq(g(95, 5, 2), "consistent", "exactly 95% must read as Backed up");
+  eq(g(94, 6, 2), "mixed", "just under 95% must read as Mixed, not Backed up");
+  eq(g(65, 35, 2), "mixed", "exactly 65% must read as Mixed");
+  eq(g(64, 36, 2), "contradicts", "just under 65% must read as Contradicted");
+  eq(g(0, 2, 2), "contradicts", "an all-breaking pair must read as Contradicted");
 
   // ── THE HEADCOUNT FLOOR ────────────────────────────────────────────────────
   // One item can carry weight in both directions — an omnibus law that advances an
   // issue in one section and undercuts it in another, or a receipt scored both ways.
-  // The dominance test alone read that as a split record, which is how a row with a
-  // single document on it printed "Mixed record".
+  // One document is not a record pulling two ways, so Mixed stays unreachable below
+  // two items: the cutoffs still apply at both ends, and the band in between is thin.
   const MIN = win._PDX_MIXED_MIN_ITEMS;
   eq(MIN, 2, "the Mixed headcount floor moved");
-  eq(g(50, 50, 1), "no_position",
-    "ONE item argued evenly both ways still reads as Mixed — a single document is not a record pulling\n" +
+  eq(g(80, 20, 1), "no_position",
+    "ONE item in the Mixed band reads as Mixed — a single document is not a record pulling\n" +
     "    two ways, and 'not enough record yet' is the honest name for it");
-  eq(g(40, 60, 1), "contradicts",
-    "one item that leans against the stance reads as Mixed instead of resolving");
-  eq(g(60, 40, 1), "consistent",
-    "one item that leans with the stance reads as Mixed instead of resolving");
-  eq(g(3, 2, 1), "consistent",
-    "a balance that IS Mixed at two items is still Mixed at one — the floor is not being applied");
+  eq(g(40, 60, 1), "contradicts", "one item under 65% does not read as Contradicted");
+  eq(g(96, 4, 1), "consistent", "one item at or above 95% does not read as Backed up");
+  eq(g(3, 2, 1), "contradicts", "one item at 60% does not read as Contradicted");
   // An unknown headcount must fail closed, not open: a caller that has not been
   // taught to count cannot be allowed to mint Mixed by omission.
-  eq(g(50, 50), "no_position", "omitting the headcount reopens Mixed to uncounted callers");
-  eq(g(3, 2), "consistent", "omitting the headcount reopens Mixed to uncounted callers");
+  eq(g(80, 20), "no_position", "omitting the headcount reopens Mixed to uncounted callers");
+  eq(g(3, 2), "contradicts", "omitting the headcount changes how the cutoffs apply");
 }
 
 // 15d. THE SOFT-MIDDLE PATHS ARE GONE FROM THE SOURCE. A gate only holds if nothing

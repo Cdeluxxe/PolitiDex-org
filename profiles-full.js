@@ -4040,6 +4040,21 @@
         (window._pdxLockerItemDates(id) || []).forEach(take);
       }
     } catch (e) {}
+    // THE FORMAL RECORD IS DATA TOO. The roll calls and formal actions (executive
+    // orders, signings, vetoes) that arrive through the voting-record feed are
+    // usually the freshest thing on a file — a member who voted last week was
+    // reading "Updated 1y ago" because only receipts and pledges were asked. Once
+    // the record is warm its newest dated item competes like any other; the live
+    // repaint (window._pdxNavLive) carries the fresher stamp onto the chip.
+    try {
+      var VR = window.PDXVotingRecord;
+      var recs = (VR && typeof VR.memberRecords === 'function') ? VR.memberRecords(id) : null;
+      (recs || []).forEach(function (it) { if (it) take(it.date); });
+    } catch (e) {}
+    // …and the profile document's own edit stamp, which is a real update to the
+    // file. It used to be only a fallback for a person with no dated receipt, so
+    // one year-old receipt could outvote an edit made this week.
+    try { if (p) { take(p.updatedAt); take(p.lastUpdated); } } catch (e) {}
     return best;
   };
   // The 🕑 Activity value: "Updated 2d ago" off the newest evidence item or
@@ -4049,6 +4064,8 @@
   window._pdxActivityRel = function (id, p) {
     if (typeof window._pdxRelTime !== 'function') return '';
     try {
+      p = p || (window.PROFILES && window.PROFILES[id]) ||
+          ((typeof CMP_DATA !== 'undefined' && CMP_DATA[id]) ? CMP_DATA[id] : null) || null;
       var ts = window._pdxNewestEvidenceTs(id, p);
       if (ts) return window._pdxRelTime(ts);
       var st = p && (p.updatedAt || p.createdAt);
@@ -4073,8 +4090,11 @@
         var wa = window.PDXWordAction.read(id, p);
         if (wa && wa.coverage && wa.coverage.word) {
           var waWarm = !!wa.coverage.warming;
+          // The bucket word rides with the figure, on the same cutoffs the issue
+          // rows use (≥95% Backed up · 65% to <95% Mixed · <65% Contradicted).
+          var waWord = { consistent: 'Backed up', mixed: 'Mixed', contradicts: 'Contradicted' }[wa.token] || '';
           out.wordaction = {
-            value: (wa.pct !== null) ? (wa.pct + '%')
+            value: (wa.pct !== null) ? (wa.pct + '%' + (waWord ? ' · ' + waWord : ''))
               : (waWarm ? _NAV_PEND : (wa.coverage.tested ? 'Not enough on file' : 'Untested')),
             color: (wa.verdict && wa.verdict.color) || '#9fb4d4',
             pending: waWarm,
@@ -4168,7 +4188,7 @@
       var rel = window._pdxActivityRel(id, p);
       if (rel) {
         out.activity = { value: 'Updated ' + rel, color: '#9fb4d4', pending: false,
-          note: 'newest evidence item or pipeline mention on file' };
+          note: 'newest dated item on file — evidence, votes, formal actions or profile edits' };
       }
     } catch (e) {}
     // 🔗 Evidence — receipts, not issues, and it says so.
@@ -4408,6 +4428,15 @@
       if (c.pending) btn.setAttribute('data-pdxnav-pending', '1');
       else btn.removeAttribute('data-pdxnav-pending');
     }
+    // The 🕑 Activity footer prints the same stamp; keep it in step with the chip.
+    try {
+      var rel = window._pdxActivityRel(id, null);
+      if (rel) {
+        var body = document.getElementById('modal-body') || document;
+        var foot = body.querySelectorAll('[data-pdx-activity-rel]');
+        for (var f = 0; f < foot.length; f++) if (foot[f].textContent !== rel) foot[f].textContent = rel;
+      }
+    } catch (e3) {}
   };
   var _navLiveBound = false;
   function _pdxNavLiveBind() {
@@ -4498,7 +4527,9 @@
       // 4 is DOCUMENT_POSITION_FOLLOWING: b comes after a, so a sorts first.
       return (a.el.compareDocumentPosition(b.el) & 4) ? -1 : 1;
     });
-    _pdxNavSyncOrder(track, pills, targets);
+    // Only the track's own pills are re-sorted: the lead row's three are pinned in
+    // their own container and must not be swept back into the disclosure.
+    _pdxNavSyncOrder(track, pills.filter(function (b) { return b.parentNode === track; }), targets);
 
     // One layout read, once, at arm time — where the old code took one per frame.
     // The rail is sticky at the top of the scroller, so its height is the offset
@@ -5563,7 +5594,7 @@
     // Activity — freshness / how much is tracked.
     if (_navActivityHas) {
       _navItems.push({ target: 'pdxsec-activity', icon: '🕑', label: 'Activity', value: _navActivityVal, color: '#9fb4d4',
-        live: _navActivityRel ? 'activity' : undefined });
+        live: 'activity' });
     }
 
     // The rail order is the spine order. Sorting here rather than trusting the push
@@ -5617,11 +5648,20 @@
     // The chip row, at the top of the file directly under the seat line. It
     // renders whenever it has the jump chips (two or more — one is not a map) or
     // the Term / Status facts, which every person file carries.
-    const _navBar = (_navOrdered.length >= 2 || _navFacts.length)
-      ? '<nav id="pdx-profile-nav" class="pdx-pnav" data-pdxnav-pid="' + id +
-          '" aria-label="Jump to a section of this profile">' +
-          '<div class="pdx-pnav-track">' + _navFactsHtml +
-            _navOrdered.map(function (n) {
+    // ── THE LEAD ROW, AND EVERYTHING ELSE BEHIND ONE TAP ─────────────────────
+    // Thirteen-odd 44px pills wrapped to three or four rows and pushed the formal
+    // record and the biography below the fold. The letterhead now leads with the
+    // three glance figures — 💰 Funding, 🕑 Activity, ⚖️ Word vs Action — on one
+    // compact row, and every other jump (Term, Status, By topic, Positions, Record,
+    // Evidence, Votes, …) sits in a closed "More sections" disclosure. All of them
+    // stay inside #pdx-profile-nav, so the live repaint and the scroll-spy reach
+    // them exactly as before; only the track's own pills are re-sorted.
+    const _NAV_LEAD_ORDER = ['pdxsec-funding', 'pdxsec-activity', 'pdxsec-wordaction'];
+    const _navLead = _NAV_LEAD_ORDER.map(function (t) {
+      return _navOrdered.filter(function (n) { return n.target === t; })[0];
+    }).filter(Boolean);
+    const _navRest = _navOrdered.filter(function (n) { return _NAV_LEAD_ORDER.indexOf(n.target) === -1; });
+    const _navPillHtml = function (n) {
               // Action pill — opens an overlay (Full Stance Record) instead of
               // scrolling to an in-page anchor. It carries no data-target, so the
               // scroll-spy cleanly ignores it and it never steals the active state.
@@ -5651,8 +5691,19 @@
                   '<span class="pdx-pnav-val" style="color:' + n.color + ';">' + n.value + '</span>' +
                 '</span>' +
               '</button>';
-            }).join('') +
+    };
+    const _navMoreN = _navFacts.length + _navRest.length;
+    const _navBar = (_navOrdered.length >= 2 || _navFacts.length)
+      ? '<nav id="pdx-profile-nav" class="pdx-pnav" data-pdxnav-pid="' + id +
+          '" aria-label="Jump to a section of this profile">' +
+          (_navLead.length ? '<div class="pdx-pnav-lead">' + _navLead.map(_navPillHtml).join('') + '</div>' : '') +
+          '<details class="pdx-pnav-more"' + (_navLead.length ? '' : ' open') + '>' +
+            '<summary class="pdx-pnav-more-sum">More sections' +
+              (_navMoreN ? ' <span class="pdx-pnav-more-n">' + _navMoreN + '</span>' : '') + '</summary>' +
+          '<div class="pdx-pnav-track">' + _navFactsHtml +
+            _navRest.map(_navPillHtml).join('') +
           '</div>' +
+          '</details>' +
         '</nav>'
       : '';
 
@@ -7930,9 +7981,9 @@
            footer so the profile closes with a sense of freshness rather than
            trailing off. Also the scroll target for the Activity quick-jump pill. -->
       ${(function(){
-        function chip(lbl, val){ return '<div class="pdx-activity-chip"><span class="lbl">' + lbl + '</span><span class="val">' + val + '</span></div>'; }
+        function chip(lbl, val, attr){ return '<div class="pdx-activity-chip"><span class="lbl">' + lbl + '</span><span class="val"' + (attr || '') + '>' + val + '</span></div>'; }
         let chips = '';
-        if (_navActivityRel) chips += chip('Last updated', _navActivityRel);
+        if (_navActivityRel) chips += chip('Last updated', _navActivityRel, ' data-pdx-activity-rel');
         if (p.promises && p.promises.length) chips += chip('Promises tracked', p.promises.length);
         if (_navEvidenceCount) chips += chip('Evidence', _navEvidenceCount);
         if (window._pdxKeyIssues(p).length) chips += chip('Key issues', window._pdxKeyIssues(p).length);

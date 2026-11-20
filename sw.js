@@ -12403,7 +12403,12 @@
 //     route, gate or markup structure changes and no stance is seeded;
 //     no location key is touched and nothing stored is migrated.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v587';
+// v588 - MATCH CUTOFFS AND A COMPACT LETTERHEAD. Word vs Action and every issue
+//   row read Backed up at >= 95%, Mixed from 65% to < 95%, Contradicted below 65%.
+//   The letterhead leads with Funding, Activity and Word vs Action on one row; the
+//   other jumps sit behind "More sections". "Updated X ago" counts the voting and
+//   formal record and the profile's own edit stamp.
+const CACHE_VERSION = 'v588';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

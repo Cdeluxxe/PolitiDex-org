@@ -568,12 +568,14 @@
     if (it.kind === 'position-verified') {
       var sm = it.formalMatch && it.formalMatch.summary;
       var jd = sm ? (sm.consistent || 0) + (sm.contradicts || 0) : 0;
-      if (!jd || (sm.netVerdict !== 'consistent' && sm.netVerdict !== 'contradicts')) {
+      if (!jd || (sm.netVerdict !== 'consistent' && sm.netVerdict !== 'contradicts' && sm.netVerdict !== 'mixed')) {
         return { state: 'untested', reason: 'no_action_yet', token: 'no_record' };
       }
+      var smScore = Math.round(100 * (sm.consistent || 0) / jd);
       return {
-        state: 'tested', score: Math.round(100 * (sm.consistent || 0) / jd),
-        token: sm.netVerdict, evidence: evidenceOf({ record: sm }), judged: jd, basis: 'formal-match'
+        state: 'tested', score: smScore,
+        // Same cutoffs as every issue row: ≥95 backed up · 65–<95 mixed · <65 contradicted.
+        token: (typeof window._pdxMatchBand === 'function' && window._pdxMatchBand(smScore)) || sm.netVerdict, evidence: evidenceOf({ record: sm }), judged: jd, basis: 'formal-match'
       };
     }
 
@@ -980,6 +982,12 @@
     // exists (the floor above) and which way the verdict word reads (the Mixed
     // gate), never what the number is.
     var pct = publishable ? directionPct(counts, tested.length) : null;
+    // THE VERDICT WORD FOLLOWS THE PRINTED FIGURE. ≥95% Backed up, 65% to <95%
+    // Mixed, <65% Contradicted — so a published read can never print "Backs it
+    // up" beside anything under 95%.
+    if (pct !== null && typeof window._pdxMatchBand === 'function') {
+      outcomeToken = window._pdxMatchBand(pct) || outcomeToken;
+    }
 
     // …and the WORDS fail closed with the number. One tested item saying
     // "consistent" would otherwise render a confident "✓ Backs it up" next to a
