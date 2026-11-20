@@ -57,6 +57,9 @@ const MULTI_HTML = '<html><body><h1>Issues</h1>'
 const runOnce = (suggestionsStore, { fetch = page(200, MULTI_HTML), now = NOW } = {}) => quiet(() => cron.scheduled({
   fetch, store: memStore(), lockerStore: memStore(), rotationStore: memStore(), suggestionsStore, now,
   rotate: false, discover: true, sources: core.SOURCES.filter((s) => s.url === CORNYN_URL),
+  // These fixtures are Cornyn's pages; the scheduled run's politician allow-list
+  // (raw-ingest-scope.mjs) is lifted here so the suggestions log is what is tested.
+  scope: [],
 }));
 
 await t('a run that finds a new URL and a cross-topic score writes both to the suggestions log', async () => {
@@ -92,7 +95,7 @@ await t('the run is unchanged: same report with or without the suggestions log, 
   const deps = { fetch: page(200, MULTI_HTML), store: memStore(), lockerStore: memStore(), now: NOW, discover: true, sources: core.SOURCES.filter((s) => s.url === CORNYN_URL) };
   const { value: a } = await quiet(() => cron.run({ ...deps, log: () => {} }));
   const broken = { async get() { throw new Error('boom'); }, async setJSON() { throw new Error('boom'); } };
-  const { value: b, lines } = await quiet(() => cron.scheduled({ ...deps, store: memStore(), lockerStore: memStore(), rotationStore: memStore(), rotate: false, suggestionsStore: broken }));
+  const { value: b, lines } = await quiet(() => cron.scheduled({ ...deps, store: memStore(), lockerStore: memStore(), rotationStore: memStore(), rotate: false, suggestionsStore: broken, scope: [] }));
   const ra = await a.json(), rb = await b.json();
   assert.equal(a.status, b.status);
   for (const k of ['ok', 'discovered', 'included', 'locker_writes', 'topics']) assert.deepEqual(rb[k], ra[k], `report.${k} unchanged`);
