@@ -121,7 +121,13 @@ section("1 · the index is the bill pages");
 eq(ROWS.length, Object.keys(DOCS).length, "one index row per bill page");
 const rowKeys = new Set(ROWS.map((r) => `${r[0]}|${r[1]}`));
 ok(Object.keys(DOCS).every((k) => rowKeys.has(k)), "every bill page has an index row");
-ok(ROWS.every((r) => DOCS[`${r[0]}|${r[1]}`] && DOCS[`${r[0]}|${r[1]}`].t === r[2] && DOCS[`${r[0]}|${r[1]}`].st === r[3]),
+// A ledger-published page's row is searched by its title plus the short names
+// its page prints ("… of 2026 (BAAJA)"); every other row's title is the page's.
+const searchedTitle = (d) => {
+  const extra = ((d.ld && d.ld.a) || []).filter((a) => a && !(d.t || "").toLowerCase().includes(a.toLowerCase()));
+  return extra.length ? `${d.t || ""} (${extra.join(", ")})` : d.t;
+};
+ok(ROWS.every((r) => DOCS[`${r[0]}|${r[1]}`] && searchedTitle(DOCS[`${r[0]}|${r[1]}`]) === r[2] && DOCS[`${r[0]}|${r[1]}`].st === r[3]),
   "every row carries its page's title and status");
 for (const k of ["2026GS|H.B. 585", "2026GS|S.B. 282", "2026GS|S.B. 318"]) ok(rowKeys.has(k), `${k} is in the index`);
 let fresh = true;

@@ -126,6 +126,7 @@ import vm from "node:vm";
 import { measureAddresses } from "./vr-measure-addresses.mjs";
 import { deriveStatus, statusLabel, historyRows, resolveSponsors, rosterTables, groupOf } from "./bill-record-core.mjs";
 import { sameTextTable } from "./gen-same-text.mjs";
+import { validateLedger } from "./bill-standard-core.mjs";
 
 const ROOT = path.resolve(path.dirname(url.fileURLToPath(import.meta.url)), "..");
 const OUT = path.join(ROOT, "db", "bill-docs.json");
@@ -242,7 +243,100 @@ export function billDocs(root, opts = {}) {
     }
     docs[key] = doc;
   }
+  if (!opts.noLedgers) {
+    for (const [key, doc] of Object.entries(ledgerDocs(root || ROOT))) if (!docs[key]) docs[key] = doc;
+  }
   return docs;
+}
+
+// ── Bill files published from a ground-truth ledger (db/bill-standard/) ─────
+// A measure the migrations do not carry can still have a bill file when a
+// reading pass has filled its ledger (scripts/bill-standard-core.mjs, standard
+// bill-gt-v1) to the publish bar: the ledger validates with --strict (no
+// "missing" completeness mark, every key in the register, every row with a
+// direction, sections, a quote and a rationale, the standard's equality note).
+// A ledger below the bar publishes nothing. A ledger never overrides a
+// document the migrations already hold.
+//
+// The entry is the same shape as every other document, plus `ld` — the
+// ledger's mapping table as it stands, one row per ledger row, in ledger
+// order: { k key, i label, d direction (yea_supports | yea_opposes), r the
+// sections it rests on, qr the quoted section, q the quote, w the rationale,
+// u the text it was read from } — with the ledger's completeness note for the
+// mapping (cn), its equality statement (eq), its short names (a) and its file
+// (f). Nothing is weighted, ranked or labelled primary: the ledger carries no
+// such field (validateLedger refuses one) and none is added here.
+const LEDGER_DIR = path.join("db", "bill-standard");
+const STAGE_WORD = {
+  introduced: "Introduced", in_committee: "Referred to committee", reported: "Reported from committee",
+  passed_house: "Passed the House", passed_senate: "Passed the Senate", passed_both: "Passed both chambers",
+  resolving_differences: "Resolving differences", to_president: "Sent to the President", enacted: "Became law",
+  vetoed: "Vetoed", veto_overridden: "Veto overridden", failed: "Failed", other: "Floor action",
+};
+const LEDGER_STATUS = {
+  introduced: ["pending", "Pending — introduced, no further action yet"],
+  in_committee: ["pending", "Pending — in committee"],
+  reported: ["pending", "Pending — reported from committee"],
+  passed_house: ["passed_house", "Passed the House — not law"],
+  passed_senate: ["passed_senate", "Passed the Senate — not law"],
+  passed_both: ["passed_both", "Passed both chambers — not yet law"],
+  resolving_differences: ["passed_both", "Passed both chambers — not yet law"],
+  to_president: ["passed_both", "Passed both chambers — not yet law"],
+  enacted: ["enacted", "Enacted — became law"],
+  veto_overridden: ["enacted", "Enacted — became law"],
+  vetoed: ["vetoed", "Failed — vetoed"],
+  failed: ["failed", "Failed — did not pass"],
+};
+export function ledgerDocs(root) {
+  const R = (f) => fs.readFileSync(path.join(root || ROOT, f), "utf8");
+  const dir = path.join(root || ROOT, LEDGER_DIR);
+  if (!fs.existsSync(dir)) return {};
+  const ctx = {
+    issueKeys: new Set(JSON.parse(R("db/issue-keys.json")).keys),
+    people: new Set(Object.keys(JSON.parse(R("db/share-index.json")).people)),
+    strict: true,
+  };
+  const labels = issueLabels(R("issue-map.js"));
+  const out = {};
+  for (const f of fs.readdirSync(dir).filter((x) => x.endsWith(".json")).sort()) {
+    const L = JSON.parse(fs.readFileSync(path.join(dir, f), "utf8"));
+    if (validateLedger(L, ctx).errors.length) continue; // below the publish bar
+    const id = L.identity, sitting = String(id.congress), number = String(id.number).trim();
+    const own = (L.status && L.status[number.replace(/[^A-Za-z0-9]/g, "")]) || {};
+    const [st, sl] = LEDGER_STATUS[own.status] || ["pending", "Pending — no final action yet"];
+    const rows = L.issues.map((x) => ({
+      k: x.issueKey, i: stripEmoji(labels[x.issueKey] || ""), d: x.supportMeaning,
+      r: x.provisionRefs, qr: x.quoteRef, q: x.quote, w: x.rationale, u: x.sourceUrl,
+    }));
+    const m = [...new Map(rows.filter((x) => x.i).map((x) => [x.k, { i: x.i, k: x.k }])).values()]
+      .sort((p, q) => p.i.localeCompare(q.i));
+    const sp = {};
+    for (const x of L.sponsors || []) {
+      if (!ctx.people.has(x.politicianId)) continue;
+      const r = x.role === "sponsor" ? "s" : "c";
+      (sp[r] = sp[r] || []).push(x.politicianId);
+    }
+    const intro = (L.status.timeline || []).find((x) => x.measure === number && x.stage === "introduced");
+    const doc = { s: sitting, n: number, c: id.chamber || "", t: id.shortTitle || id.officialTitle || "" };
+    if (m.length) doc.m = m;
+    doc.st = st;
+    doc.sl = sl;
+    doc.o = { c: id.chamber || "", d: (intro && intro.date) || "" };
+    if (Object.keys(sp).length) doc.sp = sp;
+    doc.h = (L.status.timeline || []).map((x) => ({
+      d: x.date, a: x.measure === number ? STAGE_WORD[x.stage] || "Action" : `${x.measure} — ${STAGE_WORD[x.stage] || "Action"}`, x: x.text,
+    }));
+    doc.rs = id.congressGovUrl;
+    doc.ld = {
+      rows,
+      cn: L.completeness.E_issue_mapping.note,
+      eq: L.mappingEqualityNote,
+      a: [id.acronym, "American Affordability"].filter(Boolean),
+      f: `${LEDGER_DIR}/${f}`,
+    };
+    out[`${sitting}|${number}`] = doc;
+  }
+  return out;
 }
 
 // The person-file index: every linked sponsor row, turned around. Built from the
@@ -256,7 +350,9 @@ export function billDocs(root, opts = {}) {
 // sponsor, "c" co-sponsor), newest sitting first.
 export function personBills(docs) {
   const rows = Object.values(docs)
-    .filter((d) => d.sp)
+    // A ledger-published file is not added to person files: those pages are
+    // left as they are until the measure reaches them through the record.
+    .filter((d) => d.sp && !d.ld)
     .sort((x, y) => y.s.localeCompare(x.s, undefined, { numeric: true }) || x.n.localeCompare(y.n, undefined, { numeric: true }));
   const bills = rows.map((d) => [d.s, d.n, d.t || "", d.st, groupOf(d.st), d.sl, (d.m || []).map((x) => x.k).filter(Boolean)]);
   const out = {};
@@ -351,7 +447,18 @@ function renderOfficial(official, effects, same) {
 export function billSearchRows(docs) {
   return Object.values(docs)
     .sort((a, b) => a.s.localeCompare(b.s, undefined, { numeric: true }) || a.n.localeCompare(b.n, undefined, { numeric: true }))
-    .map((d) => [d.s, d.n, d.t || "", d.st || "", (d.c || "").replace(/^utah /, ""), (d.m || []).map((x) => x.k).filter(Boolean)]);
+    .map((d) => [d.s, d.n, searchTitle(d), d.st || "", (d.c || "").replace(/^utah /, ""), (d.m || []).map((x) => x.k).filter(Boolean)]);
+}
+
+// The title a row is searched by. A ledger-published file's short names (its
+// acronym, "BAAJA") are printed on its page but are not in its title, so any
+// the title does not already hold follow it in parentheses — the eye searches
+// by number and title, and "baaja" then finds the page. Every other row's
+// title is the stored title, unchanged.
+function searchTitle(d) {
+  const t = d.t || "";
+  const extra = ((d.ld && d.ld.a) || []).filter((a) => a && !t.toLowerCase().includes(String(a).toLowerCase()));
+  return extra.length ? `${t} (${extra.join(", ")})` : t;
 }
 
 function renderSearch(rows) {

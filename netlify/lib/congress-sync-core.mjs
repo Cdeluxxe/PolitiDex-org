@@ -159,7 +159,9 @@ export const JOB_DEFS = {
   "bill-record": {
     needsKey: true,
     concurrency: 6,
-    units: ({ billDocs }) => Object.keys(billDocs?.docs || {})
+    // A bill file published from its ground-truth ledger (`ld`, db/bill-standard/) is not an official-record pull target:
+    // the ledger is its record, so the pass does not fetch it.
+    units: ({ billDocs }) => Object.entries(billDocs?.docs || {}).filter(([, d]) => !(d && d.ld)).map(([k]) => k)
       .filter((k) => { const [s, ...n] = k.split("|"); return isFederalTarget(s, n.join("|")); })
       .sort((a, b) => a.localeCompare(b, undefined, { numeric: true })),
     async read(unit, { cg }) {
@@ -216,7 +218,8 @@ export const JOB_DEFS = {
         bills, members,
       });
       const bgMap = bioguideMapFrom(inputs.memberMap, inputs.shareIndex);
-      const pages = new Set(Object.keys(inputs.billDocs?.docs || {}));
+      // A ledger-published bill file (`ld`) is not linked from person files' lists.
+      const pages = new Set(Object.entries(inputs.billDocs?.docs || {}).filter(([, d]) => !(d && d.ld)).map(([k]) => k));
       const names = {};
       for (const [pid, v] of Object.entries(inputs.shareIndex?.people || {})) if (v && v.n) names[pid] = v.n;
       const out = deriveCosponsorships(source, bgMap, { pages, names });

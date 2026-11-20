@@ -150,7 +150,9 @@ export function derive(source, bgMap, { pages = new Set(), names = {} } = {}) {
 
 export function pagesFrom(root = ROOT) {
   const p = join(root, "db/bill-docs.json");
-  return existsSync(p) ? new Set(Object.keys(readJson("db/bill-docs.json", root).docs || {})) : new Set();
+  // A ledger-published bill file (`ld`, db/bill-standard/) is not linked from
+  // person files' co-sponsorship lists; the same rule as the scheduled pass.
+  return existsSync(p) ? new Set(Object.entries(readJson("db/bill-docs.json", root).docs || {}).filter(([, d]) => !(d && d.ld)).map(([k]) => k)) : new Set();
 }
 export function namesFrom(root = ROOT) {
   const people = readJson("db/share-index.json", root).people || {};

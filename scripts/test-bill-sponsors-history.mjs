@@ -54,7 +54,10 @@ const eq = (a, b, m) => ok(a === b, `${m} — expected ${JSON.stringify(b)}, got
 const section = (t) => console.log(`\n   ── ${t}`);
 const must = (c, m) => { if (c) return; console.error(`✗ bill sponsors/history: STALE HARNESS — ${m}`); process.exit(2); };
 
-const DOCS = JSON.parse(R("db/bill-docs.json")).docs;
+// A bill file published from its ground-truth ledger (db/bill-standard/, `ld`)
+// has no row in the migrations or db/bill-record.json to hold it to; the ledger
+// standard (test-bill-standard.mjs) and test-baaja-bill-file.mjs check it.
+const DOCS = Object.fromEntries(Object.entries(JSON.parse(R("db/bill-docs.json")).docs).filter(([, d]) => !d.ld));
 const RECORDS = JSON.parse(R("db/bill-record.json")).records;
 const PEOPLE_FILE = JSON.parse(R("person-bills.json"));
 const SHARE = JSON.parse(R("db/share-index.json"));

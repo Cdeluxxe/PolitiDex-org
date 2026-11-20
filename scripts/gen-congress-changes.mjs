@@ -80,6 +80,9 @@ export function statusSnap(file) {
   const out = {};
   for (const [key, d] of Object.entries(file?.docs || {})) {
     if (!/^\d+$/.test(String(d?.s || "")) || !d.st) continue;
+    // A ledger-published bill file's status is the ledger's, not a pull of the
+    // official record, so it is not a change in the official-record lane.
+    if (d.ld) continue;
     out[key] = [d.st, d.sl || ""];
   }
   return out;

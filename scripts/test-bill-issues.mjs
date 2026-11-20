@@ -47,7 +47,10 @@ const must = (c, m) => { if (c) return; console.error(`✗ bill issues: STALE HA
 
 const ORIGIN = "https://politidex.fyi";
 const BILL_HTML = R("bill.html");
-const DOCS = JSON.parse(R("db/bill-docs.json")).docs;
+// A bill file published from its ground-truth ledger (db/bill-standard/, `ld`)
+// has no row in the migrations or db/bill-record.json to hold it to; the ledger
+// standard (test-bill-standard.mjs) and test-baaja-bill-file.mjs check it.
+const DOCS = Object.fromEntries(Object.entries(JSON.parse(R("db/bill-docs.json")).docs).filter(([, d]) => !d.ld));
 const seamRe = /<!--pdx:bill-doc-->[\s\S]*?<!--\/pdx:bill-doc-->/;
 const seamOf = (html) => (html.match(seamRe) || [""])[0];
 const unescape = (s) => s.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, "&");
