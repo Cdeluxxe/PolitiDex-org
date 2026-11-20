@@ -12477,7 +12477,15 @@
 //   precached file changed (consistency.js), so the shell moves; the precache
 //   list is unchanged.
 //   MIGRATION COST: none.
-const CACHE_VERSION = 'v595';
+// v596 - POSITIONS COUNTS EVERY STATED POSITION. The person file's Positions
+//   chip now counts every stated position on file, curated and pipeline-sourced,
+//   from the same rows as Word vs Action's "Stated positions on file" list.
+//   Word vs Action also says how many stated positions are waiting on a formal
+//   record and so are not in the score yet. Scoring, stances and records are
+//   unchanged. Precached files changed (word-action.js, profiles-full.js), so
+//   the shell moves; the precache list and the worker's behaviour are unchanged.
+//   MIGRATION COST: none.
+const CACHE_VERSION = 'v596';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

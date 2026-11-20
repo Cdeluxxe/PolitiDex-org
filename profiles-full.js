@@ -4216,7 +4216,20 @@
     // pill jumps to prints one pill per. Not an engine figure; see counts.signature.
     var sig = counts ? counts.signature : 0;
     if (!counts) { try { sig = (window._pdxKeyIssues(p) || []).length; } catch (e2) { sig = 0; } }
-    if (sig) {
+    // The figure is every stated position on file — curated and pipeline-sourced
+    // — read from the same rows Word vs Action's "Stated positions on file" list
+    // prints (PDXWordAction.statedCount), so the chip and the list agree. The
+    // tagged key-issue count only gates the pill on a shell without that list.
+    var stN = -1;
+    try {
+      if (window.PDXWordAction && typeof window.PDXWordAction.statedCount === 'function') {
+        stN = window.PDXWordAction.statedCount(id) || 0;
+      }
+    } catch (e3) { stN = -1; }
+    if (stN >= 0 && (stN || sig)) {
+      out.positions = { value: stN + ' Stated', color: '#c4b5fd', pending: false,
+        note: 'stated position' + (stN === 1 ? '' : 's') + ' on file, curated and pipeline-sourced' };
+    } else if (sig) {
       out.positions = { value: sig + ' Issue' + (sig === 1 ? '' : 's'), color: '#c4b5fd',
         pending: false, note: of.signature || 'issues tagged on this profile' };
     }
