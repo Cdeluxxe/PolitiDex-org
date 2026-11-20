@@ -49,7 +49,7 @@ const FILES = [
   "exec-record.js", "exec-record-ui.js", "consistency.js", "voting-record.js",
   "word-action.js", "profile-spine.js", "profiles-full.js",
 ];
-const CODED_LABEL = "How this row was coded · not the vote itself";
+const CODED_LABEL = "Technical detail · how this row was coded";
 const CODING = /Why it counts here:|How it was linked:|Which way it cut:|Said versus did:|Multi-issue bill:|Not yet explained by a curator/;
 const METHOD = /\b(?:precedent|mirror|discriminator|primary row|secondary row|vocabulary carries no|coded|filed as|rationale|weighted)\b/i;
 const NOT_DM = /not in Direction Match/i;
@@ -216,7 +216,7 @@ const MUTANTS = [
     edit: (s) => s.replace("'<td class=\"pdxlg-c\">' + _dosCutChip(p, issueKey) +", "'<td class=\"pdxlg-c\">' + _dosCutChip(p, issueKey) + esc(_dosWhySentence(d)) + ' Why it counts here: ' +"),
     expect: /ledger row \d+ prints the method on its closed face/ },
   { name: "the coding label dropped",
-    edit: (s) => s.replace("var DOS_CODED_LABEL = 'How this row was coded · not the vote itself';", "var DOS_CODED_LABEL = 'What happened';"),
+    edit: (s) => s.replace("var DOS_CODED_LABEL = 'Technical detail · how this row was coded';", "var DOS_CODED_LABEL = 'What happened';"),
     expect: /not labelled as coding/ },
   { name: "the Direction Match pill back on every row",
     edit: (s) => s.replace("'<span class=\"pdxdos-rec-line\">' +", "'<span class=\"pdxdos-rec-line\">' + (ledRow ? '<span class=\"pdxdos-rec-vd pdxdos-rec-led\">' + esc(_LED.status) + '</span>' : '') +"),

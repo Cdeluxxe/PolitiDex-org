@@ -12468,7 +12468,16 @@
 //   unchanged. Precached files changed (share-anywhere.js, consistency.js), so
 //   the shell moves; the precache list is unchanged.
 //   MIGRATION COST: none.
-const CACHE_VERSION = 'v594';
+// v595 - FORMAL RECORD DETAILS IN PLAIN WORDS. Opening a measure's Details in
+//   the issue drawer's Formal record now leads with one plain sentence of what
+//   the bill or amendment did on the open issue, then a "Why this counts as
+//   for / against" line in everyday words, before the coding notes, which are
+//   kept and relabelled "Technical detail · how this row was coded". Which
+//   measures appear, the tally, vote coding and receipts are unchanged. One
+//   precached file changed (consistency.js), so the shell moves; the precache
+//   list is unchanged.
+//   MIGRATION COST: none.
+const CACHE_VERSION = 'v595';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

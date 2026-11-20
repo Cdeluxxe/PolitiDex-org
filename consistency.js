@@ -2567,6 +2567,15 @@
       '.pdxlg-more{font-size:0.72rem;color:#c6d4ec;line-height:1.5;}' +
       '.pdxlg-more>*+*{margin-top:0.3rem;}' +
       '.pdxlg-more-ttl{color:#e8eefc;font-family:system-ui,sans-serif;}' +
+      // The plain-language lead of an opened row: what the measure did on this
+      // issue, then why the act counts for or against it, before any coding.
+      '.pdxlg-plain{display:flex;flex-direction:column;gap:0.25rem;}' +
+      '.pdxlg-plain-did{font-size:0.8rem;line-height:1.5;color:#eef3fc;font-family:system-ui,sans-serif;}' +
+      '.pdxlg-plain-why{font-size:0.74rem;line-height:1.5;color:#d3def0;font-family:system-ui,sans-serif;}' +
+      '.pdxlg-plain-why b{font-weight:700;}' +
+      '.pdxlg-plain-why[data-pdxlg-plain-why="for"] b{color:#7fe0a0;}' +
+      '.pdxlg-plain-why[data-pdxlg-plain-why="against"] b{color:#ff9a9a;}' +
+      '.pdxlg-plain-why[data-pdxlg-plain-why="none"] b{color:#c6d4ec;}' +
       '.pdxlg-more-door{color:#9fdbff;font-weight:700;}' +
       '.pdxlg-more-k{font-family:"Barlow Condensed",sans-serif;text-transform:uppercase;letter-spacing:0.05em;' +
         'font-size:0.62rem;color:#8fa2c0;margin-right:0.3rem;}' +
@@ -17285,7 +17294,9 @@
   // multi-issue caveat — are method, not the vote. They used to sit on the closed
   // face of every row; they now live inside the open row, under a label that says
   // what they are. Same sentences, same order, nothing reworded.
-  var DOS_CODED_LABEL = 'How this row was coded · not the vote itself';
+  // Labelled as technical detail: the plain-language summary above it is the
+  // reading; this is the method behind it.
+  var DOS_CODED_LABEL = 'Technical detail · how this row was coded';
   // `plain` drops the "See all N readings" control, which only works inside a
   // record-list row; the caveat sentence itself is kept.
   function _dosCodedHtml(m, d, plain) {
@@ -17303,6 +17314,110 @@
       '<div class="pdxdos-coded-k">' + esc(DOS_CODED_LABEL) + '</div>' + body + '</div>';
   }
 
+  // ── THE PLAIN-LANGUAGE LEAD OF AN OPENED ROW ────────────────────────────────
+  // Two lines a reader can take in without decoding a tag: what this measure did
+  // on the open issue, and why the act counts for or against it. Both are read
+  // from fields the row already carries — the stored plain summary (or the
+  // effect line, or the title), the clerk's Yea/Nay, the procedural inversion
+  // and the mapping's support meaning — and the for/against word is the tally's
+  // own (_dosActDir), so this line and the "Acts: N for · N against" count are
+  // one answer. Nothing is coded differently; this only says it in words.
+  function _dosPlainIssueName(issueKey) {
+    var lb = String(_issueLabel(issueKey) || '').replace(/^[^A-Za-z0-9]+/, '').trim();
+    return lb || 'this issue';
+  }
+  // The first sentence of stored prose, never a fragment that ends on an
+  // abbreviation ("Sec.", "H.R.", "U.S.").
+  function _dosFirstSentence(raw) {
+    raw = String(raw || '').replace(/\s+/g, ' ').trim();
+    if (!raw) return '';
+    var ABBR = /(?:^|[\s(])(?:Secs?|Nos?|Art|Div|Pub|Stat|Cl|Subsec|Subpara|Fig|pp|al|vs|Inc|Co|Corp|Jr|Sr|St|Mr|Ms|Mrs|Dr|Gen|Rep|Sen|Gov|Pres|U\.S|H\.R|S|H|e\.g|i\.e|cf|approx|est|No|L)\.$/;
+    var re = /[.!?](?=\s|$)/g, hit;
+    while ((hit = re.exec(raw))) {
+      var end = hit.index + 1;
+      if (end < 24) continue;
+      var head = raw.slice(0, end);
+      if (ABBR.test(head)) continue;
+      var rest = raw.slice(end).replace(/^\s+/, '');
+      if (rest && !/^["“'‘(]?[A-Z]/.test(rest)) continue;
+      return head.trim();
+    }
+    if (raw.length > 280) return raw.slice(0, 277).replace(/\s+\S*$/, '') + '…';
+    return /[.!?…]$/.test(raw) ? raw : raw + '.';
+  }
+  function _dosPlainNoun(d) {
+    if (_dosIsExecRow(d)) return _dosNoun(d) || 'action';
+    var it = (d && d.item) || {};
+    var mt = String(it.measureType || '').toLowerCase();
+    if (it.isAmendment === true || String(it.actionType || '').toLowerCase() === 'amendment' || /amendment/.test(mt)) return 'amendment';
+    if (/res/.test(mt)) return 'resolution';
+    return 'bill';
+  }
+  function _dosPlainDid(d) {
+    var s = _dosFirstSentence(d && d.plain) || _dosFirstSentence(d && (d.effLine || d.ptrLine));
+    if (s) return s;
+    var t = String((d && d.title) || '').trim();
+    if (t) return 'This was a vote on ' + t.replace(/[.!?]+$/, '') + '.';
+    return '';
+  }
+  function _dosPlainWhy(d, issueKey) {
+    var name = '“' + _dosPlainIssueName(issueKey) + '”';
+    if (_DOS_LEDGER_NO_SIDE[issueKey]) {
+      return { side: 'none', text: name + ' names a subject rather than a side to take, so acts on it are listed but not counted for or against.' };
+    }
+    var dir = _dosActDir(d);
+    var noun = _dosPlainNoun(d);
+    if (!dir) {
+      var nos = '';
+      try { nos = _dosNoSide(d); } catch (e) { nos = ''; }
+      if (nos === 'Present' || nos === 'Did not vote') {
+        return { side: 'none', text: 'They did not cast a Yes or No vote on this ' + noun + ', so it does not count either way.' };
+      }
+      return { side: 'none', text: 'No direction on ' + name + ' is on file for this ' + noun + ', so it is not counted either way.' };
+    }
+    var side = dir === 'advances' ? 'for' : 'against';
+    var toward = function (adv) { return adv ? 'moves policy toward ' + name : 'moves policy away from ' + name; };
+    var text = '';
+    if (d.lane === 'exec') {
+      if (d.power && d.power.blocks) {
+        text = 'The bill would have ' + (dir === 'advances' ? 'moved policy away from ' : 'moved policy toward ') + name +
+          '. Vetoing it blocked that, so the veto ' + (dir === 'advances' ? 'works in favor of ' : 'works against ') + name + '.';
+      } else {
+        text = 'This ' + noun + ' ' + toward(dir === 'advances') + '.';
+      }
+    } else if (d.lane === 'record') {
+      var helps = d.support !== 'yea_opposes';
+      var pos = String((d.item && d.item.position) || '').toLowerCase();
+      var yea = /^(yea|aye|yes)$/.test(pos), nay = /^(nay|no)$/.test(pos);
+      if (d.execAct) {
+        var did = d.act ? String(d.act).charAt(0).toLowerCase() + String(d.act).slice(1) : 'acted on';
+        text = 'This ' + noun + ' ' + toward(helps) + ', and they ' + did + ' it.';
+      } else if (yea || nay) {
+        var inv = !!(d.item && d.item.advanceInverted);
+        var voteHelped = inv ? !yea : yea;
+        var head = 'Passing this ' + noun + ' ' + toward(helps) + '.';
+        var cast = inv
+          ? ' This vote was on a motion to send it back, where a Yes vote holds the ' + noun + ' up. They voted ' +
+            (yea ? 'Yes, holding it up.' : 'No, helping it move forward.')
+          : ' They voted ' + (yea ? 'Yes, helping it pass.' : 'No, trying to stop it.');
+        // The words must reach the same side as the tally; if they would not,
+        // say only the side rather than an explanation that disagrees with it.
+        text = ((helps === voteHelped) === (dir === 'advances')) ? head + cast : '';
+      }
+    }
+    if (!text) text = 'On ' + name + ' this act is read as ' + (side === 'for' ? 'in favor of it.' : 'against it.');
+    return { side: side, text: text };
+  }
+  function _dosPlainHtml(d, issueKey) {
+    if (!d || d.held) return '';
+    var did = _dosPlainDid(d), why = _dosPlainWhy(d, issueKey);
+    var head = why.side === 'none' ? 'Why this is not counted for or against:' : 'Why this counts as ' + why.side + ':';
+    return '<div class="pdxlg-plain" data-pdxlg-plain="1">' +
+      (did ? '<div class="pdxlg-plain-did" data-pdxlg-plain-did="1">' + esc(did) + '</div>' : '') +
+      '<div class="pdxlg-plain-why" data-pdxlg-plain-why="' + why.side + '"><b>' + esc(head) + '</b> ' + esc(why.text) + '</div>' +
+      '</div>';
+  }
+
   // ── ONE LEDGER ROW, OPENED ──────────────────────────────────────────────────
   // What a reader gets on tapping "Details": the full title, the door to the
   // bill, the other issues the same vote sits on, and how the row was coded,
@@ -17315,6 +17430,9 @@
     var d = items[idx];
     if (!d) return '';
     var out = [];
+    // Leads with the plain-language reading; the title, door, other issues and the
+    // technical coding follow it.
+    out.push(_dosPlainHtml(d, issueKey));
     var ttl = String(d.title || '').trim();
     if (ttl && ttl !== d.ident) out.push('<div class="pdxlg-more-ttl">' + esc(ttl) + '</div>');
     var door = _dosDoor('pdxlg-more-door', d, 'Open ' + esc(d.ident || d.billNum || 'the measure') + ' <span aria-hidden="true">→</span>') +
