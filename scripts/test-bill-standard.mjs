@@ -8,8 +8,7 @@
 //
 // What must stay true (offline; no network):
 //
-//   1. THE REFERENCE PASSES. 0 errors. Its only warnings are the not-in-text
-//      abandoned-mine claim with no one on either side. tribal_consultation
+//   1. THE REFERENCE PASSES. 0 errors and 0 warnings. tribal_consultation
 //      and property_rights are each split one row per direction.
 //   2. EVERY LEDGER ON DISK PASSES.
 //   3. THE RULES BITE. Each mutation of the reference fails: a collapsed
@@ -44,10 +43,7 @@ const eq = (a, b, m) => ok(JSON.stringify(a) === JSON.stringify(b), `${m}\n     
 {
   const { errors, warnings } = S.validateLedger(REF, ctx);
   eq(errors, [], "1: the reference has no errors");
-  eq(warnings.map((w) => w.split(":")[0]), [
-    "claims[5] abandoned-mine-reclamation",
-    "claims[5] abandoned-mine-reclamation",
-  ], "1: the reference's warnings are the known three");
+  eq(warnings, [], "1: the reference has no warnings");
   for (const k of ["tribal_consultation", "property_rights"]) {
     eq(REF.issues.filter((r) => r.issueKey === k).map((r) => r.supportMeaning).sort(), ["yea_opposes", "yea_supports"], `1: ${k} is split one row per direction`);
     ok(!REF.considered.some((c) => c.issueKey === k), `1: ${k} is not also declined`);

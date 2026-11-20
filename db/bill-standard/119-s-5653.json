@@ -5454,25 +5454,6 @@
    ],
    "plainRead": "States keep certification authority but may weigh only water-quality requirements, and must deny or condition only on clear and convincing evidence. Discharge permits may last 10 years instead of 5.",
    "independentRead": null
-  },
-  {
-   "id": "abandoned-mine-reclamation",
-   "question": "Does the bill fund or change abandoned-mine reclamation?",
-   "provisionRefs": [
-    "Div. B, Title II, Sec. 2215",
-    "Div. A, Title VI, Sec. 1602 (substitute only)"
-   ],
-   "supportersSay": [],
-   "opponentsSay": [],
-   "whatTheTextSays": [
-    {
-     "ref": "Div. B, Title II, Sec. 2215",
-     "quote": "the proprietor may-- ``(A) locate and include within the plan of operations as many mill site claims under this subsection as are reasonably necessary for its operations; and ``(B) use or occupy public land in accordance with an approved plan of operations. ``(3) Mill sites convey no mineral",
-     "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm"
-    }
-   ],
-   "plainRead": "Not a live claim on this text. Neither version contains an abandoned-mine reclamation program, and no sponsor or opponent statement found raises one (checked 2026-11-19). The closest provisions are mill sites for waste rock and tailings on public land (2215) and brownfield cleanup grants (1602, substitute only). Kept so the requested topic is answered, not dropped.",
-   "independentRead": null
   }
  ],
  "scorekeepers": [
@@ -5556,7 +5537,7 @@
   },
   "H_contested_claims": {
    "mark": "present",
-   "note": "5 claims with both sides and the text; the abandoned-mine topic recorded as not in the text."
+   "note": "5 claims with both sides and the text. The abandoned-mine claim was removed 2026-11-19: Sec. 2215(d) does create an Abandoned Hardrock Mine Fund in both versions, and the sponsors' fact sheet promotes it, but no primary-source statement opposing it from a member was found, so it does not have two sides."
   },
   "I_citations": {
    "mark": "partial",
