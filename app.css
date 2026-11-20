@@ -2032,9 +2032,8 @@
       background: rgba(148,163,184,0.16); border-radius: 999px; padding: 0 0.34rem;
     }
     .pdx-pnav-more[open] > .pdx-pnav-track { margin-top: 0.35rem; }
-    /* Row 1 already carries the Word vs Action figure, so the letterhead's second
-       copy of it stands down rather than printing the percentage twice. */
-    .profile-hero-id:has(.pdx-pnav-lead [data-target="pdxsec-wordaction"]) .profile-meta .pdxwa-cbadge-host { display: none; }
+    /* (The rule that stands the letterhead's second ⚖️ copy down when the chip row
+       carries the figure now lives with the letterhead grid, below .pdx-nav-anchor.) */
     /* Row 2, one tight band: smaller gap, and the AIPAC Tracker line pulled up
        onto the same rhythm instead of a loose third line. */
     .profile-hero-id .profile-meta { gap: 0.3rem 0.35rem; }
@@ -2110,6 +2109,97 @@
     /* Zero-height in-flow markers the pills scroll to. scroll-margin keeps a
        section clear of the sticky rail even on native anchor jumps. */
     .pdx-nav-anchor { display: block; height: 0; scroll-margin-top: 4.25rem; }
+
+    /* ── THE LETTERHEAD AS ONE GRID ────────────────────────────────────────────
+       The identity column used to run as one tall stack beside the photo — name,
+       seat, three glance pills wrapping one per line, the disclosure, the money
+       chips — so the photo column sat on empty space for most of the letterhead's
+       height. Now:
+         row 1–4, beside the photo : eyebrow · name · seat · 💰 Funding + 🕑 Activity
+         next line, full width      : ⚖️ Word vs Action (figure and verdict word)
+         below, full width          : More sections · candidacy line · money chips
+                                      · AIPAC Tracker — unchanged, in their order.
+       .profile-hero-id and #pdx-profile-nav become display:contents so their
+       children are placed on this grid directly; the DOM, the chips, the live
+       repaint and the scroll-spy are exactly as they were. The fourth row is the
+       flexible one, so a portrait taller than the text beside it grows only the
+       gap under the two pills — never the space between the name and the seat. */
+    .profile-hero {
+      display: grid;
+      grid-template-columns: 132px minmax(0, 1fr) auto;
+      grid-template-rows: auto auto auto 1fr;
+      column-gap: 1.15rem; row-gap: 0;
+      align-items: start;
+    }
+    .profile-hero-face { grid-column: 1; grid-row: 1 / span 4; position: relative; }
+    .profile-hero-id { display: contents; }
+    .profile-hero-id > .pdx-pnav { display: contents; }
+    .profile-hero-id > * { grid-column: 1 / -1; min-width: 0; }
+    .profile-hero-id > .profile-eyebrow { grid-column: 2; grid-row: 1; padding-top: 0.1rem; }
+    .profile-hero-id > .profile-name { grid-column: 2; grid-row: 2; }
+    .profile-hero-id > .profile-office { grid-column: 2; grid-row: 3; }
+    .profile-hero-id > .pdx-pnav > .pdx-pnav-lead {
+      grid-column: 2; grid-row: 4; align-self: start; min-width: 0;
+      display: flex; flex-wrap: nowrap; gap: 0.35rem; margin: 0.1rem 0 0;
+    }
+    .profile-hero-id > .pdx-pnav > .pdx-pnav-wva { grid-column: 1 / -1; grid-row: 5; margin-top: 0.6rem; min-width: 0; }
+    .profile-hero-id > .pdx-pnav > .pdx-pnav-more { grid-column: 1 / -1; grid-row: 6; margin-top: 0.45rem; min-width: 0; }
+    .profile-hero-id > .profile-running { grid-row: 7; margin-top: 0.45rem; }
+    .profile-hero-id > .profile-meta { grid-row: 8; margin-top: 0.45rem; }
+    .profile-hero-id > .pdx-atk { grid-row: 9; }
+    .profile-hero-score { grid-column: 3; grid-row: 1 / span 4; }
+    .profile-hero-score:has(.pdxwa-shape),
+    .profile-hero-score:has(.pdxwa-brief) { grid-column: 1 / -1; grid-row: 10; }
+    /* The two glance pills share the line beside the photo and never push it
+       wider: each may shrink, and its figure wraps inside the pill instead. */
+    .profile-hero-id > .pdx-pnav > .pdx-pnav-lead > .pdx-pnav-pill { flex: 0 1 auto; min-width: 0; white-space: normal; }
+    .profile-hero-id > .pdx-pnav > .pdx-pnav-lead .pdx-pnav-val { overflow-wrap: anywhere; }
+    /* Word vs Action, the full width of the letterhead: label left, the figure and
+       verdict word in a larger face beside it, so "42% · Contradicted" reads at a
+       glance instead of being squeezed into a third pill. */
+    .profile-hero-id > .pdx-pnav > .pdx-pnav-wva > .pdx-pnav-pill {
+      display: flex; width: 100%; min-width: 0; white-space: normal;
+      padding: 0.4rem 0.75rem; justify-content: flex-start;
+    }
+    .profile-hero-id > .pdx-pnav > .pdx-pnav-wva .pdx-pnav-txt {
+      flex: 1 1 auto; flex-wrap: wrap; justify-content: space-between; align-items: baseline;
+      gap: 0.2rem 0.6rem;
+    }
+    .profile-hero-id > .pdx-pnav > .pdx-pnav-wva .pdx-pnav-label { font-size: 0.66rem; }
+    .profile-hero-id > .pdx-pnav > .pdx-pnav-wva .pdx-pnav-val { font-size: 1.12rem; overflow-wrap: anywhere; }
+    /* A reserved Word vs Action slot with no figure yet is worth nothing at all. */
+    .pdx-pnav-pill[hidden] { display: none !important; }
+    .pdx-pnav-wva:not(:has(> .pdx-pnav-pill:not([hidden]))) { display: none; }
+    /* The letterhead's compact ⚖️ badge stands down only when the pill it would
+       duplicate is actually showing. */
+    .profile-hero-id:has(.pdx-pnav-wva [data-target="pdxsec-wordaction"]:not([hidden])) .profile-meta .pdxwa-cbadge-host { display: none; }
+    /* The PolitiDex mark on the portrait's corner. */
+    .pdx-hdr-mark {
+      display: inline-flex; flex: none; line-height: 0;
+      border-radius: 0.4rem; overflow: hidden;
+      box-shadow: 0 0 0 2px rgba(13,20,38,0.95), 0 4px 10px rgba(0,0,0,0.5);
+    }
+    .pdx-hdr-mark img { display: block; width: 100%; height: 100%; max-width: none; }
+    .profile-hero-mark { position: absolute; top: 0.35rem; left: 0.35rem; width: 1.6rem; height: 1.6rem; z-index: 1; }
+    @media (max-width: 480px) {
+      .profile-hero {
+        grid-template-columns: 96px minmax(0, 1fr);
+        grid-template-areas: none;
+        grid-template-rows: auto auto auto 1fr;
+        column-gap: 0.9rem; row-gap: 0;
+      }
+      .profile-hero-face { grid-area: auto; grid-column: 1; grid-row: 1 / span 4; }
+      .profile-hero-id { grid-area: auto; }
+      .profile-hero-score,
+      .profile-hero-score:has(.pdxwa-shape),
+      .profile-hero-score:has(.pdxwa-brief) { grid-area: auto; grid-column: 1 / -1; grid-row: 10; margin-top: 0.8rem; }
+      /* Beside a 96px photo the pills stack label over figure, so the pair stays
+         on one line at 320px. */
+      .profile-hero-id > .pdx-pnav > .pdx-pnav-lead .pdx-pnav-txt { flex-direction: column; align-items: flex-start; gap: 0.1rem; }
+      .profile-hero-id > .pdx-pnav > .pdx-pnav-lead > .pdx-pnav-pill { padding: 0.22rem 0.5rem; gap: 0.3rem; }
+      .profile-hero-id > .pdx-pnav > .pdx-pnav-lead .pdx-pnav-val { font-size: 0.84rem; }
+      .profile-hero-mark { width: 1.35rem; height: 1.35rem; top: 0.25rem; left: 0.25rem; }
+    }
 
     /* Activity footer — a compact "last touched / how much is tracked" strip. */
     .pdx-activity-row { display: flex; flex-wrap: wrap; gap: 0.5rem; }

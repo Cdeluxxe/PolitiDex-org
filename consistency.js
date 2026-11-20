@@ -2068,6 +2068,11 @@
       // photo still comes from _getPhotoUrl (the app's single headshot source) and
       // still degrades to party-tinted initials, never to a broken image frame.
       '.pdxgap-id{display:flex;align-items:center;gap:0.5rem;margin-top:0.5rem;}' +
+      // The PolitiDex mark closes the identity row — the same compact tile the
+      // person letterhead and the shell bars carry. Drawn by the stylesheet, so
+      // the drawer's markup (and every byte the ledger suites compare) is as it was.
+      '.pdxgap-id::after{content:"";flex:none;order:99;margin-left:auto;width:1.25rem;height:1.25rem;border-radius:0.3rem;background:url("/assets/pdx-mark-192.png") center/cover no-repeat;box-shadow:0 0 0 1px rgba(255,255,255,0.12);}' +
+      '.pdxgap-id:has(.pdxgap-eyebrow)::after{margin-left:0.4rem;}' +
       '.pdxgap-face{flex:none;position:relative;width:1.85rem;height:1.85rem;border-radius:0.45rem;overflow:hidden;background:#0a0f1e;border:1px solid var(--c,#8fa5c4);box-shadow:0 0 0 1px rgba(0,0,0,0.4);}' +
       '.pdxgap-face img{width:100%;height:100%;object-fit:cover;display:block;}' +
       '.pdxgap-face-ph::after{content:attr(data-fb);position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:"Bebas Neue",sans-serif;font-size:0.72rem;letter-spacing:0.02em;color:var(--c,#8fa5c4);background:linear-gradient(135deg,rgba(255,255,255,0.06),rgba(0,0,0,0.25));}' +
@@ -2080,7 +2085,7 @@
       // The lane cue, pushed to the end of the strip. It is chrome that names which
       // record is speaking, so it reads last rather than first.
       '.pdxgap-id .pdxgap-eyebrow{margin-left:auto;flex:none;font-size:0.58rem;text-align:right;}' +
-      '@media (max-width:420px){.pdxgap-id .pdxgap-eyebrow{display:none;}}' +
+      '@media (max-width:420px){.pdxgap-id .pdxgap-eyebrow{display:none;}.pdxgap-id:has(.pdxgap-eyebrow)::after{margin-left:auto;}}' +
       '.pdxgap-party{font-weight:700;font-size:0.62rem;letter-spacing:0.04em;padding:0.05rem 0.34rem;border-radius:999px;color:var(--c,#8fa5c4);border:1px solid var(--c,#8fa5c4);background:rgba(10,15,30,0.5);}' +
       // The issue leads the sheet, so it starts at the top of the header with no
       // margin above it — the tight sheet padding is the only gap.
