@@ -12443,7 +12443,15 @@
 //   (app.css, profiles-full.js, word-action.js, consistency.js,
 //   related-issues.js), so the shell moves; the precache list is unchanged.
 //   MIGRATION COST: none.
-const CACHE_VERSION = 'v591';
+// v592 - FORMAL RECORD FIRST IN THE ISSUE DRAWER. The Formal record section
+//   now prints above Related issues and Evidence, and opens with a large green
+//   / red tally of acts for and against the issue (the same counts as the
+//   "Acts: N for · N against" line, which stays below it). Acts, measures,
+//   related issues, evidence and scoring are unchanged. One precached file
+//   changed (consistency.js), so the shell moves; the precache list is
+//   unchanged.
+//   MIGRATION COST: none.
+const CACHE_VERSION = 'v592';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

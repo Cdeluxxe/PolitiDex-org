@@ -100,7 +100,7 @@ ok(text(mine[0]).includes(`on ${lbl(clash.k)} ${said}, but voted ${latest.word} 
 ok(mine[0].includes('data-pdxri-wva-from="curated"') && mine[0].includes(`href="${latest.url}"`) && /official record<\/a>/.test(mine[0]), "curated vote: its official record is linked");
 ok(text(WVA(h)).startsWith("Words and votes"), "the block is headed Words and votes");
 const cfAt = h.indexOf('class="pdxri-conflicts"'), wvaAt = h.indexOf('class="pdxri-wva"'), recAt = h.indexOf('data-pdxgap-sec="record"');
-ok(wvaAt > 0 && (cfAt < 0 || wvaAt > cfAt) && wvaAt < recAt, "the note sits after Where this conflicts and before the formal record");
+ok(wvaAt > 0 && (cfAt < 0 || wvaAt > cfAt) && wvaAt > recAt, "the note sits after the formal record and after Where this conflicts");
 eq(h.replace(WVA(h), ""), withoutNote(win, () => CS.gapViewHtml(clash.pid, clash.open) || ""), "with the note removed the drawer is byte-identical");
 
 // ── 2/3 · no conflict → no note, drawer as today ─────────────────────────────

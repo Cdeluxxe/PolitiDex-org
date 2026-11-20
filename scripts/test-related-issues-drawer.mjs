@@ -139,7 +139,7 @@ const PART_RE = /^.+?: (supports|opposes|no stated position) · (voting record r
   const tally = h.indexOf('data-pdxlg-tally="1"'), table = h.indexOf('<table class="pdxlg-t">');
   ok(tally > 0 && table > 0, "Lee's Protect Public Lands drawer has no vote table");
   ok(find >= 0 && at > find, "the block is not after the finding line");
-  ok(at < tally && at < table, "the block is not before the votes");
+  ok(at > tally && at > table, "the block is not below the votes (the Formal record leads the drawer)");
   for (const it of RI.itemsFor("lee", win.CMP_DATA.lee, "lands_preserve")) {
     ok(RI.MAP.lands_preserve.includes(it.key), `${it.key} is in the drawer but not in the map`);
   }
@@ -415,7 +415,7 @@ const FIX = {
   const at = h.indexOf('class="pdxri pdxri-drawer"'), c0 = h.indexOf('class="pdxri-conflicts"');
   const tally = h.indexOf('data-pdxlg-tally="1"'), table = h.indexOf('<table class="pdxlg-t">');
   ok(at >= 0 && c0 > at, "the section is not after the stated/record lines");
-  ok(c0 < tally && c0 < table, "the section is not before the vote rows");
+  ok(c0 > tally && c0 > table, "the section is not below the vote rows");
   // Only pairs from the map, each listed once.
   const cfKeys = [...cf.matchAll(/data-pdxri-cf="([^"]+)"/g)].map((m) => m[1]);
   ok(cfKeys.every((k) => RI.MAP.lands_preserve.includes(k)), `a conflict pair is not in the map — ${JSON.stringify(cfKeys)}`);
@@ -529,7 +529,7 @@ const FIX = {
     const line = [...cf.matchAll(/<li class="pdxri-cf-item" data-pdxri-cf="lands_keep_public">[\s\S]*?<\/li>/g)].map((m) => text(m[0]))[0] || "";
     eq(line, want, `${page}: the conflict line is not the homepage's wording`);
     const at = h.indexOf('class="pdxri pdxri-drawer"'), c0 = h.indexOf('class="pdxri-conflicts"'), table = h.indexOf('<table class="pdxlg-t">');
-    ok(at >= 0 && c0 > at && c0 < table, `${page}: the section is not after the related-issues lines and before the vote rows`);
+    ok(at >= 0 && c0 > at && at > table, `${page}: the section is not after the vote rows and the related-issues lines`);
     if (first === null) first = cf; else eq(cf, first, `${page}: the section differs from the homepage's`);
     // A saved stance that agrees with Lee's stated side and record → the no-conflicts line.
     eq(text(CFB(drawerOn(page, { [calm]: calmSide }).h)), "Where this conflictsNo conflicts with your stances on these issues.",

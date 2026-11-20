@@ -2479,6 +2479,13 @@
       '.pdxlg-tally{font-size:0.8rem;line-height:1.45;color:#c6d4ec;}' +
       '.pdxlg-tally b{color:#e8eefc;font-weight:700;}' +
       '.pdxlg-side{font-size:0.72rem;color:#8fa2c0;line-height:1.5;}' +
+      '.pdxlg-big{display:flex;gap:0.5rem;margin:0.35rem 0 0.25rem;}' +
+      '.pdxlg-big>span{display:flex;align-items:baseline;gap:0.35rem;padding:0.2rem 0.6rem;' +
+        'border-radius:0.45rem;border:1px solid;font-family:"Barlow Condensed",sans-serif;}' +
+      '.pdxlg-big b{font-size:1.9rem;font-weight:800;line-height:1;}' +
+      '.pdxlg-big>span>span{font-size:0.82rem;font-weight:700;letter-spacing:0.02em;}' +
+      '.pdxlg-big-a{color:#7fd4c1;border-color:rgba(127,212,193,0.55);background:rgba(127,212,193,0.1);}' +
+      '.pdxlg-big-o{color:#f2a3a3;border-color:rgba(242,163,163,0.55);background:rgba(242,163,163,0.1);}' +
       '.pdxlg-same{margin-top:0.2rem;font-size:0.72rem;color:#f0cd8c;line-height:1.5;}' +
       '.pdxst{margin-top:0.6rem;font-size:0.73rem;line-height:1.5;color:#c6d4ec;}' +
       '.pdxst-fold{border-top:1px solid rgba(143,162,192,0.2);}' +
@@ -17808,6 +17815,16 @@
           '</b> · <b>' + t.acts + ' formal ' + (t.acts === 1 ? 'act' : 'acts') + '</b> of ' + t.all + ' on this issue</div>'
         : '<div class="pdxlg-tally" data-pdxlg-tally="1">On this issue: <b>' + t.bills + ' ' + noun +
         '</b> · <b>' + t.acts + ' formal ' + (t.acts === 1 ? 'act' : 'acts') + '</b></div>') +
+      // THE BIG TALLY. The same two numbers as the "Acts: N for · N against" line
+      // below, read at a glance: acts that advance the issue in the Advances chip's
+      // green, acts that cut against it in the Cuts against chip's red. Same `t`,
+      // so the two can never disagree; no-pole issues get neither.
+      (_DOS_LEDGER_NO_SIDE[issueKey] ? '' :
+      '<div class="pdxlg-big" data-pdxlg-big="1" role="group" aria-label="' +
+        escAttr(t.advances + ' ' + (t.advances === 1 ? 'act' : 'acts') + ' for, ' + t.opposes + ' against') + '">' +
+        '<span class="pdxlg-big-a" data-pdxlg-big-for="' + t.advances + '"><b>' + t.advances + '</b><span>▲ for</span></span>' +
+        '<span class="pdxlg-big-o" data-pdxlg-big-against="' + t.opposes + '"><b>' + t.opposes + '</b><span>▼ against</span></span>' +
+      '</div>') +
       // FOR AND AGAINST WHAT. The issue, not the stated position — those are two
       // different questions with two different answers, and the second one lives
       // inside the scoring disclosure under its own label ("1 aligned · 2
@@ -20944,13 +20961,8 @@
       // stated line and / or a record line for each, then WHERE THIS CONFLICTS.
       // Read-only; each part is '' when it has nothing to say.
       _gapSignalHtml(_st) +
-      _gapRelatedHtml(pid, issueKey) +
-      _gapConflictsHtml(pid, issueKey) +
-      _gapWvaHtml(pid, issueKey) +
-      // EVIDENCE — the sources attached to the stance, one block per link. Only
-      // when the stance card or the Evidence Locker holds one; never a placeholder.
-      _gapEvidenceHtml(pid, issueKey, _st) +
-      // THE FORMAL RECORD — everything below, as it always was.
+      // THE FORMAL RECORD FIRST — the section header, the tally and the ledger,
+      // then Related issues and Evidence below it.
       '<div class="pdxgap-sec-h pdxgap-recsec" data-pdxgap-sec="record">Formal record</div>' +
       // Not in Direction Match: once, never on each row. On a ledger sheet it is
       // the first thing inside How this is scored rather than a gray box between
@@ -20984,6 +20996,13 @@
       // face so a sheet full of unexplained mappings cannot look like a finished one.
       // Prints nothing at zero — see _dosQueueHtml.
       _dosQueueHtml(pid, issueKey, off) +
+      // RELATED ISSUES, then WHERE THIS CONFLICTS and WORDS VS. ACTIONS.
+      _gapRelatedHtml(pid, issueKey) +
+      _gapConflictsHtml(pid, issueKey) +
+      _gapWvaHtml(pid, issueKey) +
+      // EVIDENCE — the sources attached to the stance, one block per link. Only
+      // when the stance card or the Evidence Locker holds one; never a placeholder.
+      _gapEvidenceHtml(pid, issueKey, _st) +
       // Sideways, not backwards: the next issue's dossier without a trip through
       // the profile and back.
       _dosStepHtml(pid, issueKey) +
