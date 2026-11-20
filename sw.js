@@ -12485,7 +12485,16 @@
 //   unchanged. Precached files changed (word-action.js, profiles-full.js), so
 //   the shell moves; the precache list and the worker's behaviour are unchanged.
 //   MIGRATION COST: none.
-const CACHE_VERSION = 'v596';
+// v597 - STATED POSITIONS OPEN THEIR ISSUE FILE; RELATED ISSUES FOLLOW THEM.
+//   On a person file, related issues now sit directly under Word vs Action's
+//   summary and its full stated-positions list (same pairs, same wording), and
+//   each stated-position row opens that issue's file. The /i/ issue file shows
+//   the PolitiDex mark in the top-left of its header. Scoring, stances and the
+//   related-issues map are unchanged. Precached files changed (word-action.js,
+//   word-action.css, profiles-full.js, issue-file.js, issue-file.css), so the
+//   shell moves; the precache list and the worker's behaviour are unchanged.
+//   MIGRATION COST: none.
+const CACHE_VERSION = 'v597';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

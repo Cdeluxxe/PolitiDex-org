@@ -2106,7 +2106,11 @@ section("9 · the engines did not move");
           //                 own verdict for the matched acts
           //   namedActions  names the matched acts instead of the issue's record
           // Floors, weights, the Mixed gate and read() itself are unchanged.
-          "wordLedger", "testOf", "namedActions"];
+          "wordLedger", "testOf", "namedActions",
+          // …AND THE STATED-ROW DOOR. statedRows() gives each stated-position
+          // row an empty overlay link to its own issue file; the row's wording,
+          // the rows counted and every score input are unchanged.
+          "statedRows"];
         // …and the readers the two passes added. Every one is a pure read of state
         // that already existed in the tab — the live member payload, the crawl
         // header's rows, the static formal index, the pattern index's shape, the
@@ -2180,7 +2184,10 @@ section("9 · the engines did not move");
           "figureOf",
           // saidWithLocker  appends profile-locker.js's promoted stances to the
           //                 said-row set, skipping every issue already in it
-          "saidWithLocker"];
+          "saidWithLocker",
+          // statedFileHref  asks PDXIssueFamily.profileUrl for a stated row's
+          //                 /i/<key> address; a pure read, no figure
+          "statedFileHref"];
 
         const changed = [], added = [], removed = [];
         for (const [k, v] of A.fns) {

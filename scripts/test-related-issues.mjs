@@ -22,8 +22,9 @@
 //   4. NO VERDICT: no %, score, grade or "contradiction" in the markup.
 //   5. REAL DATA: the real stance map is read, not written; every line reads
 //      the published stance.
-//   6. WIRING: the hook in profiles-full.js is a guarded call in the explore
-//      stage; the module is on every page that loads it, precached, with a
+//   6. WIRING: the hook in profiles-full.js is a guarded call in the verdict
+//      stage, right after Word vs Action and its stated-positions list; the
+//      module is on every page that loads it, precached, with a
 //      bumped shell; it reads no scoring or effect engine.
 //
 //   node scripts/test-related-issues.mjs
@@ -320,7 +321,9 @@ const LBL = (k) => String(IM[k].label).replace(/^[^A-Za-z0-9]+/, "").trim();
   const i = pf.indexOf("window.PDXRelatedIssues.sectionHtml(id, p)");
   ok(i > 0, "profiles-full.js calls the section");
   const before = pf.lastIndexOf("<!--PDXSP:", i);
-  ok(pf.slice(before, before + 20).startsWith("<!--PDXSP:explore-->"), "section sits in the explore stage, after the topic tree");
+  ok(pf.slice(before, before + 20).startsWith("<!--PDXSP:verdict-->"), "section sits in the verdict stage");
+  const wa = pf.indexOf("window.PDXWordAction.sectionHtml(id, p)");
+  ok(wa > before && wa < i, "section follows Word vs Action and its stated-positions list");
   ok(/typeof window\.PDXRelatedIssues\.sectionHtml === 'function'/.test(pf), "the call is guarded");
   for (const page of ["index.html", "person.html", "ballot.html", "issue.html"]) {
     ok(R(page).includes('<script defer src="/related-issues.js"></script>'), `${page} loads related-issues.js`);

@@ -134,6 +134,12 @@
   backdrop-filter: blur(8px);
 }
 .pdxif-id { min-width: 0; }
+/* The PolitiDex mark in the top-left of the panel header (issue-file.js, /i/
+   document only) — the same 2rem square mark the person page header carries. */
+.pdxif-brand { flex: none; display: block; line-height: 0; border-radius: 0.4rem; }
+.pdxif-brand img { display: block; width: 2rem; height: 2rem; max-width: none; }
+.pdxif-brand:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+.pdxif-brand + .pdxif-id { flex: 1 1 auto; }
 
 /* ── The identity block, and the family rail ─────────────────────────────────
    Unthemed it is a plain wrapper and changes nothing: the kick, the title and

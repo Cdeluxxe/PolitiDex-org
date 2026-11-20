@@ -703,6 +703,21 @@
 
     try { body.appendChild(head); body.appendChild(led); } catch (e) {}
     try { top.appendChild(idHost); top.appendChild(x); } catch (e) {}
+    // THE BRAND MARK, TOP-LEFT — ON THE /i/ DOCUMENT ONLY. issue.html's shell
+    // bar carries the PolitiDex mark, but this panel is fixed, full-bleed and
+    // above it, so on an issue file page the mark was never visible. The panel's
+    // own header gets the same mark, same image, same home link the person page
+    // uses. Gated on the shell bar so the homepage overlay is untouched.
+    try {
+      if (d.querySelector && d.querySelector('.pdx-issue-bar')) {
+        var brand = d.createElement('a');
+        brand.className = 'pdxif-brand';
+        brand.setAttribute('href', '/');
+        brand.setAttribute('aria-label', 'PolitiDex home');
+        brand.innerHTML = '<img src="/assets/pdx-mark-192.png" alt="PolitiDex" width="32" height="32" decoding="async" />';
+        top.insertBefore(brand, idHost);
+      }
+    } catch (e) {}
     try { panel.appendChild(top); panel.appendChild(body); } catch (e) {}
     try { overlay.appendChild(panel); } catch (e) {}
     // WHERE IN THE DOCUMENT, AND WHY IT IS NOT THE END OF IT. This panel and the
