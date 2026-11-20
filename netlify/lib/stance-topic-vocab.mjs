@@ -797,6 +797,13 @@ export const ISSUE_TOPIC_VOCAB = {
     terms: String.raw`tribal consultation|consult(?:ation|ing)? with (?:indian )?tribes|government-to-government (?:consultation|relationship)|tribal sovereignty|tribal (?:lands?|nations?|self-governance)|sacred sites?|tribal historic preservation`,
     up: [String.raw`(?:meaningful )?tribal consultation`, String.raw`(?:the )?government-to-government (?:consultation|relationship)`, String.raw`(?:the )?tribal sovereignty`, String.raw`(?:tribal |native american )?sacred sites?`, String.raw`(?:tribal )?self-governance`],
     downCon: [String.raw`(?:meaningful )?tribal consultation`, String.raw`(?:the )?tribal sovereignty`] },
+  // The mine cleanup key pass (Nov 2026): one key added to the register, first
+  // mapped on S. 5653 Sec. 2215, no position seeded. Terms are kept to cleanup and
+  // mining waste so lands_energy's mining reads do not move.
+  mine_cleanup: { label: "Mine Cleanup & Mining Waste", pos: "Clean up abandoned mines and limit mining waste dumped on public land",
+    terms: String.raw`abandoned (?:hardrock )?mines?|mine (?:cleanup|clean-up|reclamation)|abandoned mine (?:lands?|reclamation|fund)|mining waste|waste rock|(?:mine )?tailings|mill sites?|good samaritan (?:mine )?(?:cleanup|remediation)`,
+    up: [String.raw`(?:abandoned )?mine (?:cleanup|clean-up|reclamation)`, String.raw`(?:cleaning up )?abandoned (?:hardrock )?mines?`, String.raw`(?:the )?abandoned (?:hardrock )?mine fund`],
+    downCon: [String.raw`(?:abandoned )?mine (?:cleanup|reclamation)`, String.raw`(?:the )?abandoned (?:hardrock )?mine fund`] },
   checks_balances: { label: "Congress as a Check on the Executive", pos: "Keep Congress and the courts as a real check on executive power, whoever is president",
     terms: String.raw`checks and balances|separation of powers|executive overreach|executive power|article I`,
     up: [String.raw`(?:our )?(?:system of )?checks and balances`, String.raw`(?:the )?separation of powers`, String.raw`(?:congress'?s? )?(?:article I|constitutional) (?:authority|powers?|role)`],

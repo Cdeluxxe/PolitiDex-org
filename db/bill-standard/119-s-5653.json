@@ -759,12 +759,29 @@
    "quoteFrom": "S. 5653 (is)",
    "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm",
    "issueKeys": [
-    "lands_energy"
+    "lands_energy",
+    "mine_cleanup"
    ],
    "presentIn": [
     "S. 5653",
     "S.Amdt. 6883"
    ]
+  },
+  {
+   "ref": "Div. B, Title II, Sec. 2215(d) (Abandoned Hardrock Mine Fund)",
+   "label": "Abandoned Hardrock Mine Fund",
+   "plain": "Creates a Treasury account, the Abandoned Hardrock Mine Fund, filled by claim maintenance fees on the new mill sites and by receipts from hardrock mineral leases on acquired lands. Interior may spend it without further appropriation, only on the abandoned hardrock mine reclamation program in Infrastructure Investment and Jobs Act sec. 40704, with up to 5 percent for administration.",
+   "textQuote": "The Secretary of the Interior may make expenditures from amounts available in the Fund, without further appropriations or fiscal year limitation, only to carry out section 40704 of the Infrastructure Investment and Jobs Act (30 U.S.C. 1245).",
+   "quoteFrom": "S. 5653 (is)",
+   "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm",
+   "issueKeys": [
+    "mine_cleanup"
+   ],
+   "presentIn": [
+    "S. 5653",
+    "S.Amdt. 6883"
+   ],
+   "amendmentHistory": "S. 5653 cross-references the fund as \"established by section 205(d)\"; S.Amdt. 6883 corrects it to \"established by section 2215(d)\"."
   },
   {
    "ref": "Div. B, Title II, Subtitle C, Secs. 2221-2229",
@@ -1113,6 +1130,32 @@
    "quote": "(1) the well is located on non-Federal land and the Federal Government owns less than 50 percent of the oil and gas minerals within the oil and gas drilling or spacing unit;",
    "quoteRef": "Div. B, Title II, Sec. 2211",
    "rationale": "Scope covers a government forbidding a use of a parcel. Sec. 2211 bars Interior from requiring a federal drilling permit for wells on non-Federal land where the federal share of the unit's minerals is under 50 percent, leaving State and Tribal rules in place. That removes a federal condition on a use of non-federal land, which runs with the key. It is one section about a permit, not a taking, so it carries the floor weight. Split row: the sections that run against this key are in the yea_opposes row above.",
+   "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm"
+  },
+  {
+   "issueKey": "mine_cleanup",
+   "weight": 15,
+   "primaryLabel": false,
+   "supportMeaning": "yea_supports",
+   "provisionRefs": [
+    "Div. B, Title II, Sec. 2215(d) (Abandoned Hardrock Mine Fund)"
+   ],
+   "quote": "There is established in the Treasury of the United States a separate account, to be known as the ``Abandoned Hardrock Mine Fund''",
+   "quoteRef": "Div. B, Title II, Sec. 2215(d) (Abandoned Hardrock Mine Fund)",
+   "rationale": "Scope: cleaning up abandoned mines and handling mining waste. Sec. 2215(d) creates a dedicated fund, paid by mill-site claim fees and hardrock lease receipts and spendable without further appropriation, only for the IIJA sec. 40704 abandoned hardrock mine reclamation program. New mandatory money for cleanup runs with the key. One subsection, so it carries a modest weight. Split row: the sections that run against this key are in the yea_opposes row below.",
+   "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm"
+  },
+  {
+   "issueKey": "mine_cleanup",
+   "weight": 20,
+   "primaryLabel": false,
+   "supportMeaning": "yea_opposes",
+   "provisionRefs": [
+    "Div. B, Title II, Sec. 2215"
+   ],
+   "quote": "locate and include within the plan of operations as many mill site claims under this subsection as are reasonably necessary for its operations",
+   "quoteRef": "Div. B, Title II, Sec. 2215",
+   "rationale": "Scope covers where waste rock and tailings may go. Sec. 2215(a) defines a mill site as public land reasonably necessary for waste rock or tailings disposal and lets a claimant locate as many as are reasonably necessary, notwithstanding the existing limits in Revised Statutes sec. 2337(a) and (b). Each site is capped at 5 acres, but the number is not. Widening where mining waste may be placed on public land runs against the key. It is the operative body of the section, so it outweighs the fund row. Split row: the subsection that runs with this key is in the yea_supports row above.",
    "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm"
   },
   {
@@ -5521,7 +5564,7 @@
   },
   "E_issue_mapping": {
    "mark": "present",
-   "note": "14 keys mapped in 16 rows, 15 considered and declined. Two keys are split under splitMappingRule: tribal_consultation (added to the register 2026-11-19, listed as a vocabulary gap in the first pass) into a yea_supports row (Secs. 2212, 2301 definition, 2302) and a yea_opposes row (Sec. 2301 adverse-effect standard and program suspension); property_rights, first declined as running both ways, into a yea_opposes row (Sec. 2101 transmission permits and the 216(e) condemnation changes) and a yea_supports row (Sec. 2211 drilling permits on non-federal land)."
+   "note": "15 keys mapped in 18 rows, 15 considered and declined. Three keys are split under splitMappingRule: tribal_consultation (added to the register 2026-11-19, listed as a vocabulary gap in the first pass) into a yea_supports row (Secs. 2212, 2301 definition, 2302) and a yea_opposes row (Sec. 2301 adverse-effect standard and program suspension); property_rights, first declined as running both ways, into a yea_opposes row (Sec. 2101 transmission permits and the 216(e) condemnation changes) and a yea_supports row (Sec. 2211 drilling permits on non-federal land); mine_cleanup (added to the register 2026-11-20) into a yea_supports row (Sec. 2215(d) Abandoned Hardrock Mine Fund) and a yea_opposes row (Sec. 2215 unlimited mill sites for waste rock and tailings)."
   },
   "F_positions": {
    "mark": "partial",

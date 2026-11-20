@@ -126,6 +126,15 @@
       tribal_consultation: { label: '🪶 Tribal Consultation & Rights', chip: 'Government-to-government consultation, tribal sovereignty, and protection of tribal land, resources, and cultural sites', cat: 'land', stanceKeys: [], keywords: ['tribal consultation','government-to-government consultation','tribal sovereignty','tribal land','tribal historic preservation','sacred sites'] },
       lands_keep_public:  { label: '🏞 Keep Public Lands Public', chip: 'Keep public lands in public hands — oppose selling or transferring federal land to states or developers', cat: 'land', stanceKeys: [], keywords: ['public land','public lands','keep public lands','land sale','sell public land','land transfer','dispose of land','public access','hunting','fishing','recreation','blm','national forest','federal land'] },
       lands_energy:       { label: '⛏ Energy & Resource Development', chip: 'Expand domestic energy, mining & resource development', cat: 'land', lean: 'R', stanceKeys: ['dataCenters'], keywords: ['energy','oil','gas','drilling','mining','public land','state land','land rights','development','data center','grid','nuclear','fossil','extraction','growth','infrastructure'] },
+      // MINE CLEANUP KEY PASS (Nov 2026; first mapped on S. 5653 Sec. 2215).
+      // SCOPE (mine_cleanup): cleaning up abandoned mines and handling mining waste —
+      // abandoned-mine reclamation funds and programs (IIJA sec. 40704, Good
+      // Samaritan cleanups), and where waste rock and tailings may go (mill sites
+      // on public land). Beside Energy & Resource Development, replacing nothing:
+      // that key is about expanding extraction, this is about what extraction
+      // leaves behind. POLARITY: 'support' = fund cleanup and limit mining waste on
+      // public land; 'oppose' = cut cleanup or widen where waste may be put. No `lean`.
+      mine_cleanup:       { label: '🪨 Mine Cleanup & Mining Waste', chip: 'Clean up abandoned mines and limit mining waste dumped on public land', cat: 'land', stanceKeys: [], keywords: ['abandoned mine','abandoned mines','mine cleanup','mine reclamation','hardrock','mining waste','waste rock','tailings','mill site','good samaritan'] },
       // SCOPE (property_rights): what a government may do to a parcel its owner holds —
       // take it, or forbid a use of it. The instruments on file are the remedy side
       // (2026 H.B. 289, attorney fees, a civil penalty and consequential damages when a
@@ -1385,7 +1394,7 @@
         keys: ['gun_rights','gun_balance','gun_safety'] },
       { key: 'climate_energy', label: '🌱 Climate, Energy & Land',
         blurb: 'Climate action, clean and domestic energy, water, disaster resilience, who owns and may use the public estate, and what a government may do to a parcel its owner holds.',
-        keys: ['climate_action','enviro_energy','enviro_balance','lands_energy','lands_preserve','lands_keep_public','lands_balance','lands_local','property_rights','datacenter_growth','datacenter_water','datacenter_power','disaster_resilience','water','water_storage','energy_production','permitting_reform','tribal_consultation'] },
+        keys: ['climate_action','enviro_energy','enviro_balance','lands_energy','lands_preserve','lands_keep_public','lands_balance','lands_local','property_rights','datacenter_growth','datacenter_water','datacenter_power','disaster_resilience','water','water_storage','energy_production','permitting_reform','tribal_consultation','mine_cleanup'] },
       { key: 'crime_safety', label: '👮 Crime & Public Safety',
         blurb: 'Policing, violent crime, sentencing and justice reform, and public safety.',
         keys: ['back_police','justice_balance','justice_reform','cannabis_reform','tough_on_crime'] },

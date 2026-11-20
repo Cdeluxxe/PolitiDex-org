@@ -12394,7 +12394,16 @@
 //     Recorded votes change; no location key is touched and nothing stored is
 //     migrated.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v586';
+// v587 - MINE CLEANUP & MINING WASTE. One issue key, mine_cleanup, joins the
+//     register in alignment-tool.js and its verbatim copy issue-map.js (both
+//     precached), filed under Climate, Energy & Land, and related-issues.js
+//     (precached) relates it both ways to Energy & Resource Development, Protect
+//     Public Lands, Keep Public Lands Public and Water Conservation. Precached
+//     files changed, so the shell moves; the precache list is unchanged. No
+//     route, gate or markup structure changes and no stance is seeded;
+//     no location key is touched and nothing stored is migrated.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v587';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
