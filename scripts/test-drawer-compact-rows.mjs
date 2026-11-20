@@ -274,6 +274,8 @@ if (HEAD_SRC && HEAD_SRC !== SRC) {
   const norm = (s) => String(s || "")
     .replace(NOTE_RE, "")
     .replace(/: what it did, full title, the bill/g, ": full title, the bill")
+    // The coding block is now labelled as technical detail (v595); set aside.
+    .replace(/How this row was coded · not the vote itself/g, "Technical detail · how this row was coded")
     // The "In the issue index" line names the bucket the index files the issue
     // under (v591), which can differ from the row's own verdict; set aside.
     .replace(/<div class="pdxdos-bucket"[\s\S]*?<\/span><\/div>/g, "")

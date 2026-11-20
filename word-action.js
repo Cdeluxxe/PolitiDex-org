@@ -4490,12 +4490,14 @@
   // and nothing in this list is a vote, a formal act or a score input.
   var STATED_HEAD = '✒️ Stated positions on file';
   var STATED_NOTE = 'What they have said, issue by issue — curated stances and stances read from the Evidence Locker. Word only: none of these is a formal act, and Locker-read stances are not counted in the figure above unless the claim names a measure their own formal record on that issue answers.';
-  function statedListHtml(pid) {
+  // The rows of that list, built once. The list, the 🎯 Positions chip
+  // (statedCount) and the waiting-on-a-record line (statedPending) all count
+  // this array, so the chip number and the rows under the heading cannot differ.
+  function statedRows(pid) {
     var CS = window.PDXConsistency;
-    if (!pid || !CS || typeof CS.statedStances !== 'function') return '';
+    if (!pid || !CS || typeof CS.statedStances !== 'function') return [];
     var list = [];
     try { list = CS.statedStances(pid) || []; } catch (e) { list = []; }
-    if (!list.length) return '';
     var rows = [];
     for (var i = 0; i < list.length; i++) {
       var se = list[i];
@@ -4513,14 +4515,51 @@
         ? ' data-pdx-locker-said="' + esc(se.key) + '" data-pdx-locker-said-side="' + esc(se.side) + '"' +
           ' data-pdx-locker-said-strength="' + esc(se.strength) + '" data-pdx-stance-source="pipeline"'
         : '';
-      rows.push('<li class="pdxwa-stated-row" data-pdxwa-stated="' + esc(se.key) + '"' +
-        lockerAttrs + storeAttrs(se) + issueTintAttr(se.key) + '>' + line + '</li>');
+      rows.push({ key: se.key, pipeline: !!(pipe || se.provenance === 'pipeline'),
+        html: '<li class="pdxwa-stated-row" data-pdxwa-stated="' + esc(se.key) + '"' +
+          lockerAttrs + storeAttrs(se) + issueTintAttr(se.key) + '>' + line + '</li>' });
     }
+    return rows;
+  }
+  // Every stated position on file — curated and pipeline-sourced — as listed.
+  function statedCount(pid) {
+    try { return statedRows(pid).length; } catch (e) { return 0; }
+  }
+  // ── STATED, BUT NOT IN THE SCORE YET ────────────────────────────────────────
+  // Word vs Action scores an issue only where a stated position meets a formal
+  // record. A stated position on an issue the formal record index does not hold
+  // is waiting on a record, and this says how many there are. The gate is the
+  // same index the outcome buckets read (formalKeySet); nothing is scored,
+  // weighted or dropped differently. null when the index cannot be reached, so
+  // a booting engine prints nothing rather than calling every stance waiting.
+  function statedPending(pid, rows) {
+    rows = rows || statedRows(pid);
+    var keys = formalKeySet(pid);
+    if (!keys) return null;
+    var waiting = [];
+    for (var i = 0; i < rows.length; i++) if (!keys[rows[i].key]) waiting.push(rows[i].key);
+    return { stated: rows.length, waiting: waiting.length, keys: waiting };
+  }
+  function pendingLineHtml(pid, rows) {
+    var pd = null;
+    try { pd = statedPending(pid, rows); } catch (e) { pd = null; }
+    if (!pd || !pd.waiting) return '';
+    var n = pd.waiting;
+    return '<p class="pdxwa-pending" data-pdxwa-pending="' + n + '"' +
+      ' style="font-size:0.74rem;line-height:1.45;color:#f5c842;margin:0.2rem 0 0.45rem;">' +
+      '⏳ ' + n + ' of ' + pd.stated + ' stated position' + (pd.stated === 1 ? '' : 's') +
+      (n === 1 ? ' is' : ' are') + ' waiting on a formal record, so ' + (n === 1 ? 'it is' : 'they are') +
+      ' not in the score yet.</p>';
+  }
+  function statedListHtml(pid) {
+    var rows = statedRows(pid);
     if (!rows.length) return '';
-    return '<div class="modal-section pdxwa-stated" data-pdxwa-stated-list="1" data-pdxwa-stated-pid="' + esc(pid) + '">' +
+    return '<div class="modal-section pdxwa-stated" data-pdxwa-stated-list="1" data-pdxwa-stated-pid="' + esc(pid) + '"' +
+      ' data-pdxwa-stated-n="' + rows.length + '">' +
       '<div class="pdxwa-stated-h">' + esc(STATED_HEAD) + '</div>' +
+      pendingLineHtml(pid, rows) +
       '<p class="pdxwa-stated-note">' + esc(STATED_NOTE) + '</p>' +
-      '<ul class="pdxwa-stated-list">' + rows.join('') + '</ul>' +
+      '<ul class="pdxwa-stated-list">' + rows.map(function (r) { return r.html; }).join('') + '</ul>' +
     '</div>';
   }
 
@@ -7418,6 +7457,8 @@
     SAID_NOTE: SAID_NOTE,
     saidRowSet: saidRowSet,
     statedListHtml: statedListHtml,
+    statedCount: statedCount,
+    statedPending: statedPending,
     saidLeadApplies: saidLeadApplies,
     saidEmptyLegal: saidEmptyLegal,
     saidPayloadHasAct: saidPayloadHasAct,
