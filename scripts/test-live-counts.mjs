@@ -202,7 +202,9 @@ section("1 · the chips are live, and they match the section they jump to");
   const wa = WARM.PDXWordAction.read(PID, WARM.CMP_DATA[PID]);
   ok(!!chips.wordaction, "the ⚖️ chip is built for a profile with a stated word");
   if (wa && wa.pct !== null) {
-    eq(chips.wordaction.value, wa.pct + "%", "…and prints Direction Match's own percentage");
+    // The figure leads, followed by its bucket word on the 95 / 65 cutoffs.
+    const waWord = { consistent: "Backed up", mixed: "Mixed", contradicts: "Contradicted" }[wa.token] || "";
+    eq(chips.wordaction.value, wa.pct + "%" + (waWord ? " · " + waWord : ""), "…and prints Direction Match's own percentage");
   } else {
     ok(/Checking|Not enough on file|Untested/.test(chips.wordaction.value),
       "…and where there is no percentage it prints the engine's own honest state");

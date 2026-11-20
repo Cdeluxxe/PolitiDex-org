@@ -1555,8 +1555,10 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
   //      railOrder that nothing calls is a comment.
   ok(/PDXProfileSpine\.railOrder\(_navItems\)/.test(PFR),
      "rail: the profile sorts its pill list through the spine instead of trusting the push order");
-  ok(/_navOrdered\.length >= 2/.test(PFR) && /_navOrdered\.map\(function/.test(PFR) &&
-     !/_navItems\.map\(function/.test(PFR),
+  // The sorted list is split into the compact lead row and the "More sections"
+  // track; both halves are filtered out of _navOrdered, never out of _navItems.
+  ok(/_navOrdered\.length >= 2/.test(PFR) && /_navOrdered\.filter\(function/.test(PFR) &&
+     /_navRest\.map\(_navPillHtml\)/.test(PFR) && !/_navItems\.map\(function/.test(PFR),
      "rail: and it renders the SORTED list — an unsorted render would make the derivation decorative");
   ok(/typeof window\.PDXProfileSpine\.railOrder === 'function'[\s\S]{0,140}: _navItems/.test(PFR),
      "rail: with the unsorted list as the fallback, so a missing spine costs the order and not the rail");

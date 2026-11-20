@@ -166,6 +166,13 @@ ctx.PDXVotingRecord._records[MIXED] = [
     action: "On Passage", position: "nay", isProcedural: false,
     title: "Ballot Integrity Act", source: src, issues: supports,
   },
+  // A third vote with the position: 2 of 3 is 67%, inside the 65%–<95% Mixed band.
+  // Two votes split one each way is 50%, which now reads Contradicted.
+  {
+    kind: "vote", rollcallId: 23, measureId: 123, number: "H.R. 23", date: "2025-06-18",
+    action: "On Passage", position: "yea", isProcedural: false,
+    title: "Polling Place Access Act", source: src, issues: supports,
+  },
 ];
 // One vote, mapped to three issues, contradicting the stated position on this one:
 // a thin contradicted row that ALSO carries the multi-issue disclosure, which is the
@@ -335,8 +342,8 @@ for (const pid of [THIN, DEEP, COLLIDE, ALIGNED, MIXED, OMNI]) {
   // cannot tell a reader.
   const r = C.issueRow(MIXED, ISSUE);
   const cov = C.dossierCoverage(MIXED, ISSUE);
-  must(r.verdict.token === "mixed" && cov.judged === 2,
-    `the mixed fixture reads ${r.verdict.token} on ${cov.judged} judged item(s), not mixed on 2 — ` +
+  must(r.verdict.token === "mixed" && cov.judged === 3,
+    `the mixed fixture reads ${r.verdict.token} on ${cov.judged} judged item(s), not mixed on 3 — ` +
     "the mixed-row scope below would be untested");
   const recs = C.dossierRecordsHtml(MIXED, ISSUE);
   has(recs, "They said:", "mixed: a thin mixed row carries the stated position too");

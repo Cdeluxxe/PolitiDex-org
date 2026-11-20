@@ -403,7 +403,8 @@ const voteNarration = (issueKey, extra = {}) => ({
   const r = WA.read('p1', { name: 'Publishable' });
   eq(r.publishable, true, 'a read clearing both floors still refuses to publish');
   eq(r.pct, 50, 'the weighted average is wrong for three equally-evidenced items at 100/0/50');
-  eq(r.token, 'mixed', 'a record with both agreement and contradiction did not read as mixed');
+  // The verdict word follows the printed figure: 50% is under the 65% Mixed cutoff.
+  eq(r.token, 'contradicts', 'a 50% read did not read as Contradicted (≥95 backed up · 65–<95 mixed · <65 contradicted)');
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

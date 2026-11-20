@@ -218,6 +218,17 @@ const RECORDS = [
     source: SRC("https://www.congress.gov/bill/119th-congress/house-bill/7"),
     issues: [{ issueKey: "school_choice", weight: 40, isPrimary: true, supportMeaning: "yea_opposes" }],
   },
+  // Seventeen lighter supporting votes on school_choice, so the net record clears
+  // the 95% Backed up cutoff (19 with, 1 against) and stays a backed-up record that
+  // carries one local contradiction — the shape Guard 9 exists to test. Lighter
+  // than H.R. 5 and H.R. 6 so neither card changes which vote it cites.
+  ...Array.from({ length: 17 }, (_, k) => ({
+    kind: "vote", measureId: 900 + k, congress: 119, session: 1, rollNumber: 400 + k, measureType: "bill",
+    number: "H.R. " + (6001 + k), title: "School Choice Expansion Act No. " + (k + 1), chamber: "house",
+    result: "Passed", date: "2025-0" + (1 + (k % 8)) + "-1" + (k % 9), action: "On Passage", position: "yea",
+    isProcedural: false, source: SRC("https://www.congress.gov/bill/119th-congress/house-bill/" + (6001 + k)),
+    issues: [{ issueKey: "school_choice", weight: 30, isPrimary: true, supportMeaning: "yea_supports" }],
+  })),
 ];
 
 // A second member used only for the record-quality guards, so the fixtures above
@@ -287,6 +298,13 @@ const SPLIT_RECORDS = [
     result: "Confirmed", date: "2025-03-04", action: "On the Nomination", position: "yea", isProcedural: false,
     source: SRC("https://www.congress.gov/nomination/119th-congress/300"),
     issues: [{ issueKey: "climate_action", weight: 100, isPrimary: true, supportMeaning: "yea_opposes" }] },
+  // A second, lighter climate vote with the stance: one each way is 50%, which is
+  // Contradicted on the 95 / 65 cutoffs; two with and one against (67%) is Mixed.
+  { kind: "vote", measureId: 35, congress: 119, session: 1, rollNumber: 77, measureType: "bill", number: "S. 610",
+    title: "Grid Modernization Act", chamber: "senate", result: "Passed",
+    date: "2025-03-20", action: "On Passage", position: "yea", isProcedural: false,
+    source: SRC("https://www.congress.gov/bill/119th-congress/senate-bill/610"),
+    issues: [{ issueKey: "climate_action", weight: 50, isPrimary: true, supportMeaning: "yea_supports" }] },
 ];
 
 // A fourth member, whose record on these issues is made of formal instruments
@@ -351,6 +369,15 @@ const ACT_RECORDS = [
     source: { url: "https://www.congress.gov/bill/119th-congress/house-bill/1200", label: "Congress.gov" },
     issues: [{ issueKey: "national_debt", weight: 90, isPrimary: true, supportMeaning: "yea_opposes",
       rationale: "Adds $300 billion in unoffset spending over the ten-year window." }] },
+  // A lighter second roll call on the with side. Two items one each way is 50%,
+  // which reads Contradicted on the 95 / 65 cutoffs; two with and one against is
+  // 67%, inside the Mixed band. Lighter than H.R. 900 so the with side still cites it.
+  { kind: "vote", measureId: 41, congress: 119, session: 1, rollNumber: 322, measureType: "bill", number: "H.R. 950",
+    title: "Budget Process Transparency Act", chamber: "house", result: "Passed",
+    date: "2025-05-06", action: "On Passage", position: "yea", isProcedural: false,
+    source: SRC("https://www.congress.gov/bill/119th-congress/house-bill/950"),
+    issues: [{ issueKey: "national_debt", weight: 40, isPrimary: true, supportMeaning: "yea_supports",
+      rationale: "Requires a published cost estimate before floor consideration." }] },
 ];
 
 // Stub the record data layer the module reads through.
@@ -2769,7 +2796,7 @@ if (craCard) {
       "mixed act split post: both addresses travel, each labelled for what it is");
     has(post, "\nActed against: " + both.sides.against.url,
       "mixed act split post: neither side is the one left unfootnoted, and neither is mislabelled");
-    has(post, "Did: Acted in line with their position 1× (H.R. 900) and against it 1× (H.R. 1200)",
+    has(post, "Did: Acted in line with their position 2× (H.R. 900) and against it 1× (H.R. 1200)",
       "mixed act split post: the Did line counts both items without calling either a vote");
   }
 

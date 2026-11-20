@@ -1098,7 +1098,8 @@
   // Mixed is minted in exactly one place for the whole app: _pdxMixedGate in
   // stance-helpers.js, which every lane below calls through this accessor. The rule
   // is that a split is only Mixed when both directions are materially present and
-  // neither holds 2/3 of the weight; a dominant side resolves outright and a
+  // the backing share sits between 65% and 95%; ≥95% is Backed up, <65% is
+  // Contradicted, and a
   // directionless record resolves to no_position, never to a soft middle.
   //
   // No local copy of the rule lives here on purpose — a second copy is how the
@@ -1115,6 +1116,17 @@
     if (typeof g === 'function') return g(consistentScore, contradictScore, judgedItems);
     return contradictScore > consistentScore ? 'contradicts'
          : consistentScore > contradictScore ? 'consistent' : 'no_position';
+  }
+
+  // ── the match cutoffs, against the figure a row prints ─────────────────────
+  // ≥95% Backed up · 65% to <95% Mixed · <65% Contradicted. The gate weighs; the
+  // row prints a count share. Where the two disagree (a procedural vote weighs
+  // less than it counts), the verdict follows the printed percentage, so nothing
+  // under 95% can read as Backed up. Only a directional token is re-banded.
+  function bandToken(tok, score) {
+    if (tok !== 'consistent' && tok !== 'mixed' && tok !== 'contradicts') return tok;
+    if (typeof score !== 'number' || typeof window._pdxMatchBand !== 'function') return tok;
+    return window._pdxMatchBand(score) || tok;
   }
 
   // ── the core reconciler: ONE verdict for (pid, issueKey) ────────────────────
@@ -1248,6 +1260,7 @@
       var t = rec.netVerdict === 'contradicts' ? 'contradicts'
             : rec.netVerdict === 'consistent' ? 'consistent'
             : rec.netVerdict === 'mixed' ? 'mixed' : 'limited';
+      t = bandToken(t, scoreFromRecord(rec));
       var recLane = recordLaneFor(pid, issueKey);
       return {
         scope: 'official', token: t, verdict: laneVerdict('official', t, recLane === 'exec' ? 'exec' : null),
@@ -1274,6 +1287,7 @@
                // with no clear direction; 'no_stance' says what is actually true.
                : exSum.netVerdict === 'no_stance' ? 'no_stance'
                : 'limited';
+        xt = bandToken(xt, scoreFromRecord(exSum));
         return {
           scope: 'official', token: xt, verdict: laneVerdict('official', xt, 'exec'),
           score: scoreFromRecord(exSum), record: exSum, officialActions: null, curated: null,
@@ -5710,6 +5724,14 @@
     else if (tok !== 'pending' && pub.judged && pubDirectional >= MIN_SAYDO_EVIDENCE) {
       basis = 'public_record'; tok = pub.token; v = pub.verdict; score = pub.score;
     } else if (actionJudged) basis = 'action';
+
+    // ── the match cutoffs, against the figure this row prints ─────────────────
+    // The gate decides on weight; the row prints a count. Where the two can differ
+    // (a procedural vote weighs less than it counts), the word has to follow the
+    // number the reader sees: ≥95% Backed up, 65% to <95% Mixed, <65% Contradicted.
+    // Nothing under 95% may read as Backed up.
+    var banded = bandToken(tok, score);
+    if (banded !== tok) { tok = banded; v = VERDICTS[tok] || v; }
 
     // ── the row's own Mixed floor ─────────────────────────────────────────────
     // "Mixed record" is a claim about a DISAGREEMENT, and one item cannot disagree
@@ -21390,7 +21412,7 @@
       row('…', 'When the record is thin', 'We don\'t turn a couple of items into a confident number. Below a small minimum we show “—” or “not enough record yet” instead of a misleading 0% or 100%. A coverage line on each section shows how much of their record we actually have so far.') +
       // The Mixed rule is a real scoring decision and the one most likely to be read
       // as a hedge, so it is written down where a reader can hold us to it.
-      row('◑', 'When a record reads Mixed', 'Mixed is <b>not</b> a shrug and it is not the middle of a scale. It is reserved for a record that genuinely points both ways: either <b>several formal actions on the same issue pull in different directions</b>, or <b>one omnibus action both advances and undercuts</b> the stated position in material ways, with neither side dominant. Where one direction carries roughly two thirds or more of the weight, that direction <b>is</b> the verdict — a law that clearly breaks a stated commitment reads as <b>Says one thing, does another</b>, not as Mixed. And where the record is simply <b>thin or uncertain</b>, it reads as <b>not enough record yet</b>. Mixed is never used to soften a clear break.') +
+      row('◑', 'When a record reads Mixed', 'Mixed is <b>not</b> a shrug and it is not the middle of a scale. It is reserved for a record that genuinely points both ways: either <b>several formal actions on the same issue pull in different directions</b>, or <b>one omnibus action both advances and undercuts</b> the stated position in material ways, with neither side dominant. The cutoffs are fixed: a record is <b>Backed up</b> only when <b>95% or more</b> of it matches what they said, <b>Mixed</b> from <b>65% to under 95%</b>, and <b>Contradicted</b> below <b>65%</b>. Nothing under 95% is ever called Backed up — a law that clearly breaks a stated commitment reads as <b>Says one thing, does another</b>, not as Mixed. And where the record is simply <b>thin or uncertain</b>, it reads as <b>not enough record yet</b>. Mixed is never used to soften a clear break.') +
       // The overall % is a real scoring decision a reader can check us on, so it is
       // stated here and not only in the composition line's tooltip.
       row('📊', 'How the overall % is built', 'The overall Official Record % averages the per-issue percentages, <b>weighted by how many judged votes or actions sit behind each issue</b> — so an issue decided by a single vote counts less than one decided by ten. No issue is dropped for being thin: the depth behind every number is shown beside it, and the overall figure tells you what the plain unweighted average would have been whenever the two differ.') +
