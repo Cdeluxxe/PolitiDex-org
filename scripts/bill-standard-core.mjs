@@ -24,10 +24,13 @@
 //     that is not in the text, spelled "(not in text) <topic>".
 //   · SPLIT, DON'T COLLAPSE (splitMappingRule). A key may carry one row per
 //     direction. Two rows for one key must be yea_supports and yea_opposes,
-//     cite different sections, and each carry their own weight and quote. A
+//     cite different sections, and each carry their own quote. A
 //     single row whose rationale calls itself mixed or two-way is an error. A
 //     key declined because it "runs both ways" is a warning: under the rule it
 //     should be split, not declined.
+//   · EVERY ROW IS EQUAL. A mapping row carries no weight, no primary label and
+//     no rank; row order is not a ranking. A row that carries any of those is
+//     an error (mappingEqualityNote).
 //   · EVERY CITATION RESOLVES. A mapping's provisionRefs and quoteRef name
 //     provisions in the ledger, and each of those provisions lists the key.
 //     claimRef names a claim. A provision with no key says whyUnmapped.
@@ -45,10 +48,13 @@ import { billStage } from "../netlify/lib/bill-record-stages.mjs";
 export const STANDARD_VERSION = "bill-gt-v1";
 
 export const SPLIT_MAPPING_RULE =
-  "When a bill's text supports an issue key in some sections and opposes it in others, record one mapping row per direction for that key (yea_supports and yea_opposes), each citing its own sections with its own weight and a short quote; do not collapse conflicting effects into one direction.";
+  "When a bill's text supports an issue key in some sections and opposes it in others, record one mapping row per direction for that key (yea_supports and yea_opposes), each citing its own sections with a short quote; do not collapse conflicting effects into one direction.";
 
-export const PRIMARY_LABEL_NOTE =
-  "Primary is a display label only. It carries no scoring weight and does not decide what is shown. Weights describe how central the issue is to the text.";
+export const MAPPING_EQUALITY_NOTE =
+  "Every mapping row is equal. Rows carry no weight, no primary label and no rank, and their order is not a ranking. Each row records a key, a direction, the sections it rests on, a quote and a rationale.";
+
+// Fields that would rank one mapping row above another. None is allowed.
+export const RANKING_FIELDS = ["weight", "primaryLabel", "isPrimary", "primary", "rank", "priority"];
 
 export const STATUS_WORDS = [
   "introduced", "in_committee", "reported", "passed_house", "passed_senate", "passed_both",
@@ -83,7 +89,7 @@ const F = (req, opt = []) => ({ req, opt });
 export const SHAPE = {
   top: F(
     ["standardVersion", "verifiedOn", "verifiedBy", "key", "identity", "status", "overview", "provisions",
-     "issues", "splitMappingRule", "considered", "primaryLabelNote", "sponsors", "sponsorNote", "statedOnBill",
+     "issues", "splitMappingRule", "considered", "mappingEqualityNote", "sponsors", "sponsorNote", "statedOnBill",
      "statedCheck", "votes", "claims", "scorekeepers", "secondarySources", "completeness", "doesNotDo"],
     [], // plus textDelta_<FROM>_to_<TO>, allowed when a substitute text exists
   ),
@@ -103,7 +109,7 @@ export const SHAPE = {
   overview: F(["plainSummary", "wordCount", "summarySources", "valueWordCheck"]),
   summarySource: F(["label", "url"]),
   provision: F(["ref", "label", "plain", "textQuote", "quoteFrom", "sourceUrl", "issueKeys", "presentIn"], ["amendmentHistory", "whyUnmapped"]),
-  issue: F(["issueKey", "weight", "primaryLabel", "supportMeaning", "provisionRefs", "quote", "quoteRef", "rationale", "sourceUrl"], ["claimRef"]),
+  issue: F(["issueKey", "supportMeaning", "provisionRefs", "quote", "quoteRef", "rationale", "sourceUrl"], ["claimRef"]),
   considered: F(["issueKey", "whyNot"]),
   sponsor: F(["politicianId", "bioguideId", "recordName", "role", "original", "joinedOn", "profile"]),
   stated: F(["politicianId", "stance", "excerpt", "date", "venue", "sourceUrl", "lockerItemId"], ["note"]),
@@ -164,6 +170,7 @@ export function validateLedger(L, ctx = {}) {
   if (L.standardVersion !== STANDARD_VERSION) errors.push(`standardVersion is ${L.standardVersion}, not ${STANDARD_VERSION}`);
   if (!isDate(L.verifiedOn)) errors.push("verifiedOn is not a date");
   if (L.splitMappingRule !== SPLIT_MAPPING_RULE) errors.push("splitMappingRule is not the standard's rule text");
+  if (L.mappingEqualityNote !== MAPPING_EQUALITY_NOTE) errors.push("mappingEqualityNote is not the standard's note text");
 
   // A. identity
   const id = L.identity || {};
@@ -224,7 +231,7 @@ export function validateLedger(L, ctx = {}) {
     const w = `issues[${i}] ${r.issueKey}`;
     if (!keys.has(r.issueKey)) errors.push(`${w}: not a register key`);
     if (!DIRECTIONS.includes(r.supportMeaning)) errors.push(`${w}: supportMeaning ${r.supportMeaning} is not yea_supports or yea_opposes`);
-    if (!Number.isInteger(r.weight) || r.weight < 1 || r.weight > 100) errors.push(`${w}: weight ${r.weight} is not 1-100`);
+    for (const f of RANKING_FIELDS) if (f in r) errors.push(`${w}: carries ${f}; mapping rows are equal and carry no weight, primary label or rank`);
     if (!r.quote) errors.push(`${w}: no quote`);
     if (!(r.provisionRefs || []).length) errors.push(`${w}: no provisionRefs`);
     for (const ref of [...(r.provisionRefs || []), r.quoteRef]) {
@@ -247,8 +254,6 @@ export function validateLedger(L, ctx = {}) {
     if (b && (a.provisionRefs || []).some((x) => (b.provisionRefs || []).includes(x))) errors.push(`issues ${k}: split rows cite the same section`);
     if (b && a.quote === b.quote) errors.push(`issues ${k}: split rows share one quote`);
   }
-  const primaries = rows.filter((r) => r.primaryLabel === true).length;
-  if (rows.length && primaries !== 1) errors.push(`issues: ${primaries} primary labels; the standard uses exactly one`);
   for (const p of provs) for (const k of p.issueKeys || []) if (!perKey.has(k)) errors.push(`provision ${p.ref} lists ${k}, which has no mapping row`);
 
   const cons = list(errors, "considered", L.considered, SHAPE.considered);
@@ -522,7 +527,7 @@ export function scaffoldLedger(record, opts = {}) {
     issues: [],
     splitMappingRule: SPLIT_MAPPING_RULE,
     considered: [],
-    primaryLabelNote: PRIMARY_LABEL_NOTE,
+    mappingEqualityNote: MAPPING_EQUALITY_NOTE,
     sponsors,
     sponsorNote: `Congress.gov lists 1 sponsor and ${cos.length} cosponsor${cos.length === 1 ? "" : "s"} (${cos.filter((c) => c.original).length} original)${withdrawn ? `, ${withdrawn} withdrawn` : ", none withdrawn"} (read ${today}). ${offRoster ? `${offRoster} not on the PolitiDex roster (no profile link).` : "All are on the PolitiDex roster."}`,
     statedOnBill: [],

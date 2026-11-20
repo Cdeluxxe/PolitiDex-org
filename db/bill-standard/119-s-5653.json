@@ -926,8 +926,6 @@
  "issues": [
   {
    "issueKey": "permitting_reform",
-   "weight": 100,
-   "primaryLabel": true,
    "supportMeaning": "yea_supports",
    "provisionRefs": [
     "Div. A, Title I, Sec. 1106",
@@ -945,8 +943,6 @@
   },
   {
    "issueKey": "datacenter_power",
-   "weight": 70,
-   "primaryLabel": false,
    "supportMeaning": "yea_supports",
    "provisionRefs": [
     "Div. B, Title I, Sec. 2107",
@@ -959,8 +955,6 @@
   },
   {
    "issueKey": "energy_production",
-   "weight": 50,
-   "primaryLabel": false,
    "supportMeaning": "yea_supports",
    "provisionRefs": [
     "Div. B, Title II, Sec. 2211",
@@ -976,8 +970,6 @@
   },
   {
    "issueKey": "lands_energy",
-   "weight": 45,
-   "primaryLabel": false,
    "supportMeaning": "yea_supports",
    "provisionRefs": [
     "Div. B, Title II, Sec. 2215",
@@ -991,8 +983,6 @@
   },
   {
    "issueKey": "lands_preserve",
-   "weight": 35,
-   "primaryLabel": false,
    "supportMeaning": "yea_opposes",
    "provisionRefs": [
     "Div. A, Title III, Sec. 1302",
@@ -1008,8 +998,6 @@
   },
   {
    "issueKey": "states_federal_power",
-   "weight": 35,
-   "primaryLabel": false,
    "supportMeaning": "yea_opposes",
    "provisionRefs": [
     "Div. A, Title II, Sec. 1202",
@@ -1022,8 +1010,6 @@
   },
   {
    "issueKey": "judicial_check",
-   "weight": 35,
-   "primaryLabel": false,
    "supportMeaning": "yea_opposes",
    "provisionRefs": [
     "Div. A, Title I, Sec. 1110"
@@ -1035,8 +1021,6 @@
   },
   {
    "issueKey": "infrastructure",
-   "weight": 35,
-   "primaryLabel": false,
    "supportMeaning": "yea_supports",
    "provisionRefs": [
     "Div. B, Title I, Sec. 2101",
@@ -1049,8 +1033,6 @@
   },
   {
    "issueKey": "cost_living",
-   "weight": 30,
-   "primaryLabel": false,
    "supportMeaning": "yea_supports",
    "provisionRefs": [
     "Div. B, Title I, Sec. 2107"
@@ -1062,8 +1044,6 @@
   },
   {
    "issueKey": "enviro_balance",
-   "weight": 20,
-   "primaryLabel": false,
    "supportMeaning": "yea_supports",
    "provisionRefs": [
     "Div. A, Title VI, Sec. 1602 (substitute only)",
@@ -1077,8 +1057,6 @@
   },
   {
    "issueKey": "tribal_consultation",
-   "weight": 20,
-   "primaryLabel": false,
    "supportMeaning": "yea_supports",
    "provisionRefs": [
     "Div. B, Title II, Sec. 2212",
@@ -1093,8 +1071,6 @@
   },
   {
    "issueKey": "tribal_consultation",
-   "weight": 15,
-   "primaryLabel": false,
    "supportMeaning": "yea_opposes",
    "provisionRefs": [
     "Div. B, Title III, Sec. 2301"
@@ -1107,8 +1083,6 @@
   },
   {
    "issueKey": "property_rights",
-   "weight": 20,
-   "primaryLabel": false,
    "supportMeaning": "yea_opposes",
    "provisionRefs": [
     "Div. B, Title I, Sec. 2101",
@@ -1121,8 +1095,6 @@
   },
   {
    "issueKey": "property_rights",
-   "weight": 10,
-   "primaryLabel": false,
    "supportMeaning": "yea_supports",
    "provisionRefs": [
     "Div. B, Title II, Sec. 2211"
@@ -1134,8 +1106,6 @@
   },
   {
    "issueKey": "mine_cleanup",
-   "weight": 15,
-   "primaryLabel": false,
    "supportMeaning": "yea_supports",
    "provisionRefs": [
     "Div. B, Title II, Sec. 2215(d) (Abandoned Hardrock Mine Fund)"
@@ -1147,8 +1117,6 @@
   },
   {
    "issueKey": "mine_cleanup",
-   "weight": 20,
-   "primaryLabel": false,
    "supportMeaning": "yea_opposes",
    "provisionRefs": [
     "Div. B, Title II, Sec. 2215"
@@ -1160,8 +1128,6 @@
   },
   {
    "issueKey": "gov_transparency",
-   "weight": 15,
-   "primaryLabel": false,
    "supportMeaning": "yea_supports",
    "provisionRefs": [
     "Div. A, Title I, Sec. 1132",
@@ -1176,8 +1142,6 @@
   },
   {
    "issueKey": "disaster_resilience",
-   "weight": 10,
-   "primaryLabel": false,
    "supportMeaning": "yea_supports",
    "provisionRefs": [
     "Div. A, Title VI, Sec. 1601 (substitute only)"
@@ -1188,7 +1152,7 @@
    "sourceUrl": "https://www.congress.gov/119/crec/2026/11/10/172/169/modified/CREC-2026-11-10-pt1-PgS5471-2.htm"
   }
  ],
- "splitMappingRule": "When a bill's text supports an issue key in some sections and opposes it in others, record one mapping row per direction for that key (yea_supports and yea_opposes), each citing its own sections with its own weight and a short quote; do not collapse conflicting effects into one direction.",
+ "splitMappingRule": "When a bill's text supports an issue key in some sections and opposes it in others, record one mapping row per direction for that key (yea_supports and yea_opposes), each citing its own sections with a short quote; do not collapse conflicting effects into one direction.",
  "considered": [
   {
    "issueKey": "climate_action",
@@ -1251,7 +1215,7 @@
    "whyNot": "CBO's preliminary estimate is under $1 billion over 2027-2036. That is not a net fiscal direction large enough to read as a deficit vote, and it is shown as the scorekeeper finding instead."
   }
  ],
- "primaryLabelNote": "Primary is a display label only. It carries no scoring weight and does not decide what is shown. One label is used (permitting_reform, from the official title \"To prescribe permitting reform\"). Weights describe how central the issue is to the text.",
+ "mappingEqualityNote": "Every mapping row is equal. Rows carry no weight, no primary label and no rank, and their order is not a ranking. Each row records a key, a direction, the sections it rests on, a quote and a rationale.",
  "sponsors": [
   {
    "politicianId": "capito",
