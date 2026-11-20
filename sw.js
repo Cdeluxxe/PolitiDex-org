@@ -12408,7 +12408,17 @@
 //   The letterhead leads with Funding, Activity and Word vs Action on one row; the
 //   other jumps sit behind "More sections". "Updated X ago" counts the voting and
 //   formal record and the profile's own edit stamp.
-const CACHE_VERSION = 'v588';
+// v589 - THE LETTERHEAD GRID AND THE PDX MARK. On the person file, Funding and
+//   Activity sit side by side beside the photo and Word vs Action takes the next
+//   line at full width; the pill now repaints when the roll-call record arrives
+//   (it used to wait on an event a cold /p/ open never fired), so a file whose
+//   existing read publishes a figure shows it. The compact PDX mark sits on the
+//   portrait's corner, beside "Bill file" on bill pages and in the issue
+//   drawer's identity row. Scoring rules and cutoffs are unchanged. Precached
+//   files changed (app.css, profiles-full.js, consistency.js, bill.html), so the
+//   shell moves; the precache list is unchanged.
+//   MIGRATION COST: none.
+const CACHE_VERSION = 'v589';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

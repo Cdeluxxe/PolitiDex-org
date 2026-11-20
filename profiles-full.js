@@ -4411,7 +4411,7 @@
     if (!nav) return;
     var id = nav.getAttribute('data-pdxnav-pid') || '';
     if (!id) return;
-    if (pid && String(pid).trim().toLowerCase() !== id.trim().toLowerCase()) return;
+    if (pid && !_pdxNavSamePid(pid, id)) return;
     var chips;
     try { chips = window._pdxNavChips(id, null) || {}; } catch (e) { return; }
     var live = nav.querySelectorAll('[data-pdxnav-live]');
@@ -4420,7 +4420,19 @@
       var c = chips[btn.getAttribute('data-pdxnav-live')];
       if (!c) continue;
       var val = btn.querySelector('.pdx-pnav-val');
+      // The reserved Word vs Action slot (see _navWvaSlot in openModal) ships
+      // with no figure. The first time _pdxNavChips has one, the figure is
+      // written in and the slot is shown — in its own line, so nothing beside it
+      // moves.
+      if (!val && btn.getAttribute('data-pdxnav-slot')) {
+        var txt = btn.querySelector('.pdx-pnav-txt');
+        if (!txt || !document.createElement) continue;
+        val = document.createElement('span');
+        val.className = 'pdx-pnav-val';
+        txt.appendChild(val);
+      }
       if (!val) continue;
+      if (btn.hasAttribute && btn.hasAttribute('hidden')) btn.removeAttribute('hidden');
       if (val.textContent !== c.value) val.textContent = c.value;
       try { val.style.color = c.color; } catch (e2) {}
       btn.setAttribute('aria-label',
@@ -4438,14 +4450,58 @@
       }
     } catch (e3) {}
   };
+  // Does an event's pid name the file the rail is for? The record cache is keyed
+  // by the canonical id and listeners by whatever id their surface resolved
+  // (/p/scott_chew is filed as chew_h68), so both sides are resolved first.
+  function _pdxNavSamePid(a, b) {
+    var x = String(a == null ? '' : a).trim().toLowerCase();
+    var y = String(b == null ? '' : b).trim().toLowerCase();
+    if (!x || !y) return false;
+    if (x === y) return true;
+    var canon = function (v) {
+      var out = v;
+      try { if (typeof window.PDXProfilePid === 'function') out = String(window.PDXProfilePid(out) || out); } catch (e) {}
+      try { if (typeof window.PDXCanonicalPid === 'function') out = String(window.PDXCanonicalPid(out) || out); } catch (e) {}
+      return out.trim().toLowerCase();
+    };
+    return canon(x) === canon(y);
+  }
   var _navLiveBound = false;
+  var _navLiveQueued = false;
+  function _pdxNavLiveSoon(ev) {
+    var d = (ev && ev.detail) || {};
+    var nav = document.getElementById && document.getElementById('pdx-profile-nav');
+    if (!nav) return;
+    var id = nav.getAttribute('data-pdxnav-pid') || '';
+    // An event that names somebody else is not about this rail. One that names
+    // nobody may be (a data-changed sweep), and the repaint is a re-read.
+    if ((d.pid || d.canon) && !_pdxNavSamePid(d.pid, id) && !_pdxNavSamePid(d.canon, id)) return;
+    // Coalesced: a record arrival fires two or three of these back to back.
+    if (_navLiveQueued) return;
+    _navLiveQueued = true;
+    setTimeout(function () {
+      _navLiveQueued = false;
+      try { window._pdxNavLive(''); } catch (e) {}
+    }, 0);
+  }
   function _pdxNavLiveBind() {
     if (_navLiveBound || !window.addEventListener) return;
     _navLiveBound = true;
     // Bound once, for the life of the page, and cheap: it does nothing at all
     // unless a rail is mounted and the event names the profile that rail is for.
-    window.addEventListener('pdx-consistency-warm', function (ev) {
-      try { window._pdxNavLive((ev && ev.detail && ev.detail.pid) || ''); } catch (e) {}
+    //
+    // ALL THREE ARRIVALS, NOT ONE. 'pdx-consistency-warm' only fires for a member
+    // the consistency queue fetched. On a cold /p/<pid> the roll-call record
+    // arrives through person-file.js's warm (or the head prefetch it adopts),
+    // which announces 'pdx-record-noted' and 'pdx-voting-warm' and never the
+    // consistency event — so the ⚖️ pill sat on "Checking…" for the life of the
+    // page over a record that was already in memory and scored (Massie: 6 issues
+    // tested, a published figure). Listening for the record's own arrival is what
+    // lets the existing read reach the letterhead; nothing about the read changes.
+    ['pdx-consistency-warm', 'pdx-record-noted', 'pdx-voting-warm'].forEach(function (n) {
+      window.addEventListener(n, function (ev) {
+        try { _pdxNavLiveSoon(ev); } catch (e) {}
+      });
     });
   }
 
@@ -4498,6 +4554,19 @@
     var nav = document.getElementById('pdx-profile-nav');
     // The rail exists, so the live-chip listener should too. Guarded to one bind.
     try { _pdxNavLiveBind(); if (nav) window._pdxNavLive(nav.getAttribute('data-pdxnav-pid') || ''); } catch (e) {}
+    // …and a few timed re-reads per mounted rail, for the states that settle
+    // without an event of their own (the record lane's wait deadline turning
+    // "Checking…" into an answer). Scheduled once per rail element, not per re-arm.
+    try {
+      if (nav && nav !== window._pdxNavTimedFor) {
+        window._pdxNavTimedFor = nav;
+        [2000, 6500, 10000].forEach(function (ms) {
+          setTimeout(function () {
+            try { if (document.getElementById('pdx-profile-nav') === nav) window._pdxNavLive(''); } catch (e) {}
+          }, ms);
+        });
+      }
+    } catch (e) {}
     // Re-arming is how this function is used — on open, after a drawer mounts,
     // after a late pill is added — so tearing the previous observer down is the
     // first thing it does. Nothing here can stack.
@@ -5661,6 +5730,30 @@
       return _navOrdered.filter(function (n) { return n.target === t; })[0];
     }).filter(Boolean);
     const _navRest = _navOrdered.filter(function (n) { return _NAV_LEAD_ORDER.indexOf(n.target) === -1; });
+    // ── TWO LINES, NOT ONE WRAPPING ROW ──────────────────────────────────────
+    // 💰 Funding and 🕑 Activity are short figures and sit side by side right of
+    // the photo; ⚖️ Word vs Action carries a percentage AND a verdict word, so it
+    // gets the next line to itself at the letterhead's full width (.pdx-pnav-wva,
+    // laid out in app.css). Same pills, same order, same #pdx-profile-nav.
+    const _navLeadPair = _navLead.filter(function (n) { return n.target !== 'pdxsec-wordaction'; });
+    const _navLeadWva = _navLead.filter(function (n) { return n.target === 'pdxsec-wordaction'; })[0] || null;
+    // THE SLOT IS RESERVED EVEN WHEN THE FIRST READ HAD NOTHING TO SAY. The
+    // letterhead is built once, often before the stance tables or the engine have
+    // anything for this person, and the live repaint below never adds a pill. So
+    // a file whose Word vs Action read only becomes available a moment later
+    // (the roll-call record landing is the usual case) used to keep no pill at
+    // all. A hidden, empty slot costs nothing and lets window._pdxNavLive show
+    // the pill the moment _pdxNavChips has a figure for it. No figure ever
+    // arrives → the slot stays hidden and the file omits the pill, as before.
+    const _navWvaSlot = (!_navLeadWva && window.PDXWordAction && typeof window.PDXWordAction.read === 'function')
+      ? '<button type="button" class="pdx-pnav-pill" data-target="pdxsec-wordaction" hidden ' +
+          'data-pdxnav-live="wordaction" data-pdxnav-label="Word vs Action" data-pdxnav-slot="1" ' +
+          'aria-label="Word vs Action" ' +
+          'onclick="window._pdxNavJump && window._pdxNavJump(\'pdxsec-wordaction\', this)">' +
+          '<span class="pdx-pnav-ico" aria-hidden="true">⚖️</span>' +
+          '<span class="pdx-pnav-txt"><span class="pdx-pnav-label">Word vs Action</span></span>' +
+        '</button>'
+      : '';
     const _navPillHtml = function (n) {
               // Action pill — opens an overlay (Full Stance Record) instead of
               // scrolling to an in-page anchor. It carries no data-target, so the
@@ -5696,7 +5789,9 @@
     const _navBar = (_navOrdered.length >= 2 || _navFacts.length)
       ? '<nav id="pdx-profile-nav" class="pdx-pnav" data-pdxnav-pid="' + id +
           '" aria-label="Jump to a section of this profile">' +
-          (_navLead.length ? '<div class="pdx-pnav-lead">' + _navLead.map(_navPillHtml).join('') + '</div>' : '') +
+          (_navLeadPair.length ? '<div class="pdx-pnav-lead">' + _navLeadPair.map(_navPillHtml).join('') + '</div>' : '') +
+          ((_navLeadWva || _navWvaSlot)
+            ? '<div class="pdx-pnav-wva">' + (_navLeadWva ? _navPillHtml(_navLeadWva) : _navWvaSlot) + '</div>' : '') +
           '<details class="pdx-pnav-more"' + (_navLead.length ? '' : ' open') + '>' +
             '<summary class="pdx-pnav-more-sum">More sections' +
               (_navMoreN ? ' <span class="pdx-pnav-more-n">' + _navMoreN + '</span>' : '') + '</summary>' +
@@ -5983,6 +6078,10 @@
           ${(function(){ var _hp = ((typeof window.pdxPortrait === 'function') ? window.pdxPortrait(id) : '') || ((typeof window._getPhotoUrl === 'function') ? window._getPhotoUrl(id) : '') || (p.photo || ''); return _hp ? `<img loading="lazy" decoding="async" src="${_hp}" alt="${p.name}" onerror="this.parentElement.innerHTML='<div class=&quot;ph-fallback&quot;>${p.icon}</div>'">` : `<div class="ph-fallback">${p.icon}</div>`; })()}
         </div>
           ${(function(){ var _hn = (typeof window.pdxPortraitDisclosure === 'function') ? window.pdxPortraitDisclosure(id) : ''; return _hn ? '<p class="profile-hero-photo-note">' + _hn + '</p>' : ''; })()}
+          <!-- The PolitiDex mark, seated on the portrait's corner: the same
+               compact tile the shell bar and the share card carry, so a
+               screenshot of the letterhead still says whose file it is. -->
+          <span class="pdx-hdr-mark profile-hero-mark"><img src="/assets/pdx-mark-192.png" alt="PolitiDex" width="26" height="26" decoding="async"></span>
         </div>
         <div class="profile-hero-id">
           <div class="profile-eyebrow">${p.office || 'Public Official'}</div>
