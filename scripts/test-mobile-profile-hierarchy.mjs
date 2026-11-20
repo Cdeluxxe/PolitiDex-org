@@ -265,7 +265,7 @@ ok(rowPct < issueName, 'score: the per-issue figure is set larger than the row i
 // ═════════════════════════════════════════════════════════════════════════════
 const panelSrc = WA.slice(WA.indexOf('var panels = live.map'), WA.indexOf('var panels = live.map') + 2000);
 must(panelSrc.indexOf('_outcomeRow') !== -1, 'the bucket panels no longer render rows through _outcomeRow');
-ok(/list\.map\(_outcomeRow\)/.test(panelSrc),
+ok(/list\.map\((_outcomeRow|function \(r\) \{ return _outcomeRow\(r, o\.token\); \})\)/.test(panelSrc),
   'bucket: the open bucket no longer lists every row it holds. A capped bucket is a fold, and a\n' +
   '    fold is where reading stops — the issues past it are the ones nobody sees');
 ok(!/\.slice\(\s*0\s*,/.test(panelSrc),

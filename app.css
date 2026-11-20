@@ -2173,14 +2173,17 @@
     /* The letterhead's compact ⚖️ badge stands down only when the pill it would
        duplicate is actually showing. */
     .profile-hero-id:has(.pdx-pnav-wva [data-target="pdxsec-wordaction"]:not([hidden])) .profile-meta .pdxwa-cbadge-host { display: none; }
-    /* The PolitiDex mark on the portrait's corner. */
+    /* The PolitiDex mark, in the letterhead's top-left corner — above the
+       portrait, never on it. Out of the grid flow; the letterhead reserves a
+       strip at its top for it so the portrait starts below the mark. */
     .pdx-hdr-mark {
       display: inline-flex; flex: none; line-height: 0;
       border-radius: 0.4rem; overflow: hidden;
       box-shadow: 0 0 0 2px rgba(13,20,38,0.95), 0 4px 10px rgba(0,0,0,0.5);
     }
     .pdx-hdr-mark img { display: block; width: 100%; height: 100%; max-width: none; }
-    .profile-hero-mark { position: absolute; top: 0.35rem; left: 0.35rem; width: 1.6rem; height: 1.6rem; z-index: 1; }
+    .profile-hero { position: relative; padding-top: 2.15rem; }
+    .profile-hero-mark { position: absolute; top: 0; left: 0; width: 1.6rem; height: 1.6rem; z-index: 1; }
     @media (max-width: 480px) {
       .profile-hero {
         grid-template-columns: 96px minmax(0, 1fr);
@@ -2198,7 +2201,8 @@
       .profile-hero-id > .pdx-pnav > .pdx-pnav-lead .pdx-pnav-txt { flex-direction: column; align-items: flex-start; gap: 0.1rem; }
       .profile-hero-id > .pdx-pnav > .pdx-pnav-lead > .pdx-pnav-pill { padding: 0.22rem 0.5rem; gap: 0.3rem; }
       .profile-hero-id > .pdx-pnav > .pdx-pnav-lead .pdx-pnav-val { font-size: 0.84rem; }
-      .profile-hero-mark { width: 1.35rem; height: 1.35rem; top: 0.25rem; left: 0.25rem; }
+      .profile-hero { padding-top: 1.85rem; }
+      .profile-hero-mark { width: 1.35rem; height: 1.35rem; }
     }
 
     /* Activity footer — a compact "last touched / how much is tracked" strip. */

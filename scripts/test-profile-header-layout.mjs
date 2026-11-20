@@ -4,7 +4,8 @@
 // and Word vs Action reaching the letterhead once the record lands
 // ─────────────────────────────────────────────────────────────────────────────
 // WHAT THIS SUITE PROVES:
-//   1. The PolitiDex mark is in the person letterhead (on the portrait's corner),
+//   1. The PolitiDex mark is in the person letterhead's top-left corner (not on
+//      the portrait),
 //      beside "Bill file" on bill pages, and in the issue drawer's identity row.
 //   2. Funding and Activity are one pair (.pdx-pnav-lead) placed beside the
 //      photo; Word vs Action is its own line (.pdx-pnav-wva) spanning the grid.
@@ -30,6 +31,7 @@ const R = (f) => readFileSync(join(ROOT, f), "utf8");
 let passed = 0;
 const failures = [];
 const ok = (c, m) => { if (c) passed++; else failures.push(m); return !!c; };
+const eq = (a, b, m) => ok(a === b, `${m} — expected ${JSON.stringify(b)}, got ${JSON.stringify(a)}`);
 const section = (t) => console.log(`\n   ── ${t}`);
 
 const FILES = [
@@ -105,9 +107,13 @@ section("1 · the PolitiDex mark");
 {
   const html = open("massie");
   const face = html.slice(html.indexOf('<div class="profile-hero-face">'), html.indexOf('<div class="profile-hero-id">'));
-  ok(/<span class="pdx-hdr-mark profile-hero-mark"><img src="\/assets\/pdx-mark-192\.png" alt="PolitiDex"/.test(face),
-    "the person letterhead carries the PDX mark beside the portrait");
-  ok(/\.profile-hero-mark \{[^}]*position: absolute/.test(CSS), "the mark sits on the portrait's corner, out of the flow");
+  const hero = html.slice(html.indexOf('<div class="profile-hero">'), html.indexOf('<div class="profile-hero-face">'));
+  ok(/^<div class="profile-hero">\s*(<!--[\s\S]*?-->\s*)?<span class="pdx-hdr-mark profile-hero-mark"><img src="\/assets\/pdx-mark-192\.png" alt="PolitiDex"/.test(hero),
+    "the person letterhead opens with the PDX mark, before the portrait");
+  ok(!/pdx-mark-192|pdx-hdr-mark|profile-hero-mark/.test(face), "the portrait carries no mark");
+  eq((html.match(/class="pdx-hdr-mark profile-hero-mark"/g) || []).length, 1, "exactly one mark in the letterhead");
+  ok(/\.profile-hero-mark \{[^}]*position: absolute; top: 0; left: 0;/.test(CSS), "the mark sits in the letterhead's top-left corner, out of the flow");
+  ok(/\.profile-hero \{ position: relative; padding-top: [\d.]+rem; \}/.test(CSS), "the letterhead reserves a strip above the portrait for the mark");
   const bill = R("bill.html");
   ok(/\.pdx-bill-kicker::before \{[^}]*pdx-mark-192\.png/.test(bill), "the bill page draws the mark beside its kicker");
   const cons = R("consistency.js");
@@ -224,7 +230,7 @@ section("5 · nothing pushes a phone wider");
   ok(/\.pdx-pnav-lead > \.pdx-pnav-pill \{ flex: 0 1 auto; min-width: 0; white-space: normal; \}/.test(grid), "the pair's pills may shrink and wrap their figure");
   ok(/\.pdx-pnav-wva > \.pdx-pnav-pill \{[^}]*min-width: 0; white-space: normal;/.test(grid), "the Word vs Action pill wraps rather than overflowing");
   ok(/\.profile-hero-id > \* \{ grid-column: 1 \/ -1; min-width: 0; \}/.test(grid), "every other letterhead row is full width and shrinkable");
-  ok(!/\.profile-hero-mark \{[^}]*(left|top): -/.test(grid), "the mark is drawn inside the portrait, never past its edge");
+  ok(!/\.profile-hero-mark \{[^}]*(left|top): -/.test(grid), "the mark is drawn inside the letterhead, never past its edge");
 }
 
 console.log("");

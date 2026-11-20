@@ -614,8 +614,13 @@
     return (key && Object.prototype.hasOwnProperty.call(FAMILY_OF, key)) ? FAMILY_OF[key] : OTHER_FAMILY;
   }
 
-  // Word vs Action's filed verdict per issue for this person — key → token —
+  // Word vs Action's filed bucket per issue for this person — key → token —
   // read from its published buckets, or null when that read is not loaded yet.
+  // Every bucket is carried, the two coverage piles included ('limited' — Not
+  // enough on file, 'record' — Record only): once the scored set is loaded, an
+  // issue it filed outside Contradicted / Mixed is not a tension row, whatever
+  // the row's own reading says, so the tension block holds exactly the issues
+  // the summary's Contradicted and Mixed buckets count.
   function wvaTokens(pid) {
     try {
       var W = window.PDXWordAction;
@@ -623,7 +628,7 @@
       var b = W.outcomeBuckets(pid);
       if (!b || !b.buckets) return null;
       var out = {};
-      ['contradicts', 'mixed', 'consistent'].forEach(function (t) {
+      ['contradicts', 'mixed', 'consistent', 'limited', 'record'].forEach(function (t) {
         (b.buckets[t] || []).forEach(function (r) { if (r && r.key && !out[r.key]) out[r.key] = t; });
       });
       return out;
@@ -641,6 +646,8 @@
     var t = opts.tokens !== undefined ? opts.tokens : wvaTokens(pid);
     var w = t && Object.prototype.hasOwnProperty.call(t, key) ? t[key] : null;
     if (w === 'contradicts' || w === 'mixed') return w;
+    // The scored set filed this issue somewhere else: it decides.
+    if (w) return null;
     if (!dir || !it) return null;
     if (it.rec && ((dir === 'support' && it.rec === 'against') || (dir === 'oppose' && it.rec === 'with'))) return 'contradicts';
     if (!it.rec && it.tally) {
