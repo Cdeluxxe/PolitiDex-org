@@ -278,7 +278,12 @@ if (HEAD_SRC && HEAD_SRC !== SRC) {
     // under (v591), which can differ from the row's own verdict; set aside.
     .replace(/<div class="pdxdos-bucket"[\s\S]*?<\/span><\/div>/g, "")
     // The large for / against tally at the top of the Formal record; set aside.
-    .replace(/<div class="pdxlg-big"[\s\S]*?<\/span><\/span><\/div>/g, "");
+    .replace(/<div class="pdxlg-big"[\s\S]*?<\/span><\/span><\/div>/g, "")
+    // The header's stance slot now says Stated / Voting pattern / No stance on
+    // file (test-stance-coverage owns that); set the slot and its line aside.
+    // Everything from the slot's start up to the verdict that follows it.
+    .replace(/(<div class="pdxgap-meta pdxgap-hmeta"[^>]*>)[\s\S]*?(?=<div class="pdxlg-find"|<span class="pdxgap-nopat"|<button type="button" class="pdxgap-torec"|<[a-z]+ class="pdx(?:gap|dv)-rel)/, "$1")
+    .replace(/<span class="pdx-cov[^"]*" data-pdx-cov="\w+">[^<]*<\/span>/g, "");
   for (const pid of SAMPLE_PIDS) {
     const a = JSON.stringify(hw.PDXConsistency.issueRows(pid)), b = JSON.stringify(nw.PDXConsistency.issueRows(pid));
     if (a === b) parityPass++; else parity.push(`${pid}: issue rows (scores, Direction Match) differ from HEAD`);

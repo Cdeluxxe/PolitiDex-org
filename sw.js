@@ -12451,7 +12451,16 @@
 //   changed (consistency.js), so the shell moves; the precache list is
 //   unchanged.
 //   MIGRATION COST: none.
-const CACHE_VERSION = 'v592';
+// v593 - STATED STANCE OR VOTING PATTERN, SAID ON EVERY ISSUE. The drawer
+//   header, the Key Issue Stances rows and the Word vs Action index rows now
+//   say which of three things is on file for each issue: "Stated stance on
+//   file" (chip "Stated: Supports / Opposes / Mixed"), "No stated stance ·
+//   voting pattern used" (chip "Voting pattern: …", never "Stated"), or "No
+//   stance on file". Scoring, records and stances are unchanged. Precached
+//   files changed (consistency.js, word-action.js, word-action.css), so the
+//   shell moves; the precache list is unchanged.
+//   MIGRATION COST: none.
+const CACHE_VERSION = 'v593';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
