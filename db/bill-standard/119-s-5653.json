@@ -1101,7 +1101,7 @@
    ],
    "quote": "(1) the well is located on non-Federal land and the Federal Government owns less than 50 percent of the oil and gas minerals within the oil and gas drilling or spacing unit;",
    "quoteRef": "Div. B, Title II, Sec. 2211",
-   "rationale": "Scope covers a government forbidding a use of a parcel. Sec. 2211 bars Interior from requiring a federal drilling permit for wells on non-Federal land where the federal share of the unit's minerals is under 50 percent, leaving State and Tribal rules in place. That removes a federal condition on a use of non-federal land, which runs with the key. It is one section about a permit, not a taking, so it carries the floor weight. Split row: the sections that run against this key are in the yea_opposes row above.",
+   "rationale": "Scope covers a government forbidding a use of a parcel. Sec. 2211 bars Interior from requiring a federal drilling permit for wells on non-Federal land where the federal share of the unit's minerals is under 50 percent, leaving State and Tribal rules in place. That removes a federal condition on a use of non-federal land, which runs with the key. It is one section about a permit, not a taking. Split row: the sections that run against this key are in the yea_opposes row above.",
    "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm"
   },
   {
@@ -1112,7 +1112,7 @@
    ],
    "quote": "There is established in the Treasury of the United States a separate account, to be known as the ``Abandoned Hardrock Mine Fund''",
    "quoteRef": "Div. B, Title II, Sec. 2215(d) (Abandoned Hardrock Mine Fund)",
-   "rationale": "Scope: cleaning up abandoned mines and handling mining waste. Sec. 2215(d) creates a dedicated fund, paid by mill-site claim fees and hardrock lease receipts and spendable without further appropriation, only for the IIJA sec. 40704 abandoned hardrock mine reclamation program. New mandatory money for cleanup runs with the key. One subsection, so it carries a modest weight. Split row: the sections that run against this key are in the yea_opposes row below.",
+   "rationale": "Scope: cleaning up abandoned mines and handling mining waste. Sec. 2215(d) creates a dedicated fund, paid by mill-site claim fees and hardrock lease receipts and spendable without further appropriation, only for the IIJA sec. 40704 abandoned hardrock mine reclamation program. New mandatory money for cleanup runs with the key. It is one subsection of Sec. 2215. Split row: the sections that run against this key are in the yea_opposes row below.",
    "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm"
   },
   {
@@ -1123,7 +1123,7 @@
    ],
    "quote": "locate and include within the plan of operations as many mill site claims under this subsection as are reasonably necessary for its operations",
    "quoteRef": "Div. B, Title II, Sec. 2215",
-   "rationale": "Scope covers where waste rock and tailings may go. Sec. 2215(a) defines a mill site as public land reasonably necessary for waste rock or tailings disposal and lets a claimant locate as many as are reasonably necessary, notwithstanding the existing limits in Revised Statutes sec. 2337(a) and (b). Each site is capped at 5 acres, but the number is not. Widening where mining waste may be placed on public land runs against the key. It is the operative body of the section, so it outweighs the fund row. Split row: the subsection that runs with this key is in the yea_supports row above.",
+   "rationale": "Scope covers where waste rock and tailings may go. Sec. 2215(a) defines a mill site as public land reasonably necessary for waste rock or tailings disposal and lets a claimant locate as many as are reasonably necessary, notwithstanding the existing limits in Revised Statutes sec. 2337(a) and (b). Each site is capped at 5 acres, but the number is not. Widening where mining waste may be placed on public land runs against the key. It is the operative body of the section. Split row: the subsection that runs with this key is in the yea_supports row above.",
    "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm"
   },
   {
@@ -1137,7 +1137,7 @@
    ],
    "quote": "(1) Public announcement.--Not later than 72 hours after altering a directive or safety standard relating to covered DOE nuclear facilities, the Secretary of Energy shall post, on a publicly accessible website of the Department of Energy, an announcement regarding such alteration. (2)",
    "quoteRef": "Div. B, Title II, Sec. 2261 (substitute only)",
-   "rationale": "Scope includes publishing the basis for decisions. A public permitting tracker (1132), EIA data-center load reporting (2114), and a 72-hour DOE notice of nuclear safety-standard changes (2261) all require more disclosure. These are narrow links at the floor weight.",
+   "rationale": "Scope includes publishing the basis for decisions. A public permitting tracker (1132), EIA data-center load reporting (2114), and a 72-hour DOE notice of nuclear safety-standard changes (2261) all require more disclosure. These are narrow links.",
    "sourceUrl": "https://www.congress.gov/119/crec/2026/11/10/172/169/modified/CREC-2026-11-10-pt1-PgS5471-2.htm"
   },
   {
@@ -1148,7 +1148,7 @@
    ],
    "quote": "``(ii) Inclusion.--The term `prescribed fire' includes cultural burning activities, as determined by an Indian tribe.''; (B) in paragraph (2), by striking subparagraph (B) and inserting the following: ``(B) Revision of regulations.-- ``(i) Proposed revisions.--Not later than 270 days after the date",
    "quoteRef": "Div. A, Title VI, Sec. 1601 (substitute only)",
-   "rationale": "Chip: \"Prepare for wildfires.\" Sec. 1601 (substitute only) makes prescribed fire, including Tribal cultural burning, an exceptional event for air-quality data, easing fuel-reduction burns. One section, at the floor weight.",
+   "rationale": "Chip: \"Prepare for wildfires.\" Sec. 1601 (substitute only) makes prescribed fire, including Tribal cultural burning, an exceptional event for air-quality data, easing fuel-reduction burns. It is one section.",
    "sourceUrl": "https://www.congress.gov/119/crec/2026/11/10/172/169/modified/CREC-2026-11-10-pt1-PgS5471-2.htm"
   }
  ],
