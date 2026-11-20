@@ -148,6 +148,23 @@
      opens the rest and, pressed again ("Show fewer"), closes them. The person
      file's section and the no-conflicts line never collapse.
 
+   · TENSION FIRST, FAMILIES, RECORD ONLY (v590). The section, the drawer
+     block and the profile's Key Issue Stances (profiles-full.js, through
+     triage()) print their rows in three blocks: first, under "Where the
+     record runs against the stated position", the issues whose stated
+     position the record contradicts or is mixed on — Word vs Action's own
+     Contradicted / Mixed verdict where it has one, else the line's own clash
+     (stated support · record runs against, stated oppose · record runs with,
+     or a stated position over a for-and-against tally); then the rest under
+     topic-family headers (FAMILIES: sets of MAP keys, nothing added to MAP),
+     with any key outside MAP under a final "Other"; last, inside a closed
+     "Record only" <details>, the issues with formal acts and no stated
+     position. The rows are the same rows in the same words; only order,
+     grouping and the default collapse move. In the drawer, "Show N more"
+     folds family lines past the first four shown; tension lines never fold.
+     The heading is a grouping, not a badge: no score or percentage is
+     printed.
+
    · IT READS, IT DOES NOT WRITE. Nothing here touches Direction Match, scores,
      effect lines, the vote table, or any other section. Labels come from the
      issue register (window.ISSUE_MAP), emoji stripped.
@@ -548,38 +565,205 @@
       '<span class="pdxri-sep"> · </span>' + recHtml + '</' + tag + '>';
   }
 
+  // ── TENSION FIRST · TOPIC FAMILIES · RECORD ONLY ──────────────────────────
+  // The person-file section, the drawer block and the profile's Key Issue
+  // Stances all arrange their rows the same way. Nothing here changes a row:
+  // the same lines (and cards) are printed in the same words, only the order,
+  // the grouping and what starts collapsed move.
+  //
+  //   1. TENSION. A row with a stated position whose formal record runs against
+  //      it (contradicted) or is mixed leads, under TENSION_HD. The read is Word
+  //      vs Action's own verdict for the issue where it has one (its
+  //      Contradicted and Mixed buckets, unchanged cutoffs), and otherwise the
+  //      line's own two parts: a stated support with a record that runs
+  //      against, a stated oppose with a record that runs with, or a stated
+  //      position over a tally that went both ways. No rows like that: no
+  //      block, no heading.
+  //   2. FAMILIES. Every other row with a stated position sits under its topic
+  //      family's header, in FAMILIES order. A family is a set of keys of MAP,
+  //      read from MAP's own blocks — no key is added to MAP or the register by
+  //      it. A row whose key is not in MAP goes to a final "Other".
+  //   3. RECORD ONLY. A row with formal acts and no stated position sits behind
+  //      a closed disclosure, RECORD_ONLY_HD. Opening it shows the very same
+  //      rows. The open state is the browser's own <details>, not stored.
+  var TENSION_HD = 'Where the record runs against the stated position';
+  var RECORD_ONLY_HD = 'Record only';
+  var OTHER_FAMILY = { id: 'other', label: 'Other', icon: '🎯', keys: [] };
+  var FAMILIES = [
+    { id: 'taxes_gov', label: 'Taxes & Government', icon: '💰', keys: ['lower_taxes', 'tax_middle_class', 'prop_tax', 'property_tax', 'national_debt', 'gov_balance', 'gov_services', 'cut_spending', 'gov_waste', 'audit_spending', 'power_of_purse', 'sound_money', 'crypto_cbdc', 'fed_independence', 'gov_regulation', 'dev_district_finance', 'wealth_inequality_tax_fairness'] },
+    { id: 'econ_jobs', label: 'Economy & Jobs', icon: '📈', keys: ['econ_growth', 'econ_smallbiz', 'econ_balance', 'econ_workers', 'econ_corp_account', 'econ_trade', 'tariffs_china', 'tariffs_growth', 'tariffs_prices', 'tariffs_authority', 'rural_ag', 'cost_living'] },
+    { id: 'family_work', label: 'Family & Work', icon: '🧸', keys: ['child_care', 'paid_leave', 'family_support', 'safety_net_work_requirements'] },
+    { id: 'housing_infra', label: 'Housing & Infrastructure', icon: '🏠', keys: ['housing', 'housing_build', 'housing_support', 'housing_first_time', 'homeless', 'infrastructure', 'transit', 'broadband'] },
+    { id: 'energy', label: 'Energy', icon: '⚡', keys: ['energy_production', 'enviro_energy', 'enviro_balance', 'climate_action', 'datacenter_power', 'permitting_reform'] },
+    { id: 'lands_water', label: 'Public Lands & Water', icon: '🏔', keys: ['lands_preserve', 'lands_keep_public', 'lands_local', 'lands_balance', 'lands_energy', 'property_rights', 'water', 'water_storage', 'datacenter_water', 'disaster_resilience', 'tribal_consultation', 'mine_cleanup'] },
+    { id: 'tech', label: 'Technology & Privacy', icon: '🚀', keys: ['tech_innovation', 'tech_balance', 'datacenter_growth', 'privacy_rights'] },
+    { id: 'immigration', label: 'Immigration & Border', icon: '🛡', keys: ['border_security', 'deportations', 'immig_fentanyl', 'immig_balance', 'immig_legal', 'immigration_reform', 'birthright_citizenship'] },
+    { id: 'health', label: 'Healthcare', icon: '🏥', keys: ['healthcare', 'healthcare_market', 'healthcare_costs', 'health_balance', 'health_drug_prices', 'health_rural', 'medical_freedom', 'health_mental', 'social_security', 'tobacco_nicotine', 'public_health_vs_chemical_liability'] },
+    { id: 'justice', label: 'Crime & Justice', icon: '👮', keys: ['back_police', 'tough_on_crime', 'justice_balance', 'justice_reform', 'cannabis_reform'] },
+    { id: 'guns', label: 'Gun Policy', icon: '🔫', keys: ['gun_rights', 'gun_balance', 'gun_safety'] },
+    { id: 'education', label: 'Education', icon: '🎓', keys: ['school_choice', 'public_schools', 'edu_parental', 'edu_balance', 'edu_college_cost', 'student_debt_college_access'] },
+    { id: 'repro', label: 'Abortion & Reproductive Rights', icon: '🕊', keys: ['pro_life', 'repro_balance', 'pro_choice'] },
+    { id: 'rights', label: 'Civil Rights & Speech', icon: '🗽', keys: ['religious_liberty', 'rights_balance', 'lgbtq_rights', 'free_speech', 'end_dei'] },
+    { id: 'foreign', label: 'Foreign Policy & Defense', icon: '🦅', keys: ['strong_defense', 'foreign_balance', 'restraint', 'america_first', 'america_first_fp', 'israel_support', 'iran_policy', 'ukraine_policy', 'yemen_policy', 'venezuela_policy', 'war_powers', 'no_new_wars', 'veterans'] },
+    { id: 'elections', label: 'Elections & Democracy', icon: '🗳', keys: ['election_security', 'election_integrity', 'voter_id', 'democracy_balance', 'voting_access', 'redistricting_gerrymandering', 'senate_filibuster'] },
+    { id: 'reform', label: 'Government Reform & Checks', icon: '⚖️', keys: ['term_limits', 'campaign_finance', 'stock_trading_ban', 'reform_balance', 'congress_oversight', 'gov_transparency', 'epstein_files_transparency', 'checks_balances', 'judicial_check', 'civil_service_control', 'scotus_reform', 'states_federal_power', 'state_standing', 'guard_authority'] }
+  ];
+  var FAMILY_OF = {};
+  FAMILIES.forEach(function (f) { f.keys.forEach(function (k) { if (MAP.hasOwnProperty(k) && !FAMILY_OF[k]) FAMILY_OF[k] = f; }); });
+  function familyOf(key) {
+    return (key && Object.prototype.hasOwnProperty.call(FAMILY_OF, key)) ? FAMILY_OF[key] : OTHER_FAMILY;
+  }
+
+  // Word vs Action's filed verdict per issue for this person — key → token —
+  // read from its published buckets, or null when that read is not loaded yet.
+  function wvaTokens(pid) {
+    try {
+      var W = window.PDXWordAction;
+      if (!pid || !W || typeof W.outcomeBuckets !== 'function') return null;
+      var b = W.outcomeBuckets(pid);
+      if (!b || !b.buckets) return null;
+      var out = {};
+      ['contradicts', 'mixed', 'consistent'].forEach(function (t) {
+        (b.buckets[t] || []).forEach(function (r) { if (r && r.key && !out[r.key]) out[r.key] = t; });
+      });
+      return out;
+    } catch (e) { return null; }
+  }
+
+  // 'contradicts' | 'mixed' | null for one row. opts: { stated, dir, item,
+  // tokens }. A row with no stated position is never a tension row: there is
+  // nothing for the record to run against.
+  function tensionOf(pid, key, opts) {
+    opts = opts || {};
+    var dir = opts.dir || null, it = opts.item || null;
+    var stated = opts.stated != null ? !!opts.stated : !!dir;
+    if (!stated || !key) return null;
+    var t = opts.tokens !== undefined ? opts.tokens : wvaTokens(pid);
+    var w = t && Object.prototype.hasOwnProperty.call(t, key) ? t[key] : null;
+    if (w === 'contradicts' || w === 'mixed') return w;
+    if (!dir || !it) return null;
+    if (it.rec && ((dir === 'support' && it.rec === 'against') || (dir === 'oppose' && it.rec === 'with'))) return 'contradicts';
+    if (!it.rec && it.tally) {
+      var m = /^(\d+) for · (\d+) against/.exec(it.tally);
+      if (m && +m[1] > 0 && +m[2] > 0) return 'mixed';
+    }
+    return null;
+  }
+
+  // Sort rows into the three blocks. entries: [{ key, stated, tension,
+  // recordOnly, value }] in print order; order inside every block is kept.
+  // → { tension: [entry], families: [{ family, entries }], recordOnly: [entry] }
+  function triage(entries) {
+    var out = { tension: [], families: [], recordOnly: [] }, byFam = {};
+    (entries || []).forEach(function (e) {
+      if (!e) return;
+      if (e.tension) { out.tension.push(e); return; }
+      if (e.recordOnly) { out.recordOnly.push(e); return; }
+      var f = familyOf(e.key);
+      (byFam[f.id] = byFam[f.id] || []).push(e);
+    });
+    FAMILIES.concat([OTHER_FAMILY]).forEach(function (f) {
+      if (byFam[f.id]) out.families.push({ family: f, entries: byFam[f.id] });
+    });
+    return out;
+  }
+  // One related-issues line as a triage entry.
+  function lineEntry(pid, it, tokens) {
+    return { key: it.key, stated: !!it.dir, value: it,
+      tension: tensionOf(pid, it.key, { dir: it.dir, item: it, tokens: tokens }),
+      recordOnly: !it.dir && !!(it.votes || it.rec) };
+  }
+  function roSummary(n) {
+    return '<summary class="pdxri-ro-s">' + RECORD_ONLY_HD + ' <span class="pdxri-ro-n">' + n + '</span></summary>';
+  }
+
   // The person-file section, or '' when no issue has a related line.
+  // Blocks (an issue and the related lines it brought in) are printed whole and
+  // unchanged; only where a block sits moves. A block with any tension line
+  // leads, under TENSION_HD; a block with no stated position on any line sits in
+  // the closed Record only disclosure; every other block sits under the family
+  // of the issue that leads it.
   function sectionHtml(pid, p) {
     var gv = groupsVia(pid, p), groups = gv.groups;
     if (!groups.length) return '';
     var notes = sectionNotes(pid, p, gv.via);
     armSection(pid, p);
+    var tokens = wvaTokens(pid);
+    var entries = groups.map(function (g) {
+      var all = [g.issue].concat(g.related);
+      var tense = null, stated = false;
+      all.forEach(function (it) {
+        if (it.dir) stated = true;
+        if (!tense) tense = tensionOf(pid, it.key, { dir: it.dir, item: it, tokens: tokens });
+      });
+      return { key: g.issue.key, stated: stated, tension: tense, recordOnly: !stated, value: g };
+    });
+    var groupHtml = function (g) {
+      return '<li class="pdxri-group" data-pdxri-issue="' + esc(g.issue.key) + '">' +
+        linesHtml(pid, g.issue, null, 'pdxri-anchor', 'div') +
+        '<ul class="pdxri-list">' + g.related.map(function (it) {
+          var li = linesHtml(pid, it, null, 'pdxri-item', 'li');
+          var n = notes && notes[it.key];
+          // The note sits inside the related line, before it closes.
+          return n ? li.slice(0, -5) + wvaSectionNoteHtml(pid, n) + '</li>' : li;
+        }).join('') + '</ul>' +
+      '</li>';
+    };
+    var list = function (es) { return '<ul class="pdxri-groups">' + es.map(function (e) { return groupHtml(e.value); }).join('') + '</ul>'; };
+    var t = triage(entries);
     return '<div id="pdxsec-related-issues" class="modal-section pdxri" data-pid="' + esc(pid) + '">' +
       '<div class="modal-section-title">Related issues</div>' +
-      '<ul class="pdxri-groups">' + groups.map(function (g) {
-        return '<li class="pdxri-group" data-pdxri-issue="' + esc(g.issue.key) + '">' +
-          linesHtml(pid, g.issue, null, 'pdxri-anchor', 'div') +
-          '<ul class="pdxri-list">' + g.related.map(function (it) {
-            var li = linesHtml(pid, it, null, 'pdxri-item', 'li');
-            var n = notes && notes[it.key];
-            // The note sits inside the related line, before it closes.
-            return n ? li.slice(0, -5) + wvaSectionNoteHtml(pid, n) + '</li>' : li;
-          }).join('') + '</ul>' +
-        '</li>';
-      }).join('') + '</ul>' +
+      (t.tension.length
+        ? '<div class="pdxri-block pdxri-tension" data-pdxri-block="tension">' +
+            '<div class="pdxri-sub pdxri-sub-tension">' + TENSION_HD + '</div>' + list(t.tension) + '</div>'
+        : '') +
+      t.families.map(function (f) {
+        return '<div class="pdxri-block" data-pdxri-family="' + esc(f.family.id) + '">' +
+          '<div class="pdxri-sub">' + esc(f.family.label) + '</div>' + list(f.entries) + '</div>';
+      }).join('') +
+      (t.recordOnly.length
+        ? '<details class="pdxri-ro" data-pdxri-collapsed="record-only">' + roSummary(t.recordOnly.length) + list(t.recordOnly) + '</details>'
+        : '') +
     '</div>';
   }
 
   // The drawer block, or '' when no related issue has a stated or record line.
+  // One list: the tension lines first under TENSION_HD, then each family's
+  // lines under its header, then — inside the same list — the closed Record
+  // only disclosure holding every line with no stated position. "Show N more"
+  // still applies to the family lines past the first four lines shown; tension
+  // lines are never folded away.
   function drawerHtml(pid, p, key) {
     if (!key) return '';
     var items = itemsFor(pid, p, key);
     if (!items.length) return '';
+    var tokens = wvaTokens(pid);
+    var t = triage(items.map(function (it) { return lineEntry(pid, it, tokens); }));
+    var line = function (it, extra) { return linesHtml(pid, it, key, 'pdxri-item', 'li', extra ? EXTRA_ATTR : ''); };
+    var html = '', shown = t.tension.length, hidden = 0;
+    if (t.tension.length) {
+      html += '<li class="pdxri-sub pdxri-sub-tension" data-pdxri-block="tension">' + TENSION_HD + '</li>' +
+        t.tension.map(function (e) { return line(e.value, false); }).join('');
+    }
+    t.families.forEach(function (f) {
+      var rows = f.entries.map(function (e) {
+        var extra = shown >= RELATED_SHOWN;
+        if (extra) hidden++; else shown++;
+        return line(e.value, extra);
+      });
+      // A header whose every line is folded away folds with them.
+      var allHidden = rows.every(function (r) { return r.indexOf(' data-pdxri-extra="1"') >= 0; });
+      html += '<li class="pdxri-sub" data-pdxri-family="' + esc(f.family.id) + '"' + (allHidden ? EXTRA_ATTR : '') + '>' +
+        esc(f.family.label) + '</li>' + rows.join('');
+    });
+    html += hidden ? moreHtml(shown + hidden, shown) : '';
+    if (t.recordOnly.length) {
+      html += '<li class="pdxri-ro-li"><details class="pdxri-ro" data-pdxri-collapsed="record-only">' + roSummary(t.recordOnly.length) +
+        '<ul class="pdxri-ro-list">' + t.recordOnly.map(function (e) { return line(e.value, false); }).join('') + '</ul></details></li>';
+    }
     return '<div class="pdxri pdxri-drawer" data-pdxri-drawer="' + esc(key) + '" data-pid="' + esc(pid) + '">' +
       '<div class="pdxri-h">Related issues</div>' +
-      '<ul class="pdxri-list">' + items.map(function (it, i) {
-        return linesHtml(pid, it, key, 'pdxri-item', 'li', i >= RELATED_SHOWN ? EXTRA_ATTR : '');
-      }).join('') + moreHtml(items.length, RELATED_SHOWN) + '</ul>' +
+      '<ul class="pdxri-list">' + html + '</ul>' +
     '</div>';
   }
 
@@ -624,7 +808,17 @@
     '.pdxri-more-li{list-style:none;margin:0.2rem 0 0;}' +
     '.pdxri-more{background:none;border:0;padding:0.15rem 0;font:inherit;font-size:0.76rem;font-weight:600;' +
       'color:#8fb4e8;text-decoration:underline;text-underline-offset:2px;cursor:pointer;min-height:28px;}' +
-    '.pdxri-more:hover,.pdxri-more:focus-visible{color:#c9d6ea;}';
+    '.pdxri-more:hover,.pdxri-more:focus-visible{color:#c9d6ea;}' +
+    // Tension block, family headers and the Record only disclosure.
+    '.pdxri .pdxri-sub{list-style:none;display:block;margin:0.55rem 0 0.1rem;font-size:0.62rem;font-weight:700;' +
+      'letter-spacing:0.08em;text-transform:uppercase;color:#7f95b8;}' +
+    '.pdxri .pdxri-sub-tension{color:#f8a5a5;}' +
+    '.pdxri-block.pdxri-tension,.pdxri-drawer .pdxri-sub-tension{border-left:2px solid rgba(248,113,113,0.55);padding-left:0.5rem;}' +
+    '.pdxri .pdxri-ro{margin:0.55rem 0 0;}' +
+    '.pdxri .pdxri-ro-li{list-style:none;}' +
+    '.pdxri .pdxri-ro-s{cursor:pointer;font-size:0.72rem;font-weight:600;color:#8fb4e8;min-height:28px;}' +
+    '.pdxri .pdxri-ro-n{font-weight:400;color:#7f95b8;}' +
+    '.pdxri .pdxri-ro-list{list-style:none;margin:0.2rem 0 0;padding:0;}';
   try {
     if (document && typeof document.createElement === 'function' && !(document.getElementById && document.getElementById(MORE_STYLE_ID))) {
       var st = document.createElement('style');
@@ -961,6 +1155,15 @@
     colorStyle: colorStyle,
     hasVotes: function (pid, key) { return hasVotes(recordRead(pid, key)) || !!execActsTally(pid, key); },
     sectionHtml: sectionHtml,
-    drawerHtml: drawerHtml
+    drawerHtml: drawerHtml,
+    TENSION_HD: TENSION_HD,
+    RECORD_ONLY_HD: RECORD_ONLY_HD,
+    FAMILIES: FAMILIES,
+    OTHER_FAMILY: OTHER_FAMILY,
+    familyOf: familyOf,
+    tensionOf: tensionOf,
+    wvaTokens: wvaTokens,
+    triage: triage,
+    itemFor: function (pid, p, key) { return itemOf(pid, positionMap(pid, p), key); }
   };
 })();

@@ -1052,8 +1052,58 @@
     // Body: group documented stances under category headers; render the derived
     // "researching" fallback as a simple flat list (no real categories to group).
     var body;
+    // TENSION FIRST, FAMILIES, RECORD ONLY — the same arrangement the Related
+    // issues section and the issue drawer use (PDXRelatedIssues.triage). Cards
+    // whose formal record runs against the stated position (Contradicted) or is
+    // Mixed lead; the rest sit under their related-issues family; a card with
+    // formal acts and no stated position waits in a closed "Record only"
+    // disclosure. The cards themselves are renderCard's, byte for byte.
+    var _RIK = window.PDXRelatedIssues;
+    var _triK = (!derived && _RIK && typeof _RIK.triage === 'function' && typeof _RIK.tensionOf === 'function') ? _RIK : null;
     if (derived) {
       body = stances.map(renderCard).join('');
+    } else if (_triK) {
+      var _kisDirOf = { supported: 'support', opposed: 'oppose' };
+      var _kisTokens;
+      try { _kisTokens = (typeof _triK.wvaTokens === 'function') ? _triK.wvaTokens(id) : undefined; } catch (e) { _kisTokens = undefined; }
+      var _kisEntries = stances.map(function(s) {
+        var k = s.issueKey || '';
+        var st = window.PDXStance.resolveStance((s.pos === 'priority') ? { issueStance: s.issueStance } : s);
+        var stated = (st !== 'none');
+        var item = null;
+        try { item = k && typeof _triK.itemFor === 'function' ? _triK.itemFor(id, p, k) : null; } catch (e) { item = null; }
+        var tense = null;
+        if (stated && k) {
+          try { tense = _triK.tensionOf(id, k, { stated: true, dir: _kisDirOf[st] || null, item: item, tokens: _kisTokens }); } catch (e) { tense = null; }
+        }
+        var acts = false;
+        if (!stated && k) { try { acts = !!(item && (item.votes || item.rec)) || !!(typeof _triK.hasVotes === 'function' && _triK.hasVotes(id, k)); } catch (e) { acts = false; } }
+        return { key: k, stated: stated, tension: tense, recordOnly: acts, value: s };
+      });
+      var _kisT = _triK.triage(_kisEntries);
+      var _kisCards = function(es) { return es.map(function(e) { return renderCard(e.value); }).join(''); };
+      body =
+        (_kisT.tension.length
+          ? '<div class="stance-cat stance-tension" data-kis-block="tension">' +
+              '<div class="stance-cat-head stance-tension-head"><span class="stance-cat-ico">⚠️</span>' + _triK.TENSION_HD +
+                '<span class="stance-cat-n">' + _kisT.tension.length + '</span></div>' +
+              _kisCards(_kisT.tension) +
+            '</div>'
+          : '') +
+        _kisT.families.map(function(f) {
+          return '<div class="stance-cat" data-kis-family="' + f.family.id + '">' +
+            '<div class="stance-cat-head"><span class="stance-cat-ico">' + f.family.icon + '</span>' + f.family.label +
+              '<span class="stance-cat-n">' + f.entries.length + '</span></div>' +
+            _kisCards(f.entries) +
+          '</div>';
+        }).join('') +
+        (_kisT.recordOnly.length
+          ? '<details class="stance-cat stance-ro" data-kis-collapsed="record-only">' +
+              '<summary class="stance-cat-head stance-ro-head"><span class="stance-cat-ico">🏛</span>' + _triK.RECORD_ONLY_HD +
+                '<span class="stance-cat-n">' + _kisT.recordOnly.length + '</span></summary>' +
+              _kisCards(_kisT.recordOnly) +
+            '</details>'
+          : '');
     } else {
       var groups = {};
       stances.forEach(function(s) { var c = _stanceCat(s); (groups[c] = groups[c] || []).push(s); });

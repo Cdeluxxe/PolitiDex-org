@@ -21,8 +21,8 @@
 //      Production and Local Land Control; a related issue with votes that run
 //      no direction prints the drawer tally, still a link; every name carries its
 //      issue's chip colour token.
-//   2. FIXTURE: every related issue with a published direction is listed, in
-//      map order; a mixed one, an unrelated one and the open issue are not; the
+//   2. FIXTURE: every related issue with a published direction is listed,
+//      tension first, then by topic family, then record only; a mixed one, an unrelated one and the open issue are not; the
 //      open issue is never a link; following a link lands on a drawer that
 //      links back.
 //   3. OMITTED: an issue with no related positions prints no block.
@@ -107,6 +107,17 @@ function wantLine(win, pid, k) {
   }
   return rec == null ? null : `${lbl(win, k)}: ${d ? WORD[d] : "no stated position"} · ${rec}`;
 }
+// The drawer's print order (tension → families → record only) over a list of
+// related-issue items, as the two-part line texts. The lines themselves are the
+// map-order lines; only their order moves.
+function triLines(win, pid, items) {
+  const RI = win.PDXRelatedIssues;
+  const tense = items.filter((it) => RI.tensionOf(pid, it.key, { dir: it.dir, item: it }));
+  const ro = items.filter((it) => !tense.includes(it) && !it.dir);
+  const rest = items.filter((it) => !tense.includes(it) && !ro.includes(it));
+  const fam = RI.FAMILIES.concat([RI.OTHER_FAMILY]).flatMap((f) => rest.filter((it) => RI.familyOf(it.key).id === f.id));
+  return tense.concat(fam, ro).flatMap(RI.lineTexts);
+}
 const PART_RE = /^.+?: (supports|opposes|no stated position) · (voting record runs with|voting record runs against|no record|\d+ for · \d+ against( · \d+ took no side)?|\d+ formal acts?|\d+ votes? on file)$/;
 
 // ── 1 · Lee × Protect Public Lands, real data ──────────────────────────────
@@ -149,7 +160,9 @@ const PART_RE = /^.+?: (supports|opposes|no stated position) · (voting record r
   ok(!!sn, "no stated, no-votes related issue on Lee's Keep Public Lands Public drawer");
   if (sn) eq(JSON.stringify(ln.filter((l) => l.startsWith(lbl(win, sn) + ":"))), JSON.stringify([`${lbl(win, sn)}: ${WORD[stated(sn)]} · no record`]), `${sn}: a stated issue with no votes says no record`);
   // Every line is exactly the expected two-part line, in map order.
-  eq(JSON.stringify(ln), JSON.stringify(RI.MAP.lands_keep_public.map((k) => wantLine(win, "lee", k)).filter(Boolean)), "every line carries both parts");
+  const mapOrder = RI.MAP.lands_keep_public.map((k) => wantLine(win, "lee", k)).filter(Boolean);
+  eq(JSON.stringify(ln.slice().sort()), JSON.stringify(mapOrder.slice().sort()), "every line carries both parts");
+  eq(JSON.stringify(ln), JSON.stringify(triLines(win, "lee", RI.itemsFor("lee", win.CMP_DATA.lee, "lands_keep_public"))), "lines are not tension first, then families, then record only");
   const b = block(h);
   ok(/data-pdxri-key="lands_preserve" data-pdxri-line="both" data-pdxri-dir="none" data-pdxri-rec="against"><span class="pdxri-issue"[^>]*><a class="pdxri-go"[^>]*data-pdxc-gap="lands_preserve"/.test(b),
      "the record line's issue name opens Protect Public Lands on Lee");
@@ -292,7 +305,8 @@ const FIX = {
   const b = block(h);
   ok(!!b && text(b).startsWith("Related issues"), "Protect Public Lands drawer: no Related issues block");
   const ln = lines(h);
-  eq(JSON.stringify(ln), JSON.stringify(want("lands_preserve")), "drawer lists every related published position, in map order");
+  eq(JSON.stringify(ln.slice().sort()), JSON.stringify(want("lands_preserve").slice().sort()), "drawer lists every related published position");
+  eq(JSON.stringify(ln), JSON.stringify(triLines(win, PID, RI.itemsFor(PID, win.CMP_DATA[PID], "lands_preserve"))), "drawer lines are not tension first, then families, then record only");
   for (const l of ["Keep Public Lands Public: supports · ", "Expand Domestic Energy Production: opposes · ", "Cut Federal Red Tape: supports · "]) {
     ok(ln.some((x) => x.startsWith(l)), `drawer lacks ${l}`);
   }
@@ -347,7 +361,7 @@ const FIX = {
       const bl = block(b);
       if (bl) {
         withBlock++;
-        const want = on.PDXRelatedIssues.itemsFor(pid, on.CMP_DATA[pid], r.key).flatMap(on.PDXRelatedIssues.lineTexts);
+        const want = triLines(on, pid, on.PDXRelatedIssues.itemsFor(pid, on.CMP_DATA[pid], r.key));
         eq(JSON.stringify(lines(b)), JSON.stringify(want), `${pid} × ${r.key}: drawer lines are not this issue's related positions`);
         // One line per issue, both parts on it.
         const lis = [...bl.matchAll(/<li class="pdxri-item" data-pdxri-key="([^"]+)"[\s\S]*?<\/li>/g)];
@@ -614,39 +628,64 @@ const FIX = {
   eq(RI.RELATED_SHOWN, 4, "the related-issues block does not show four lines before collapsing");
   eq(RI.CONFLICTS_SHOWN, 3, "the conflicts section does not show three lines before collapsing");
 
-  // Related issues: find a real drawer with five or more lines and one with four or fewer.
+  // Related issues: find a real drawer with five or more lines outside the
+  // tension block and the Record only disclosure (the lines "Show N more"
+  // folds), and one with four or fewer lines.
+  // The drawer's print order: tension lines, then each family's lines in
+  // FAMILIES order, then the Record only lines.
+  const triOrder = (pid, key) => {
+    const its = RI.itemsFor(pid, win.CMP_DATA[pid], key);
+    const tense = its.filter((it) => RI.tensionOf(pid, it.key, { dir: it.dir, item: it }));
+    const ro = its.filter((it) => !tense.includes(it) && !it.dir);
+    const fams = RI.FAMILIES.concat([RI.OTHER_FAMILY]);
+    const rest = its.filter((it) => !tense.includes(it) && !ro.includes(it));
+    const fam = fams.flatMap((f) => rest.filter((it) => RI.familyOf(it.key).id === f.id));
+    return { tense, fam, ro, all: tense.concat(fam, ro) };
+  };
   const pids = ["lee", "trump", "chellie_pingree", "blake_moore", "celeste_maloy", "john_curtis", "john_boyd"];
   let long = null, short = null;
   for (const pid of pids) {
     for (const r of (CS.issueRows(pid) || [])) {
       const n = RI.itemsFor(pid, win.CMP_DATA[pid], r.key).length;
-      if (!long && n >= 5) long = { pid, key: r.key, n };
+      const o = triOrder(pid, r.key);
+      if (!long && o.fam.length + o.tense.length >= 5 && o.tense.length < 4) long = { pid, key: r.key, n, o };
       if (!short && n >= 1 && n <= 4) short = { pid, key: r.key, n };
     }
     if (long && short) break;
   }
-  ok(!!long, "fixture: no sampled drawer has five or more related-issues lines");
+  ok(!!long, "fixture: no sampled drawer has five or more related-issues lines outside the Record only disclosure");
   ok(!!short, "fixture: no sampled drawer has between one and four related-issues lines");
   if (long) {
     const h = CS.gapViewHtml(long.pid, long.key) || "";
     const bl = block(h);
-    const f = fakeList(bl);
-    eq(f.ul.rows.length, long.n, `${long.pid} × ${long.key}: a line was dropped instead of hidden`);
-    eq(f.visible().length, 4, `${long.pid} × ${long.key}: the block does not show its first four lines`);
-    ok(f.ul.rows.slice(0, 4).every((r) => !("hidden" in r.attrs)) && f.ul.rows.slice(4).every((r) => "hidden" in r.attrs),
+    // The main list without the Record only disclosure, whose lines never fold.
+    const main = bl.replace(/<li class="pdxri-ro-li">[\s\S]*?<\/details><\/li>/, "");
+    const f = fakeList(main);
+    const rows = () => f.ul.rows.filter((r) => r.cls === "pdxri-item");
+    const vis = () => f.visible().filter((r) => r.cls === "pdxri-item");
+    const nMain = long.o.tense.length + long.o.fam.length;
+    eq(rows().length, nMain, `${long.pid} × ${long.key}: a line was dropped instead of hidden`);
+    eq(vis().length, 4, `${long.pid} × ${long.key}: the block does not show its first four lines`);
+    ok(rows().slice(0, 4).every((r) => !("hidden" in r.attrs)) && rows().slice(4).every((r) => "hidden" in r.attrs),
       `${long.pid} × ${long.key}: the shown lines are not the first four`);
-    ok(f.btn && f.btn.textContent === `Show ${long.n - 4} more`, `${long.pid} × ${long.key}: no "Show ${long.n - 4} more" control`);
-    ok(/<li class="pdxri-more-li">[\s\S]*<\/li><\/ul><\/div>$/.test(bl), `${long.pid} × ${long.key}: the control is not at the bottom of the block`);
-    eq(RI.toggleMore(f.btn), true, "the control did not open");
-    eq(f.visible().length, long.n, `${long.pid} × ${long.key}: expanding did not reveal every line`);
-    eq(f.btn.textContent, "Show fewer", "an open control does not read Show fewer");
-    eq(f.btn.attrs["aria-expanded"], "true", "an open control is not marked expanded");
-    eq(RI.toggleMore(f.btn), false, "the control did not close");
-    eq(f.visible().length, 4, `${long.pid} × ${long.key}: collapsing did not return to the first four`);
-    eq(f.btn.textContent, `Show ${long.n - 4} more`, "a closed control does not read Show N more again");
-    // The lines themselves, in order and in words, are what they were.
-    eq(JSON.stringify(lines(h)), JSON.stringify(RI.itemsFor(long.pid, win.CMP_DATA[long.pid], long.key).flatMap(RI.lineTexts)),
+    ok(f.btn && f.btn.textContent === `Show ${nMain - 4} more`, `${long.pid} × ${long.key}: no "Show ${nMain - 4} more" control`);
+    ok(/<li class="pdxri-more-li">[\s\S]*<\/li>(<li class="pdxri-ro-li">[\s\S]*)?<\/ul><\/div>$/.test(bl), `${long.pid} × ${long.key}: the control is not at the bottom of the block's lines`);
+    if (f.btn) {
+      eq(RI.toggleMore(f.btn), true, "the control did not open");
+      eq(vis().length, nMain, `${long.pid} × ${long.key}: expanding did not reveal every line`);
+      ok(f.visible().filter((r) => r.cls === "pdxri-sub").length === f.ul.rows.filter((r) => r.cls === "pdxri-sub").length,
+        `${long.pid} × ${long.key}: expanding left a family header hidden`);
+      eq(f.btn.textContent, "Show fewer", "an open control does not read Show fewer");
+      eq(f.btn.attrs["aria-expanded"], "true", "an open control is not marked expanded");
+      eq(RI.toggleMore(f.btn), false, "the control did not close");
+      eq(vis().length, 4, `${long.pid} × ${long.key}: collapsing did not return to the first four`);
+      eq(f.btn.textContent, `Show ${nMain - 4} more`, "a closed control does not read Show N more again");
+    }
+    // The lines themselves, in words, are what they were — tension first,
+    // families next, record only last.
+    eq(JSON.stringify(lines(h)), JSON.stringify(long.o.all.flatMap(RI.lineTexts)),
       `${long.pid} × ${long.key}: collapsing changed the lines`);
+    eq(lines(h).length, long.n, `${long.pid} × ${long.key}: a line is missing from the block`);
   }
   if (short) {
     const bl = block(CS.gapViewHtml(short.pid, short.key) || "");
@@ -712,10 +751,10 @@ const FIX = {
     eq(click.length, 1, "related-issues.js does not listen for the control's click once");
     ok(click[0] && click[0].cap === true, "the control's click listener is not in the capture phase");
     if (long && click[0]) {
-      const g = fakeList(block(w2.PDXConsistency.gapViewHtml(long.pid, long.key) || ""));
+      const g = fakeList(block(w2.PDXConsistency.gapViewHtml(long.pid, long.key) || "").replace(/<li class="pdxri-ro-li">[\s\S]*?<\/details><\/li>/, ""));
       let prevented = false;
       click[0].fn({ target: { closest: (sel) => (sel === "[data-pdxri-more]" ? g.btn : null) }, preventDefault() { prevented = true; } });
-      ok(prevented && g.visible().length === long.n, "a click on Show N more does not open the block");
+      ok(prevented && g.visible().filter((r) => r.cls === "pdxri-item").length === long.o.tense.length + long.o.fam.length, "a click on Show N more does not open the block");
       click[0].fn({ target: { closest: () => null }, preventDefault() { prevented = "other"; } });
       ok(prevented === true, "a click elsewhere was handled");
     }

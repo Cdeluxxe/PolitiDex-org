@@ -12418,7 +12418,20 @@
 //   files changed (app.css, profiles-full.js, consistency.js, bill.html), so the
 //   shell moves; the precache list is unchanged.
 //   MIGRATION COST: none.
-const CACHE_VERSION = 'v589';
+// v590 - TENSION FIRST, TOPIC FAMILIES, RECORD ONLY COLLAPSED. Key Issue
+//   Stances, the person file's Related issues section and the issue drawer's
+//   related-issues block lead with the issues whose formal record runs against
+//   the stated position (Contradicted or Mixed) under "Where the record runs
+//   against the stated position", then group the rest under related-issues
+//   family headers (Taxes & Government, Economy & Jobs, Energy, Immigration &
+//   Border, ... and a final Other). Issues with formal acts and no stated
+//   position, and the voting record's "Other records" list, start inside
+//   closed disclosures. Cards, lines, the map, stances and the scoring ladder
+//   are unchanged. Precached files changed (app.css, profiles-full.js,
+//   related-issues.js, voting-record.js), so the shell moves; the precache
+//   list is unchanged.
+//   MIGRATION COST: none.
+const CACHE_VERSION = 'v590';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

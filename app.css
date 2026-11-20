@@ -2421,6 +2421,13 @@
       margin-left: auto; font-size: 0.55rem; color: #4e72a0;
       background: rgba(159,180,212,0.1); border-radius: 999px; padding: 0.05rem 0.4rem;
     }
+    /* Tension-first block and the closed "Record only" disclosure */
+    .stance-cat.stance-tension { border-left: 2px solid rgba(248,113,113,0.55); padding-left: 0.6rem; }
+    .stance-cat-head.stance-tension-head { color: #f8a5a5; border-bottom-color: rgba(248,113,113,0.22); }
+    .stance-cat.stance-ro > summary.stance-ro-head { cursor: pointer; list-style: none; min-height: 28px; }
+    .stance-cat.stance-ro > summary.stance-ro-head::-webkit-details-marker { display: none; }
+    .stance-cat.stance-ro > summary.stance-ro-head::before { content: '▸'; font-size: 0.7rem; color: #8fb4e8; }
+    .stance-cat.stance-ro[open] > summary.stance-ro-head::before { content: '▾'; }
     /* Stance distribution summary chips */
     .stance-summary { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; margin-bottom: 0.85rem; }
     .stance-sum-chip {
