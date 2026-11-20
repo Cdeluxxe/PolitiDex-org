@@ -142,7 +142,7 @@ const CARD = {
   issue: { label: "💰 National Debt" }, verdict: { key: "contradicts", cls: "v-contradicts" },
 };
 const CARD_OTHER = Object.assign({}, CARD, { issueKey: "healthcare", measureNumber: "H.R. 9", issue: { label: "🏥 Health Care" } });
-const RECEIPT = { pid: "rep_receipt", name: "Rep Receipt", headline: "Promised, then voted the other way", verdict: { key: "contradicts" }, issue: { label: "🧾 Taxes" } };
+const RECEIPT = { pid: "rep_receipt", name: "Rep Receipt", headline: "Promised, then voted the other way", verdict: { key: "contradicts" }, issueKey: "taxes", issue: { label: "🧾 Taxes" } };
 
 // The record-direction feed. Two cards, on two issues the say-vs-do feed says
 // nothing about — which is the whole point of the feed: it only ever covers rows
@@ -167,10 +167,26 @@ const RD_SPLIT = {
 const RD_ONLY = Object.assign({}, RD_CARD, { pid: "rep_rdonly", issueKey: "social_security",
   measureNumber: "H.R. 82", issue: { label: "👵 Social Security" } });
 
+// Massie, the reported case. His strongest card overall is about a DIFFERENT
+// issue, so any wrong-issue fallback would surface it from the Israel drawer.
+const M_CARD_ISRAEL = { pid: "massie", issueKey: "israel_support", measureNumber: "H.R. 8034",
+  issue: { label: "🇮🇱 Israel Support" }, verdict: { key: "consistent", cls: "v-consistent" } };
+const M_CARD_OTHER = { pid: "massie", issueKey: "fed_reserve", measureNumber: "H.R. 24",
+  issue: { label: "🏦 Audit the Fed" }, verdict: { key: "consistent", cls: "v-consistent" } };
+const M_RECEIPT_ISRAEL = { pid: "massie", issueKey: "israel_support", headline: "Israel aid", verdict: { key: "consistent" }, issue: { label: "🇮🇱 Israel Support" } };
+const M_RECEIPT_OTHER = { pid: "massie", issueKey: "fed_reserve", headline: "Audit the Fed", verdict: { key: "consistent" }, issue: { label: "🏦 Audit the Fed" } };
+
 const calls = [];
 ctx.PDXReceiptCards = ctx.window.PDXReceiptCards = {
   cardsFor() { throw new Error("share-anywhere must not read the unguarded card list"); },
   publicCardsFor(pid, o) {
+    if (pid === "massie") {
+      const mi = (o && o.issueKey) || "";
+      if (!mi) return [M_CARD_OTHER, M_CARD_ISRAEL];
+      if (mi === "israel_support") return ctx.__massieNoIsraelCard ? [] : [M_CARD_ISRAEL];
+      if (mi === "fed_reserve") return [M_CARD_OTHER];
+      return [];
+    }
     if (pid !== "rep_record") return [];
     const iss = (o && o.issueKey) || "";
     if (iss === "healthcare") return [CARD_OTHER];
@@ -195,8 +211,13 @@ ctx.PDXReceiptCards = ctx.window.PDXReceiptCards = {
   },
 };
 ctx.PDXReceipts = ctx.window.PDXReceipts = {
-  forPolitician(pid) { return pid === "rep_receipt" ? RECEIPT : null; },
-  find(pid, iss) { return (pid === "rep_receipt" && iss === "taxes") ? RECEIPT : null; },
+  forPolitician(pid) { return pid === "rep_receipt" ? RECEIPT : (pid === "massie" ? M_RECEIPT_OTHER : null); },
+  // Mirrors say-vs-do.js bestReceipt(): when nothing matches the issue it falls
+  // back to the member's first receipt. share-anywhere.js must not trust that.
+  find(pid, iss) {
+    if (pid === "massie") return iss === "israel_support" ? M_RECEIPT_ISRAEL : M_RECEIPT_OTHER;
+    return pid === "rep_receipt" ? RECEIPT : null;
+  },
   share(r, btn) { calls.push(["svd.share", r, btn]); return "svd"; },
 };
 ctx.pdxSharePolitician = ctx.window.pdxSharePolitician = (pid) => { calls.push(["link", pid]); };
@@ -236,13 +257,15 @@ const run = async () => {
   // Issue scoping: a row about one issue must not silently share another.
   const d = SA.state("rep_record", { issueKey: "healthcare" });
   ok(d.card === CARD_OTHER, "tier: an issueKey selects that issue's card");
-  // An issue NEITHER feed covers. The wrong-issue fallback is still correct here
-  // — a card about something is better than a bare link — and it is deliberately
-  // still in place, so this pass narrows the substitution rather than removing a
-  // behaviour readers depend on.
+  // An issue NEITHER feed covers. A card about a different issue is never the
+  // answer to an issue-scoped ask — it is the wrong-subject share the issue
+  // drawer's corner icon used to open — so this resolves to the honest link.
   const e = SA.state("rep_record", { issueKey: "voting_access" });
-  ok(e.tier === "record" && e.card === CARD,
-     "tier: an issue no feed covers falls back to the member's strongest card, not to a link");
+  ok(e.tier === "link" && e.card === null && e.receipt === null,
+     "tier: an issue no feed covers resolves to the honest link, never to the member's card about another issue");
+  const e2 = SA.state("rep_receipt", { issueKey: "healthcare" });
+  ok(e2.tier === "link" && e2.receipt === null,
+     "tier: an issue with no matching Say-vs-Do receipt never borrows the member's receipt about another issue");
 
   ok(/publicCardsFor/.test(CODE) && !/\bcardsFor\s*\(/.test(CODE.replace(/publicCardsFor/g, "publicCF").replace(/publicRecordDirectionCardsFor/g, "publicRDCF")),
      "guards: the record read goes through publicCardsFor only — the unguarded cardsFor is never called");
@@ -335,6 +358,57 @@ const run = async () => {
   //    and the dominance ratio.)
   ok(!/MIN_JUDGED|MIN_PRIMARY|MEMBER_FLOOR|DOMINANCE|0\.75|\brecord_(direction|split|thin|none|uniform_thin)\b|characterised|\.judged\b|\.advances\b|\.opposes\b/.test(CODE),
      "record-direction: the resolver holds no eligibility threshold of its own — it asks the owning module and takes the answer");
+}
+
+// ── 1c. The issue drawer's corner icon opens THIS issue ──────────────────────
+// Reported: the receipt icon in the top-right of an issue drawer opened a
+// receipt for a different issue. The drawer mounts the control with the open
+// issue and hideEmpty, so the card it opens must be that issue's, and where
+// nothing is on file for the issue the icon is hidden and a tap does nothing.
+{
+  const m = SA.state("massie", { issueKey: "israel_support" });
+  ok(m.tier === "record" && m.card === M_CARD_ISRAEL && m.card.issueKey === "israel_support",
+     "drawer: Massie × Israel support resolves to the Israel support card, not his strongest card on another issue");
+  ok(/Israel Support/.test(m.what) && !/Audit the Fed/.test(m.label),
+     "drawer: the accessible name names Israel support, not a different issue");
+  calls.length = 0;
+  const btnM = mkBtn("massie", "record", "israel_support");
+  btnM.btn.removeAttribute("data-pdxsa-pending");
+  btnM.btn.setAttribute("data-pdxsa-hide-empty", "1");
+  SA.share("massie", btnM.btn);
+  const sentM = calls.find((c) => c[0] === "rc.share");
+  ok(sentM && sentM[1] === M_CARD_ISRAEL,
+     "drawer: tapping the icon on Massie × Israel support shares the Israel support card");
+
+  // No record card for the issue: the receipt for THIS issue still answers…
+  ctx.__massieNoIsraelCard = true;
+  fire("pdx:data:acctSpotlight"); // drops the memo, as a data arrival would
+  const mr = SA.state("massie", { issueKey: "israel_support" });
+  ctx.__massieNoIsraelCard = false;
+  fire("pdx:data:acctSpotlight");
+  ok(mr.tier === "receipt" && mr.receipt === M_RECEIPT_ISRAEL,
+     "drawer: with no record card, the Israel support Say-vs-Do receipt is used — never the Audit the Fed one");
+
+  // …and an issue with nothing on file is never filled from another issue.
+  const none = SA.state("massie", { issueKey: "gun_rights" });
+  ok(none.tier === "link" && !none.card && !none.receipt,
+     "drawer: an issue with no card or receipt resolves to nothing — find()'s other-issue fallback is rejected");
+  const html = SA.buttonHtml({ pid: "massie", issueKey: "gun_rights", hideEmpty: true });
+  ok(/data-pdxsa-hide-empty="1"/.test(html) && /data-pdxsa-tier="link"/.test(html),
+     "drawer: the hide-empty icon carries the marker the drawer stylesheet hides on tier 'link'");
+  calls.length = 0;
+  const btnN = mkBtn("massie", "link", "gun_rights");
+  btnN.btn.removeAttribute("data-pdxsa-pending");
+  btnN.btn.setAttribute("data-pdxsa-hide-empty", "1");
+  await SA.share("massie", btnN.btn);
+  ok(!calls.some((c) => c[0] === "rc.share" || c[0] === "svd.share" || c[0] === "link"),
+     "drawer: tapping a hide-empty icon with nothing on file for the issue does nothing");
+
+  const cons = read("consistency.js");
+  ok(/cls: 'pdxgap-shareico',[\s\S]{0,80}hideEmpty: !!issueKey/.test(cons),
+     "drawer: the corner icon is mounted with the open issue and hideEmpty");
+  ok(/\.pdxgap-hshare \.pdxsa-share-btn\[data-pdxsa-hide-empty\]\[data-pdxsa-tier="link"\]\{visibility:hidden/.test(cons),
+     "drawer: the corner icon is hidden in place (no reflow) when nothing is on file for the issue");
 }
 
 // ── 2. The honest fallback ───────────────────────────────────────────────────

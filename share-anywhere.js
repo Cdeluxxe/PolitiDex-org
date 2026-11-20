@@ -136,6 +136,14 @@
       if (list && list.length) return list[0];
       var rd = recordDirectionCard(pid, issueKey);
       if (rd) return rd;
+      // NO WRONG-ISSUE FALLBACK. The control was handed an issue — it sits in an
+      // issue drawer or an issue row — so the member's strongest card about some
+      // OTHER issue is not an answer to the question asked. That substitution is
+      // what made the drawer's corner icon open, say, a Prescription Drug Prices
+      // card from Massie × Israel support. Nothing on file for this issue means
+      // nothing from this feed; the receipt tier and the honest issue link are
+      // still behind it.
+      return null;
     }
     try { list = rc.publicCardsFor(pid, {}); } catch (e) { list = null; }
     if (list && list.length) return list[0];
@@ -147,11 +155,24 @@
     return issueKey ? null : recordDirectionCard(pid, '');
   }
 
+  // A receipt's own issue key, read the ways say-vs-do.js stamps it.
+  function sameIssue(r, issueKey) {
+    var k = r && (r.issueKey || (r.issue && typeof r.issue === 'object' && r.issue.key) || '');
+    return !!k && String(k) === String(issueKey);
+  }
+
   function receiptFor(pid, issueKey) {
     var s = SVD();
     if (!s) return null;
-    if (issueKey && typeof s.find === 'function') {
-      try { var r = s.find(pid, issueKey); if (r) return r; } catch (e) {}
+    if (issueKey) {
+      // Issue-scoped: only a receipt ABOUT this issue. PDXReceipts.find() falls
+      // back to the member's first receipt when nothing matches, so its answer is
+      // checked here rather than trusted — a receipt on another issue is never
+      // what an issue drawer sends.
+      if (typeof s.find !== 'function') return null;
+      var r = null;
+      try { r = s.find(pid, issueKey); } catch (e) { r = null; }
+      return (r && sameIssue(r, issueKey)) ? r : null;
     }
     if (typeof s.forPolitician !== 'function') return null;
     try { return s.forPolitician(pid) || null; } catch (e) { return null; }
@@ -350,6 +371,10 @@
   //              on this button out of the row's own handler
   //   hint     → also emit the height-reserved explanation line
   //   text     → override the (constant) visible label
+  //   hideEmpty → the host promises a card for ONE issue (the issue drawer's
+  //              corner icon). Where nothing exists for that issue the button is
+  //              hidden (visibility only, so nothing reflows) and a tap is a no-op
+  //              — it never stands in a link or another issue's card for it
   //   fallback → 'copy' when the button already lives inside the share sheet, so
   //              tier 'link' copies the link instead of reopening the sheet it
   //              is standing in
@@ -366,6 +391,7 @@
         ' data-pid="' + esc(pid) + '"' +
         (st.issueKey ? ' data-issue="' + esc(st.issueKey) + '"' : '') +
         (opts.fallback ? ' data-pdxsa-fallback="' + esc(opts.fallback) + '"' : '') +
+        (opts.hideEmpty ? ' data-pdxsa-hide-empty="1"' : '') +
         (st.settled ? '' : ' data-pdxsa-pending="1"') +
         ' data-pdxsa-tier="' + st.tier + '"' +
         (opts.stopKeys ? ' onkeydown="event.stopPropagation()"' : '') +
@@ -451,8 +477,15 @@
   // Step down, never sideways: the preferred tier first, then any weaker artifact
   // state() already found, then the link. A module that failed to load costs the
   // reader the best card, not the whole gesture.
+  function hideEmpty(btn) {
+    return !!(btn && btn.getAttribute && btn.getAttribute('data-pdxsa-hide-empty') === '1');
+  }
+
   function dispatch(st, btn) {
     var rc = RC(), s = SVD(), pc = PC();
+    // An issue-scoped host that asked to stay quiet when nothing is on file for
+    // its issue: no card, no receipt → nothing happens.
+    if (hideEmpty(btn) && !st.card && !st.receipt && st.tier !== 'summary') return null;
     if (st.tier === 'summary' && pc && typeof pc.share === 'function') return pc.share(st.pid, btn);
     if (st.card && rc && typeof rc.share === 'function') return rc.share(st.card, btn);
     if (st.receipt && s && typeof s.share === 'function') return s.share(st.receipt, btn);

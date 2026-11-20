@@ -250,6 +250,7 @@ import {
 } from "../lib/raw-ingest-hosts.mjs";
 import { retiredSourcesLine, RETIRED_VERSION, RETIRED_LOG_KEY } from "../lib/raw-ingest-retired.mjs";
 import { TRANSCRIPT_STORE_NAME, lockerRawFor } from "../lib/video-transcripts.mjs";
+import { INGEST_ALLOW_LIST, scopeIds, inScope, filterToScope, scopedRotationKey, scopeLine } from "../lib/raw-ingest-scope.mjs";
 import groundTruth from "../../db/stance-ground-truth-talarico-cost-of-living.json" with { type: "json" };
 import reviewFile from "../../db/evidence-locker-review.json" with { type: "json" };
 
@@ -272,10 +273,10 @@ export async function logRetiredOnce(store: any, log: (l: string) => void, now: 
 
 const hostOfUrl = (u: string) => { try { return new URL(u).hostname.replace(/^www\./, "").toLowerCase(); } catch { return ""; } };
 
-async function readRotationState(store: any, log: (l: string) => void): Promise<any> {
+async function readRotationState(store: any, log: (l: string) => void, key: string = ROTATION_KEY): Promise<any> {
   if (!store) return normaliseRotationState(null);
   try {
-    let doc = await store.get(ROTATION_KEY, { type: "json" });
+    let doc = await store.get(key, { type: "json" });
     if (typeof doc === "string") { try { doc = JSON.parse(doc); } catch { doc = null; } }
     // Pool version changed (e.g. v2 opened tier-2 sources): start a fresh cycle
     // so the next runs reach the new sources straight away.
@@ -317,10 +318,16 @@ export async function run(deps: {
   // ({ pid: [card…] }). Omitted on a rotation run → read from the committed
   // stance data files. Read-only; only logs.
   curatedStances?: Record<string, any[]>;
+  // Politician allow-list (raw-ingest-scope.mjs). Omitted → whole roster (the
+  // earlier behaviour); the scheduled entry point passes INGEST_ALLOW_LIST.
+  // Politicians outside it are never planned, fetched, harvested or scored.
+  scope?: string[] | null;
 }) {
   const log = deps.log ?? ((l: string) => console.log(l));
   const startedAt = Date.now();
-  let sources = deps.sources ?? SOURCES;
+  const scope = deps.scope === undefined ? null : scopeIds(deps.scope);
+  const rotationKey = scopedRotationKey(ROTATION_KEY, scope);
+  let sources = filterToScope(scope, deps.sources ?? SOURCES);
   let discovered: any[] = [];
   let plan: any = null;
   let roster: any[] = ROSTER;
@@ -343,6 +350,7 @@ export async function run(deps: {
   let knownUrls = new Set<string>([...allRosterUrls(ROSTER), ...sources.map((x: any) => normUrl(x.url))]);
   const harvestFrom = (src: any, body: string, finalUrl?: string) => {
     if (!fresh) return;
+    if (!inScope(scope, src?.politician_id)) return;
     const page = { ...src, ...(finalUrl ? { final_url: finalUrl } : {}) };
     if (!isHarvestable(page, shared)) return;
     const seen = new Set(Object.keys(fresh.seen));
@@ -359,9 +367,11 @@ export async function run(deps: {
   const onBody = fo ? (p: any, res: any, body: string) => harvestFrom(p, body, res?.url) : null;
   if (deps.rotate && !deps.sources) {
     const ro = typeof deps.rotate === "object" ? deps.rotate : {};
-    roster = ro.roster ?? ROSTER;
+    const fullRoster = ro.roster ?? ROSTER;
+    roster = filterToScope(scope, fullRoster);
+    if (scope) log(`raw-ingest: scope — planning ${roster.length} of ${fullRoster.length} roster politician(s) (allow-list: ${[...scope].sort().join(", ")}); the rest are skipped this run`);
     const pids = roster.map((r: any) => r.politician_id);
-    const state = ro.state !== undefined ? normaliseRotationState(ro.state) : await readRotationState(deps.rotationStore, log);
+    const state = ro.state !== undefined ? normaliseRotationState(ro.state) : await readRotationState(deps.rotationStore, log, rotationKey);
     counts = ro.counts ?? await lockerBaselineCounts(deps.lockerStore, { flags, pids, log });
     knownUrls = new Set([...knownUrls, ...allRosterUrls(roster)]);
     const max = ro.max ?? MAX_SOURCES_PER_RUN;
@@ -397,7 +407,7 @@ export async function run(deps: {
       (freshTally as any).displaced = f.displaced.length;
     }
     if (deps.rotationStore) {
-      try { await deps.rotationStore.setJSON(ROTATION_KEY, { ...plan.state, pool_version: POOL_VERSION, updated_at: (deps.now ?? (() => new Date()))().toISOString(), last_politicians: plan.politicians }); }
+      try { await deps.rotationStore.setJSON(rotationKey, { ...plan.state, pool_version: POOL_VERSION, updated_at: (deps.now ?? (() => new Date()))().toISOString(), last_politicians: plan.politicians }); }
       catch (e: any) { log(`raw-ingest: rotation state not saved — ${e?.message || e}`); }
     }
   } else if (deps.discover) {
@@ -423,6 +433,9 @@ export async function run(deps: {
     log(`discovery: fresh pages — ${(freshTally as any).added || 0} unfetched page(s) added to this run (≤ ${fo.per ?? FRESH_PER_POLITICIAN} per politician, caps unchanged)${(freshTally as any).displaced ? `, ${(freshTally as any).displaced} already-read page(s) displaced` : ""} · ${freshTally.harvested} candidate(s) harvested from discovery pages · frontier holds ${frontierSize}`);
     log(`discovery: ${discovered.length} new URL(s) this run in total`);
   }
+  // Final fence: nothing outside the allow-list reaches the fetcher, however it
+  // got into the list (fixed sources, discovery, the fresh frontier).
+  if (scope) { sources = filterToScope(scope, sources); discovered = filterToScope(scope, discovered); }
   await logRetiredOnce(deps.rotationStore, log, deps.now);
   const included = runPlanLine(sources);
   console.log(`raw-ingest: run included ${included.count} source(s) · politicians: ${included.politicians.join(", ")} · source kinds: ${JSON.stringify(included.kinds)} · source types: ${JSON.stringify(included.source_types)} · source classes: ${JSON.stringify(included.source_classes)} · evidence tiers: ${JSON.stringify(included.source_tiers)}`);
@@ -436,6 +449,7 @@ export async function run(deps: {
   const targeted: any[] = [];
   const srcByUrl = new Map(sources.map((x: any) => [x.url, x]));
   const onRecord = async (incoming: any) => {
+    if (!inScope(scope, incoming?.politician_id)) return;
     let rec = incoming;
     if (fresh) {
       const src = srcByUrl.get(incoming.url) || {};
@@ -467,6 +481,11 @@ export async function run(deps: {
     }
   };
   const report: any = await runRawIngest({ ...deps, onRecord, log, probeHosts: plan ? true : (deps as any).probeHosts }, sources);
+  if (scope) {
+    const pulledOutside = report.results.filter((r: any) => !inScope(scope, r?.politician_id ?? (srcByUrl.get(r?.url) as any)?.politician_id)).length;
+    report.scope = { allow_list: [...scope].sort(), pulled_outside: pulledOutside };
+    log(scopeLine(scope, { rosterSize: (deps.rotate && typeof deps.rotate === "object" && deps.rotate.roster ? deps.rotate.roster : ROSTER).length, kept: roster.length, pulledOutside }));
+  }
   // Host health: fold this run in (a run-side outage penalises no host).
   let outage = false;
   if (hostHealth) {
@@ -555,7 +574,7 @@ export async function run(deps: {
     const priority = new Set(thin.map((w) => w.politician_id));
     const thinPairs = [...new Map(thin.map((w) => [`${w.politician_id}|${w.topic}`, w])).values()];
     if (thin.length) log(`stated-positions: new evidence on thin topic(s) — ${thinPairs.map((w) => `${w.politician_id}|${w.topic} (${w.strength} ${w.confidence})`).join(", ")}; recomputing first`);
-    const pids = [...new Set([...priority, ...lockerWrites.map((w) => w.politician_id), ...(plan ? plan.politicians : [])])].filter(Boolean);
+    const pids = [...new Set([...priority, ...lockerWrites.map((w) => w.politician_id), ...(plan ? plan.politicians : [])])].filter((p) => p && inScope(scope, p));
     const moved: any[] = [];
     let checked = 0, deferred = 0;
     for (const pid of pids) {
@@ -630,6 +649,8 @@ export async function scheduled(deps: { run?: typeof run; suggestionsStore?: any
     discover: true,
     rotate: true,
     fresh: true,
+    // The allow-list (raw-ingest-scope.mjs). [] there lifts the restriction.
+    scope: INGEST_ALLOW_LIST,
     ...(injected ? {} : productionStores()),
     ...(statedDb ? { statedDb } : {}),
     ...rest,

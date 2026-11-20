@@ -2144,6 +2144,10 @@
       '.pdxgap-hshare .pdxsa-share-btn.pdxgap-shareico{width:1.85rem;height:1.85rem;min-height:0;padding:0;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:0.85rem;}' +
       '.pdxgap-shareico .pdxsa-lbl{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;}' +
       '.pdxgap-shareico .pdxsa-ico{width:auto;margin:0;}' +
+      // The corner icon is a promise about the OPEN issue. With no card or receipt
+      // on file for it, it is hidden in place (no reflow) rather than opening
+      // something about a different issue; the foot's text button keeps the link.
+      '.pdxgap-hshare .pdxsa-share-btn[data-pdxsa-hide-empty][data-pdxsa-tier="link"]{visibility:hidden;pointer-events:none;}' +
       // The quiet text share at the foot.
       '.pdxgap-sharefoot{margin-top:0.6rem;text-align:center;}' +
       '.pdxsa-share-btn.pdxgap-sharetxt{background:none;border:none;box-shadow:none;min-height:0;padding:0.2rem 0.4rem;font-size:0.74rem;font-weight:600;letter-spacing:0;text-transform:none;color:#9fb4d4;text-decoration:underline;text-underline-offset:2px;cursor:pointer;}' +
@@ -5045,7 +5049,7 @@
       }
       return '<div class="pdxgap-hshare" data-pdxgap-share="icon">' +
         SA.buttonHtml({ pid: pid, issueKey: issueKey || '', cls: 'pdxgap-shareico',
-                        text: 'Share' }) +
+                        text: 'Share', hideEmpty: !!issueKey }) +
         '</div>';
     } catch (e) { return ''; }
   }

@@ -12460,7 +12460,15 @@
 //   files changed (consistency.js, word-action.js, word-action.css), so the
 //   shell moves; the precache list is unchanged.
 //   MIGRATION COST: none.
-const CACHE_VERSION = 'v593';
+// v594 - THE DRAWER'S RECEIPT ICON OPENS THE OPEN ISSUE. The share icon in the
+//   issue drawer's top-right corner no longer falls back to the member's card
+//   or Say-vs-Do receipt about a different issue. It opens the card or receipt
+//   for the issue on screen, and is hidden (in place, no reflow) and inert when
+//   nothing is on file for that issue. Cards, receipts, records and scoring are
+//   unchanged. Precached files changed (share-anywhere.js, consistency.js), so
+//   the shell moves; the precache list is unchanged.
+//   MIGRATION COST: none.
+const CACHE_VERSION = 'v594';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
