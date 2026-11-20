@@ -1617,7 +1617,19 @@
             '📚 View ' + e.spotlight.length + ' in the Digital Library ↗</button>';
         }
 
-        return '<div id="' + window._pdxEvAnchor(id, e.issueKey) + '" class="evd-card ' + read.cls + '">' +
+        // THE CARD WEARS ITS ISSUE. Same colour token every other surface on the
+        // page paints this issue with (PDXIssueColors), so a "See proof" jump from
+        // a stated-position row lands on a card of the same colour as the row.
+        var tint = '';
+        try {
+          var IC = window.PDXIssueColors;
+          if (IC && typeof IC.styleFor === 'function' &&
+              (typeof IC.isCore !== 'function' || IC.isCore(e.issueKey))) {
+            tint = ' data-ic="on" style="' + esc(IC.styleFor(e.issueKey)) + '"';
+          }
+        } catch (er) { tint = ''; }
+        return '<div id="' + window._pdxEvAnchor(id, e.issueKey) + '" class="evd-card ' + read.cls + '"' +
+            ' data-pdx-ev-issue="' + esc(e.issueKey) + '"' + tint + '>' +
             '<div class="evd-head">' +
               '<span class="evd-head-ico" aria-hidden="true">' + issueIco(e.issueKey) + '</span>' +
               '<span class="evd-head-label">' + esc(issueLabel(e.issueKey)) + '</span>' +
@@ -1640,7 +1652,22 @@
                (e.position ? 1 : 0) +
                e.spotlight.reduce(function(n,s){ return n + (s.media && s.media.url ? 1 : 0); }, 0);
       }
-      entries.sort(function(a,b){ return richness(b) - richness(a); });
+      // ORGANISED BY THE SAME ISSUES. Issues with a ✒️ stated position on file
+      // come first, in the stated list's own order (the order the rows above the
+      // tree print in), so the evidence reads as the proof of those rows, one
+      // group per row; every other issue follows, richest first as before.
+      var statedAt = {};
+      try {
+        var _CSx = window.PDXConsistency;
+        var _sl = (_CSx && typeof _CSx.statedStances === 'function') ? (_CSx.statedStances(id) || []) : [];
+        _sl.forEach(function(se, i){ if (se && se.key && !(se.key in statedAt)) statedAt[se.key] = i; });
+      } catch (er) { statedAt = {}; }
+      entries.sort(function(a,b){
+        var sa = (a.issueKey in statedAt) ? statedAt[a.issueKey] : Infinity;
+        var sb = (b.issueKey in statedAt) ? statedAt[b.issueKey] : Infinity;
+        if (sa !== sb) return sa < sb ? -1 : 1;
+        return richness(b) - richness(a);
+      });
 
       // Totals for the scannable summary line.
       var totStance = 0, totProm = 0, totSpot = 0, totMedia = 0, totConnected = 0;
@@ -1720,6 +1747,21 @@
   window._pdxEvAnchor = function(id, issueKey) {
     return 'evd-issue-' + String(id || '').replace(/[^a-z0-9_-]/gi, '') +
       '-' + String(issueKey || '').replace(/[^a-z0-9_-]/gi, '');
+  };
+
+  // The anchor of an issue's Connected Evidence card when that card carries
+  // something to show (a promise or an on-record item), else ''. The same test
+  // the section uses to put a card in its lead, so a "See proof → Evidence"
+  // control is only drawn where the jump lands on real material.
+  window._pdxEvHas = function(id, issueKey) {
+    try {
+      if (!id || !issueKey || typeof window._issueEvidenceMap !== 'function') return '';
+      var p = (window.CMP_DATA || window.PROFILES || {})[id] || {};
+      var e = (window._issueEvidenceMap(id, p) || {})[issueKey];
+      if (!e) return '';
+      var n = (Array.isArray(e.spotlight) ? e.spotlight.length : 0) + (Array.isArray(e.promises) ? e.promises.length : 0);
+      return n ? window._pdxEvAnchor(id, issueKey) : '';
+    } catch (e2) { return ''; }
   };
 
   // Smooth-scroll to an issue's Connected Evidence card and pulse it briefly so the
@@ -6506,27 +6548,11 @@
            renderer for both. -->
       ${(window.PDXWordAction && typeof window.PDXWordAction.sectionHtml === 'function') ? window.PDXWordAction.sectionHtml(id, p) : ''}
 
-      <!-- 🔗 RELATED ISSUES — same pairs, same wording, moved. It used to ride at
-           the foot of the explore stage; it now sits directly under ⚖️ Word vs
-           Action's summary and its full ✒️ stated-positions list (both emitted by
-           PDXWordAction.sectionHtml above), because each of its lines reads a
-           stated position against its neighbours — the reader meets the list it
-           pairs before the pairs. Rendered by related-issues.js. -->
-      ${(function(){ try { return (window.PDXRelatedIssues && typeof window.PDXRelatedIssues.sectionHtml === 'function') ? window.PDXRelatedIssues.sectionHtml(id, p) : ''; } catch (e) { return ''; } })()}
-
-      <!-- ↩️ AGAINST THEIR OWN STATED POSITION — the section above's own contradiction
-           verdicts, gathered into a dated list with the receipt on each row. It mounts
-           HERE, directly under ⚖️ Word vs Action, because it is that section's rows
-           re-read rather than a second finding: a reader who has just met the verdict
-           should meet the list of what it rests on next, not three screens later.
-           Renders '' unless there is at least one issue where a real stated position
-           was tested against a citable formal act and lost — an empty frame under that
-           heading is an accusation with the evidence pending. It publishes no score, no
-           count of anyone else's items, and never compares this person with another.
-           See the walls at the top of self-defection.js. -->
-      ${(window.PDXSelfDefection && typeof window.PDXSelfDefection.personHtml === 'function')
-        ? (function(){ try { return window.PDXSelfDefection.personHtml(id, p); } catch(e){ return ''; } })()
-        : ''}
+      <!-- 🔗 RELATED ISSUES and ↩️ AGAINST THEIR OWN STATED POSITION used to mount
+           here, directly under the stated-positions list. They now mount in the
+           explore stage directly under 🌳 All Issues by Topic, so the page reads
+           stated positions → the tree → where those positions meet their
+           neighbours. Same pairs, same wording, same rules; only the place moved. -->
 
       <!-- THE LIMITED-RECORD CARD USED TO MOUNT HERE, between ⚖️ Word vs Action
            and the tree. It is gated on _isThinProfile, which means it fires only
@@ -6567,6 +6593,30 @@
       ${(window.PDXStanceTree && typeof window.PDXStanceTree.sectionHtml === 'function')
         ? (function(){ try { return window.PDXStanceTree.sectionHtml(id); } catch(e){ return ''; } })()
         : ''}
+
+      <!-- 🔗 RELATED ISSUES — same pairs, same wording, same rules, moved again.
+           It sat directly under ⚖️ Word vs Action's ✒️ stated-positions list; it
+           now sits directly under 🌳 All Issues by Topic, which in turn sits
+           directly under that list (verdict is ahead of explore in the spine). The
+           reader meets the stated positions, then every issue by topic, then the
+           pairs where those positions meet their neighbours. Rendered by
+           related-issues.js. -->
+      ${(function(){ try { return (window.PDXRelatedIssues && typeof window.PDXRelatedIssues.sectionHtml === 'function') ? window.PDXRelatedIssues.sectionHtml(id, p) : ''; } catch (e) { return ''; } })()}
+
+      <!-- ↩️ AGAINST THEIR OWN STATED POSITION — the section above's own contradiction
+           verdicts, gathered into a dated list with the receipt on each row. It mounts
+           directly under 🔗 related issues — which follow 🌳 All Issues by Topic,
+           which follows ⚖️ Word vs Action's stated positions — so it is still that
+           section's rows re-read, one block below the tree rather than above it.
+           Renders '' unless there is at least one issue where a real stated position
+           was tested against a citable formal act and lost — an empty frame under that
+           heading is an accusation with the evidence pending. It publishes no score, no
+           count of anyone else's items, and never compares this person with another.
+           See the walls at the top of self-defection.js. -->
+      ${(window.PDXSelfDefection && typeof window.PDXSelfDefection.personHtml === 'function')
+        ? (function(){ try { return window.PDXSelfDefection.personHtml(id, p); } catch(e){ return ''; } })()
+        : ''}
+
 
       <!-- 🧩 TWO AXES — one declared pair, read side by side.
            IT SITS DIRECTLY UNDER THE TREE ON PURPOSE, and it travelled with the tree
@@ -6686,7 +6736,9 @@
         } catch (e) { return ''; }
       }, _atlasRender(true))}
 
-      <!--PDXSP:verdict-->
+      <!--PDXSP:explore-->
+      <!-- (Tagged explore since verdict moved ahead of explore in the spine: this
+           card's place — under the tree and the multi-issue block — is unchanged.) -->
       <!-- 🌱 WHY THIS RECORD IS THIN — the last thing in the verdict stage, and
            only when there is a gap to explain. It answers the one question the
            three surfaces above it cannot derive: WHY the record is thin (a
@@ -7019,27 +7071,13 @@
       <!-- Connected Evidence — stance + promises + recorded words/actions per
            issue (current sitting Utah State Legislators; '' for everyone else) -->
       <span id="pdxsec-evidence" class="pdx-nav-anchor" aria-hidden="true"></span>
-      ${(typeof window._renderEvidenceSummary === 'function') ? window._renderEvidenceSummary(id, p) : ''}
+      <!-- 🧩 Connected Evidence leads the stage: one card per issue, each tinted
+           with its issue colour and ordered like the ✒️ stated positions above, so
+           a "See proof → Evidence" jump lands on the matching group. The full
+           Evidence Locker card — the complete set — sits under it, at the foot of
+           the evidence (it used to open the stage). -->
       ${(typeof window._renderEvidenceConnections === 'function') ? window._renderEvidenceConnections(id, p) : ''}
-
-      <!-- 🕳 WHAT THE RECORD CAN'T TEST YET — our own homework on this file, at a
-           durable address (/p/<pid>#gaps, mapped by person-file.js). Every gaps.js
-           gap, in two groups: what we are still looking for, and what is on file
-           and deliberately held out of the number by the circularity rule, the
-           one-scored-item-per-issue rule and the publication floor.
-
-           IT MOUNTS IN THE RECEIPTS STAGE, NOT BESIDE THE SCORE. The Direction
-           Match card already carries the interactive version of this list inside
-           its apparatus fold — with the discussion thread and the lead cards on
-           each row — and two lead-taking surfaces a screen apart is one too many.
-           This one is the complete, citable statement: plain rows, no thread
-           mounts (a gap:pid:slug thread target can only be addressed once per
-           page), no cap on the tail. Documentation status only: nothing in it is a
-           grade, a percentage, or a claim about the person. Renders '' when there
-           is nothing honest to name. -->
-      ${(window.PDXGaps && typeof window.PDXGaps.sectionHtml === 'function')
-        ? (function(){ try { return window.PDXGaps.sectionHtml(id, p); } catch(e){ return ''; } })()
-        : ''}
+      ${(typeof window._renderEvidenceSummary === 'function') ? window._renderEvidenceSummary(id, p) : ''}
 
       <!--PDXSP:record-->
       <!-- ONE record lane. Two things used to sit here and both have been folded in.
@@ -7667,6 +7705,30 @@
             : 'Voting data from Congress.gov, Clerk.house.gov, Senate.gov roll calls, and state legislative records.') + '</p>' +
         '</div>';
       })()}
+
+      <!--PDXSP:record-->
+      <!-- 🕳 WHAT THE RECORD CAN'T TEST YET — our own homework on this file, at a
+           durable address (/p/<pid>#gaps, mapped by person-file.js). Every gaps.js
+           gap, in two groups: what we are still looking for, and what is on file
+           and deliberately held out of the number by the circularity rule, the
+           one-scored-item-per-issue rule and the publication floor.
+
+           IT MOUNTS AT THE FOOT OF THE RECORD STAGE, NOT BESIDE THE SCORE. (It
+           sat in the receipts stage; it moved under the voting highlights so the
+           Evidence section ends on the evidence and the voting highlights and
+           bills come straight after it. The sponsored-bills section is placed
+           ahead of it by person-bills.js.) The Direction
+           Match card already carries the interactive version of this list inside
+           its apparatus fold — with the discussion thread and the lead cards on
+           each row — and two lead-taking surfaces a screen apart is one too many.
+           This one is the complete, citable statement: plain rows, no thread
+           mounts (a gap:pid:slug thread target can only be addressed once per
+           page), no cap on the tail. Documentation status only: nothing in it is a
+           grade, a percentage, or a claim about the person. Renders '' when there
+           is nothing honest to name. -->
+      ${(window.PDXGaps && typeof window.PDXGaps.sectionHtml === 'function')
+        ? (function(){ try { return window.PDXGaps.sectionHtml(id, p); } catch(e){ return ''; } })()
+        : ''}
 
       <!--PDXSP:tension-->
       <!-- Extra sections (alerts, info boxes) -->

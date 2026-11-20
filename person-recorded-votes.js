@@ -145,7 +145,8 @@
     (document.head || document.documentElement).appendChild(st);
   }
 
-  var LATER = ['tension', 'receipts', 'money', 'you', 'drawers'];
+  // The stages after `record` in the spine (receipts now sits ABOVE record).
+  var LATER = ['signature', 'tension', 'money', 'you', 'drawers'];
   function mount(pid) {
     var body = document.getElementById('modal-body') || document;
     var host = body.querySelector('#' + TARGET);

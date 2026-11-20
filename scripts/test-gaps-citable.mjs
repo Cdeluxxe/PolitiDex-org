@@ -515,10 +515,9 @@ section('11 · wiring: receipts stage, spine, precache');
   has(mount, 'catch(e){ return', 'the gaps mount is not wrapped in a try');
   has(mount, 'Documentation status only', 'the mount does not state what the section is');
 
-  // It sits in the receipts stage, not beside the score: a statement about our own
-  // coverage belongs with the proof layer, not in the stage where a finding is
-  // published.
-  has(SPINE_SRC, "'pdxsec-gaps': 'receipts'", 'the gaps anchor is not registered in the profile spine');
+  // It sits at the foot of the record stage (v598: under the voting highlights and
+  // the bills, below the Evidence section), not beside the score.
+  has(SPINE_SRC, "'pdxsec-gaps': 'record'", 'the gaps anchor is not registered in the profile spine');
   ok(!/'pdxsec-gaps':\s*'(verdict|score|headline)'/.test(SPINE_SRC),
     'the gaps section was placed in the stage where findings are published');
   ok(FULL_SRC.indexOf('window.PDXGaps.sectionHtml') > FULL_SRC.indexOf('_renderEvidenceSummary'),

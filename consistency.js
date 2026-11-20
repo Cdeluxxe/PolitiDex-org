@@ -2166,6 +2166,21 @@
       '.pdxgap-ev-sum{margin:0 0 0.3rem;font-size:0.8rem;line-height:1.45;color:#dbe5f5;}' +
       '.pdxgap-ev-src{font-size:0.72rem;font-weight:600;color:#7fb4ff;text-decoration:none;word-break:break-word;}' +
       '.pdxgap-ev-src:hover,.pdxgap-ev-src:focus-visible{text-decoration:underline;}' +
+      // 🧾 Quick proof: a short evidence + votes block under the Formal record head.
+      '.pdxgap-qp{margin:0.35rem 0 0.7rem;padding:0.55rem 0.65rem;border:1px solid rgba(127,180,255,0.22);border-radius:0.6rem;background:rgba(18,30,58,0.45);}' +
+      '.pdxgap-qp-h{font-size:0.7rem;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:#cfe0fa;margin:0 0 0.35rem;}' +
+      '.pdxgap-qp-g{margin:0.25rem 0 0.4rem;}' +
+      '.pdxgap-qp-gh{font-size:0.62rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#7e93b3;margin:0 0 0.2rem;}' +
+      '.pdxgap-qp-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:0.25rem;}' +
+      '.pdxgap-qp-ev,.pdxgap-qp-vote{font-size:0.76rem;line-height:1.4;color:#dbe5f5;}' +
+      '.pdxgap-qp-src{font-size:0.7rem;font-weight:600;color:#7fb4ff;text-decoration:none;word-break:break-word;}' +
+      '.pdxgap-qp-src:hover,.pdxgap-qp-src:focus-visible{text-decoration:underline;}' +
+      '.pdxgap-qp-dir{display:inline-block;font-size:0.62rem;font-weight:700;border-radius:999px;padding:0.02rem 0.4rem;margin-left:0.2rem;border:1px solid rgba(159,180,212,0.3);color:#c9d6ea;}' +
+      '.pdxgap-qp-dir-a{color:#86efac;border-color:rgba(134,239,172,0.4);}' +
+      '.pdxgap-qp-dir-o{color:#fca5a5;border-color:rgba(252,165,165,0.4);}' +
+      '.pdxgap-qp-foot{display:flex;flex-wrap:wrap;gap:0.35rem;margin-top:0.3rem;}' +
+      '.pdxgap-qp-more{font:inherit;font-size:0.7rem;font-weight:700;color:#9fdbff;background:transparent;border:1px solid rgba(127,180,255,0.35);border-radius:999px;padding:0.18rem 0.6rem;cursor:pointer;}' +
+      '.pdxgap-qp-more:hover,.pdxgap-qp-more:focus-visible{background:rgba(127,180,255,0.12);}' +
       '.pdxgap-note b{color:#f5d9a0;}' +
       '.pdxgap-sides{display:flex;flex-direction:column;gap:0.6rem;margin-top:0.7rem;}' +
       // Official-Record-only arrivals do NOT get a mostly-empty second column: the
@@ -3709,6 +3724,29 @@
       // middle-click or a long-press. The sheet is modal, so it has to come
       // down before the hub it points at is visible; the navigation itself is
       // left to the browser.
+      // 🧾 Quick proof's in-drawer steps: down to the vote table or the full
+      // Evidence block of the same sheet.
+      var qpTo = e.target.closest && e.target.closest('[data-pdxgap-qp-to]');
+      if (qpTo) {
+        e.preventDefault();
+        try {
+          var qsh = (qpTo.closest && qpTo.closest('.pdxgap-sheet')) || null;
+          var qbody = (qsh && qsh.querySelector) ? (qsh.querySelector('.pdxgap-body') || qsh) : null;
+          var qsel = qpTo.getAttribute('data-pdxgap-qp-to') === 'evidence' ? '[data-pdxgap-sec="evidence"]' : '[data-pdxgap-record]';
+          if (qbody) _gapFocusSel(qsh, qbody, qsel);
+        } catch (e9) {}
+        return;
+      }
+      // "See proof → Evidence": the matching issue group in the person page's
+      // Evidence section. From inside the drawer the sheet comes down first, so
+      // the jump is not hidden behind it.
+      var evj = e.target.closest && e.target.closest('[data-pdxev-jump]');
+      if (evj) {
+        e.preventDefault();
+        if (evj.closest && evj.closest('#pdxc-gap-back')) { _gapOpen = null; closeGap(); }
+        try { if (typeof window._pdxJumpEvidence === 'function') window._pdxJumpEvidence(evj.getAttribute('data-pdxev-jump') || ''); } catch (e8) {}
+        return;
+      }
       var away = e.target.closest && e.target.closest('[data-pdxc-gapclose]');
       if (away) { closeGap(); return; }
       var method = e.target.closest && e.target.closest('[data-pdxc-method]');
@@ -20773,6 +20811,89 @@
       '</ul>' +
     '</section>';
   }
+  // ── 🧾 QUICK PROOF — the drawer's own short form of the proof ──────────────
+  // The issue drawer is the quick-proof layer of the person page: every "See
+  // proof" control on the page (a stated-position row, a formal-record bar)
+  // opens it here. This block puts the two kinds of backing a reader came for at
+  // the top of the Formal record section, in a few lines each: short evidence
+  // snippets attached to the stated position (the same _gapEvidence items the
+  // Evidence block at the foot of the drawer lists in full), and the most recent
+  // vote lines from the same ledger the table under it prints in full.
+  //
+  // IT IS A SHORT FORM, NOT A SECOND LIST. The vote lines are plain text — no
+  // bill door, no ledger row classes, no coding — so the table stays the one list
+  // of acts, and the counts it prints are the table's own (`t`). Nothing here
+  // reads, sums or scores anything the drawer does not already show; it selects
+  // and clips. '' when there is neither evidence nor a vote on file.
+  var _GAP_QP_EV = 2, _GAP_QP_VOTES = 3, _GAP_QP_CLIP = 150;
+  function _gapQpClip(t) {
+    t = String(t == null ? '' : t).replace(/\s+/g, ' ').trim();
+    if (t.length <= _GAP_QP_CLIP) return t;
+    var cut = t.slice(0, _GAP_QP_CLIP), sp = cut.lastIndexOf(' ');
+    return (sp > 80 ? cut.slice(0, sp) : cut).replace(/[\s,;:.—-]+$/, '') + '…';
+  }
+  function _gapEvJumpId(pid, issueKey) {
+    try {
+      return (typeof window._pdxEvHas === 'function') ? (window._pdxEvHas(pid, issueKey) || '') : '';
+    } catch (e) { return ''; }
+  }
+  function _gapQuickProofHtml(pid, issueKey, st, t) {
+    var ev = [];
+    try { ev = st ? (_gapEvidence(pid, issueKey, st) || []) : []; } catch (e) { ev = []; }
+    var rows = (t && t.rows) ? t.rows.slice() : [];
+    rows.sort(function (a, b) { return String(b.d.date || '').localeCompare(String(a.d.date || '')); });
+    var votes = rows.slice(0, _GAP_QP_VOTES);
+    if (!ev.length && !votes.length) return '';
+    var evShown = ev.slice(0, _GAP_QP_EV);
+    var evHtml = evShown.length
+      ? '<div class="pdxgap-qp-g" data-pdxgap-qp-g="evidence">' +
+          '<div class="pdxgap-qp-gh">Evidence</div>' +
+          '<ul class="pdxgap-qp-list">' + evShown.map(function (x) {
+            return '<li class="pdxgap-qp-ev" data-pdxgap-qp-ev="' + escAttr(x.from) + '">' +
+              (x.summary ? '<span class="pdxgap-qp-sn">' + esc(_gapQpClip(x.summary)) + '</span> ' : '') +
+              '<a class="pdxgap-qp-src" href="' + escAttr(x.url) + '" target="_blank" rel="noopener noreferrer">' +
+                esc(x.label) + ' ↗</a></li>';
+          }).join('') + '</ul>' +
+        '</div>'
+      : '';
+    var noSide = !!_DOS_LEDGER_NO_SIDE[issueKey];
+    var vHtml = votes.length
+      ? '<div class="pdxgap-qp-g" data-pdxgap-qp-g="votes">' +
+          '<div class="pdxgap-qp-gh">' + (t.exec && t.exec === t.acts ? 'Formal acts' : 'Votes') +
+            ' · latest ' + votes.length + ' of ' + t.acts + '</div>' +
+          '<ul class="pdxgap-qp-list">' + votes.map(function (p) {
+            var d = p.d || {};
+            var dir = noSide ? '' : (p.dir === 'advances' || p.dir === 'opposes' ? _ledDirShort(p.dir) : 'No side');
+            var bits = [_dosDay(d.date) || '', String(d.ident || d.billNum || 'Measure'),
+              (p.kind && p.kind.word) || '', (p.vote && p.vote.word) || ''].filter(Boolean);
+            return '<li class="pdxgap-qp-vote" data-pdxgap-qp-vote="' + escAttr(p.i) + '"' +
+              (p.dir ? ' data-pdxgap-qp-dir="' + escAttr(p.dir) + '"' : '') + '>' +
+              esc(bits.join(' · ')) +
+              (dir ? ' <span class="pdxgap-qp-dir pdxgap-qp-dir-' + (p.dir === 'advances' ? 'a' : p.dir === 'opposes' ? 'o' : 'n') + '">' + esc(dir) + '</span>' : '') + '</li>';
+          }).join('') + '</ul>' +
+        '</div>'
+      : '';
+    var more = [];
+    if (votes.length) {
+      more.push('<button type="button" class="pdxgap-qp-more" data-pdxgap-qp-to="record">' +
+        (t.acts > votes.length ? 'All ' + t.acts + ' in the table' : 'In the table') + ' <span aria-hidden="true">↓</span></button>');
+    }
+    var jump = _gapEvJumpId(pid, issueKey);
+    if (jump) {
+      more.push('<button type="button" class="pdxgap-qp-more" data-pdxev-jump="' + escAttr(jump) + '"' +
+        ' aria-label="' + escAttr('Close the drawer and open ' + _issueLabel(issueKey) + ' in the Evidence section') + '">' +
+        'Full evidence on the page <span aria-hidden="true">↓</span></button>');
+    } else if (ev.length > evShown.length) {
+      more.push('<button type="button" class="pdxgap-qp-more" data-pdxgap-qp-to="evidence">' +
+        'All ' + ev.length + ' sources below <span aria-hidden="true">↓</span></button>');
+    }
+    return '<section class="pdxgap-qp" data-pdxgap-qp="1" data-pdxgap-qp-ev-n="' + evShown.length + '"' +
+        ' data-pdxgap-qp-votes-n="' + votes.length + '">' +
+        '<div class="pdxgap-qp-h"><span aria-hidden="true">🧾</span> Quick proof</div>' +
+        evHtml + vHtml +
+        (more.length ? '<div class="pdxgap-qp-foot">' + more.join('') + '</div>' : '') +
+      '</section><!--/pdxgap-qp-->';
+  }
   function _gapViewHtml(pid, issueKey) {
     var off = officialIssue(pid, issueKey);
     var say = saydoIssue(pid, issueKey);
@@ -21161,6 +21282,9 @@
       // THE FORMAL RECORD FIRST — the section header, the tally and the ledger,
       // then Related issues and Evidence below it.
       '<div class="pdxgap-sec-h pdxgap-recsec" data-pdxgap-sec="record">Formal record</div>' +
+      // 🧾 QUICK PROOF, first thing under the section header: a few evidence
+      // snippets and the latest vote lines, so most proof is on the first screen.
+      _gapQuickProofHtml(pid, issueKey, _st, _lgT) +
       // Not in Direction Match: once, never on each row. On a ledger sheet it is
       // the first thing inside How this is scored rather than a gray box between
       // the finding and the tally: a reader meets the votes first, and the note
@@ -21590,6 +21714,11 @@
     // so this opens it first. No fallback to the public column: this tap was about the
     // formal record, and landing it on the other lane would answer a question nobody
     // asked. When the hook is absent the sheet simply opens at the top, as before.
+    // …or for the quick-proof block, which is where every "See proof" control on
+    // the person page asked to land. No block (nothing on file) → top of sheet.
+    else if (opts && opts.focus === 'proof') {
+      _gapFocusSel(sheet, body, '[data-pdxgap-qp]');
+    }
     else if (opts && opts.focus === 'record') {
       try {
         var _rec = body.querySelector && body.querySelector('[data-pdxgap-record]');

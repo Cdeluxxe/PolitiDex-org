@@ -3,11 +3,9 @@
 // test-person-stated-links-issue-logo.mjs — stated rows open their issue file,
 // related issues follow the stated list, and /i/ shows the PolitiDex mark
 // ─────────────────────────────────────────────────────────────────────────────
-//   1. ORDER: on the person file's Word vs Action view the order is the Word vs
-//      Action summary, then the full ✒️ stated-positions list, then 🔗 related
-//      issues. The template mounts related issues directly after
-//      PDXWordAction.sectionHtml (whose output ends with the stated list), in
-//      the verdict stage, and no longer in the explore stage.
+//   1. ORDER: Word vs Action ends with the full ✒️ stated-positions list, and
+//      🔗 related issues mount once, in the explore stage, directly under the
+//      topic tree (v598; the full reading order is test-person-proof-flow's).
 //   2. ROW LINKS: every stated-position row carries one link to its own issue
 //      file — /i/<that row's key>, built by PDXIssueFamily.profileUrl with the
 //      person as ?pid= — and the row's wording is byte-for-byte what it was
@@ -38,20 +36,22 @@ const failures = [];
 const ok = (cond, msg) => { if (cond) passed++; else failures.push(msg); };
 
 // 1. order
+// v598 moved related issues once more: Word vs Action (ending on the stated list)
+// now reads ahead of 🌳 All Issues by Topic, and related issues mount directly
+// under the tree in the explore stage. test-person-proof-flow.mjs owns the full
+// reading order; this keeps the part of the old contract that still holds.
 {
   const pf = R("profiles-full.js");
   const wa = pf.indexOf("window.PDXWordAction.sectionHtml(id, p)");
+  const tree = pf.indexOf("window.PDXStanceTree.sectionHtml(id)");
   const ri = pf.indexOf("window.PDXRelatedIssues.sectionHtml(id, p)");
-  ok(wa > 0 && ri > 0, "both sections are mounted by profiles-full.js");
+  ok(wa > 0 && ri > 0 && tree > 0, "the sections are mounted by profiles-full.js");
   ok(pf.indexOf("window.PDXRelatedIssues.sectionHtml(id, p)", ri + 1) < 0, "related issues is mounted exactly once");
-  ok(ri > wa, "related issues comes after Word vs Action");
   const stageOf = (i) => { const b = pf.lastIndexOf("<!--PDXSP:", i); return pf.slice(b, pf.indexOf("-->", b) + 3); };
   ok(stageOf(wa) === "<!--PDXSP:verdict-->", "Word vs Action is in the verdict stage");
-  ok(stageOf(ri) === "<!--PDXSP:verdict-->", "related issues is in the verdict stage (was explore)");
-  // Nothing renders between the two mounts: only the template comment.
-  const between = pf.slice(wa, ri).replace(/<!--[\s\S]*?-->/g, "");
-  ok((between.match(/\$\{/g) || []).length === 1, "no other section is mounted between Word vs Action and related issues");
-  // …and Word vs Action's mount ends with the full stated list.
+  ok(stageOf(ri) === "<!--PDXSP:explore-->" && ri > tree, "related issues is in the explore stage, after the tree");
+  const between = pf.slice(tree, ri).replace(/<!--[\s\S]*?-->/g, "");
+  ok((between.match(/\$\{/g) || []).length === 1, "no other section is mounted between the tree and related issues");
   const w = R("word-action.js");
   ok(/return html \+ statedListHtml\(pid\);/.test(w), "Word vs Action's section ends with the full stated-positions list");
 }

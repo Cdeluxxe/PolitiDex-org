@@ -146,10 +146,10 @@ const CARD_AT = BODY.indexOf("${candidateSnapshot || thinNotice}");
 must(VERDICT !== -1 && WA_AT !== -1 && TREE_AT !== -1 && AXES_AT !== -1 && CARD_AT !== -1,
   "one of the mounts this section orders was renamed — order cannot be read");
 
-ok(rank(TREE_AT) < rank(WA_AT),
-  "order: 🌳 All Issues by Topic no longer reads ahead of ⚖️ Word vs Action. On a thin profile\n" +
-  "    the tree is the entire substance of the page, and the score is a number about a record\n" +
-  "    the reader has not been shown yet");
+// v598: the person page reads ⚖️ Word vs Action and its ✒️ stated positions
+// first, then the tree; the card still sits under the tree (below).
+ok(rank(WA_AT) < rank(TREE_AT),
+  "order: ⚖️ Word vs Action and its stated positions no longer read directly ahead of 🌳 All Issues by Topic");
 ok(rank(TREE_AT) < rank(CARD_AT),
   "order: the limited-record card reads ABOVE 🌳 All Issues by Topic again. It renders\n" +
   "    only on profiles where the tree is the entire substance of the page, so at that\n" +
@@ -158,9 +158,9 @@ ok(rank(AXES_AT) < rank(CARD_AT),
   "order: the card slid above the multi-issue block. The card is the FOOT of the verdict\n" +
   "    stage — everything that shows a reader something goes before the thing that explains\n" +
   "    why there is not more to show");
-eq(stageOf(CARD_AT), "verdict",
-  "the card fell out of the verdict stage — the spine restages the body by sentinel, so it\n" +
-  "    would reappear under the Official Record, a stage away from the gap it explains");
+eq(stageOf(CARD_AT), "explore",
+  "the card fell out of the explore stage (its home since verdict moved ahead of explore) — the\n" +
+  "    spine restages the body by sentinel, so it would reappear a stage away from the tree it follows");
 eq(stageOf(TREE_AT), "explore",
   "the tree fell out of the gateway stage, which is the only reason it reads ahead of the score");
 eq(stageOf(AXES_AT), "explore",

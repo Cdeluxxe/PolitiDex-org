@@ -17,8 +17,9 @@
    Pending (still before the 119th Congress). A failed bill is in Failed and
    nowhere else, and its row carries the page's own "Failed — …" label.
 
-   WHERE IT GOES. At the end of the file's Official record stage — the
-   .pdxsp-stage-record block profile-spine.js assembles — as its own
+   WHERE IT GOES. In the file's Official record stage — the
+   .pdxsp-stage-record block profile-spine.js assembles — under the voting
+   highlights and ahead of the 🕳 gaps list at the stage's foot, as its own
    #pdx-sponsored section, put there by this module after the file renders, so
    no line of the profile template (shared with the homepage) changes. A file
    with no Official record stage gets the section ahead of the first later
@@ -29,7 +30,10 @@
    all — not an empty one, and no "none".
 
    THE JUMP. One control on the letterhead row (.profile-meta, after the money
-   pills and before the party), labelled "Bills sponsored", that scrolls to
+   pills and before the party), labelled "Bills Sponsored & Co-Sponsored" and,
+   once the table has answered, carrying the tally of the list it opens —
+   "12 sponsored + 13 co-sponsored" (sponsor and floor sponsor count as
+   sponsored) — that scrolls to
    #pdx-sponsored through the profile's own _pdxNavJump, so a section inside a
    closed stage is opened before the scroll is measured. It is on every file.
    Where person-bills.json lists no bill for the person it stays, disabled, and
@@ -276,11 +280,12 @@
       '#pdx-sponsored .pdx-spb-iss a{display:inline-flex;align-items:center;font-size:0.68rem;font-weight:600;line-height:1.2;color:#c9d8f2;border:1px solid rgba(159,180,212,0.22);border-radius:999px;padding:0.1rem 0.5rem;background:rgba(96,165,250,0.06);}' +
       // The letterhead jump: the money chip's metrics (size, case, padding,
       // radius) so it sits at the same weight in the row, in the neutral ink.
-      '.pdx-spj{display:inline-flex;align-items:center;gap:0.3rem;max-width:100%;font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase;border-radius:999px;padding:0.16rem 0.55rem;background:rgba(96,165,250,0.08);border:1px solid rgba(159,180,212,0.28);color:#c9d8f2;line-height:1.15;white-space:nowrap;cursor:pointer;}' +
+      '.pdx-spj{display:inline-flex;align-items:center;gap:0.3rem;max-width:100%;font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase;border-radius:999px;padding:0.16rem 0.55rem;background:rgba(96,165,250,0.08);border:1px solid rgba(159,180,212,0.28);color:#c9d8f2;line-height:1.15;white-space:normal;flex-wrap:wrap;text-align:left;cursor:pointer;}' +
       '.pdx-spj:hover{background:rgba(96,165,250,0.16);border-color:rgba(159,180,212,0.45);}' +
       '.pdx-spj:focus-visible{outline:2px solid rgba(96,165,250,0.8);outline-offset:2px;}' +
       '.pdx-spj[disabled]{cursor:default;color:#8aa0c4;background:transparent;}' +
       '.pdx-spj-none{opacity:0.8;}' +
+      '.pdx-spj-n{font-weight:600;opacity:0.9;white-space:nowrap;}' +
       '.pdx-spj-ico{flex:none;width:0.7rem;height:0.7rem;color:currentColor;}' +
       '#pdx-sponsored .pdx-spb-tally{font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:0.78rem;letter-spacing:0.06em;text-transform:uppercase;color:#9fb4d4;margin:0 0 0.6rem;}' +
       '@media (hover: none), (pointer: coarse){.pdx-spj{min-height:1.9rem;padding:0.22rem 0.6rem;}}';
@@ -295,18 +300,42 @@
   var QUILL = '<svg class="pdx-spj-ico" data-pdx-spj-quill viewBox="0 0 16 16" width="11" height="11" aria-hidden="true" focusable="false">' +
     '<path d="M14.5 1.5C9 2 4.6 5.8 3.2 11.4L2 14.5l3-1.4C10.4 11.6 14 7.2 14.5 1.5z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>' +
     '<path d="M2.6 13.4 9.5 6.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>';
-  function jumpHtml(pid, state) {
+  // THE TALLY ON THE CHIP. Counted off the same rows the section lists, by the
+  // role each row carries: a sponsor or a floor sponsor counts as sponsored, a
+  // co-sponsor as co-sponsored. "12 sponsored + 13 co-sponsored". A count of the
+  // list, never a score; it is printed only once the table has answered.
+  var LABEL = 'Bills Sponsored & Co-Sponsored';
+  function roleCounts(rows) {
+    var n = { sponsored: 0, cosponsored: 0 };
+    for (var i = 0; rows && i < rows.length; i++) {
+      if (rows[i].r === 'c') n.cosponsored++;
+      else n.sponsored++;
+    }
+    return n;
+  }
+  function tallyText(t) {
+    if (!t) return '';
+    return t.sponsored + ' sponsored + ' + t.cosponsored + ' co-sponsored';
+  }
+  function jumpHtml(pid, state, tally) {
+    var tl = state === 'on' ? tallyText(tally) : '';
     return '<button type="button" class="pdx-spj" data-pdx-sponsored-jump="' + esc(TARGET) + '"' +
       ' data-pdx-sponsored-jump-pid="' + esc(pid) + '" data-state="' + state + '"' +
+      (tl ? ' data-pdx-spj-sponsored="' + tally.sponsored + '" data-pdx-spj-cosponsored="' + tally.cosponsored + '"' : '') +
       (state === 'on' ? '' : ' disabled aria-disabled="true"') +
-      ' aria-label="' + (state === 'none' ? 'Bills sponsored: no sponsored bills on file' : 'Bills sponsored: jump to the bills this person sponsored or co-sponsored') + '">' +
-      QUILL + 'Bills sponsored' +
+      ' aria-label="' + (state === 'none' ? LABEL + ': no sponsored bills on file'
+        : LABEL + ': ' + (tl ? tl + ' — ' : '') + 'jump to the bills this person sponsored or co-sponsored') + '">' +
+      QUILL + LABEL +
+      (tl ? ' <span class="pdx-spj-n" data-pdx-spj-tally>· ' + esc(tl) + '</span>' : '') +
       (state === 'none' ? ' <span class="pdx-spj-none">· none on file</span>' : '') +
       '</button>';
   }
   function jumpState(pid) {
     if (!_settled || _settled.pid !== pid) return 'wait';
     return _settled.n ? 'on' : 'none';
+  }
+  function settle(pid, rows) {
+    _settled = { pid: pid, n: rows.length, t: roleCounts(rows) };
   }
   var _settled = null;
   function placeJump(pid) {
@@ -317,7 +346,7 @@
     if (state === 'wait') {
       load().then(function (data) {
         if (!data || String(window._pdxCurrentProfileId || '') !== pid) return;
-        _settled = { pid: pid, n: rowsFor(data, pid).length };
+        settle(pid, rowsFor(data, pid));
         placeJump(pid);
       });
     }
@@ -325,7 +354,7 @@
     if (cur && cur.getAttribute('data-pdx-sponsored-jump-pid') === pid && cur.getAttribute('data-state') === state) return;
     style();
     var wrap = document.createElement('span');
-    wrap.innerHTML = jumpHtml(pid, state);
+    wrap.innerHTML = jumpHtml(pid, state, (_settled && _settled.pid === pid) ? _settled.t : null);
     var btn = wrap.firstChild;
     if (cur) { cur.parentNode.replaceChild(btn, cur); return; }
     var party = meta.querySelector('.profile-party');
@@ -359,7 +388,7 @@
       if (host.getAttribute('data-pdx-sponsored-pid') !== pid) return;
       var rows = rowsFor(data, pid);
       // A table that did not load says nothing about the person: the jump waits.
-      if (data) { _settled = { pid: pid, n: rows.length }; placeJump(pid); }
+      if (data) { settle(pid, rows); placeJump(pid); }
       if (!rows.length) { host.hidden = true; host.innerHTML = ''; return; }
       style();
       host.innerHTML = html(rows);
@@ -379,7 +408,14 @@
     } catch (e) {}
   }
 
-  var LATER = ['tension', 'receipts', 'money', 'you', 'drawers'];
+  // The stages after `record` in the spine (receipts now sits ABOVE record).
+  var LATER = ['signature', 'tension', 'money', 'you', 'drawers'];
+  // The 🕳 gaps section's own child of the record stage, or null.
+  function gapsBlock(stage) {
+    var g = stage.querySelector ? stage.querySelector('#pdxsec-gaps') : null;
+    while (g && g.parentNode && g.parentNode !== stage) g = g.parentNode;
+    return (g && g.parentNode === stage) ? g : null;
+  }
   function mount(pid) {
     var body = document.getElementById('modal-body') || document;
     var host = body.querySelector('#pdx-sponsored');
@@ -391,7 +427,14 @@
     host.hidden = true;
     host.setAttribute('data-pdx-sponsored-pid', pid);
     var stage = body.querySelector('.pdxsp-stage-record');
-    if (stage) { stage.appendChild(host); return host; }
+    if (stage) {
+      // Directly under the voting highlights: the bills come before the gaps
+      // list, which rides at the foot of the same stage. Everything placed after
+      // this section (recorded votes, attendance, co-sponsorships) follows it.
+      var gaps = gapsBlock(stage);
+      if (gaps) stage.insertBefore(host, gaps); else stage.appendChild(host);
+      return host;
+    }
     for (var i = 0; i < LATER.length; i++) {
       var next = body.querySelector('.pdxsp-stage-' + LATER[i]);
       if (next && next.parentNode) { next.parentNode.insertBefore(host, next); return host; }
@@ -407,7 +450,7 @@
     placeJump(pid);
   }
 
-  window.PDXPersonBills = { scan: scan, rowsFor: rowsFor, html: html, load: load, jumpHtml: jumpHtml, jump: jump, mergeKeys: mergeKeys, issueTags: issueTags };
+  window.PDXPersonBills = { scan: scan, rowsFor: rowsFor, html: html, load: load, jumpHtml: jumpHtml, roleCounts: roleCounts, LABEL: LABEL, jump: jump, mergeKeys: mergeKeys, issueTags: issueTags };
 
   // ── companion: directional-key bill matches and scorer reads (v554) ────────
   // person-directional-keys.js mounts its own #pdx-dirkeys section (see that

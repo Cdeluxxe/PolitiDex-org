@@ -271,7 +271,9 @@ if (HEAD_SRC && HEAD_SRC !== SRC) {
   const hw = boot(recFirst(HEAD_SRC)), nw = boot(SRC);
   headNote = (NOTE_RE.exec(hw.PDXConsistency.gapViewHtml(PID, KEY) || "") || [""])[0];
   // The two things this pass changes, undone, so the rest can be compared byte for byte.
-  const norm = (s) => String(s || "")
+  // The 🧾 Quick proof block under the Formal record head (v598) is new; set aside.
+  const noQp = (s) => String(s || "").replace(/<section class="pdxgap-qp"[\s\S]*?<\/section><!--\/pdxgap-qp-->/g, "");
+  const norm = (s) => noQp(s)
     .replace(NOTE_RE, "")
     .replace(/: what it did, full title, the bill/g, ": full title, the bill")
     // The coding block is now labelled as technical detail (v595); set aside.
@@ -294,7 +296,7 @@ if (HEAD_SRC && HEAD_SRC !== SRC) {
       if (norm(hh) === norm(nh)) parityPass++;
       else parity.push(`${pid} × ${r.key}: the drawer differs from HEAD beyond the note's place and the collapsed rows`);
       const links = (s) => (s.match(/https?:\/\/(?:www\.)?congress\.gov[^"' <]*/g) || []).join("\n");
-      if (links(hh) === links(nh)) parityPass++; else parity.push(`${pid} × ${r.key}: the Congress.gov links changed`);
+      if (links(noQp(hh)) === links(noQp(nh))) parityPass++; else parity.push(`${pid} × ${r.key}: the Congress.gov links changed`);
     }
   }
   if (!headNote) parity.push(`HEAD's ${PID} × ${KEY} drawer printed no no-side note — this suite has no subject`);

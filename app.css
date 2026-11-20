@@ -3342,6 +3342,11 @@
     .evd-card.evd-gap   { border-left-color: rgba(167,139,250,0.6); }
     .evd-card.evd-thin  { border-left-color: rgba(159,180,212,0.35); }
     .evd-card.evd-said  { border-left-color: rgba(245,200,66,0.5); }
+    /* The issue's own colour (PDXIssueColors), the same one the ✒️ stated row and
+       the topic-tree leaf for that issue wear, so a "See proof → Evidence" jump
+       lands on a card of the matching colour. Visual only: no verdict colour. */
+    .evd-card[data-ic] { border-left-color: var(--pdx-ic, rgba(159,180,212,0.3)); }
+    .evd-card[data-ic] .evd-head-label { color: var(--pdx-ic-ink, inherit); }
 
     .evd-head {
       display: flex; align-items: center; gap: 0.45rem;

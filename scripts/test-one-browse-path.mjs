@@ -154,8 +154,10 @@ section("2 · every old way in still lands on the tree");
   // not a footnote to being told a number about it.
   eq(SP.targetStage("pdxsec-stancetree"), "explore", "the tree is not registered in the gateway stage");
   const keys = SP.STAGE_KEYS;
-  ok(keys.indexOf("explore") < keys.indexOf("verdict"),
-    "the gateway stage no longer precedes the score — the one browse path is back under the number");
+  // v598: the gateway follows Word vs Action's stated positions directly — still
+  // one browse path, one stage, read against the stated list just above it.
+  ok(keys.indexOf("explore") === keys.indexOf("verdict") + 1,
+    "the gateway stage no longer follows Word vs Action directly");
   eq(SP.targetStage("pdxsec-stances"), SP.targetStage("pdxsec-stancetree"),
     "#pdxsec-stances resolves to a different stage than the surface that now emits it");
   eq(SP.targetStage("pdxsec-glance"), SP.targetStage("pdxsec-stancetree"),

@@ -434,9 +434,10 @@ must(STAGE_KEYS.length > 5 && STAGE_KEYS[0] === "identity",
 ok(STAGE_KEYS.indexOf("identity") < STAGE_KEYS.indexOf("explore"),
   "the identity stage no longer reads before the topic tree's stage, so 'high on the profile' is\n" +
   "    not where the chip is");
-ok(STAGE_KEYS.indexOf("explore") < STAGE_KEYS.indexOf("verdict"),
-  "⚖️ Word vs Action now reads ABOVE 🌳 All Issues by Topic. The chip is a way DOWN to the section;\n" +
-  "    above the tree the section is the wall the strips were");
+// v598: Word vs Action now reads directly under the record summary, ahead of
+// the tree — still below the letterhead, so the chip is still a way DOWN to it.
+ok(STAGE_KEYS.indexOf("identity") < STAGE_KEYS.indexOf("verdict") && STAGE_KEYS.indexOf("verdict") < STAGE_KEYS.indexOf("explore"),
+  "⚖️ Word vs Action no longer reads below the letterhead and ahead of 🌳 All Issues by Topic");
 
 // The section's own content, untouched: the anchor, the title, the headline
 // number, the verdict line, the shape and the depth caption all still in it.

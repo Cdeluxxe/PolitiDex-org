@@ -506,8 +506,10 @@ section("8 · the deep file is still record-first");
   const STAGE_KEYS = (SPINE.match(/\{\s*key:\s*'([a-z]+)'/g) || []).map((m) => /'([a-z]+)'/.exec(m)[1]);
   must(STAGE_KEYS.length > 5 && STAGE_KEYS[0] === "identity",
     "the stage list could not be read out of profile-spine.js");
-  ok(STAGE_KEYS.indexOf("explore") < STAGE_KEYS.indexOf("verdict"),
-    "⚖️ Word vs Action now reads above 🌳 All Issues by Topic — the chip is a way DOWN to it");
+  // v598: Word vs Action now reads directly under the record summary, ahead of
+  // the tree — still below the letterhead, so the chip is still a way DOWN to it.
+  ok(STAGE_KEYS.indexOf("identity") < STAGE_KEYS.indexOf("verdict") && STAGE_KEYS.indexOf("verdict") < STAGE_KEYS.indexOf("explore"),
+    "⚖️ Word vs Action no longer reads below the letterhead and ahead of 🌳 All Issues by Topic");
   // AND THE CHIP DID NOT BECOME THE RECORD BRIEF. It is mounted once, it is not
   // in the record's stage, and the formal record still leads.
   eq((PF.slice(bodyAt).match(/PDXWordAction\.compactBadgeMount\(/g) || []).length, 1,

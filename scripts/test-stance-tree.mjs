@@ -839,8 +839,9 @@ section("9 · the mount");
     "…and the legacy anchor with it");
   eq(SPINE.targetStage("pdxsec-stances"), "explore",
     "…and the anchor the demoted flat section owned, so no old jump lands a stage away");
-  ok(SPINE.STAGE_KEYS.indexOf("explore") < SPINE.STAGE_KEYS.indexOf("verdict"),
-    "the gateway stage reads after the score again — the tree is back to being a footnote to it");
+  // v598: the tree follows Word vs Action's stated positions directly.
+  ok(SPINE.STAGE_KEYS.indexOf("explore") === SPINE.STAGE_KEYS.indexOf("verdict") + 1,
+    "the gateway stage no longer follows Word vs Action's stated positions directly");
   has(R("sw.js"), "'/stance-tree.js'", "the service worker precaches the module");
   has(R("sw.js"), "'/stance-tree.css'", "…and its stylesheet");
   has(R("index.html"), 'src="/stance-tree.js"', "the page loads the module");
