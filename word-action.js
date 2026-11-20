@@ -4515,11 +4515,29 @@
         ? ' data-pdx-locker-said="' + esc(se.key) + '" data-pdx-locker-said-side="' + esc(se.side) + '"' +
           ' data-pdx-locker-said-strength="' + esc(se.strength) + '" data-pdx-stance-source="pipeline"'
         : '';
+      // THE ROW IS A DOOR TO ITS ISSUE FILE. The wording is untouched: the
+      // link is a full-row overlay anchor rather than a wrapper, because a row
+      // can already carry its own source links and an <a> inside an <a> is
+      // closed early by the parser. Inner links sit above the overlay (CSS),
+      // so a source still opens its source and every other tap opens /i/<key>.
+      // The address is PDXIssueFamily's to build, with this person riding as
+      // ?pid= — no '/i/' literal here, and no page-without-the-module guess.
+      var fileHref = statedFileHref(se.key, pid);
+      var fileLink = fileHref
+        ? '<a class="pdxwa-stated-go" href="' + esc(fileHref) + '" data-pdxwa-stated-file="' + esc(se.key) + '"' +
+            ' aria-label="' + esc('Open the issue file for ' + (issueLabelOf(se.key) || se.key)) + '"></a>'
+        : '';
       rows.push({ key: se.key, pipeline: !!(pipe || se.provenance === 'pipeline'),
-        html: '<li class="pdxwa-stated-row" data-pdxwa-stated="' + esc(se.key) + '"' +
-          lockerAttrs + storeAttrs(se) + issueTintAttr(se.key) + '>' + line + '</li>' });
+        html: '<li class="pdxwa-stated-row" data-pdxwa-stated="' + esc(se.key) + '"' + (fileHref ? ' data-pdxwa-stated-go="1"' : '') +
+          lockerAttrs + storeAttrs(se) + issueTintAttr(se.key) + '>' + fileLink + line + '</li>' });
     }
     return rows;
+  }
+  function statedFileHref(key, pid) {
+    try {
+      var F = window.PDXIssueFamily;
+      return (F && typeof F.profileUrl === 'function') ? (F.profileUrl(key, pid) || '') : '';
+    } catch (e) { return ''; }
   }
   // Every stated position on file — curated and pipeline-sourced — as listed.
   function statedCount(pid) {

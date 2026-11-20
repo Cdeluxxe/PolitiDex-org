@@ -6506,6 +6506,14 @@
            renderer for both. -->
       ${(window.PDXWordAction && typeof window.PDXWordAction.sectionHtml === 'function') ? window.PDXWordAction.sectionHtml(id, p) : ''}
 
+      <!-- 🔗 RELATED ISSUES — same pairs, same wording, moved. It used to ride at
+           the foot of the explore stage; it now sits directly under ⚖️ Word vs
+           Action's summary and its full ✒️ stated-positions list (both emitted by
+           PDXWordAction.sectionHtml above), because each of its lines reads a
+           stated position against its neighbours — the reader meets the list it
+           pairs before the pairs. Rendered by related-issues.js. -->
+      ${(function(){ try { return (window.PDXRelatedIssues && typeof window.PDXRelatedIssues.sectionHtml === 'function') ? window.PDXRelatedIssues.sectionHtml(id, p) : ''; } catch (e) { return ''; } })()}
+
       <!-- ↩️ AGAINST THEIR OWN STATED POSITION — the section above's own contradiction
            verdicts, gathered into a dated list with the receipt on each row. It mounts
            HERE, directly under ⚖️ Word vs Action, because it is that section's rows
@@ -6676,7 +6684,7 @@
               '<div class="pdxfpi-flat-b pdxfpi-face">' + html + '</div>' +
             '</details>';
         } catch (e) { return ''; }
-      }, _atlasRender(true))}${(function(){ try { return (window.PDXRelatedIssues && typeof window.PDXRelatedIssues.sectionHtml === 'function') ? window.PDXRelatedIssues.sectionHtml(id, p) : ''; } catch (e) { return ''; } })()}
+      }, _atlasRender(true))}
 
       <!--PDXSP:verdict-->
       <!-- 🌱 WHY THIS RECORD IS THIN — the last thing in the verdict stage, and

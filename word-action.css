@@ -2894,6 +2894,15 @@
 .pdxwa-stated-row .pdx-stance-iss { color: #dbe6f5; }
 .pdxwa-stated-row[data-ic] .pdx-stance-iss { color: var(--pdx-ic-ink, #dbe6f5); }
 .pdxwa-stated-row .pdx-stance-pos { color: #f5c842; }
+/* Each stated row opens its issue file. The anchor is an empty overlay over the
+   whole row (word-action.js statedRows), so the row's wording is unchanged and
+   any source link inside it stays a separate, working link above the overlay. */
+.pdxwa-stated-row[data-pdxwa-stated-go] { position: relative; cursor: pointer; transition: background-color 0.15s ease; }
+.pdxwa-stated-row[data-pdxwa-stated-go]:hover { background-color: rgba(159, 180, 212, 0.08); }
+.pdxwa-stated-go { position: absolute; inset: 0; z-index: 1; border-radius: inherit; }
+.pdxwa-stated-go:focus-visible { outline: 2px solid #f5c842; outline-offset: 1px; }
+.pdxwa-stated-row[data-pdxwa-stated-go] a:not(.pdxwa-stated-go),
+.pdxwa-stated-row[data-pdxwa-stated-go] button { position: relative; z-index: 2; }
 .pdx-stance-note a { color: #9fb4d4; }
 /* The Evidence Locker's statement lines under Word vs Action take the same
    topic spine (profile-locker.js tintAttr). */
