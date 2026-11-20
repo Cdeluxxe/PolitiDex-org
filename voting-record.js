@@ -155,6 +155,10 @@
       '.vr-toggle input{accent-color:#f5c842;}',
       /* groups + cards */
       '.vr-group{margin-bottom:1rem;}',
+      '.vr-group-other>.vr-group-sum{cursor:pointer;list-style:none;display:block;}',
+      '.vr-group-other>.vr-group-sum::-webkit-details-marker{display:none;}',
+      '.vr-group-other>.vr-group-sum .vr-group-title::before{content:"\\25B8  ";color:#8fb4e8;}',
+      '.vr-group-other[open]>.vr-group-sum .vr-group-title::before{content:"\\25BE  ";}',
       '.vr-group-head{display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem;flex-wrap:wrap;}',
       '.vr-group-title{font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:.98rem;letter-spacing:.02em;color:#eef4ff;}',
       '.vr-group-n{font-size:.68rem;color:#7596c0;background:rgba(255,255,255,.06);border-radius:999px;padding:.06rem .45rem;}',
@@ -1551,6 +1555,13 @@
         return html;
       }).join('');
 
+      // "Other records" — the procedural list with no mapped issue — waits
+      // behind a closed disclosure; opening it shows the same cards. The open
+      // state is the browser's own and is not stored.
+      if (key === '_none') {
+        return '<details class="vr-group vr-group-other" data-vr-collapsed="other">' +
+          '<summary class="vr-group-sum">' + head + '</summary>' + cards + '</details>';
+      }
       return '<div class="vr-group">' + head + cards + '</div>';
     }).join('');
   }
