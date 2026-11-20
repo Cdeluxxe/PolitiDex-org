@@ -224,9 +224,9 @@ const stageOf = (at) => {
   const tags = BODY.slice(0, at).match(/<!--PDXSP:([a-z0-9:_-]+)-->/g) || [];
   return tags.length ? tags[tags.length - 1].replace(/<!--PDXSP:|-->/g, "") : "identity";
 };
-eq(stageOf(CARD_AT), "verdict",
-  "the limited-record card fell out of the verdict stage — the spine will restage it away\n" +
-  "    from the section whose gap it exists to explain");
+eq(stageOf(CARD_AT), "explore",
+  "the limited-record card fell out of the explore stage (its home since v598 moved verdict ahead of\n" +
+  "    explore) — the spine would restage it away from the tree it follows");
 eq(stageOf(SECTION_AT), "verdict",
   "⚖️ Word vs Action is no longer tagged into the verdict stage, so the card and the section\n" +
   "    it explains can now be separated by the assembler");

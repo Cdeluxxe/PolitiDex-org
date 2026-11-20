@@ -105,9 +105,12 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
 
 // ── 1. The order is the product ──────────────────────────────────────────────
 {
-  const want = ["identity", "brief", "standout", "explore", "verdict", "signature", "record", "tension", "receipts", "money", "you", "drawers"];
+  // v598 — one reading order on the person page: the record summary, Word vs
+  // Action with the stated positions, the topic tree, the evidence, then the
+  // voting highlights and bills (record), then everything else.
+  const want = ["identity", "brief", "standout", "verdict", "explore", "receipts", "record", "signature", "tension", "money", "you", "drawers"];
   ok(JSON.stringify(SP.STAGES.map((s) => s.key)) === JSON.stringify(want),
-     "order: STAGES is exactly the promised spine — identity, short version, the record, explore by topic, Word vs Action, stances, official record, flashpoints, evidence, money, you, full record");
+     "order: STAGES is exactly the promised spine — identity, short version, the record, Word vs Action, explore by topic, evidence, official record, stances, flashpoints, money, you, full record");
   ok(SP.STAGES.every((s) => s.label && s.ask && /\?|\./.test(s.ask)),
      "order: every stage carries both a label and the reader question it answers");
   // Two rails asking the same question is a rail that has stopped orienting
@@ -132,18 +135,18 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
      "path: what the record points to is the first major surface after the letterhead and the brief");
   ok(kAt("standout") < kAt("verdict"),
      "path: the formal record leads the judgment built on top of it");
-  ok(kAt("explore") === kAt("standout") + 1,
-     "path: the topic tree is the gateway — it follows the summary immediately, with no flat wall between them");
-  ok(kAt("verdict") === kAt("explore") + 1,
-     "path: and the verdict follows the tree immediately — demoted by one seat, not buried");
-  ok(kAt("standout") < kAt("explore") && kAt("explore") < kAt("verdict"),
-     "path: summary, then gateway, then the score built on them — the browse surface outranks the judgment");
+  ok(kAt("verdict") === kAt("standout") + 1,
+     "path: Word vs Action and the stated positions follow the record summary immediately");
+  ok(kAt("explore") === kAt("verdict") + 1,
+     "path: and the topic tree follows the stated positions immediately");
+  ok(kAt("receipts") === kAt("explore") + 1 && kAt("record") === kAt("receipts") + 1,
+     "path: then the evidence, then the voting highlights and bills — the proof the controls above point into");
   // What they stand for now sits between the score and the record: the stances
   // layer is what the Official Record is a test OF, so it has to be read first,
   // and the flashpoints that follow are heat about specific stances rather than
   // the reader's introduction to the person.
-  ok(kAt("signature") < kAt("record") && kAt("record") < kAt("tension"),
-     "path: stances precede the record that tests them, and the heat comes after both");
+  ok(kAt("record") < kAt("signature") && kAt("signature") < kAt("tension"),
+     "path: everything else — the archive of positions, then the heat — stays below the record");
   ok(kAt("money") < kAt("you") && kAt("you") < kAt("drawers"),
      "path: the follow-the-money lens precedes the reader's own stake, and the deep record still closes the profile");
 
@@ -154,8 +157,8 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
     ["tension", "<i>T</i>"],
   ]);
   const at = (s) => out.indexOf(s);
-  ok(at("<i>I</i>") < at("<i>V</i>") && at("<i>V</i>") < at("<i>S</i>") &&
-     at("<i>S</i>") < at("<i>R</i>") && at("<i>R</i>") < at("<i>T</i>") &&
+  ok(at("<i>I</i>") < at("<i>V</i>") && at("<i>V</i>") < at("<i>R</i>") &&
+     at("<i>R</i>") < at("<i>S</i>") && at("<i>S</i>") < at("<i>T</i>") &&
      at("<i>T</i>") < at("<i>M</i>") && at("<i>M</i>") < at("<i>D</i>"),
      "order: assemble() emits stages in spine order regardless of the order they were handed in");
 
@@ -1190,8 +1193,8 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
   };
   ok(reads("pdxso-face", "PDXStanceTree.sectionHtml(id)"),
      "explore: the reader meets the record summary before the topic tree — the standouts orient the browse, not the other way round");
-  ok(reads("PDXStanceTree.sectionHtml(id)", "PDXWordAction.sectionHtml(id, p)"),
-     "explore: and the topic tree before Word vs Action — the gateway is not the third story on the page");
+  ok(reads("PDXWordAction.sectionHtml(id, p)", "PDXStanceTree.sectionHtml(id)"),
+     "explore: and Word vs Action's stated positions before the topic tree (v598)");
   ok(reads("PDXStanceTree.sectionHtml(id)", 'id="pdxsec-formalatlas"'),
      "explore: the flat formal list reads BELOW the tree, whatever the file says — a full issue inventory\n" +
      "    ahead of the browse surface is the parallel wall this pass removed");
@@ -1632,10 +1635,10 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
   //      order; it must not have quietly restated it.
   ok(!/var RAIL_ORDER|railSequence|PILL_ORDER/.test(SPS),
      "keep: there is no second ordered list of pills anywhere in the spine — STAGES plus the anchor registry is the whole declaration");
-  ok(SP.STAGE_KEYS.join(">") === "identity>brief>standout>explore>verdict>signature>record>tension>receipts>money>you>drawers",
-     "keep: and the stage order is the locked spine — what the record points to, then the gateway that\n" +
-     "    lets them browse it, then the score built on both, then what they stand for, then the record\n" +
-     "    that tests it, then the heat, then the proof, and money stays a lens of its own at the tail");
+  ok(SP.STAGE_KEYS.join(">") === "identity>brief>standout>verdict>explore>receipts>record>signature>tension>money>you>drawers",
+     "keep: and the stage order is the locked spine — the record summary, Word vs Action and the stated\n" +
+     "    positions, the tree, the evidence, the voting highlights and bills, then everything else, and\n" +
+     "    money stays a lens of its own at the tail");
 }
 
 

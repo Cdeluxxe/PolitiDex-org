@@ -206,7 +206,8 @@
   }
 
   // ── placement ────────────────────────────────────────────────────────────
-  var LATER = ['tension', 'receipts', 'money', 'you', 'drawers'];
+  // The stages after `record` in the spine (receipts now sits ABOVE record).
+  var LATER = ['signature', 'tension', 'money', 'you', 'drawers'];
   function placeWrap(body, host) {
     var stage = body.querySelector('.pdxsp-stage-record');
     if (stage) {

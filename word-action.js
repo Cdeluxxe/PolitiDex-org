@@ -4529,9 +4529,40 @@
         : '';
       rows.push({ key: se.key, pipeline: !!(pipe || se.provenance === 'pipeline'),
         html: '<li class="pdxwa-stated-row" data-pdxwa-stated="' + esc(se.key) + '"' + (fileHref ? ' data-pdxwa-stated-go="1"' : '') +
-          lockerAttrs + storeAttrs(se) + issueTintAttr(se.key) + '>' + fileLink + line + '</li>' });
+          lockerAttrs + storeAttrs(se) + issueTintAttr(se.key) + '>' + fileLink + line +
+          proofControlsHtml(se.key, pid, issueLabelOf(se.key) || se.key, 'stated') + '</li>' });
     }
     return rows;
+  }
+  // ── 🧾 SEE PROOF — the claim's own door to its backing ──────────────────────
+  // Every ✒️ stated-position row and every formal-record bar carries one short
+  // control that opens that issue's drawer — the quick-proof layer: related
+  // issues, where this conflicts, short evidence snippets and the latest vote
+  // lines — landing on its 🧾 Quick proof block. Through the shared
+  // [data-pdxst-dos] route, so it is the same sheet every other door opens.
+  //   A stated row also gets the secondary jump, "Evidence ↓", to the same
+  // issue's group in the page's Evidence section — drawn only where that group
+  // carries material (window._pdxEvHas), so it never lands on an empty card.
+  // Buttons, not links, and siblings of the row's overlay link (no nesting). They
+  // add two words to a row and change nothing else on it.
+  var PROOF_LABEL = 'See proof';
+  var PROOF_EV_LABEL = 'Evidence';
+  function proofControlsHtml(key, pid, label, where, origin) {
+    if (!key || !pid) return '';
+    var ev = '';
+    if (where === 'stated') {
+      try { ev = (typeof window._pdxEvHas === 'function') ? (window._pdxEvHas(pid, key) || '') : ''; } catch (e) { ev = ''; }
+    }
+    return '<span class="pdxwa-proof" data-pdxwa-proof="' + esc(key) + '" data-pdxwa-proof-at="' + esc(where) + '">' +
+      '<button type="button" class="pdxwa-proof-go" data-pdxst-dos="' + esc(key) + '" data-pdxst-pid="' + esc(pid) + '"' +
+        (origin ? ' data-pdxst-origin="' + esc(origin) + '"' : '') +
+        ' data-pdxst-focus="proof" data-pdxwa-proof-open="' + esc(key) + '"' +
+        ' aria-label="' + esc(PROOF_LABEL + ' for ' + label + ': open the issue drawer with its evidence and votes') + '">' +
+        '<span aria-hidden="true">🧾</span> ' + PROOF_LABEL + '</button>' +
+      (ev ? '<button type="button" class="pdxwa-proof-ev" data-pdxev-jump="' + esc(ev) + '" data-pdxwa-proof-ev="' + esc(key) + '"' +
+          ' aria-label="' + esc('Jump to ' + label + ' in the Evidence section') + '">' +
+          PROOF_EV_LABEL + ' <span aria-hidden="true">↓</span></button>' : '') +
+    '</span>';
   }
   function statedFileHref(key, pid) {
     try {
@@ -5008,6 +5039,8 @@
       (door ? scopeControlHtml(key) : '') +
       // And the issue file, on the same footing and for the same reason.
       (door ? issueFileHtml(key, x.label, owner) : '') +
+      // 🧾 The bar's proof control: the same drawer, landing on its Quick proof.
+      (door ? proofControlsHtml(key, owner, x.label, 'bar', rowId) : '') +
       '</li>';
   }
   // ── THE TITLE IS A DOOR, AND HERE THAT DOOR IS A SIBLING ──────────────────
@@ -7475,6 +7508,7 @@
     SAID_NOTE: SAID_NOTE,
     saidRowSet: saidRowSet,
     statedListHtml: statedListHtml,
+    proofControlsHtml: proofControlsHtml,
     statedCount: statedCount,
     statedPending: statedPending,
     saidLeadApplies: saidLeadApplies,

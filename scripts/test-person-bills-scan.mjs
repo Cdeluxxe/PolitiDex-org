@@ -145,7 +145,10 @@ section("4. the letterhead is unchanged");
   const prev = HEAD("person-bills.js");
   if (prev != null) {
     const A = load(prev);
-    for (const st of ["on", "none", "wait"]) ok(A.jumpHtml("blouin_s13", st) === PB.jumpHtml("blouin_s13", st), `the jump control's ${st} markup changed`);
+    // v598 renamed the control "Bills Sponsored & Co-Sponsored" and added a tally
+    // (passed in by the caller, absent here); set the label aside, compare the rest.
+    const lab = (h) => String(h).split("Bills Sponsored & Co-Sponsored").join("Bills sponsored");
+    for (const st of ["on", "none", "wait"]) ok(lab(A.jumpHtml("blouin_s13", st)) === lab(PB.jumpHtml("blouin_s13", st)), `the jump control's ${st} markup changed`);
   }
   // profiles-full.js is no longer frozen here: the report-card line under the seat
   // edits the letterhead template. The .profile-meta row this file guards is

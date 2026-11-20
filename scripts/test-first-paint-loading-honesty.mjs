@@ -497,7 +497,9 @@ section("6 · the door only opens on knowledge, and nothing else moved");
       try { ra = JSON.stringify(A.PDXWordAction.read(pid, p)); } catch (e) { ra = "A-THREW"; }
       try { rb = JSON.stringify(B.PDXWordAction.read(pid, p)); } catch (e) { rb = "B-THREW"; }
       if (ra !== rb) readMoved.push(pid);
-      const ha = brief(A, pid), hb = brief(B, pid);
+      // v598 added a 🧾 See proof control to every door row of the brief; set aside.
+      const noProof = (h) => String(h).replace(/<span class="pdxwa-proof"[\s\S]*?<\/button><\/span>/g, "");
+      const ha = noProof(brief(A, pid)), hb = noProof(brief(B, pid));
       if (hb.includes(EMPTY) && !ha.includes(EMPTY)) gained.push(pid);
       if (ha !== hb) docsMoved++;
     }

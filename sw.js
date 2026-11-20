@@ -12494,7 +12494,20 @@
 //   word-action.css, profiles-full.js, issue-file.js, issue-file.css), so the
 //   shell moves; the precache list and the worker's behaviour are unchanged.
 //   MIGRATION COST: none.
-const CACHE_VERSION = 'v597';
+// v598 - ONE READING ORDER ON THE PERSON PAGE, PROOF TIED TO THE CLAIMS. The
+//   person page now reads: chips and the formal-record summary, Word vs Action
+//   and the stated positions, All issues by topic, related issues, the Evidence
+//   section (grouped by issue, in each issue's colour), then the voting
+//   highlights and the bills sponsored and co-sponsored. Each stated position
+//   and each formal-record bar has a "See proof" control that opens the issue
+//   drawer, which now leads its Formal record with a short Quick proof block
+//   (evidence snippets and the latest vote lines). The bills chip shows the
+//   sponsored + co-sponsored tally. Scoring, stances and the related-issues map
+//   are unchanged. Precached files changed (profiles-full.js, profile-spine.js,
+//   word-action.js, word-action.css, consistency.js, person-outline.js, app.css,
+//   person-bills.js), so the shell moves; the precache list is unchanged.
+//   MIGRATION COST: none.
+const CACHE_VERSION = 'v598';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

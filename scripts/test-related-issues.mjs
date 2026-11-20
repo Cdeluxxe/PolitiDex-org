@@ -321,9 +321,10 @@ const LBL = (k) => String(IM[k].label).replace(/^[^A-Za-z0-9]+/, "").trim();
   const i = pf.indexOf("window.PDXRelatedIssues.sectionHtml(id, p)");
   ok(i > 0, "profiles-full.js calls the section");
   const before = pf.lastIndexOf("<!--PDXSP:", i);
-  ok(pf.slice(before, before + 20).startsWith("<!--PDXSP:verdict-->"), "section sits in the verdict stage");
-  const wa = pf.indexOf("window.PDXWordAction.sectionHtml(id, p)");
-  ok(wa > before && wa < i, "section follows Word vs Action and its stated-positions list");
+  // v598: directly under 🌳 All Issues by Topic, in the explore stage.
+  ok(pf.slice(before, before + 20).startsWith("<!--PDXSP:explore-->"), "section sits in the explore stage");
+  const tree = pf.indexOf("window.PDXStanceTree.sectionHtml(id)");
+  ok(tree > before && tree < i, "section follows the topic tree");
   ok(/typeof window\.PDXRelatedIssues\.sectionHtml === 'function'/.test(pf), "the call is guarded");
   for (const page of ["index.html", "person.html", "ballot.html", "issue.html"]) {
     ok(R(page).includes('<script defer src="/related-issues.js"></script>'), `${page} loads related-issues.js`);

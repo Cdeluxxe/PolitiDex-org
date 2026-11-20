@@ -112,8 +112,12 @@
     // has no letterhead, and then it has to be the brief heading itself.
     { key: 'brief',    label: 'Formal record',      targets: ['.pdxsp-stage-brief'],
       foldsInto: 'identity' },
-    { key: 'explore',  label: 'All issues by topic', targets: ['#pdxsec-stancetree', '.pdxsp-stage-explore'] },
+    // Word vs Action (with the ✒️ stated positions) now comes straight after the
+    // formal-record summary, and the tree after it — the spine's order.
     { key: 'verdict',  label: 'Word vs Action',     targets: ['#pdxsec-wordaction'] },
+    { key: 'explore',  label: 'All issues by topic', targets: ['#pdxsec-stancetree', '.pdxsp-stage-explore'] },
+    // Evidence sits right under the tree now (receipts is ahead of record).
+    { key: 'receipts', label: 'Evidence',           targets: ['#pdxsec-evidence'] },
     // The public lane, under the name it actually ships with, and in the place
     // the spine actually puts it. consistency.js still exports
     // saydoSectionHtml(), but nothing has mounted #pdxsec-saydo on a member
@@ -123,7 +127,6 @@
     // than for the lane in the abstract. A row whose word and whose destination
     // disagree is a worse failure than a row that is missing.
     { key: 'tension',  label: 'Flashpoints',        targets: ['#pdxsec-controversies'] },
-    { key: 'receipts', label: 'Evidence',           targets: ['#pdxsec-evidence'] },
     // Money is LAST, because the spine puts it last: after the proof layer, so it
     // never reads as part of the integrity argument. The outline restates that
     // order, it does not get a vote on it.

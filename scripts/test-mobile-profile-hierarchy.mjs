@@ -611,8 +611,10 @@ ok(!/pdxwa-htally-host/.test(CSS) || /DORMANT/.test(CSS),
     'above: the flat "every issue on the formal record" list reads ABOVE the topic tree again. That is\n' +
     '    the wall this pass removed: on a phone it is the entire scroll between the summary and the\n' +
     '    one surface built to be browsed');
-  ok(rTree < rWA,
-    'above: Word vs Action reads above the topic tree — the score is not the first content story');
+  // v598: Word vs Action and its stated positions follow the record summary,
+  // and the topic tree follows them.
+  ok(rStrip < rWA && rWA < rTree,
+    'above: the order is no longer record summary → Word vs Action and stated positions → topic tree');
 
   // ── THE GATEWAY'S FIRST SCREEN IS SHORT ───────────────────────────────────
   // Reading order is only half of it on a phone. A tree that opens a branch for

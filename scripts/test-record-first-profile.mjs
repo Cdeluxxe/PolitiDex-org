@@ -542,9 +542,11 @@ section("6 · one standout block per profile, and it mounts ahead of the score")
     "    and it now sits collapsed under the topic tree rather than flat above it");
   eq(SP.targetStage("pdxsec-stancetree"), "explore",
     "the topic tree is not routed to the gateway stage it now leads");
-  ok(keys.indexOf("explore") === keys.indexOf("standout") + 1 &&
-     keys.indexOf("explore") < keys.indexOf("verdict"),
-    "the gateway does not follow the summary directly and lead the score — summary, browse, then judgment");
+  // v598: the record summary, then Word vs Action with the stated positions,
+  // then the gateway — the tree is read against the stated list above it.
+  ok(keys.indexOf("verdict") === keys.indexOf("standout") + 1 &&
+     keys.indexOf("explore") === keys.indexOf("verdict") + 1,
+    "the summary is not followed by Word vs Action and then the gateway — summary, stated positions, then browse");
   // WHAT THE CAPPED SUMMARY POINTS AT HAS TO BE THE WHOLE RECORD. The strip prints
   // two chips and tells the reader the rest is in the topic tree below. That
   // sentence is only true if the tree lists every issue — so the pointer and the

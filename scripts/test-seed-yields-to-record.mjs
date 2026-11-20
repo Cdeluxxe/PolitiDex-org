@@ -623,7 +623,9 @@ section("10 · Direction Match's two loading sentences did not move");
       const a = dm(A, pid), b = dm(B, pid);
       if (a) withGap++;
       if (a !== b) moved.push(pid);
-      if (brief(A, pid) !== brief(B, pid)) briefsMoved.push(pid);
+      // v598 added a 🧾 See proof control to every door row of the brief; set aside.
+      const noProof = (h) => String(h).replace(/<span class="pdxwa-proof"[\s\S]*?<\/button><\/span>/g, "");
+      if (noProof(brief(A, pid)) !== noProof(brief(B, pid))) briefsMoved.push(pid);
     }
     ok(warming > 50, `${warming} roster members are in the warming state these lines live in`);
     ok(withGap > 50, `…and ${withGap} render the Direction Match gap block this compares`);

@@ -156,18 +156,29 @@
   //   THE READER'S OWN STAKE, THEN THE DRAWERS. `money` is a lens of its own and
   //   must not read as an integrity score, so it sits after the evidence and before
   //   the alignment tail; the collapsed full tables close the profile.
+  //
+  //   ONE READING ORDER, PROOF TIED TO THE CLAIMS (Nov 2026). The person page now
+  //   reads top to bottom as: chips and the formal-record summary, then ⚖️ Word vs
+  //   Action with the ✒️ stated positions, then 🌳 All Issues by Topic, then 🔗
+  //   related issues, then the 🧩 Evidence grouped by issue, then the voting
+  //   highlights and the bills sponsored and co-sponsored, then everything else.
+  //   So `verdict` now sits directly under the record summary and AHEAD of
+  //   `explore` (the stated list is what the tree's rows are read against), and
+  //   `receipts` and `record` come up under the tree, because those are the
+  //   sections every "See proof" control and letterhead chip points into.
+  //   `signature`, `tension` and the rest keep their relative order below them.
   // The order below IS the profile's reading order, and it answers one question
   // per stage.
   var STAGES = [
     { key: 'identity',  label: 'Identity',            ask: 'Who is this?' },
     { key: 'brief',     label: 'The short version',   ask: 'What should I look at first?' },
     { key: 'standout',  label: 'The record',          ask: 'What does their record point to?' },
-    { key: 'explore',   label: 'Explore by topic',    ask: 'Where do they land, issue by issue?' },
     { key: 'verdict',   label: 'Word vs Action',      ask: 'Do they stand by what they said?' },
-    { key: 'signature', label: 'Stances & connections', ask: 'What do they stand for?' },
-    { key: 'record',    label: 'Official record',     ask: 'What did they actually do?' },
-    { key: 'tension',   label: 'Flashpoints',         ask: 'Where is the heat?' },
+    { key: 'explore',   label: 'Explore by topic',    ask: 'Where do they land, issue by issue?' },
     { key: 'receipts',  label: 'Evidence',            ask: 'Where are the receipts?' },
+    { key: 'record',    label: 'Official record',     ask: 'What did they actually do?' },
+    { key: 'signature', label: 'Stances & connections', ask: 'What do they stand for?' },
+    { key: 'tension',   label: 'Flashpoints',         ask: 'Where is the heat?' },
     { key: 'money',     label: 'Money',               ask: 'Who funds them, and who does the record touch?' },
     { key: 'you',       label: 'You and them',        ask: 'How does this map to my own positions?' },
     { key: 'drawers',   label: 'The full record',     ask: 'Show me everything.' }
@@ -256,7 +267,9 @@
     // statement about the archive's own coverage, which belongs with the proof
     // layer rather than in the stage where a finding is published. person-file.js
     // maps the short hash `#gaps` to this id.
-    'pdxsec-gaps': 'receipts',
+    // It now rides at the foot of `record`, under the voting highlights and the
+    // bills, so the Evidence section ends on the evidence (Nov 2026).
+    'pdxsec-gaps': 'record',
     // money — funding and who the record touches. Funding anchor lives in index.html.
     // A lens of its own, deliberately after the proof layer so it never reads as
     // part of the integrity argument.

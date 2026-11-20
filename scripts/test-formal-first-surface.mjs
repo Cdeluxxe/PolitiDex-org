@@ -407,8 +407,10 @@ section("4 · phase 2 — the atlas mounts on the profile face");
     "the standout strip reads below the topic tree — the two-chip summary is the door into the browse, not a footnote to it");
   ok(iTree < iFace,
     "the flat formal list still reads above the topic tree — that is the parallel wall, and the tree is the gateway");
-  ok(iFace < iWA,
-    "the atlas reads below the Direction Match section — the record-first read puts the ledger first");
+  // v598: Word vs Action and the stated positions read directly under the record
+  // summary, ahead of the tree and the flat list under it.
+  ok(iWA < iTree && iWA < iFace,
+    "Word vs Action no longer reads between the record summary and the topic tree (v598 order)");
   // Collapsed, and honest about it. A <details> that ships open is the wall again
   // with a hinge drawn on it.
   const flat = BODY.slice(BODY.indexOf("<details id=\"pdxsec-formalatlas\""));

@@ -551,7 +551,9 @@ section("6 · Direction Match and the floors did not move");
       try { rb = JSON.stringify(B.PDXWordAction.read(pid, p)); } catch (e) { rb = "B-THREW"; }
       if (ra !== rb) readMoved.push(pid);
 
-      const ha = brief(A, pid), hb = brief(B, pid);
+      // v598 added a 🧾 See proof control to every door row of the brief; set aside.
+      const noProof = (h) => String(h).replace(/<span class="pdxwa-proof"[\s\S]*?<\/button><\/span>/g, "");
+      const ha = noProof(brief(A, pid)), hb = noProof(brief(B, pid));
       const wasEmpty = ha.includes(EMPTY), nowEmpty = hb.includes(EMPTY);
       if (nowEmpty && !wasEmpty) gained.push(pid);
       if (ha === hb) { if (nowEmpty) stillEmpty.push(pid); continue; }

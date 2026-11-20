@@ -133,7 +133,15 @@ async function auditSponsor(pid, opts) {
   const bad = [];
   const f = await bootFile(pid, opts);
   if (!f.btn) return [`${pid}: no "Bills sponsored" control on the letterhead`];
-  if (!/^Bills sponsored$/.test(f.btn.textContent.trim())) bad.push(`${pid}: the control reads "${f.btn.textContent}"`);
+  // The label, then the tally of the list it opens (v598): "N sponsored + M co-sponsored",
+  // counted off the table's own roles (sponsor / floor sponsor → sponsored).
+  {
+    const refs = TABLE.people[pid] || [];
+    const co = refs.filter(([, r]) => r === "c").length, sp = refs.length - co;
+    const want = `Bills Sponsored & Co-Sponsored · ${sp} sponsored + ${co} co-sponsored`;
+    const got = f.btn.textContent.replace(/\s+/g, " ").trim();
+    if (got !== want) bad.push(`${pid}: the control reads "${got}", want "${want}"`);
+  }
   if (f.btn.disabled) bad.push(`${pid}: the control is disabled on a person with bills`);
   f.click();
   if (f.jumps.length !== 1 || f.jumps[0] !== "pdx-sponsored") bad.push(`${pid}: the jump went to ${JSON.stringify(f.jumps)}, not the sponsored section`);
@@ -230,7 +238,7 @@ section("4. mutations fail");
   };
   const cases = [
     ["jump removed", mutate("    if (host) fill(host);\n    placeJump(pid);", "    if (host) fill(host);", "jump removed (scan)")
-      ?.replace("if (data) { _settled = { pid: pid, n: rows.length }; placeJump(pid); }", "if (data) { _settled = { pid: pid, n: rows.length }; }")
+      ?.replace("if (data) { settle(pid, rows); placeJump(pid); }", "if (data) { settle(pid, rows); }")
       ?.replace("        placeJump(pid);\n      });", "      });"), "sponsor"],
     ["jump aimed at the record stage", mutate("var TARGET = 'pdx-sponsored';", "var TARGET = 'pdxsp-record';", "wrong target"), "sponsor"],
     ["click wired to nothing", mutate("    e.stopPropagation();\n    jump();", "    e.stopPropagation();", "no click"), "sponsor"],
@@ -253,7 +261,7 @@ section("5. the quill on the control, the tally in the section");
   for (const [label, f] of [["enabled", on], ["none on file", none]]) {
     const inner = f.btn ? f.btn.innerHTML : "";
     ok(QUILL.test(inner), `the ${label} control has no quill`);
-    ok(inner.indexOf("<svg") < inner.indexOf("Bills sponsored"), `the ${label} control's quill is not left of the label`);
+    ok(inner.indexOf("<svg") < inner.indexOf("Bills Sponsored & Co-Sponsored"), `the ${label} control's quill is not left of the label`);
     ok(/stroke="currentColor"/.test(inner) && !/fill="(?!none)[^"]+"|stroke="#/.test((QUILL.exec(inner) || [""])[0]), `the ${label} quill is not drawn in the control's own ink`);
     ok(!/\u{1F4B0}|\u{1FAB6}|\u2712|\u{1F58B}/u.test(inner), `the ${label} control carries a colour emoji`);
   }
@@ -288,7 +296,7 @@ section("5. the quill on the control, the tally in the section");
   ok(Object.keys(TABLE.people).some((p) => tallyOf(M1, p) !== expect(p)), "mutation not caught: enacted bills dropped from passed");
   const M2 = run(mut("if (!rows || !rows.length) return '';", "if (!rows) return '';"));
   ok(/pdx-spb-tally/.test(M2.html([])), "mutation setup: empty tally mutant did not render");
-  const M3 = run(mut("QUILL + 'Bills sponsored'", "'Bills sponsored'"));
+  const M3 = run(mut("QUILL + LABEL", "LABEL"));
   ok(!QUILL.test(M3.jumpHtml(UTAH, "none")), "mutation not caught: the quill dropped from the control");
 }
 

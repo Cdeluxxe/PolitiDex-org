@@ -2911,3 +2911,34 @@
   padding-left: 0.45rem;
   background: linear-gradient(90deg, var(--pdx-ic-soft, transparent), transparent 66%);
 }
+
+/* ── 🧾 SEE PROOF ───────────────────────────────────────────────────────────
+   One short control on each ✒️ stated-position row and each formal-record bar
+   (word-action.js proofControlsHtml): "See proof" opens the issue drawer at its
+   Quick proof block; on a stated row, "Evidence ↓" jumps to the same issue's
+   group in the Evidence section. Small, neutral ink — not a verdict colour —
+   and above the row's overlay link so it takes its own tap. */
+.pdxwa-proof {
+  display: inline-flex; flex-wrap: wrap; gap: 0.3rem; align-items: center;
+  margin-left: 0.4rem; vertical-align: middle;
+}
+.pdxwa-proof-go,
+.pdxwa-proof-ev {
+  position: relative; z-index: 2;
+  font-family: "Barlow Condensed", sans-serif; font-weight: 700;
+  font-size: 0.66rem; letter-spacing: 0.06em; text-transform: uppercase;
+  line-height: 1.15; white-space: nowrap; cursor: pointer;
+  color: #cfe0fa; background: rgba(96, 165, 250, 0.08);
+  border: 1px solid rgba(159, 180, 212, 0.32); border-radius: 999px;
+  padding: 0.16rem 0.55rem;
+}
+.pdxwa-proof-ev { color: #9fb4d4; background: transparent; }
+.pdxwa-proof-go:hover, .pdxwa-proof-go:focus-visible,
+.pdxwa-proof-ev:hover, .pdxwa-proof-ev:focus-visible {
+  background: rgba(96, 165, 250, 0.18); border-color: rgba(159, 180, 212, 0.55);
+}
+.pdxwa-proof-go:focus-visible, .pdxwa-proof-ev:focus-visible { outline: 2px solid #f5c842; outline-offset: 1px; }
+.pdxwa-shape-row .pdxwa-proof { margin-left: 0.3rem; }
+@media (hover: none), (pointer: coarse) {
+  .pdxwa-proof-go, .pdxwa-proof-ev { min-height: 1.9rem; padding: 0.24rem 0.65rem; }
+}
