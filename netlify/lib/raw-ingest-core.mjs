@@ -2,6 +2,7 @@ import { REQUESTED_POLITICIANS } from "./raw-ingest-expansion.mjs";
 import { describeFetchError, pullProbeFirst } from "./raw-ingest-hosts.mjs";
 import { EXTRA_SOURCES, NEW_STATE_LEGISLATORS, SOURCE_CLASSES, NEW_SOCIAL_ROSTER, SOCIAL_SOURCES } from "./raw-ingest-source-types.mjs";
 import { pullYouTube, pullYouTubeVideo, isSocial, SOCIAL_CLASSES } from "./raw-ingest-social.mjs";
+import { preferWordGaps } from "./raw-ingest-word-gap.mjs";
 import POOL_EXPANSION from "../../db/raw-ingest-pool-expansion-2026-11.json" with { type: "json" };
 import FULL_ROSTER from "../../db/raw-ingest-full-roster-2026-11.json" with { type: "json" };
 import OFFICIAL_CITED from "../../db/raw-ingest-official-cited-2026-11.json" with { type: "json" };
@@ -747,11 +748,13 @@ export function orderPagesForRun(pages, cap, cycle = 0) {
  * cycle out of `every`, and then everything of theirs is pulled. When a cycle
  * has nobody left the next one starts.
  * `counts` maps pairKey(pid, topic) → { strong, weak } from the Locker.
+ * `wordGaps` (optional, raw-ingest-word-gap.mjs) orders each politician's
+ * pages so Word vs Action gap issues are pulled first; omitted → unchanged.
  * Returns { sources, patterns, politicians, deprioritised, skipped, cycle,
  * remaining_in_cycle, state, size }; `state` is what to persist for next run.
  * Never returns more than `max` sources even after every pattern is added.
  */
-export function planRun(state = {}, { roster = ROSTER, max = MAX_SOURCES_PER_RUN, counts = {}, every = DEPRIORITISED_EVERY_CYCLES, maxPoliticians = MAX_POLITICIANS_PER_RUN, perPolitician = MAX_SOURCES_PER_POLITICIAN } = {}) {
+export function planRun(state = {}, { roster = ROSTER, max = MAX_SOURCES_PER_RUN, counts = {}, every = DEPRIORITISED_EVERY_CYCLES, maxPoliticians = MAX_POLITICIANS_PER_RUN, perPolitician = MAX_SOURCES_PER_POLITICIAN, wordGaps = null } = {}) {
   const st = normaliseRotationState(state);
   const ids = new Set(roster.map((r) => r.politician_id));
   const order = priorityOrder(roster, counts).filter((x) => x.open.length || x.filled.length);
@@ -775,7 +778,10 @@ export function planRun(state = {}, { roster = ROSTER, max = MAX_SOURCES_PER_RUN
     const per = Math.max(1, perPolitician);
     // Per-politician cap: the official pattern keeps its slot, pages fill the rest.
     const pageCap = offRow ? per - 1 : per;
-    const pages = orderPagesForRun(take.filter((y) => !y.official && !isSocial(y.s) && !seen.has(normUrl(y.s.url))).map((y) => y.s), pageCap, cycle).slice(0, Math.max(0, pageCap));
+    // Word vs Action gaps (raw-ingest-word-gap.mjs): pages on an issue with a
+    // formal record but no stated position go first; pages only on issues that
+    // already have one go last. Stable, so the rotation order breaks ties.
+    const pages = preferWordGaps(orderPagesForRun(take.filter((y) => !y.official && !isSocial(y.s) && !seen.has(normUrl(y.s.url))).map((y) => y.s), pageCap, cycle), wordGaps).slice(0, Math.max(0, pageCap));
     const off = offRow && per >= 1 && !seen.has(normUrl(offRow.s.url)) && !pages.some((s) => normUrl(s.url) === normUrl(offRow.s.url)) ? offRow.s : null;
     const cost = pages.length + (off ? 1 : 0);
     if (cost && used + cost > max) {

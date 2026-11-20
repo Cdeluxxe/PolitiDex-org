@@ -251,6 +251,7 @@ import {
 import { retiredSourcesLine, RETIRED_VERSION, RETIRED_LOG_KEY } from "../lib/raw-ingest-retired.mjs";
 import { TRANSCRIPT_STORE_NAME, lockerRawFor } from "../lib/video-transcripts.mjs";
 import { INGEST_ALLOW_LIST, scopeIds, inScope, filterToScope, scopedRotationKey, scopeLine } from "../lib/raw-ingest-scope.mjs";
+import { buildWordGaps, orderPullListByWordGap, wordGapLine, wordGapRank, loadWordGapData } from "../lib/raw-ingest-word-gap.mjs";
 import groundTruth from "../../db/stance-ground-truth-talarico-cost-of-living.json" with { type: "json" };
 import reviewFile from "../../db/evidence-locker-review.json" with { type: "json" };
 
@@ -322,6 +323,12 @@ export async function run(deps: {
   // earlier behaviour); the scheduled entry point passes INGEST_ALLOW_LIST.
   // Politicians outside it are never planned, fetched, harvested or scored.
   scope?: string[] | null;
+  // Word vs Action gaps (raw-ingest-word-gap.mjs): per politician, the issues
+  // with a formal record and the issues with a stated position. Either the data
+  // ({ formal: { pid: [key…] }, stated: { pid: [key…] } }) or a loader called
+  // with the planned (in-scope) politician ids. Omitted → pull order unchanged.
+  // Only the ORDER of each politician's pull list changes.
+  wordGaps?: { formal?: Record<string, string[]>; stated?: Record<string, string[]> } | ((pids: string[]) => Promise<{ formal?: Record<string, string[]>; stated?: Record<string, string[]> }>) | null;
 }) {
   const log = deps.log ?? ((l: string) => console.log(l));
   const startedAt = Date.now();
@@ -332,6 +339,7 @@ export async function run(deps: {
   let plan: any = null;
   let roster: any[] = ROSTER;
   let counts: Record<string, any> = {};
+  let wordGaps: Record<string, { gap: Set<string>; stated: Set<string> }> | null = null;
   let hostHealth: any = null;
   let skipHosts: Map<string, any> = new Map();
   const freshOutcome = new Map<string, { written: string[]; reasons: string[] }>();
@@ -375,7 +383,20 @@ export async function run(deps: {
     counts = ro.counts ?? await lockerBaselineCounts(deps.lockerStore, { flags, pids, log });
     knownUrls = new Set([...knownUrls, ...allRosterUrls(roster)]);
     const max = ro.max ?? MAX_SOURCES_PER_RUN;
-    plan = planRun(state, { roster, max, counts, maxPoliticians: MAX_POLITICIANS_PER_RUN, perPolitician: MAX_SOURCES_PER_POLITICIAN });
+    // Word vs Action gaps, loaded only for the politicians this run may plan
+    // (the allow-list already applied to `roster`).
+    if (deps.wordGaps) {
+      try {
+        const data = typeof deps.wordGaps === "function" ? await deps.wordGaps(pids) : deps.wordGaps;
+        const allowed = new Set(pids);
+        const only = (m: any) => Object.fromEntries(Object.entries(m || {}).filter(([pid]) => allowed.has(pid) && inScope(scope, pid)));
+        wordGaps = buildWordGaps({ formal: only(data?.formal), stated: only(data?.stated) });
+      } catch (e: any) {
+        wordGaps = null;
+        log(`raw-ingest: word gap — unavailable, pull order unchanged (${e?.message || e})`);
+      }
+    }
+    plan = planRun(state, { roster, max, counts, maxPoliticians: MAX_POLITICIANS_PER_RUN, perPolitician: MAX_SOURCES_PER_POLITICIAN, wordGaps });
     const rs = rosterSummary(roster, counts);
     const tierOf = new Map(roster.map((r: any) => [r.politician_id, r.tier]));
     log(`raw-ingest: roster — ${rs.size} politician(s) (${Object.entries(rs.tiers).map(([t, n]) => `tier ${t}: ${n}`).join(", ")}) · ${rs.reached.length} politician + issue pair(s) filled`);
@@ -400,11 +421,17 @@ export async function run(deps: {
     sources = d.sources;
     discovered = d.added;
     if (fresh) {
-      const f = addFreshSources(sources, fresh, { politicians: plan.politicians, max, perPolitician: MAX_SOURCES_PER_POLITICIAN, per: fo.per ?? FRESH_PER_POLITICIAN, protect, skipHosts: new Set(skipHosts.keys()), spare: fo.spare ?? FRESH_SPARE_PER_RUN, log });
+      const f = addFreshSources(sources, fresh, { politicians: plan.politicians, max, perPolitician: MAX_SOURCES_PER_POLITICIAN, per: fo.per ?? FRESH_PER_POLITICIAN, protect, skipHosts: new Set(skipHosts.keys()), spare: fo.spare ?? FRESH_SPARE_PER_RUN, log, wordGaps });
       sources = f.sources;
       discovered = [...discovered, ...f.added];
       (freshTally as any).added = f.added.length;
       (freshTally as any).displaced = f.displaced.length;
+    }
+    // Final pull order: each politician's pages (planned, discovered, fresh) in
+    // word-gap order, inside the slots that politician already holds.
+    if (wordGaps) {
+      sources = orderPullListByWordGap(sources, wordGaps);
+      log(wordGapLine(wordGaps, sources));
     }
     if (deps.rotationStore) {
       try { await deps.rotationStore.setJSON(rotationKey, { ...plan.state, pool_version: POOL_VERSION, updated_at: (deps.now ?? (() => new Date()))().toISOString(), last_politicians: plan.politicians }); }
@@ -530,6 +557,12 @@ export async function run(deps: {
     const tried = report.youtube.transcript + report.youtube.description_fallback;
     log(`raw-ingest: youtube — ${yt.length} channel(s), ${report.youtube.stored} new video record(s) · transcript ${report.youtube.transcript}/${tried}, description fallback ${report.youtube.description_fallback}/${tried} · ${report.youtube.queued} queued for the background transcriber · ${report.youtube.already_stored} already stored`);
   }
+  if (wordGaps) {
+    report.word_gap = Object.fromEntries(Object.entries(wordGaps).map(([pid, g]) => [pid, {
+      gap: [...g.gap].sort(), stated: [...g.stated].sort(),
+      pull_order: sources.filter((s: any) => s.politician_id === pid).map((s: any) => ({ url: s.url, topic: s.topic, rank: wordGapRank(s, wordGaps) })),
+    }]));
+  }
   report.discovered = discovered.map((s: any) => ({ politician_id: s.politician_id, topic: s.topic, url: s.url, kind: sourceKind(s), ...(s.official_kind ? { official_kind: s.official_kind } : {}) }));
   report.included = {
     ...included,
@@ -644,6 +677,8 @@ export async function scheduled(deps: { run?: typeof run; suggestionsStore?: any
   // The promotion step's database adapter, built only in production (loaded
   // lazily so a test that injects its stores never touches the database).
   const statedDb = rest.statedDb !== undefined || injected ? rest.statedDb : await productionStatedDb(log);
+  // Word vs Action gap loader (pull-order preference), production only.
+  const wordGaps = rest.wordGaps !== undefined || injected ? rest.wordGaps : productionWordGaps(log);
   const res = await runFn({
     fetch: globalThis.fetch,
     discover: true,
@@ -653,6 +688,7 @@ export async function scheduled(deps: { run?: typeof run; suggestionsStore?: any
     scope: INGEST_ALLOW_LIST,
     ...(injected ? {} : productionStores()),
     ...(statedDb ? { statedDb } : {}),
+    ...(wordGaps ? { wordGaps } : {}),
     ...rest,
     log,
   } as any);
@@ -677,6 +713,16 @@ export async function wakeTranscriber(): Promise<void> {
   const origin = process.env.URL || "https://politidex.fyi";
   const r = await fetch(`${origin}/.netlify/functions/video-transcribe`, { method: "POST", signal: AbortSignal.timeout(4_000) });
   console.log(`video-transcribe: woken (HTTP ${r.status})`);
+}
+
+function productionWordGaps(log: (l: string) => void): (pids: string[]) => Promise<any> {
+  return async (pids: string[]) => {
+    const [{ db }, { sql }] = await Promise.all([import("../../db/index.js"), import("drizzle-orm")]);
+    let curated: any = null;
+    try { curated = loadCuratedStances(); }
+    catch (e: any) { log(`raw-ingest: word gap — curated stances unreadable, promoted positions only (${e?.message || e})`); }
+    return loadWordGapData(pids, { db, sql, curated });
+  };
 }
 
 async function productionStatedDb(log: (l: string) => void): Promise<any> {
