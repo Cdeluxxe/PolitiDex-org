@@ -12529,7 +12529,16 @@
 //   tree's order and colours. Precached files changed (consistency.js,
 //   word-action.js, word-action.css, stance-tree.js), so the shell moves; the precache list is unchanged.
 //   MIGRATION COST: none.
-const CACHE_VERSION = 'v600';
+// v601 - THE DRAWER READS ITS OWN POLITICIAN'S LOCKER ITEMS. The issue drawer
+//   asks /api/evidence-locker/items?pid= for the open politician itself and
+//   repaints in place when the answer lands, so a video item (e.g. Massie's
+//   Prime Act YouTube clip) reaches the Evidence section and Quick proof on
+//   every page, not only when the full feed happens to arrive. Quick proof
+//   lists every non-vote evidence item and no longer prints vote lines; votes
+//   stay in the formal record table it links down to. Precached file changed
+//   (consistency.js), so the shell moves; the precache list is unchanged.
+//   MIGRATION COST: none.
+const CACHE_VERSION = 'v601';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

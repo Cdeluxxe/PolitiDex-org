@@ -20779,6 +20779,71 @@
     return { url: url, timestamp: secs ? _gapClock(secs) : '', seconds: secs,
       label: 'Watch ' + (official ? 'official ' : '') + 'video' + (secs ? ' · ' + _gapClock(secs) : '') };
   }
+  // ── THE OPEN POLITICIAN'S LOCKER ITEMS, READ BY THE DRAWER ITSELF ─────────
+  // The full Locker feed has outgrown the time the CDN waits for it, and only
+  // the person document asks for one politician's items. So the drawer asks for
+  // its own politician (GET /api/evidence-locker/items?pid=…, a prefix read of
+  // that person's blobs) once per session, keeps the answer here, and repaints
+  // the open sheet when it — or the person page's own Locker read — lands.
+  // Each item is listed once, by its link (_gapEvidence's own de-duplication).
+  // Read-only: nothing is written, scored or promoted.
+  var _gapLkr = {}, _gapLkrAsked = {};
+  function _gapLkrIds(pid) {
+    var out = [];
+    var add = function (x) {
+      x = String(x == null ? '' : x).trim();
+      if (x && /^[A-Za-z0-9_-]{1,80}$/.test(x) && out.indexOf(x) === -1) out.push(x);
+    };
+    add(pid);
+    try { if (typeof window.PDXCanonicalPid === 'function') add(window.PDXCanonicalPid(pid)); } catch (e) {}
+    return out.slice(0, 6);
+  }
+  function _gapRepaintOpen(pid) {
+    try {
+      if (!_gapOpen) return;
+      var ids = _gapLkrIds(_gapOpen.pid);
+      if (pid && ids.indexOf(String(pid)) === -1 && _gapLkrIds(pid).every(function (x) { return ids.indexOf(x) === -1; })) return;
+      var gb = document.getElementById && document.getElementById('pdxc-gap-back');
+      if (!gb || gb.hidden) return;
+      var gbody = gb.querySelector && gb.querySelector('.pdxgap-body');
+      if (!gbody) return;
+      var now = _gapViewHtml(_gapOpen.pid, _gapOpen.key) || '';
+      if (!now || now === gbody.__pdxgapHtml) return;
+      var sh = gb.querySelector('.pdxgap-sheet'), top = sh ? sh.scrollTop : 0;
+      gbody.innerHTML = now;
+      gbody.__pdxgapHtml = now;
+      try { if (sh) sh.scrollTop = top; } catch (e2) {}
+    } catch (e) {}
+  }
+  function _gapLkrEnsure(pid) {
+    var ids = _gapLkrIds(pid);
+    if (!ids.length) return null;
+    var k = ids.join(',');
+    if (_gapLkrAsked[k]) return _gapLkrAsked[k];
+    // Read even where the person page's Locker store exists: that store keeps
+    // one strong item per headline, and several of a politician's items on one
+    // issue often share a headline ("… supports Farmers & Rural Communities").
+    // The drawer lists each by its own link.
+    if (typeof fetch !== 'function') return null;
+    try {
+      return (_gapLkrAsked[k] = fetch('/api/evidence-locker/items?pid=' + encodeURIComponent(k), { headers: { accept: 'application/json' } })
+        .then(function (r) { return r && r.ok ? r.json() : null; })
+        .then(function (body) {
+          var items = body && body.items;
+          if (!items || typeof items !== 'object') return;
+          Object.keys(items).forEach(function (id) {
+            if (Array.isArray(items[id])) _gapLkr[id] = items[id].filter(function (it) { return it && it.issueKey && it.source; });
+          });
+          _gapRepaintOpen(pid);
+        })
+        .catch(function () {}));
+    } catch (e) { return null; }
+  }
+  try {
+    if (typeof document !== 'undefined' && document.addEventListener) {
+      document.addEventListener('pdx-locker-items', function () { _gapRepaintOpen(''); });
+    }
+  } catch (e) {}
   // THE EVIDENCE BEHIND THE STANCE. Only what is already attached to it:
   //   · the stance card's own sources — its `sources` array, or the single
   //     `source` a card carries when it has no array;
@@ -20827,36 +20892,40 @@
         });
       } catch (e) {}
     }
-    // 2 · Evidence Locker items on the same issue.
-    var lockerItems = [];
+    // 2 · Evidence Locker items on the same issue: a promoted pipeline stance's
+    // own items first, then every other Locker item on file for this politician
+    // and issue — the person page's Locker (profile-locker.js), curated
+    // spotlight items, and the drawer's own per-politician read (_gapLkr, for
+    // pages where the full Locker feed never arrives).
+    var lockerItems = [], ownItems = [];
     try {
-      if (s.source === 'pipeline') {
-        lockerItems = (s.items || []).slice();
-      } else {
-        var L = window.PDXProfileLocker;
-        if (L && typeof L.forIssue === 'function') lockerItems = lockerItems.concat(L.forIssue(pid, issueKey) || []);
-        var SD = window.SPOTLIGHT_DATA || {};
-        var ids = [pid];
-        try { var cp = window.PDXCanonicalPid ? window.PDXCanonicalPid(pid) : pid; if (cp && cp !== pid) ids.push(cp); } catch (e0) {}
-        ids.forEach(function (id) {
-          (Array.isArray(SD[id]) ? SD[id] : []).forEach(function (it) {
-            if (it && it.issueKey === issueKey) lockerItems.push(it);
-          });
+      if (s.source === 'pipeline') ownItems = (s.items || []).slice();
+      var L = window.PDXProfileLocker;
+      if (L && typeof L.forIssue === 'function') lockerItems = lockerItems.concat(L.forIssue(pid, issueKey) || []);
+      var SD = window.SPOTLIGHT_DATA || {};
+      var ids = _gapLkrIds(pid);
+      ids.forEach(function (id) {
+        (Array.isArray(SD[id]) ? SD[id] : []).forEach(function (it) {
+          if (it && it.issueKey === issueKey) lockerItems.push(it);
         });
-      }
+        (Array.isArray(_gapLkr[id]) ? _gapLkr[id] : []).forEach(function (it) {
+          if (it && it.issueKey === issueKey) lockerItems.push(it);
+        });
+      });
     } catch (e) {}
     var L2 = window.PDXProfileLocker;
-    lockerItems.forEach(function (it) {
+    ownItems.concat(lockerItems).forEach(function (it, ix) {
       if (!it || !it.source) return;
       // A vote is the formal record's, never evidence of what they said.
       if (_gapIsVoteItem(it)) return;
       var pl = it.pipeline || {};
       var rv = (it.review && it.review.status) || (pl.review && pl.review.status) || '';
       if (rv === 'hidden') return;
-      if (s.source !== 'pipeline') {
+      if (ix >= ownItems.length) {
         var pos = pl.position;
         if ((pos === 'support' || pos === 'oppose') && pos !== s.side) return;
         try { if (L2 && typeof L2.strengthOf === 'function' && it.pipeline && L2.strengthOf(it) === 'mention') return; } catch (e3) {}
+        if (pl.strength === 'mention') return;
       }
       add(it.source.url, it.source.label, pl.excerpt || it.facts || it.headline, 'locker', _gapVideoOf(it));
     });
@@ -20896,7 +20965,7 @@
   // of acts, and the counts it prints are the table's own (`t`). Nothing here
   // reads, sums or scores anything the drawer does not already show; it selects
   // and clips. '' when there is neither evidence nor a vote on file.
-  var _GAP_QP_EV = 2, _GAP_QP_VOTES = 3, _GAP_QP_CLIP = 150;
+  var _GAP_QP_CLIP = 150;
   function _gapQpClip(t) {
     t = String(t == null ? '' : t).replace(/\s+/g, ' ').trim();
     if (t.length <= _GAP_QP_CLIP) return t;
@@ -20911,57 +20980,39 @@
   function _gapQuickProofHtml(pid, issueKey, st, t) {
     var ev = [];
     try { ev = st ? (_gapEvidence(pid, issueKey, st) || []) : []; } catch (e) { ev = []; }
-    var rows = (t && t.rows) ? t.rows.slice() : [];
-    rows.sort(function (a, b) { return String(b.d.date || '').localeCompare(String(a.d.date || '')); });
-    var votes = rows.slice(0, _GAP_QP_VOTES);
-    if (!ev.length && !votes.length) return '';
-    var evShown = ev.slice(0, _GAP_QP_EV);
-    var evHtml = evShown.length
+    // Votes are the formal record's: the table under this block lists them, and
+    // Quick proof carries only a door down to it — never a vote line of its own.
+    var acts = (t && t.acts) || 0;
+    if (!ev.length && !acts) return '';
+    // Every non-vote item the Evidence section lists, in the same order.
+    var evHtml = ev.length
       ? '<div class="pdxgap-qp-g" data-pdxgap-qp-g="evidence">' +
           '<div class="pdxgap-qp-gh">Evidence</div>' +
-          '<ul class="pdxgap-qp-list">' + evShown.map(function (x) {
-            return '<li class="pdxgap-qp-ev" data-pdxgap-qp-ev="' + escAttr(x.from) + '">' +
+          '<ul class="pdxgap-qp-list">' + ev.map(function (x) {
+            return '<li class="pdxgap-qp-ev" data-pdxgap-qp-ev="' + escAttr(x.from) + '"' +
+                (x.video ? ' data-pdxgap-qp-ev-video="1"' : '') + '>' +
               (x.summary ? '<span class="pdxgap-qp-sn">' + esc(_gapQpClip(x.summary)) + '</span> ' : '') +
               '<a class="pdxgap-qp-src" href="' + escAttr(x.video ? x.video.url : x.url) + '" target="_blank" rel="noopener noreferrer">' +
                 (x.video ? '▶ ' + esc(x.video.label) : esc(x.label)) + ' ↗</a></li>';
           }).join('') + '</ul>' +
         '</div>'
       : '';
-    var noSide = !!_DOS_LEDGER_NO_SIDE[issueKey];
-    var vHtml = votes.length
-      ? '<div class="pdxgap-qp-g" data-pdxgap-qp-g="votes">' +
-          '<div class="pdxgap-qp-gh">' + (t.exec && t.exec === t.acts ? 'Formal acts' : 'Votes') +
-            ' · latest ' + votes.length + ' of ' + t.acts + '</div>' +
-          '<ul class="pdxgap-qp-list">' + votes.map(function (p) {
-            var d = p.d || {};
-            var dir = noSide ? '' : (p.dir === 'advances' || p.dir === 'opposes' ? _ledDirShort(p.dir) : 'No side');
-            var bits = [_dosDay(d.date) || '', String(d.ident || d.billNum || 'Measure'),
-              (p.kind && p.kind.word) || '', (p.vote && p.vote.word) || ''].filter(Boolean);
-            return '<li class="pdxgap-qp-vote" data-pdxgap-qp-vote="' + escAttr(p.i) + '"' +
-              (p.dir ? ' data-pdxgap-qp-dir="' + escAttr(p.dir) + '"' : '') + '>' +
-              esc(bits.join(' · ')) +
-              (dir ? ' <span class="pdxgap-qp-dir pdxgap-qp-dir-' + (p.dir === 'advances' ? 'a' : p.dir === 'opposes' ? 'o' : 'n') + '">' + esc(dir) + '</span>' : '') + '</li>';
-          }).join('') + '</ul>' +
-        '</div>'
-      : '';
     var more = [];
-    if (votes.length) {
+    if (acts) {
       more.push('<button type="button" class="pdxgap-qp-more" data-pdxgap-qp-to="record">' +
-        (t.acts > votes.length ? 'All ' + t.acts + ' in the table' : 'In the table') + ' <span aria-hidden="true">↓</span></button>');
+        (t.exec && t.exec === t.acts ? 'Formal acts' : 'Votes') + ': all ' + acts + ' in the table' +
+        ' <span aria-hidden="true">↓</span></button>');
     }
     var jump = _gapEvJumpId(pid, issueKey);
     if (jump) {
       more.push('<button type="button" class="pdxgap-qp-more" data-pdxev-jump="' + escAttr(jump) + '"' +
         ' aria-label="' + escAttr('Close the drawer and open ' + _issueLabel(issueKey) + ' in the Evidence section') + '">' +
         'Full evidence on the page <span aria-hidden="true">↓</span></button>');
-    } else if (ev.length > evShown.length) {
-      more.push('<button type="button" class="pdxgap-qp-more" data-pdxgap-qp-to="evidence">' +
-        'All ' + ev.length + ' sources below <span aria-hidden="true">↓</span></button>');
     }
-    return '<section class="pdxgap-qp" data-pdxgap-qp="1" data-pdxgap-qp-ev-n="' + evShown.length + '"' +
-        ' data-pdxgap-qp-votes-n="' + votes.length + '">' +
+    return '<section class="pdxgap-qp" data-pdxgap-qp="1" data-pdxgap-qp-ev-n="' + ev.length + '"' +
+        ' data-pdxgap-qp-votes-n="0">' +
         '<div class="pdxgap-qp-h"><span aria-hidden="true">🧾</span> Quick proof</div>' +
-        evHtml + vHtml +
+        evHtml +
         (more.length ? '<div class="pdxgap-qp-foot">' + more.join('') + '</div>' : '') +
       '</section><!--/pdxgap-qp-->';
   }
@@ -21745,6 +21796,7 @@
     try { html = _gapViewHtml(pid, issueKey) || ''; } catch (e) { html = ''; }
     if (!html) { try { html = _gapFallbackHtml(pid, issueKey); } catch (e2) { html = ''; } }
     body.innerHTML = html;
+    body.__pdxgapHtml = html;
     _xlAfterPaint(sheet, pid, issueKey, html);
     var arrival = _gapIsArrival(opts);
     // This sheet is one politician on one issue. PDXIssueView is everyone on one
@@ -21765,6 +21817,9 @@
         : ((opts && opts.origin) ? String(opts.origin)
           : ((_gapOpen && _gapOpen.pid === pid) ? _gapOpen.origin : ''))
     };
+    // This politician's Locker items, when the page has not got them yet; the
+    // sheet repaints in place when they land.
+    _gapLkrEnsure(pid);
     var back = sheet.parentNode;
     if (!back) return false;
     _gapArrive(back, arrival);
@@ -22371,6 +22426,8 @@
     // Phase 9: open the focused gap view for one (pid, issue) from anywhere — the
     // comparison rows and both feeds wire to this; exposed for any other surface too.
     openGap: openGap,
+    // The drawer's own per-politician Locker read (a Promise; null when there is no fetch).
+    gapLockerFor: _gapLkrEnsure,
     closeGap: closeGap,
     // Phase 8 (share): the gap sheet's "where to next" row, exposed as a pure
     // string builder. A reader arriving on a shared #record= link has no history

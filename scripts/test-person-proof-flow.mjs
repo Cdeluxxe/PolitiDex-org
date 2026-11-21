@@ -256,11 +256,12 @@ ok(/\.evd-card\[data-ic\] \{ border-left-color: var\(--pdx-ic/.test(R("app.css")
       const table = h.indexOf('<table class="pdxlg-t"');
       if (table >= 0) ok(table > end, `${tag}: quick proof is not above the vote table`);
       ok(!/pdxlg-num|pdxdos-rec-id|<tr\b|pdxbill-door/.test(block), `${tag}: quick proof prints a ledger row or a bill door`);
-      const votes = [...block.matchAll(/data-pdxgap-qp-vote="(\d+)"/g)].map((m) => m[1]);
-      if (votes.length) {
+      // Votes stay in the formal record table: Quick proof prints no vote line,
+      // only a door down to the table when the drawer has one.
+      ok(!/data-pdxgap-qp-vote=|data-pdxgap-qp-g="votes"/.test(block), `${tag}: quick proof prints vote lines`);
+      if (table >= 0) {
         withVotes++;
-        ok(votes.length <= 3, `${tag}: more than three vote lines`);
-        for (const v of votes) ok(h.includes(`<tr data-pdxlg-row="${v}">`), `${tag}: vote line ${v} is not a row of the drawer's table`);
+        ok(/data-pdxgap-qp-to="record"/.test(block), `${tag}: quick proof has no door down to the vote table`);
       }
       const evs = [...block.matchAll(/<a class="pdxgap-qp-src" href="([^"]+)"/g)].map((m) => m[1]);
       if (evs.length) {

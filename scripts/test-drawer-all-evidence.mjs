@@ -111,6 +111,51 @@ const qp = (/<section class="pdxgap-qp"[\s\S]*?<!--\/pdxgap-qp-->/.exec(h) || ["
 const qpEv = (/data-pdxgap-qp-g="evidence"[\s\S]*?<\/ul>/.exec(qp) || [""])[0];
 ok(qpEv.indexOf("clerk.house.gov") < 0, "a vote was listed among the quick-proof evidence snippets");
 
+// ── 2b · Quick proof: every non-vote item, the video with its link, no vote lines
+{
+  const qpItems = qpEv.split('<li class="pdxgap-qp-ev"').slice(1);
+  ok(qpItems.length === items.length, `Quick proof lists ${qpItems.length} evidence item(s); the Evidence section lists ${items.length}`);
+  ok(/href="https:\/\/www\.youtube\.com\/watch\?v=SouE1EHdh04&amp;t=938s"[^>]*>▶ Watch official video · 15:38 ↗/.test(qpEv), "Quick proof lacks the timestamped watch link");
+  ok(!/data-pdxgap-qp-vote=|data-pdxgap-qp-g="votes"/.test(qp), "Quick proof still prints vote lines");
+  ok(!/Roll Call 123|voted for the farm bill/.test(qp), "a vote reached Quick proof");
+}
+
+// ── 2c · the drawer's own per-politician read (pages without the full feed) ──
+{
+  const w2 = boot();
+  const body = { count: 3, items: { [PID]: [
+    { headline: "Massie supports “Farmers & Rural Communities” (official press release)", issueKey: KEY, date: "Nov 15, 2026",
+      category: "statement", source: { label: "Source: official House page", url: HOUSE },
+      pipeline: { position: "support", confidence: 0.95, strength: "strong", source_type: "official press release", excerpt: "Relief to farmers." } },
+    { headline: "Massie supports “Farmers & Rural Communities” (official press release)", issueKey: KEY, date: "Nov 15, 2026",
+      category: "statement", source: { label: "Source: official House page", url: "https://massie.house.gov/news/documentsingle.aspx?DocumentID=395740" },
+      pipeline: { position: "support", confidence: 0.95, strength: "strong", source_type: "official press release", excerpt: "Same headline, other page." } },
+    { headline: "Massie supports “Farmers & Rural Communities” (official YouTube video (own channel) — video post)", issueKey: KEY, date: "Nov 21, 2026",
+      category: "statement", source: { label: "Source: official YouTube channel", url: VIDEO },
+      pipeline: { position: "support", confidence: 1, strength: "strong", source_type: "official YouTube video (own channel) — video post",
+        excerpt: "The Senate needs to put the \"Prime Act\" in the Senate farm bill." } },
+  ] } };
+  const asked = [];
+  w2.fetch = async (u) => { asked.push(String(u)); return { ok: true, json: async () => body }; };
+  w2.PDXPipelineStances.ingest({ count: 1, cards: { [PID]: [{
+    topic: "Farmers & Rural Communities", icon: "", pos: "support", issueKey: KEY, issueStance: "support",
+    text: "Relief to farmers.", source: { label: "Source: official House page", url: HOUSE }, provenance: "pipeline",
+    pipeline: { strength: "strong", confidence: 0.95, strong: 3, weak: 0, items: 3 } }] } });
+  const C2 = w2.PDXConsistency;
+  ok(typeof C2.gapLockerFor === "function", "consistency.js publishes no per-politician Locker read for the drawer");
+  const before = (/<section class="pdxgap-ev"[\s\S]*?<\/section>/.exec(C2.gapViewHtml(PID, KEY) || "") || [""])[0];
+  ok(!/youtube\.com/.test(before), "fixture: the video was on the page before the drawer's read");
+  if (typeof C2.gapLockerFor === "function") await C2.gapLockerFor(PID);
+  ok(asked.some((u) => /\/api\/evidence-locker\/items\?pid=massie\b/.test(u)), `the drawer did not ask for its politician's items (${asked.join(", ")})`);
+  const h2 = C2.gapViewHtml(PID, KEY) || "";
+  const ev2 = (/<section class="pdxgap-ev"[\s\S]*?<\/section>/.exec(h2) || [""])[0];
+  ok(/▶ Watch official video · 15:38 ↗/.test(ev2), "after the drawer's read the video is not in the Evidence section");
+  ok(/DocumentID=395740/.test(ev2), "an item sharing another item's headline was dropped from the Evidence section");
+  ok((ev2.match(/DocumentID=395858/g) || []).length === 1, "the card's citation is listed twice after the drawer's read");
+  const qp2 = (/<section class="pdxgap-qp"[\s\S]*?<!--\/pdxgap-qp-->/.exec(h2) || [""])[0];
+  ok(/▶ Watch official video · 15:38 ↗/.test(qp2), "after the drawer's read the video is not in Quick proof");
+}
+
 // ── 3 · one label, not "Pipeline-sourced stance · Pipeline-sourced" ────────
 const plain = (x) => String(x || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
 ok(!/Pipeline-sourced stance · Pipeline-sourced/.test(plain(h)), "the drawer still repeats “Pipeline-sourced stance · Pipeline-sourced”");
