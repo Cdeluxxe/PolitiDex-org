@@ -224,6 +224,23 @@
 //   · RUN LOG — "raw-ingest: url resolution — …" after the roster line; the
 //     report carries the same under `url_resolution`.
 
+// Video / speech pass (raw-ingest-video.mjs; opt-in through `videoSpeech`,
+// which the scheduled entry point turns on):
+//   · DISCOVERY — for planned, in-scope politicians configured in
+//     VIDEO_SPEECH_SOURCES (Massie only today), at most once an hour: member
+//     channel uploads, C-SPAN clips naming the member (YouTube Data API),
+//     House floor remarks (Congressional Record) and hearing transcripts
+//     (GovInfo). New URLs are queued into the same frontier as fresh pages.
+//     Facebook video posts are logged as unavailable (no access configured).
+//   · PULL — up to VIDEO_SPEECH_PER_POLITICIAN of them per politician per run,
+//     only in free slots under the unchanged caps. Videos go through the
+//     existing transcript cache / background transcriber; floor speeches and
+//     hearings are read for the member's own speaking turns. Both are scored
+//     by the same scorer (own topic + cross-topic) and Locker writer.
+//   · RUN LOG — one "raw-ingest: video/speech …" line per source (type and
+//     outcome) and a summary; report.video_speech. A failed transcription or
+//     fetch is logged and skipped and never blocks the rest of the run.
+
 import type { Config } from "@netlify/functions";
 import { getStore } from "@netlify/blobs";
 import {
@@ -250,6 +267,7 @@ import {
 } from "../lib/raw-ingest-hosts.mjs";
 import { retiredSourcesLine, RETIRED_VERSION, RETIRED_LOG_KEY } from "../lib/raw-ingest-retired.mjs";
 import { TRANSCRIPT_STORE_NAME, lockerRawFor } from "../lib/video-transcripts.mjs";
+import { discoverVideoSpeech, addVideoSpeechSources, isVideoSpeechEntry, VIDEO_SPEECH_PER_POLITICIAN } from "../lib/raw-ingest-video.mjs";
 import { INGEST_ALLOW_LIST, scopeIds, inScope, filterToScope, scopedRotationKey, scopeLine } from "../lib/raw-ingest-scope.mjs";
 import { buildWordGaps, orderPullListByWordGap, wordGapLine, wordGapRank, loadWordGapData } from "../lib/raw-ingest-word-gap.mjs";
 import groundTruth from "../../db/stance-ground-truth-talarico-cost-of-living.json" with { type: "json" };
@@ -329,6 +347,13 @@ export async function run(deps: {
   // with the planned (in-scope) politician ids. Omitted → pull order unchanged.
   // Only the ORDER of each politician's pull list changes.
   wordGaps?: { formal?: Record<string, string[]>; stated?: Record<string, string[]> } | ((pids: string[]) => Promise<{ formal?: Record<string, string[]>; stated?: Record<string, string[]> }>) | null;
+  // Video / speech path (raw-ingest-video.mjs). Rotation + fresh runs only.
+  // Planned, in-scope politicians configured there get video / speech URLs
+  // discovered into the frontier (throttled) and up to `per` of them pulled
+  // in free slots under the unchanged caps. `state` overrides the stored
+  // discovery-timing doc, `force` ignores the interval, and `youtubeKey` /
+  // `govinfoKey` override the environment (tests). Omitted → off.
+  videoSpeech?: boolean | { state?: any; force?: boolean; youtubeKey?: string; govinfoKey?: string; per?: number };
 }) {
   const log = deps.log ?? ((l: string) => console.log(l));
   const startedAt = Date.now();
@@ -342,6 +367,7 @@ export async function run(deps: {
   let wordGaps: Record<string, { gap: Set<string>; stated: Set<string> }> | null = null;
   let hostHealth: any = null;
   let skipHosts: Map<string, any> = new Map();
+  let videoSpeech: any = null;
   const freshOutcome = new Map<string, { written: string[]; reasons: string[] }>();
   const flags = loadReviewFlags(deps.reviewFlags ?? reviewFile);
   const nowFn = deps.now ?? (() => new Date());
@@ -420,6 +446,22 @@ export async function run(deps: {
     const d = await discoverSources(ps.kept, { fetch: deps.fetch, log, patterns: pp.kept, max, restrict: false, onBody });
     sources = d.sources;
     discovered = d.added;
+    // Video / speech: discover into the frontier, then take free slots (before
+    // the web-page fresh pages, after every planned / official page).
+    if (fresh && deps.videoSpeech) {
+      const vo: any = typeof deps.videoSpeech === "object" ? deps.videoSpeech : {};
+      const vsPids = plan.politicians.filter((p: string) => inScope(scope, p));
+      const vd = await discoverVideoSpeech({
+        politicians: vsPids, fresh, fetch: deps.fetch, store: deps.rotationStore, state: vo.state ?? null, now: nowFn, log,
+        force: !!vo.force, mergeFrontier,
+        ...(vo.youtubeKey !== undefined ? { youtubeKey: vo.youtubeKey } : {}),
+        ...(vo.govinfoKey !== undefined ? { govinfoKey: vo.govinfoKey } : {}),
+      });
+      const va = addVideoSpeechSources(sources, fresh, { politicians: vsPids, max, perPolitician: MAX_SOURCES_PER_POLITICIAN, per: vo.per ?? VIDEO_SPEECH_PER_POLITICIAN, skipHosts: new Set(skipHosts.keys()), log });
+      sources = va.sources;
+      discovered = [...discovered, ...va.added];
+      videoSpeech = { checked: vd.checked, queued: vd.added, discovery: vd.sources, added: va.added.length };
+    }
     if (fresh) {
       const f = addFreshSources(sources, fresh, { politicians: plan.politicians, max, perPolitician: MAX_SOURCES_PER_POLITICIAN, per: fo.per ?? FRESH_PER_POLITICIAN, protect, skipHosts: new Set(skipHosts.keys()), spare: fo.spare ?? FRESH_SPARE_PER_RUN, log, wordGaps });
       sources = f.sources;
@@ -539,7 +581,10 @@ export async function run(deps: {
       log(`discovery: fresh outcome ${a.politician_id} ${a.url} — ${what}`);
     }
     // Everything fetched this run is now "seen"; the frontier forgets it.
-    markSeen(fresh, report.results.filter((r: any) => r.ok && !r.youtube).map((r: any) => r.url), nowFn().toISOString());
+    // A video / speech source counts as fetched once it was read to the end
+    // (scored, no words by the politician, or its transcription failed); one
+    // still waiting on the background transcriber stays in the frontier.
+    markSeen(fresh, report.results.filter((r: any) => r.ok && (!r.youtube || (isVideoSpeechEntry(srcByUrl.get(r.url)) && !r.queued))).map((r: any) => r.url), nowFn().toISOString());
     const retired = noteFreshFailures(fresh, report.results, { at: nowFn().toISOString(), outage, hostLevel: HOST_LEVEL });
     if (retired.length) log(`discovery: ${retired.length} failing fresh page(s) retired from the frontier: ${retired.join(", ")}`);
     if (!fo.state) await saveFreshState(freshStore, fresh, { now: nowFn(), log });
@@ -548,6 +593,29 @@ export async function run(deps: {
     report.fresh = { added: (freshTally as any).added || 0, outcomes, displaced: (freshTally as any).displaced || 0, harvested: freshTally.harvested, frontier: frontierSize, seen: Object.keys(fresh.seen).length, targeted, headline_overrides: headlineOverrides, low_signal_dropped: lowSignal.length, low_signal_reasons: droppedSummary(lowSignal) || null };
     log(`discovery: frontier filter — ${lowSignal.length} low-signal link(s) dropped before the frontier this run${lowSignal.length ? ` (${droppedSummary(lowSignal)})` : ""} · caps unchanged`);
     log(`raw-ingest: fresh evidence — ${report.fresh.added} unfetched page(s) pulled, ${freshTally.harvested} candidate page(s) harvested from ${freshTally.from_pages} page(s), ${targeted.length} page(s) retargeted (${headlineOverrides} by the headline pass)${targeted.length ? ` (${targeted.map((x) => `${x.politician_id} ${x.from}→${x.topic}`).join(", ")})` : ""} · frontier ${frontierSize}`);
+  }
+  // Video / speech: one line per source pulled this run, with its type.
+  if (videoSpeech) {
+    const pulled: any[] = [];
+    for (const r of report.results as any[]) {
+      const s: any = srcByUrl.get(r.url);
+      if (!isVideoSpeechEntry(s)) continue;
+      const media = s.source_class === "youtube_video" ? "video" : "speech";
+      const oc = freshOutcome.get(r.url);
+      const outcome = !r.ok ? `failed — ${r.error}; skipped, the rest of the run continues`
+        : r.queued ? "transcript pending — queued for the background transcriber, which scores it with the same rules when ready"
+        : r.speech && !r.key ? "no speaking turn by the politician — skipped"
+        : r.youtube && !r.youtube.transcript ? "no transcript with the politician's words (transcription failed, no speech, or not the politician speaking) — skipped, title kept as an unscored mention"
+        : oc?.written.length ? `scored · ${oc.written.length} new Locker item(s): ${oc.written.join(", ")}`
+        : `scored · no new item — ${oc?.reasons.length ? [...new Set(oc.reasons)].join("; ") : "no candidate reached the Locker writer"}`;
+      pulled.push({ politician_id: s.politician_id, url: r.url, media, source_class: s.source_class, speech_kind: s.speech_kind || null, source_type: s.source_type, ok: !!r.ok, queued: !!r.queued, items: oc?.written.length || 0, outcome });
+      log(`raw-ingest: video/speech ${s.politician_id} [${media} · ${s.source_class} · ${s.speech_kind || "-"}] ${r.url} — ${outcome}`);
+    }
+    const by = (m: string) => pulled.filter((x) => x.media === m).length;
+    videoSpeech.pulled = pulled;
+    videoSpeech.by_type = { video: by("video"), speech: by("speech") };
+    report.video_speech = videoSpeech;
+    log(`raw-ingest: video/speech — ${pulled.length} source(s) pulled this run (video ${by("video")}, speech ${by("speech")}) · ${pulled.reduce((n, x) => n + x.items, 0)} Locker item(s) · ${pulled.filter((x) => x.queued).length} awaiting transcription · ${pulled.filter((x) => !x.ok).length} failed · ${videoSpeech.queued} new URL(s) queued into the frontier${videoSpeech.checked.length ? "" : " (discovery not due this run)"}`);
   }
   // YouTube: how often the transcript worked vs. the description fallback.
   const yt = report.results.filter((r: any) => r.youtube);
@@ -566,7 +634,7 @@ export async function run(deps: {
   report.discovered = discovered.map((s: any) => ({ politician_id: s.politician_id, topic: s.topic, url: s.url, kind: sourceKind(s), ...(s.official_kind ? { official_kind: s.official_kind } : {}) }));
   report.included = {
     ...included,
-    sources: sources.map((s: any) => ({ politician_id: s.politician_id, topic: s.topic, url: s.url, source_type: s.source_type, kind: sourceKind(s), ...(s.source_class ? { source_class: s.source_class } : {}) })),
+    sources: sources.map((s: any) => ({ politician_id: s.politician_id, topic: s.topic, url: s.url, source_type: s.source_type, kind: sourceKind(s), ...(s.source_class ? { source_class: s.source_class } : {}), ...(isVideoSpeechEntry(s) ? { media: s.source_class === "youtube_video" ? "video" : "speech" } : {}) })),
   };
   if (plan && RESOLUTION && !(typeof deps.rotate === "object" && deps.rotate.roster)) {
     const by = (v: string) => RESOLUTION.resolved.filter((x: any) => x.via === v).length;
@@ -684,6 +752,9 @@ export async function scheduled(deps: { run?: typeof run; suggestionsStore?: any
     discover: true,
     rotate: true,
     fresh: true,
+    // Video / speech discovery + transcription (raw-ingest-video.mjs). Only
+    // politicians configured there (Massie) and inside the allow-list.
+    videoSpeech: true,
     // The allow-list (raw-ingest-scope.mjs). [] there lifts the restriction.
     scope: INGEST_ALLOW_LIST,
     ...(injected ? {} : productionStores()),

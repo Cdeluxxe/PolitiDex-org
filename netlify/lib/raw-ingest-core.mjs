@@ -2,6 +2,7 @@ import { REQUESTED_POLITICIANS } from "./raw-ingest-expansion.mjs";
 import { describeFetchError, pullProbeFirst } from "./raw-ingest-hosts.mjs";
 import { EXTRA_SOURCES, NEW_STATE_LEGISLATORS, SOURCE_CLASSES, NEW_SOCIAL_ROSTER, SOCIAL_SOURCES } from "./raw-ingest-source-types.mjs";
 import { pullYouTube, pullYouTubeVideo, isSocial, SOCIAL_CLASSES } from "./raw-ingest-social.mjs";
+import { pullSpeechTranscript } from "./raw-ingest-video.mjs";
 import { preferWordGaps } from "./raw-ingest-word-gap.mjs";
 import POOL_EXPANSION from "../../db/raw-ingest-pool-expansion-2026-11.json" with { type: "json" };
 import FULL_ROSTER from "../../db/raw-ingest-full-roster-2026-11.json" with { type: "json" };
@@ -91,6 +92,9 @@ export async function pullOne(src, { fetch, store, now = () => new Date(), onRec
   // A cited video from the politician's own channel (tier 2): with a cached
   // transcript, one page-shaped raw record that IS scored like any page.
   if (src.source_class === "youtube_video") return pullYouTubeVideo(src, { fetch, store, now, onRecord, log: log ?? console.log, storeName: RAW_STORE_NAME, transcriptStore });
+  // A floor speech / hearing transcript (raw-ingest-video.mjs): only the
+  // member's own speaking turns become the record body, then the same hook.
+  if (src.source_class === "floor_speech" || src.source_class === "hearing_transcript") return pullSpeechTranscript(src, { fetch, store, now, onRecord, log: log ?? console.log, storeName: RAW_STORE_NAME });
   const fetchedAt = now().toISOString();
   try {
     const res = await fetch(src.url, {
