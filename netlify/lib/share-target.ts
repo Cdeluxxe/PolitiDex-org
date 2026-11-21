@@ -38,6 +38,7 @@ import shareStances from "../../db/share-stances.json" with { type: "json" };
 import billDocsFile from "../../db/bill-docs.json" with { type: "json" };
 import { liveKeysFor, mergeDocIssues, type LiveBillIssues } from "./bill-live-issues.ts";
 import { pipelineKeys, pipelineFill, type PipelineKeys } from "./pipeline-positions.ts";
+import { provisionsForPage, type PagedProvisions } from "./bill-provisions-core.ts";
 
 // ── The generated index (see scripts/gen-share-index.mjs) ────────────────────
 type PersonRec = { n: string; o?: string; s?: string; p?: string };
@@ -154,6 +155,11 @@ export type BillDoc = {
     equality: string;
     shortNames: string[];
   } | null;
+  // "WHAT THIS BILL DOES" — only on a GENERATED page (Blobs "bill-provisions",
+  // netlify/lib/bill-provisions-core.ts): the bill's main provisions in plain
+  // language, each beside the exact source wording it was rewritten from, and
+  // the source itself. Null on every hand-built (snapshot) page.
+  provisions: PagedProvisions | null;
   held: "doc" | "live";
 };
 
@@ -217,6 +223,7 @@ function billDocOf(r: BillDocRec): BillDoc {
     history: (r.h || []).filter((x) => x && x.a).map((x) => ({ date: x.d || "", stage: x.a, text: x.x || "" })),
     recordUrl: typeof r.rs === "string" && /^https:\/\/(www\.congress\.gov|le\.utah\.gov)\//.test(r.rs) ? r.rs : "",
     ledger: ledgerOf(r.ld),
+    provisions: null,
     held: "doc",
   };
 }
@@ -251,15 +258,26 @@ export type GeneratedBillPageReader = (key: string) => Promise<any | null>;
 let _pageReader: GeneratedBillPageReader | null = null;
 export function setGeneratedBillPageReader(r: GeneratedBillPageReader | null): void { _pageReader = r; }
 export const GENERATED_PAGE_TIMEOUT_MS = 1500;
+// The provisions record for a generated page (Blobs "bill-provisions", same
+// key), read beside the page record. Soft like the page read: no reader, a
+// timeout or a bad record just means the page prints without the section.
+let _provisionsReader: GeneratedBillPageReader | null = null;
+export function setBillProvisionsReader(r: GeneratedBillPageReader | null): void { _provisionsReader = r; }
 export async function generatedBillDoc(sitting: string, number: string): Promise<BillDoc | null> {
   const s = String(sitting || "").trim();
   const n = String(number || "").replace(/\s+/g, " ").trim();
   if (!_pageReader || !/^\d{1,3}$/.test(s) || !n) return null;
+  const key = `us/${s}/${encodeURIComponent(n)}`;
+  const timed = (p: Promise<any>) => Promise.race([
+    p.catch(() => null),
+    new Promise((resolve) => setTimeout(() => resolve(null), GENERATED_PAGE_TIMEOUT_MS)),
+  ]);
   let rec: any = null;
+  let prov: any = null;
   try {
-    rec = await Promise.race([
-      _pageReader(`us/${s}/${encodeURIComponent(n)}`),
-      new Promise((resolve) => setTimeout(() => resolve(null), GENERATED_PAGE_TIMEOUT_MS)),
+    [rec, prov] = await Promise.all([
+      timed(Promise.resolve().then(() => _pageReader!(key))),
+      _provisionsReader ? timed(Promise.resolve().then(() => _provisionsReader!(key))) : Promise.resolve(null),
     ]);
   } catch { return null; }
   const d = rec && rec.doc;
@@ -272,7 +290,7 @@ export async function generatedBillDoc(sitting: string, number: string): Promise
       : null))
     .filter((x: any) => x && x.i)
     .sort((p: any, q: any) => p.i.localeCompare(q.i));
-  return billDocOf({ ...d, s, n, m });
+  return { ...billDocOf({ ...d, s, n, m }), provisions: provisionsForPage(prov, s, n) };
 }
 
 // The address a bill document lives at — /b/<sitting>/<number>, both segments
@@ -1049,6 +1067,7 @@ export async function resolveTarget(
         history: [],
         recordUrl: "",
         ledger: null,
+        provisions: null,
         held: "live",
       };
     }

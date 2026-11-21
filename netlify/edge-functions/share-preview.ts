@@ -417,6 +417,11 @@ function genericCrawlBlock(forPath: string): string {
 // line is what the act did to one issue; how a vote on it reads is the panel's
 // business, with its sources beside it.
 //
+// A GENERATED PAGE MAY ALSO CARRY "WHAT THIS BILL DOES" (billProvisionsBlock):
+// plain-language points rewritten from the bill's CRS summary (or measure
+// record, an amendment's stated purpose, or a descriptive official title), each beside the source wording it
+// came from, the source named and linked, and the rewriting disclosed.
+//
 // THE ONE EXCEPTION IS A LEDGER-PUBLISHED FILE (billLedgerBlock): a bill file
 // generated from its ground-truth ledger prints the ledger's mapping rows, and
 // each row carries the direction the ledger records for it, beside the quote
@@ -587,6 +592,43 @@ function billLedgerBlock(d: BillDoc): string {
   );
 }
 
+// ── "What this bill does" (a generated page only) ───────────────────────────
+// The bill's main provisions in plain language, written by the provisions
+// generator (netlify/lib/bill-provisions-core.ts) from the bill's own official
+// description, and printed directly under the topics. Every point carries the
+// source wording it was rewritten from, in a disclosure a reader can open, and
+// the section closes with where that wording came from and how the points were
+// written. A hand-built page never has one (BillDoc.provisions is null there).
+// No score, no direction, no verdict: what the bill does, said plainly.
+const PROVISION_SOURCE_WORD: Record<string, string> = {
+  crs_summary: "From the CRS summary",
+  measure_record: "From the measure record",
+  amendment_purpose: "From the amendment's stated purpose",
+  official_title: "From the official title",
+};
+function billProvisionsBlock(d: BillDoc): string {
+  const P = d.provisions;
+  if (!P || !P.items.length) return "";
+  const host = P.source.url ? new URL(P.source.url).hostname.replace(/^www\./, "") : "";
+  const quoteWord = PROVISION_SOURCE_WORD[P.source.kind] || "Source wording";
+  return (
+    `<section class="pdx-bill-issues pdx-bill-does" data-pdx-bill-provisions data-source="${attr(P.source.kind)}">` +
+    `<h2>What this bill does</h2><ul>` +
+    P.items.map((x) =>
+      `<li data-pdx-bill-provision><p class="pdx-bill-does-t">${text(x.t)}</p>` +
+      `<details class="pdx-bill-does-q"><summary>${text(quoteWord)}</summary>` +
+      `<blockquote data-pdx-bill-provision-quote${P.source.url ? ` cite="${attr(P.source.url)}"` : ""}>“${text(x.q)}”</blockquote></details>` +
+      `</li>`
+    ).join("") +
+    `</ul>` +
+    `<p class="pdx-bill-src" data-pdx-bill-provisions-src><span class="pdx-bill-k">Source</span> ${text(P.source.label)}` +
+    (P.source.url ? ` · <a href="${attr(P.source.url)}" rel="noopener" target="_blank">${text(host)}</a>` : "") +
+    `</p>` +
+    `<p class="pdx-bill-does-note" data-pdx-bill-provisions-note>Rewritten in plain language by an AI model from the source above, and checked so every point matches wording in that source. For the exact legal text, read the official record.</p>` +
+    `</section>`
+  );
+}
+
 function billDocBlock(d: BillDoc, forPath: string): string {
   const kicker = ["Bill file", d.sittingText].filter(Boolean).map(text).join(" · ");
   const issues = d.issues.length
@@ -614,6 +656,7 @@ function billDocBlock(d: BillDoc, forPath: string): string {
     billHistoryBlock(d) +
     billAlsoLine(d) +
     issues +
+    billProvisionsBlock(d) +
     billLedgerBlock(d) +
     // The document's ONE control. The seam is the page; this opens the panel over
     // it — roll calls, members, the bundle — and closing the panel returns here.
