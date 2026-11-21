@@ -143,7 +143,8 @@ const rotationStore = memStore({
 const { value: res, lines } = await quiet(() => cron.scheduled({
   fetch: fakeFetch, store: memStore(), lockerStore: memStore(), rotationStore, transcriptStore: memStore(),
   suggestionsStore: memStore(), statedDb: null, now: NOW, triggerTranscriber: async () => {},
-  curatedStances: {}, wordGaps: loader,
+  // The allow-list is off by default; this check exercises it on (dormant option).
+  curatedStances: {}, wordGaps: loader, scope: ['thomas_massie'],
 }));
 const report = await res.json();
 

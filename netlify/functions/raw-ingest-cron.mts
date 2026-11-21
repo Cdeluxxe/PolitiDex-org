@@ -226,11 +226,13 @@
 
 // Video / speech pass (raw-ingest-video.mjs; opt-in through `videoSpeech`,
 // which the scheduled entry point turns on):
-//   · DISCOVERY — for planned, in-scope politicians configured in
-//     VIDEO_SPEECH_SOURCES (Massie only today), at most once an hour: member
-//     channel uploads, C-SPAN clips naming the member (YouTube Data API),
-//     House floor remarks (Congressional Record) and hearing transcripts
-//     (GovInfo). New URLs are queued into the same frontier as fresh pages.
+//   · DISCOVERY — for every planned, in-scope politician (the whole roster
+//     now that the allow-list is off), at most once an hour per politician:
+//     member channel uploads (verified channel ids only), C-SPAN clips naming
+//     the member (YouTube Data API), floor remarks (Congressional Record) and
+//     hearing transcripts (GovInfo; sitting House / Senate members). Massie
+//     keeps his hand-written configuration; everyone else's is derived from
+//     the roster + member map (raw-ingest-video.mjs). New URLs are queued into the same frontier as fresh pages.
 //     Facebook video posts are logged as unavailable (no access configured).
 //   · PULL — up to VIDEO_SPEECH_PER_POLITICIAN of them per politician per run,
 //     only in free slots under the unchanged caps. Videos go through the
@@ -267,7 +269,8 @@ import {
 } from "../lib/raw-ingest-hosts.mjs";
 import { retiredSourcesLine, RETIRED_VERSION, RETIRED_LOG_KEY } from "../lib/raw-ingest-retired.mjs";
 import { TRANSCRIPT_STORE_NAME, lockerRawFor } from "../lib/video-transcripts.mjs";
-import { discoverVideoSpeech, addVideoSpeechSources, isVideoSpeechEntry, VIDEO_SPEECH_PER_POLITICIAN } from "../lib/raw-ingest-video.mjs";
+import { discoverVideoSpeech, addVideoSpeechSources, isVideoSpeechEntry, buildVideoSpeechConfigs, VIDEO_SPEECH_PER_POLITICIAN } from "../lib/raw-ingest-video.mjs";
+import VS_MEMBER_MAP from "../../db/vr-member-map.json" with { type: "json" };
 import { INGEST_ALLOW_LIST, scopeIds, inScope, filterToScope, scopedRotationKey, scopeLine } from "../lib/raw-ingest-scope.mjs";
 import { buildWordGaps, orderPullListByWordGap, wordGapLine, wordGapRank, loadWordGapData } from "../lib/raw-ingest-word-gap.mjs";
 import groundTruth from "../../db/stance-ground-truth-talarico-cost-of-living.json" with { type: "json" };
@@ -451,13 +454,17 @@ export async function run(deps: {
     if (fresh && deps.videoSpeech) {
       const vo: any = typeof deps.videoSpeech === "object" ? deps.videoSpeech : {};
       const vsPids = plan.politicians.filter((p: string) => inScope(scope, p));
+      // One configuration per planned politician (hand-written entries win).
+      const vsSet = new Set(vsPids);
+      const vsConfigs = buildVideoSpeechConfigs(roster.filter((r: any) => vsSet.has(r.politician_id)), { members: (VS_MEMBER_MAP as any).members || [] });
       const vd = await discoverVideoSpeech({
+        configs: vsConfigs,
         politicians: vsPids, fresh, fetch: deps.fetch, store: deps.rotationStore, state: vo.state ?? null, now: nowFn, log,
         force: !!vo.force, mergeFrontier,
         ...(vo.youtubeKey !== undefined ? { youtubeKey: vo.youtubeKey } : {}),
         ...(vo.govinfoKey !== undefined ? { govinfoKey: vo.govinfoKey } : {}),
       });
-      const va = addVideoSpeechSources(sources, fresh, { politicians: vsPids, max, perPolitician: MAX_SOURCES_PER_POLITICIAN, per: vo.per ?? VIDEO_SPEECH_PER_POLITICIAN, skipHosts: new Set(skipHosts.keys()), log });
+      const va = addVideoSpeechSources(sources, fresh, { configs: vsConfigs, politicians: vsPids, max, perPolitician: MAX_SOURCES_PER_POLITICIAN, per: vo.per ?? VIDEO_SPEECH_PER_POLITICIAN, skipHosts: new Set(skipHosts.keys()), log });
       sources = va.sources;
       discovered = [...discovered, ...va.added];
       videoSpeech = { checked: vd.checked, queued: vd.added, discovery: vd.sources, added: va.added.length };
@@ -752,10 +759,11 @@ export async function scheduled(deps: { run?: typeof run; suggestionsStore?: any
     discover: true,
     rotate: true,
     fresh: true,
-    // Video / speech discovery + transcription (raw-ingest-video.mjs). Only
-    // politicians configured there (Massie) and inside the allow-list.
+    // Video / speech discovery + transcription (raw-ingest-video.mjs) for every
+    // planned politician (inside the allow-list, which is off by default).
     videoSpeech: true,
-    // The allow-list (raw-ingest-scope.mjs). [] there lifts the restriction.
+    // The allow-list (raw-ingest-scope.mjs). Defaults to [] (whole roster);
+    // ids there narrow the run again.
     scope: INGEST_ALLOW_LIST,
     ...(injected ? {} : productionStores()),
     ...(statedDb ? { statedDb } : {}),
