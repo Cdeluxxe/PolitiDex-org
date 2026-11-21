@@ -282,5 +282,93 @@ await t("the cron wakes the background transcriber only when a run queued videos
   assert.equal(woken, 1, "no wake without queued videos");
 });
 
+// ── 7. Gemini rate-limit throttle ───────────────────────────────────────────
+const SRC_OF = (i) => ({ ...SRC, source_id: `throttle-${i}` });
+const vidOf = (i) => `Thr0ttle${String(i).padStart(3, "0")}`;
+async function queueN(ts, n) { for (let i = 0; i < n; i++) await vt.enqueueTranscript(ts, SRC_OF(i), { videoId: vidOf(i), title: `v${i}` }); }
+async function throttledRun({ ts, generate, wake = async () => {}, logs = [] }) {
+  const events = [];
+  const sleeps = [];
+  const gen = async (args) => { events.push(`call:${args.videoId}`); return generate(args); };
+  const sleep = async (ms) => { sleeps.push(ms); events.push(`sleep:${ms}`); };
+  const { value } = await quiet(() => worker.transcribeRun({ store: ts, rawStore: memStore(), lockerStore: memStore(), generate: gen, sleep, log: (l) => logs.push(l), wake }));
+  return { summary: value, events, sleeps, logs };
+}
+
+await t("the transcriber picks at most 4 videos per run", async () => {
+  assert.equal(vt.TRANSCRIBE_PER_RUN, 4);
+  const ts = memStore(); await queueN(ts, 10);
+  const { summary, events } = await throttledRun({ ts, generate: async () => CLEAR });
+  assert.equal(summary.picked, 4);
+  assert.equal(events.filter((e) => e.startsWith("call:")).length, 4, "four Gemini calls");
+  assert.equal(summary.remaining, 6, "the rest waits in the queue");
+});
+
+await t("transcription calls run one at a time with a 1.5 s pause between them", async () => {
+  assert.equal(vt.TRANSCRIBE_CALL_DELAY_MS, 1500);
+  const ts = memStore(); await queueN(ts, 4);
+  let inFlight = 0, peak = 0;
+  const { events, sleeps } = await throttledRun({ ts, generate: async () => { inFlight++; peak = Math.max(peak, inFlight); await new Promise((r) => setTimeout(r, 5)); inFlight--; return CLEAR; } });
+  assert.equal(peak, 1, "never two Gemini calls at once");
+  assert.deepEqual(sleeps, [1500, 1500, 1500], "a pause before every call but the first");
+  assert.ok(events[0].startsWith("call:"), "the first call starts at once");
+  for (let i = 1; i < events.length; i += 2) { assert.equal(events[i], "sleep:1500"); assert.ok(events[i + 1].startsWith("call:")); }
+  // Cache hits make no call, so they never wait.
+  const ts2 = memStore(); await queueN(ts2, 2);
+  for (let i = 0; i < 2; i++) await ts2.setJSON(vt.cacheKey(vidOf(i)), { video_id: vidOf(i), status: "empty", segments: [] });
+  const cached = await throttledRun({ ts: ts2, generate: async () => CLEAR });
+  assert.equal(cached.summary.cache_hits, 2); assert.deepEqual(cached.sleeps, []);
+});
+
+await t("the real delay is applied when no sleep is injected", async () => {
+  const ts = memStore(); await queueN(ts, 2);
+  const t0 = Date.now();
+  await quiet(() => vt.processTranscriptQueue({ store: ts, rawStore: memStore(), generate: async () => CLEAR, log: () => {} }));
+  assert.ok(Date.now() - t0 >= 1450, `two calls took ${Date.now() - t0} ms`);
+});
+
+await t("retries (up to 3 attempts) and give-up still work under the throttle", async () => {
+  const ts = memStore(); await queueN(ts, 1);
+  const boom = async () => { throw new Error("429 Too Many Requests"); };
+  const logs = [];
+  const r1 = await throttledRun({ ts, generate: boom, logs });
+  assert.equal(r1.summary.retry_later, 1);
+  assert.equal(ts.data.get(vt.queueKey(vidOf(0))).attempts, 1, "kept in the queue");
+  const r2 = await throttledRun({ ts, generate: boom, logs });
+  assert.equal(r2.summary.retry_later, 1);
+  const r3 = await throttledRun({ ts, generate: boom, logs });
+  assert.equal(r3.summary.failed, 1, "given up on the 3rd attempt");
+  assert.ok(!ts.data.has(vt.queueKey(vidOf(0))), "removed from the queue");
+  assert.equal(ts.data.get(vt.cacheKey(vidOf(0))).status, "failed");
+  assert.ok(logs.some((l) => /GAVE UP .* after 3 attempts/.test(l)));
+});
+
+await t("a successful run with work left wakes the next run", async () => {
+  const ts = memStore(); await queueN(ts, 6);
+  let woken = 0;
+  const { summary } = await throttledRun({ ts, generate: async () => CLEAR, wake: async () => { woken++; } });
+  assert.equal(summary.remaining, 2); assert.equal(woken, 1);
+  // A run that drains the queue does not.
+  await throttledRun({ ts, generate: async () => CLEAR, wake: async () => { woken++; } });
+  assert.equal(woken, 1);
+});
+
+await t("a heavily failing run stops chaining; a lightly failing one still chains", async () => {
+  const ts = memStore(); await queueN(ts, 6);
+  let woken = 0; const logs = [];
+  const { summary } = await throttledRun({ ts, generate: async () => { throw new Error("429"); }, wake: async () => { woken++; }, logs });
+  assert.equal(summary.retry_later, 4); assert.ok(summary.remaining > 0);
+  assert.equal(woken, 0, "all calls failed — no wake");
+  assert.ok(logs.some((l) => /not waking the next run/.test(l)));
+  // 3 of 4 failed: still too many.
+  const ts2 = memStore(); await queueN(ts2, 6); let n = 0;
+  await throttledRun({ ts: ts2, generate: async () => { if (n++ < 3) throw new Error("429"); return CLEAR; }, wake: async () => { woken++; } });
+  assert.equal(woken, 0);
+  // 1 of 4 failed: keeps going.
+  const ts3 = memStore(); await queueN(ts3, 6); let m = 0;
+  await throttledRun({ ts: ts3, generate: async () => { if (m++ < 1) throw new Error("429"); return CLEAR; }, wake: async () => { woken++; } });
+  assert.equal(woken, 1);
+});
+
 console.log(`${failures ? "✗" : "✓"} video transcripts: ${passed} passed, ${failures} failed`);
 if (failures) process.exit(1);

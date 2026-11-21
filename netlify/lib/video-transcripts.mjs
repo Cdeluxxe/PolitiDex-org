@@ -44,8 +44,9 @@ export const TRANSCRIPT_STORE_NAME = "video-transcripts";
 export const TRANSCRIPT_PROVIDER = "gemini";
 export const TRANSCRIPT_MODEL = "gemini-3.5-flash";
 export const MAX_TRANSCRIBE_SECONDS = 1200;      // the first 20 minutes of a video
-export const TRANSCRIBE_PER_RUN = 12;            // videos per background run
-export const TRANSCRIBE_CONCURRENCY = 3;
+export const TRANSCRIBE_PER_RUN = 4;             // videos per background run (kept small for Gemini rate limits)
+export const TRANSCRIBE_CONCURRENCY = 1;         // one Gemini call at a time …
+export const TRANSCRIBE_CALL_DELAY_MS = 1500;    // … with a pause between calls, to stay under the 429 limit
 export const TRANSCRIBE_BUDGET_MS = 11 * 60_000; // stop starting new videos after this (15-min limit)
 export const MAX_ATTEMPTS = 3;
 export const LOCK_KEY = "worker-lock.json";
@@ -340,6 +341,7 @@ export async function processTranscriptQueue({
   store, rawStore, onRecord, generate = geminiGenerate, nameOf = (pid) => nameFromId(pid),
   max = TRANSCRIBE_PER_RUN, concurrency = TRANSCRIBE_CONCURRENCY, budgetMs = TRANSCRIBE_BUDGET_MS,
   now = () => new Date(), log = console.log, lock = true,
+  callDelayMs = TRANSCRIBE_CALL_DELAY_MS, sleep = (ms) => new Promise((r) => setTimeout(r, ms)),
 } = {}) {
   const summary = { locked: false, picked: 0, transcribed: 0, cache_hits: 0, recorded: 0, no_own_speech: 0, failed: 0, retry_later: 0, remaining: 0, records: [] };
   if (!store) return summary;
@@ -354,6 +356,18 @@ export async function processTranscriptQueue({
     try { keys = ((await store.list({ prefix: "queue/" }))?.blobs || []).map((b) => b.key); } catch (e) { log(`video-transcribe: queue unreadable — ${e?.message || e}`); }
     const batch = keys.slice(0, max);
     summary.picked = batch.length;
+    // Gemini rate limit: space the transcription calls out. Cache hits make no
+    // call, so they never wait; the first call of a run starts at once.
+    let callsMade = 0;
+    let gate = Promise.resolve();
+    const throttled = (f) => {
+      const run = gate.then(async () => {
+        if (callsMade++ > 0 && callDelayMs > 0) await sleep(callDelayMs);
+        return f();
+      });
+      gate = run.catch(() => {});
+      return run;
+    };
     const one = async (key) => {
       const entry = await getJSON(store, key);
       const videoId = entry?.video_id;
@@ -363,7 +377,7 @@ export async function processTranscriptQueue({
       if (doc) summary.cache_hits++;
       else {
         const name = entry.name || nameOf(pid);
-        const tr = await transcribeVideo(videoId, { name, generate });
+        const tr = await throttled(() => transcribeVideo(videoId, { name, generate }));
         if (!tr.ok) {
           const attempts = (Number(entry.attempts) || 0) + 1;
           if (attempts < MAX_ATTEMPTS) {
