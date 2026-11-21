@@ -422,7 +422,9 @@ export function addFreshSources(sources, state, { politicians, max, perPoliticia
 
   const take = (pid, { spareSlot }) => {
     // Word vs Action gaps first (by harvested topic); stable, so frontier rank breaks ties.
-    const list = preferWordGaps(state.frontier[pid] || [], wordGaps);
+    // Video / speech entries (raw-ingest-video.mjs, source_id "fresh-vs-…")
+    // have their own per-politician allowance and are picked there.
+    const list = preferWordGaps((state.frontier[pid] || []).filter((x) => !String(x?.source_id || "").startsWith("fresh-vs-")), wordGaps);
     let n = 0, i = 0;
     for (; i < list.length; i++) {
       const cand = list[i];

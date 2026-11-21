@@ -104,6 +104,8 @@ export function attributionFor(sourceType, link) {
   const st = String(sourceType || "").toLowerCase();
   let host = "";
   try { host = new URL(link).hostname.toLowerCase(); } catch {}
+  // A C-SPAN clip of the politician is named as C-SPAN, not as their channel.
+  if (/\bc-span\b/.test(st)) return "Source: C-SPAN video";
   // A cited video from the politician's own channel (tier 2) is named as one.
   if (/(?:^|\.)(?:youtube\.com|youtu\.be)$/.test(host)) return `Source: ${/\bcampaign\b/.test(st) ? "campaign" : "official"} YouTube channel`;
   if (/\bofficial\b/.test(st) || /\.(gov|mil)$/.test(host)) {
