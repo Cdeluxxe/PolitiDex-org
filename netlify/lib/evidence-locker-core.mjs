@@ -630,6 +630,63 @@ export async function lockerBaselineCounts(store, { flags = null, pids = null, l
   return counts;
 }
 
+// ── Cached baseline counts (the every-minute raw-ingest run) ───────────────
+// lockerBaselineCounts reads EVERY Locker item. With the whole roster in scope
+// (8,000+ politicians, 33,000+ items) that read alone took ~40 s, so every
+// every-minute run hit the function timeout before it reached promotion, the
+// seen ledger, the transcriber wake or the run log. The scheduled run instead
+// reads one cached doc and refreshes it from the Locker at most every
+// BASELINE_CACHE_TTL_MS. The counts only order the rotation and mark pairs
+// "filled", so a few minutes of staleness changes priority, never a write.
+export const BASELINE_CACHE_KEY = "baseline-counts.json";
+export const BASELINE_CACHE_TTL_MS = 30 * 60_000;
+export const BASELINE_REFRESH_CLAIM_MS = 3 * 60_000;
+
+const onlyPids = (counts, pids) => {
+  if (!pids) return { ...counts };
+  const want = new Set(pids);
+  return Object.fromEntries(Object.entries(counts || {}).filter(([k]) => want.has(k.split("|")[0])));
+};
+
+/**
+ * Baseline counts from the cache doc in `cacheStore`, refreshed from the
+ * Locker when older than `ttlMs`. Returns { counts, source, ms } where source
+ * is "cache" | "stale" (another run is refreshing) | "refreshed" | "live" (no
+ * usable cache store: the plain lockerBaselineCounts read, as before).
+ */
+export async function cachedBaselineCounts(lockerStore, cacheStore, { flags = null, pids = null, log = console.log, now = () => new Date(), ttlMs = BASELINE_CACHE_TTL_MS } = {}) {
+  const t0 = Date.now();
+  const live = async () => ({ counts: await lockerBaselineCounts(lockerStore, { flags, pids, log }), source: "live", ms: Date.now() - t0 });
+  if (!cacheStore || typeof cacheStore.get !== "function" || typeof cacheStore.setJSON !== "function") return live();
+  let doc = null;
+  try {
+    doc = await cacheStore.get(BASELINE_CACHE_KEY, { type: "json" });
+    if (typeof doc === "string") doc = JSON.parse(doc);
+  } catch { doc = null; }
+  const nowMs = now().getTime();
+  const has = doc && doc.counts && typeof doc.counts === "object";
+  const age = has ? nowMs - Date.parse(doc.computed_at || 0) : Infinity;
+  if (has && age >= 0 && age < ttlMs) return { counts: onlyPids(doc.counts, pids), source: "cache", ms: Date.now() - t0, age_ms: age };
+  if (has && Number(doc.refreshing_until) > nowMs) return { counts: onlyPids(doc.counts, pids), source: "stale", ms: Date.now() - t0, age_ms: age };
+  try { await cacheStore.setJSON(BASELINE_CACHE_KEY, { ...(doc || {}), refreshing_until: nowMs + BASELINE_REFRESH_CLAIM_MS }); } catch { /* best effort */ }
+  const all = await lockerBaselineCounts(lockerStore, { flags, log });
+  try { await cacheStore.setJSON(BASELINE_CACHE_KEY, { computed_at: now().toISOString(), pairs: Object.keys(all).length, counts: all }); }
+  catch (e) { log(`evidence-locker: baseline cache not saved — ${e?.message || e}`); }
+  return { counts: onlyPids(all, pids), source: "refreshed", ms: Date.now() - t0 };
+}
+
+/** counts + this run's Locker writes (strong / weak only), without re-reading the Locker. */
+export function bumpBaselineCounts(counts, writes = []) {
+  const out = {};
+  for (const [k, c] of Object.entries(counts || {})) out[k] = { strong: Number(c?.strong) || 0, weak: Number(c?.weak) || 0 };
+  for (const w of writes || []) {
+    if (!w?.politician_id || !w?.topic || (w.strength !== "strong" && w.strength !== "weak")) continue;
+    const c = (out[`${w.politician_id}|${w.topic}`] ||= { strong: 0, weak: 0 });
+    c[w.strength] += 1;
+  }
+  return out;
+}
+
 // ── Stated positions written under the older rules ─────────────────────────
 // Before scorer R8, one or two explicit claims on a campaign/official page
 // scored 0.70 and were stored as "weak". The stored confidence_reason says

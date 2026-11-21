@@ -49,7 +49,11 @@ export async function transcribeRun(deps: { store?: any; rawStore?: any; lockerS
   const flags = loadReviewFlags(reviewFile);
   const writes: any[] = [];
   const summary = await processTranscriptQueue({
-    store: deps.store ?? getStore(TRANSCRIPT_STORE_NAME),
+    // Strong consistency: a run woken right after another one finished must not
+    // list the queue entries (or the worker lock) that run just deleted. With
+    // the default eventual consistency it did: the next run "picked" 4 deleted
+    // entries, made no progress, and so never woke the run after it.
+    store: deps.store ?? getStore({ name: TRANSCRIPT_STORE_NAME, consistency: "strong" }),
     rawStore: deps.rawStore ?? getStore(RAW_STORE_NAME),
     nameOf: politicianName,
     ...(deps.generate ? { generate: deps.generate } : {}),
