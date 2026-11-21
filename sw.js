@@ -12538,7 +12538,14 @@
 //   stay in the formal record table it links down to. Precached file changed
 //   (consistency.js), so the shell moves; the precache list is unchanged.
 //   MIGRATION COST: none.
-const CACHE_VERSION = 'v601';
+// v602 - ONE AIPAC CHIP, ONE STANCE LABEL. The person page no longer prints the
+//   empty-state "No AIPAC file on hand" relationship chip; the AIPAC Tracker
+//   chip (status, link, disclosure unchanged) is the only AIPAC chip left there.
+//   The issue drawer header reads "Stated: Supports · Source: …" for a promoted
+//   pipeline card, without repeating "Pipeline-sourced". Precached files changed
+//   (pdx-aipac.js, consistency.js), so the shell moves; the precache list is unchanged.
+//   MIGRATION COST: none.
+const CACHE_VERSION = 'v602';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

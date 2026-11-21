@@ -160,6 +160,11 @@ ok(qpEv.indexOf("clerk.house.gov") < 0, "a vote was listed among the quick-proof
 const plain = (x) => String(x || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
 ok(!/Pipeline-sourced stance · Pipeline-sourced/.test(plain(h)), "the drawer still repeats “Pipeline-sourced stance · Pipeline-sourced”");
 ok(/Pipeline-sourced stance/.test(plain(h)), "the drawer lost the pipeline stance label");
+{
+  const head = plain(h.slice(0, h.indexOf('data-pdxgap-sec="record"'))).split("Stated stance on file")[0];
+  ok(/Stated: Supports · Source: official House page/.test(head), `the drawer header does not read “Stated: Supports · Source: official House page” (${head.trim().slice(0, 160)})`);
+  ok((head.match(/Pipeline-sourced/g) || []).length === 0, `the drawer header still repeats “Pipeline-sourced” (${head.trim().slice(0, 160)})`);
+}
 ok(st && st.note === "Source: official House page", `the store note is “${st && st.note}”, not just its source`);
 const WA = win.PDXWordAction;
 const list = WA && typeof WA.sectionHtml === "function" ? (WA.sectionHtml(PID, win.CMP_DATA[PID]) || "") : "";

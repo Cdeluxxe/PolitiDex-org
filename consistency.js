@@ -3930,11 +3930,13 @@
   // `lead` swaps the "Says:" lead word for a surface that words it differently
   // (the issue drawer's header reads "Stated:"); every other caller
   // passes nothing and keeps "Says:".
-  function _orStanceChip(pid, issueKey, lead) {
+  // `bare` (the issue drawer's header) drops the "· ⚙︎ Pipeline-sourced" tag:
+  // the header's note already names the source, and the chip keeps its title.
+  function _orStanceChip(pid, issueKey, lead, bare) {
     var s = positionStance(pid, issueKey);
     var m = _OR_STANCE[s]; if (!m) return '';
     if (positionIsPipeline(pid, issueKey)) {
-      return '<span class="pdxor-stance" data-pdx-stance-source="pipeline" style="--c:' + m.c + '" title="' + _PIPELINE_CHIP_TITLE + '">' + m.ico + ' ' + esc(lead || 'Says:') + ' ' + m.lb + ' · ⚙︎ Pipeline-sourced</span>';
+      return '<span class="pdxor-stance" data-pdx-stance-source="pipeline" style="--c:' + m.c + '" title="' + _PIPELINE_CHIP_TITLE + '">' + m.ico + ' ' + esc(lead || 'Says:') + ' ' + m.lb + (bare ? '' : ' · ⚙︎ Pipeline-sourced') + '</span>';
     }
     return '<span class="pdxor-stance" style="--c:' + m.c + '" title="Their stated position">' + m.ico + ' ' + esc(lead || 'Says:') + ' ' + m.lb + '</span>';
   }
@@ -5750,7 +5752,7 @@
   // The one visible note: signal, then source. A pipeline stance's own line
   // (profile-locker.js saidLineHtml) already prints its tag and count, so this is
   // the curated note — same words the attribute carries.
-  function statedStanceNoteHtml(s) {
+  function statedStanceNoteHtml(s, noSignal) {
     if (!s) return '';
     var srcTxt = esc(s.note);
     var body = s.url
@@ -5758,7 +5760,7 @@
       : '<span class="pdx-stance-src">' + srcTxt + '</span>';
     return '<span class="pdx-stance-note" data-pdx-stance-note-for="' + escAttr(s.key) + '"' +
       ' style="font-size:0.66rem;color:#9fb4d4;margin-left:0.3rem;">' +
-      '<span class="pdx-stance-signal">' + esc(s.signalLabel) + '</span> · ' + body + '</span>';
+      (noSignal ? '' : '<span class="pdx-stance-signal">' + esc(s.signalLabel) + '</span> · ') + body + '</span>';
   }
   // Tiers are the profile's sort contract, stated once:
   //   0  said + did, and they disagree      (contradiction / cuts both ways)
@@ -20672,7 +20674,11 @@
       inner = statedStanceLineHtml(s, 'span', 'pdxgap-locker-said', { style: 'display:inline;margin:0;', lead: _GAP_STANCE_LEAD });
       if (!inner) return covLine;
     } else {
-      inner = _orStanceChip(pid, issueKey, _GAP_STANCE_LEAD) + statedStanceNoteHtml(s);
+      // A promoted pipeline card: the header reads "Stated: Supports · Source: …"
+      // once, never "· Pipeline-sourced" and then "Pipeline-sourced stance ·".
+      var pc = s.provenance === 'pipeline';
+      inner = _orStanceChip(pid, issueKey, _GAP_STANCE_LEAD, pc) +
+        (pc ? '<span class="pdx-stance-sep" aria-hidden="true"> · </span>' : '') + statedStanceNoteHtml(s, pc);
     }
     return '<span class="pdxgap-stance"' + statedStanceAttrs(s) + '>' + inner + '</span>' + covLine;
   }
