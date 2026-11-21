@@ -31,12 +31,43 @@ import { readLockerDocs } from "../lib/locker-read.mjs";
 import reviewFile from "../../db/evidence-locker-review.json" with { type: "json" };
 import { recordFlag, FLAG_STORE_NAME } from "../lib/dirkey-flag-core.mjs";
 
-export async function listLockerEntries(store: any, flagsDoc: any = reviewFile) {
+// ?pid=<id>[,<id>…] — one politician's items only. Every key is stored as
+// "<politician_id>/<issue>/<hash>.json", so a prefix list reads that person's
+// handful of blobs instead of the whole store. The full list has grown past
+// 30,000 blobs and takes longer to read than the CDN waits, so a person page
+// asks for its own politician this way. Same filters, same shape, same order.
+export const PID_PARAM_MAX = 6;
+const PID_RE = /^[A-Za-z0-9_-]{1,80}$/;
+export function pidsFromUrl(url: string): string[] {
+  let raw = "";
+  try { raw = new URL(url).searchParams.get("pid") || ""; } catch { raw = ""; }
+  const out: string[] = [];
+  for (const p of raw.split(",")) {
+    const id = p.trim();
+    if (PID_RE.test(id) && !out.includes(id)) out.push(id);
+    if (out.length >= PID_PARAM_MAX) break;
+  }
+  return out;
+}
+
+async function listKeys(store: any, pids: string[] | null): Promise<string[]> {
+  if (!pids) {
+    const { blobs } = await store.list();
+    return blobs.map((b: any) => b.key);
+  }
+  const keys: string[] = [];
+  for (const id of pids) {
+    const { blobs } = await store.list({ prefix: `${id}/` });
+    for (const b of blobs) if (!keys.includes(b.key)) keys.push(b.key);
+  }
+  return keys;
+}
+
+export async function listLockerEntries(store: any, flagsDoc: any = reviewFile, { pids = null }: { pids?: string[] | null } = {}) {
   const flags = loadReviewFlags(flagsDoc);
-  const { blobs } = await store.list();
   const items: Record<string, any[]> = {};
   let count = 0, hidden = 0, unreadable = 0;
-  const docs: any[] = await readLockerDocs(store, blobs.map((b: any) => b.key));
+  const docs: any[] = await readLockerDocs(store, await listKeys(store, pids));
   const rows: any[] = [];
   for (const { key, doc } of docs) {
     if (!doc || !doc.politician_id || !doc.link) continue;
@@ -81,7 +112,8 @@ export default async (req: Request): Promise<Response> => {
   if (req.method === "POST") return flag(req);
   if (req.method !== "GET") return new Response("Method not allowed", { status: 405 });
   try {
-    const body = await listLockerEntries(getStore(LOCKER_STORE_NAME));
+    const pids = pidsFromUrl(req.url);
+    const body = await listLockerEntries(getStore(LOCKER_STORE_NAME), reviewFile, { pids: pids.length ? pids : null });
     return Response.json(body, { headers: { "cache-control": "public, max-age=300" } });
   } catch (e: any) {
     console.log(`evidence-locker-items: ERROR ${e?.message || e}`);

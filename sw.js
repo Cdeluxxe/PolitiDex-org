@@ -12518,7 +12518,18 @@
 //   stances.html and me.html), so the shell moves; the precache list is
 //   unchanged.
 //   MIGRATION COST: none.
-const CACHE_VERSION = 'v599';
+// v600 - EVERY PIECE OF EVIDENCE BEHIND A STANCE, IN THE DRAWER. The issue
+//   drawer's Evidence section lists every Evidence Locker item on the
+//   politician + issue beside the stance card's own source, and a video item
+//   prints its source label and a "▶ Watch official video · 15:38" link that
+//   opens at the moment. Votes are no longer listed as evidence (they stay in
+//   the formal record). The person file asks the Locker for its own politician
+//   (?pid=), because the full list outgrew the CDN's wait. The stated-positions
+//   list drops the repeated "Pipeline-sourced" tag and reads in the topic
+//   tree's order and colours. Precached files changed (consistency.js,
+//   word-action.js, word-action.css, stance-tree.js), so the shell moves; the precache list is unchanged.
+//   MIGRATION COST: none.
+const CACHE_VERSION = 'v600';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

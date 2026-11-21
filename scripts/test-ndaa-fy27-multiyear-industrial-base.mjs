@@ -316,7 +316,12 @@ section("4 · the drawer's stated line and Evidence read the card");
       ok(hd.includes(`Source: ${c.source.label}`), `${v} · ${pid}: the stated line does not cite the card's source`);
       ok(h.includes(`data-pdx-stance="${KEY}"`) && h.includes(`data-pdx-stance-side="${m.side}"`), `${v} · ${pid}: the stance marks are missing`);
       const ev = evidence(h);
-      for (const x of c.sources) ok(ev.includes(`href="${x.link}"`), `${v} · ${pid}: Evidence does not link ${x.link}`);
+      for (const x of c.sources) {
+        // A roll-call page is the formal record's; the drawer's Evidence lists what they said.
+        const isVote = /clerk\.house\.gov\/(?:Votes|evs)\b|senate\.gov\/legislative\/LIS\/roll_call|congress\.gov\/(?:roll-call-vote|votes)\b/i.test(x.link);
+        if (isVote) ok(!ev.includes(`href="${x.link}"`), `${v} · ${pid}: Evidence lists the vote ${x.link}`);
+        else ok(ev.includes(`href="${x.link}"`), `${v} · ${pid}: Evidence does not link ${x.link}`);
+      }
       ok(text(ev).includes(text(c.sources[0].excerpt)), `${v} · ${pid}: Evidence does not print the statement's excerpt`);
     }
   }
