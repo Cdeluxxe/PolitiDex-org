@@ -396,9 +396,9 @@ const COPIES = [
   [2185, 2230, "the share furniture share-preview.ts rewrites"],
   [3728, 3791, "the crawl-header guard"],
   [13359, 13393, "the profile modal down to #modal-content"],
-  [13454, 13500, "the stance popover, the record overlay and the share sheet"],
-  [19356, 19476, "PDXStance"],
-  [21970, 22165, "the PWA runtime and the service-worker registration"],
+  [13454, 13496, "the stance popover and the share sheet"],
+  [19352, 19472, "PDXStance"],
+  [21966, 22161, "the PWA runtime and the service-worker registration"],
 ];
 //   AND THE STATE-BADGE PASS MOVED THE SAME LOWER FOUR BY 156, ALL OF IT ONE
 // EDIT ABOVE THEM: the location card's silhouette stopped being a hardcoded
@@ -685,7 +685,7 @@ for (const id of ["modal-body", "modal-icon", "modal-name-small", "modal-office-
     `dom: #${id} is present — the shipped modules dereference it with no null check`);
 }
 for (const id of ["modal-overlay", "modal-panel", "modal-content", "modal-file-kicker",
-                  "sag-pop-overlay", "pdx-record-overlay", "pdx-share-overlay",
+                  "sag-pop-overlay", "pdx-share-overlay",
                   "pdx-share-name", "pdx-share-artifact", "pdx-share-link", "pdx-share-copy"]) {
   ok(html.includes(`id="${id}"`), `dom: #${id} is present`);
 }

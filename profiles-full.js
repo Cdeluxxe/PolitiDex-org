@@ -424,7 +424,6 @@
               // the summary rather than only inside an expanded row. Without it the
               // section is a dead end on a phone, which is the other half of reading
               // as a broken separate widget.
-              ((typeof window._pdxStanceRecordMiniLink === 'function') ? '<div class="sag-more">' + window._pdxStanceRecordMiniLink(id, p) + '</div>' : '') +
             '</div>' +
           '</div>' +
         '</div>';
@@ -843,7 +842,6 @@
         return '<div class="modal-section">' +
           '<div class="modal-section-title" style="justify-content:space-between;">' +
             '<span style="display:inline-flex;align-items:center;gap:0.45rem;min-width:0;">' + _esTitle + '</span>' +
-            ((typeof window._pdxStanceRecordMiniLink === 'function') ? window._pdxStanceRecordMiniLink(id, p) : '') +
           '</div>' +
           '<div class="pdx-empty-state">' +
             '<div class="pdx-empty-ico">' + _esIco + '</div>' +
@@ -1257,22 +1255,6 @@
         }
       }
     } catch (e) { _inferredSection = ''; }
-    // Secondary, in-context jump to the Full Stance Record overlay (every issue +
-    // honest gaps) and an optional subtle teaser counting the gap issues that the
-    // curated cards above don't show. Both read from already-cached stats.
-    var _recMini = (typeof window._pdxStanceRecordMiniLink === 'function') ? window._pdxStanceRecordMiniLink(id, p) : '';
-    var _recTeaser = '';
-    try {
-      var _recStats = (typeof window._pdxStanceRecordStats === 'function') ? window._pdxStanceRecordStats(id, p) : null;
-      var _gaps = _recStats ? _recStats.gaps : 0;
-      if (_gaps > 0 && (typeof window._pdxOpenStanceRecord === 'function')) {
-        var _gapJsId = _pdxEvJsId(id);
-        _recTeaser = '<button type="button" class="pdx-fsr-teaser" ' +
-          'onclick="window._pdxOpenStanceRecord&&window._pdxOpenStanceRecord(\'' + _gapJsId + '\');">' +
-          '+ <b>' + _gaps + '</b> more issue' + (_gaps === 1 ? '' : 's') + ' tracked, including gaps. ' +
-          '<span class="pdx-fsr-teaser-go">View full record →</span></button>';
-      }
-    } catch (e) { _recTeaser = ''; }
     // Thin / early profile: when the section is built from stated key issues
     // (no documented stances yet), offer the same quiet on-ramp to help build the
     // record. Skipped for concluded candidacies and for full officeholder records.
@@ -1291,7 +1273,6 @@
         '<span style="display:inline-flex;align-items:center;gap:0.45rem;">' + (_derivedCand ? '🎯 Top Priorities' : '🎯 Key Issue Stances') + '</span>' +
         '<span style="display:inline-flex;align-items:center;gap:0.4rem;flex-shrink:0;">' +
           '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.6rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;background:rgba(159,180,212,0.12);border:1px solid rgba(159,180,212,0.2);color:#7596c0;padding:0.12rem 0.5rem;border-radius:999px;">' + stances.length + _countWord + '</span>' +
-          _recMini +
         '</span>' +
       '</div>' +
       '<p class="modal-section-sub">' + (_derivedCand
@@ -1303,7 +1284,6 @@
       _limitedBanner +
       (sumChips ? '<div class="stance-summary">' + sumChips + '</div>' : '') +
       body +
-      _recTeaser +
       _thinSuggest +
       _inferredSection +
       '<p class="src-note">' + note + '</p>' +
@@ -2449,81 +2429,13 @@
 
   <!-- _pdxStanceRecordStats moved to stance-helpers.js -->
 
+  // The Full Stance Record button and its overlay were retired. What remains in
+  // this slot is the whole-person share control that used to sit beside it — it
+  // arrives hidden and pending, and receipt-cards.js reveals or removes it.
   window._pdxStanceRecordCta = function (id, p) {
     try {
-      p = p || {};
-      var s = window._pdxStanceRecordStats(id, p);
-      var jsId = _pdxEvJsId(id);
-      // "STILL BEING BUILT" IS A CLAIM ABOUT THE WHOLE RECORD, so it has to read
-      // the whole record. This asked `!s.tracked` — curated cards, curated issues,
-      // Locker evidence — and none of those are the formal file. A member with a
-      // deep roll-call record and no stated position on file therefore got a
-      // button telling them the record is in progress while the destination
-      // listed every issue that record touched, which is the same leftover the
-      // person-file kicker had. s.formal is the formal pattern index's own count
-      // and it is already computed one line up; a record with issues on it is not
-      // "being built" whatever the curated side holds.
-      // ── AND "EMPTY" IS A CLAIM, SO IT NEEDS THE WHOLE RECORD AND THE CLOCK ──
-      // This read `!s.tracked && !s.formal`, and s.formal counts issue ROWS out
-      // of an index that is empty until the roll-call cache warms. So on a cold
-      // /p/aaron_bean the letterhead said "11 issues · 23 acts · 3
-      // characterized" and this button, one screen down and rendered one tick
-      // earlier, said the record was still being built. Both were drawn from the
-      // same record; only the second was drawn before it arrived.
-      //
-      // Three states now, and the middle one is the new one:
-      //   · ACTS ON FILE (rows, acts, or the edge's own first-byte brief) — the
-      //     record exists, so the phrase is simply unavailable. This is the
-      //     Bean case, and it does not depend on anything having warmed.
-      //   · NOT LOOKED YET (nothing curated, nothing formal, and the roll-call
-      //     lane has not answered for this person) — the neutral label. "Still
-      //     being built" would be a finding about a record nobody has read, and
-      //     the reader gets it back a second later when the lane answers and
-      //     this repaints.
-      //   · READ AND EMPTY — the phrase keeps its one honest job: no cited word,
-      //     and a formal lane that answered and had nothing. That is the Utah
-      //     empty-ten file, which is what the wording was written for.
-      // The publication floor is not consulted and not moved; this decides a
-      // label, not what publishes.
-      var hasFormal = (s.formal > 0) || (s.formalActs > 0);
-      var thinRecord = !s.tracked && !hasFormal && s.formalRead !== false;
-      // Thin profiles still get the button — the label simply tells the honest
-      // truth that the record is in progress (and the overlay shows the gaps).
-      var title = thinRecord ? 'View Full Record — still being built' : 'View the Full Record on the Issues';
-      // TWO NUMBERS, EACH NAMED FOR THE LIST IT COUNTS. The formal one leads where
-      // it is larger — it is the reason this button is worth pressing on an
-      // officeholder — and the curated one follows, so neither is mistaken for the
-      // other. Where there is no formal record the line is exactly what it was.
-      var statText = (s.formal > s.tracked)
-        ? (s.formal + ' issue' + (s.formal === 1 ? '' : 's') + ' on the formal record' +
-            (s.tracked ? ' <span class="pdx-fsr-dot" aria-hidden="true">•</span> ' + s.tracked + ' with a stated position' : ''))
-        : (s.tracked
-          ? (s.tracked + ' issue' + (s.tracked === 1 ? '' : 's') + ' tracked' +
-              (s.withEvidence ? ' <span class="pdx-fsr-dot" aria-hidden="true">•</span> ' + s.withEvidence + ' with evidence' : ''))
-          : 'Every issue + honest gaps');
-      return '<div class="modal-section pdx-fsr-wrap">' +
-          '<button type="button" class="pdx-fsr-btn" ' +
-            'onclick="window._pdxOpenStanceRecord&&window._pdxOpenStanceRecord(\'' + jsId + '\');" ' +
-            'aria-label="Open the full record on the issues — every issue the formal record touched, the documented positions beside it, and what is still missing">' +
-            '<span class="pdx-fsr-ico" aria-hidden="true">📋</span>' +
-            '<span class="pdx-fsr-main">' +
-              '<span class="pdx-fsr-kicker">The complete picture</span>' +
-              '<span class="pdx-fsr-title">' + title + '</span>' +
-              '<span class="pdx-fsr-stat">' + statText + '</span>' +
-            '</span>' +
-            '<span class="pdx-fsr-go" aria-hidden="true">Open ↗</span>' +
-          '</button>' +
-          // ── The whole-person share slot ──────────────────────────────────
-          // Emitted beside the button that opens the record, because the card it
-          // shares is a picture of exactly that record: how this politician's
-          // stated positions line up with what their formal record did, counted
-          // across every issue where both halves exist. It arrives hidden and
-          // pending; receipt-cards.js reveals it only if the member clears the
-          // comparable-issue floor and REMOVES it otherwise, so a thin profile
-          // shows no control at all rather than a control that shares a card
-          // built on three issues.
-          _pdxWordRecordShareSlot(id) +
-        '</div>';
+      var slot = window._pdxWordRecordShareSlot(id);
+      return slot ? '<div class="modal-section pdx-fsr-wrap">' + slot + '</div>' : '';
     } catch (e) { return ''; }
   };
 
@@ -2552,397 +2464,6 @@
 
   <!-- _pdxStanceRecordMiniLink moved to stance-helpers.js -->
 
-  // Sort / filter state for the open record overlay (re-render on change).
-  window._pdxRecordState = null;
-
-  window._pdxOpenStanceRecord = function (id) {
-    try {
-      if (!id) return;
-      var overlay = document.getElementById('pdx-record-overlay');
-      if (!overlay) return;
-      var p = (window.PROFILES && window.PROFILES[id]) ? window.PROFILES[id]
-            : ((typeof CMP_DATA !== 'undefined' && CMP_DATA[id]) ? CMP_DATA[id] : {});
-      window._pdxRecordState = { id: id, sort: 'strength', view: 'all' };
-      overlay.innerHTML = window._pdxStanceRecordBody(id, p);
-      overlay.style.display = 'flex';
-      try { overlay.scrollTop = 0; } catch (e) {}
-      // Deep-linkable hash, without disturbing the ?p=<id> profile param.
-      try {
-        var want = '#record/' + encodeURIComponent(id);
-        if (location.hash !== want) history.replaceState(null, '', location.pathname + location.search + want);
-      } catch (e) {}
-      // Fill any depth pills that rendered before the Locker library finished loading.
-      if (typeof window._pdxEnhanceDepthPills === 'function') { try { window._pdxEnhanceDepthPills(overlay); } catch (e) {} }
-    } catch (e) { if (window.console && console.warn) console.warn('stance record open failed', e); }
-  };
-
-  window._pdxCloseStanceRecord = function (opts) {
-    opts = opts || {};
-    var overlay = document.getElementById('pdx-record-overlay');
-    if (overlay) { overlay.style.display = 'none'; overlay.innerHTML = ''; }
-    window._pdxRecordState = null;
-    if (opts.keepHash !== true) {
-      try { if (String(location.hash || '').indexOf('#record/') === 0) history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
-    }
-  };
-
-  // ── THE OVERLAY, WHEN THE VOTE RECORD LANDS ───────────────────────────────
-  // The formal index is built from the voting-record cache, which arrives
-  // asynchronously — a reader who opens this overlay during that fetch sees the
-  // curated list and a formal index that is empty or short, and it never fills.
-  // The engine already announces the arrival; this listens for it and rebuilds the
-  // body once, for the profile it is showing, keeping the reader's scroll position.
-  try {
-    window.addEventListener('pdx-voting-warm', function (ev) {
-      try {
-        var st = window._pdxRecordState;
-        if (!st || !st.id) return;
-        var pid = ev && ev.detail && ev.detail.pid;
-        if (pid && String(pid) !== String(st.id)) return;
-        var ov = document.getElementById('pdx-record-overlay');
-        if (!ov || ov.style.display === 'none') return;
-        var top = ov.scrollTop;
-        var pp = (window.PROFILES && window.PROFILES[st.id]) ? window.PROFILES[st.id]
-              : ((typeof CMP_DATA !== 'undefined' && CMP_DATA[st.id]) ? CMP_DATA[st.id] : {});
-        ov.innerHTML = window._pdxStanceRecordBody(st.id, pp);
-        try { ov.scrollTop = top; } catch (e2) {}
-        if (typeof window._pdxEnhanceDepthPills === 'function') window._pdxEnhanceDepthPills(ov);
-      } catch (e) {}
-    });
-  } catch (e) {}
-
-  // Re-render the overlay after a sort/filter change.
-  window._pdxRecordSet = function (key, val) {
-    if (!window._pdxRecordState) return;
-    window._pdxRecordState[key] = val;
-    var st = window._pdxRecordState;
-    var overlay = document.getElementById('pdx-record-overlay');
-    if (!overlay) return;
-    var p = (window.PROFILES && window.PROFILES[st.id]) ? window.PROFILES[st.id]
-          : ((typeof CMP_DATA !== 'undefined' && CMP_DATA[st.id]) ? CMP_DATA[st.id] : {});
-    overlay.innerHTML = window._pdxStanceRecordBody(st.id, p);
-    if (typeof window._pdxEnhanceDepthPills === 'function') { try { window._pdxEnhanceDepthPills(overlay); } catch (e) {} }
-  };
-
-  // The full record body — a unified per-issue table built from documented
-  // positions + connected evidence + curated Locker receipts. Works on every
-  // profile: thin ones simply show honest "No record yet" rows.
-  window._pdxStanceRecordBody = function (id, p) {
-    p = p || {};
-    var st = window._pdxRecordState || { sort: 'strength', view: 'all' };
-    function esc(s) {
-      if (s == null) return '';
-      if (typeof window._slEsc === 'function') return window._slEsc(s);
-      return String(s).replace(/[&<>"]/g, function (c) { return ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' })[c]; });
-    }
-    var name = p.name || 'This official';
-    var first = String(name).split(' ')[0] || 'They';
-    var jsId = _pdxEvJsId(id);
-
-    var stanceList = (typeof window._resolveStanceList === 'function') ? (window._resolveStanceList(id, p) || []) : [];
-    var evMap = (typeof window._issueEvidenceMap === 'function') ? (window._issueEvidenceMap(id, p) || {}) : {};
-    var depth = (typeof window._pdxEvidenceDepthForPerson === 'function') ? window._pdxEvidenceDepthForPerson(id) : null;
-    var hasLocker = (typeof window._pdxHasLocker === 'function') ? window._pdxHasLocker(id) : false;
-
-    var rows = {};
-    function rowFor(k) {
-      if (!rows[k]) rows[k] = { issueKey: k, topic:'', icon:'', stance:'', text:'',
-        promises:0, onrecord:0, media:0, receipts:0 };
-      return rows[k];
-    }
-    var topicOnly = [];
-    stanceList.forEach(function (s) {
-      if (!s || !s.topic) return;
-      if (!s.issueKey) { topicOnly.push(s); return; }
-      var r = rowFor(s.issueKey);
-      r.topic = s.topic; r.icon = s.icon || ''; r.stance = s.pos || s.issueStance || ''; r.text = s.text || '';
-    });
-    Object.keys(evMap).forEach(function (k) {
-      var e = evMap[k]; var r = rowFor(k);
-      r.promises = (e.promises || []).length;
-      r.onrecord = (e.spotlight || []).length;
-      r.media = (e.spotlight || []).filter(function (x) { return x.media && x.media.url; }).length;
-      if (!r.topic && e.position) { r.topic = e.position.topic || ''; r.icon = r.icon || e.position.icon || ''; r.text = r.text || e.position.text || ''; }
-      if (!r.stance && e.position && e.position.stance) r.stance = e.position.stance;
-    });
-    if (depth) Object.keys(depth).forEach(function (k) {
-      var dd = depth[k]; var r = rowFor(k);
-      r.receipts = dd.count || 0;
-      if (!r.topic && dd.label) r.topic = dd.label;
-    });
-
-    function issueLabel(k, fallback) {
-      var l = (typeof window._issueLabel === 'function') ? window._issueLabel(k) : '';
-      l = l || fallback || k;
-      var parts = String(l).trim().split(/\s+/);
-      if (parts.length > 1 && /[^\x00-\x7F]/.test(parts[0])) parts.shift();
-      return parts.join(' ');
-    }
-    function issueIco(k, fallback) {
-      if (fallback) return fallback;
-      var lbl = (typeof window._issueLabel === 'function') ? window._issueLabel(k) : '';
-      var head = String(lbl || '').trim().split(/\s+/)[0] || '';
-      return (head && /[^\x00-\x7F]/.test(head)) ? head : '🎯';
-    }
-
-    var STANCE_META = {
-      support:  { cls:'fsrec-support',  ico:'✓', label:'Supports' },
-      oppose:   { cls:'fsrec-oppose',   ico:'✗', label:'Opposes' },
-      mixed:    { cls:'fsrec-mixed',    ico:'~', label:'Mixed' },
-      tracking: { cls:'fsrec-tracking', ico:'…', label:'Tracking' },
-      priority: { cls:'fsrec-tracking', ico:'★', label:'Priority' }
-    };
-
-    var list = Object.keys(rows).map(function (k) { return rows[k]; });
-    function richness(r) { return (r.receipts * 4) + (r.onrecord * 3) + (r.promises * 2) + r.media + (r.stance ? 1 : 0); }
-    function hasRecord(r) { return !!(r.receipts || r.onrecord || r.promises); }
-
-    if (st.sort === 'az') {
-      list.sort(function (a, b) { return issueLabel(a.issueKey, a.topic).toLowerCase().localeCompare(issueLabel(b.issueKey, b.topic).toLowerCase()); });
-    } else {
-      list.sort(function (a, b) { return richness(b) - richness(a); });
-    }
-
-    function renderRow(r) {
-      var sm = STANCE_META[r.stance] || STANCE_META.tracking;
-      var lbl = issueLabel(r.issueKey, r.topic);
-      var ico = r.icon || issueIco(r.issueKey, r.icon);
-      var depthPill = (typeof window._pdxEvidenceDepthPill === 'function') ? window._pdxEvidenceDepthPill(id, r.issueKey, { format: 'receipts' }) : '';
-      var chips = [];
-      if (r.onrecord) chips.push('<span class="fsrec-chip">🔦 ' + r.onrecord + ' on record</span>');
-      if (r.promises) chips.push('<span class="fsrec-chip">🤝 ' + r.promises + ' promise' + (r.promises === 1 ? '' : 's') + '</span>');
-      if (r.media) chips.push('<span class="fsrec-chip is-video">▶ ' + r.media + ' clip' + (r.media === 1 ? '' : 's') + '</span>');
-      var rec = hasRecord(r);
-      var noRec = !rec && !depthPill;
-      // EVERY ISSUE-KEYED ROW IS A DOOR. This used to read `(rec || r.receipts)`,
-      // where every term counts CURATED material — so an issue the official has a
-      // formal voting record on, but that nobody has written up yet, rendered as an
-      // inert <div>. Those are exactly the record-only, thin and split rows, and
-      // exactly the ones whose dossier has the most to show. The dossier exists for
-      // any issueKey; the row's job is to reach it.
-      var clickable = !!r.issueKey;
-      var rowId = 'pdxfsrec-' + String(id) + '-' + String(r.issueKey || '');
-      var tag = noRec ? '<span class="fsrec-norec">○ No record yet</span>' : '';
-      // A row that carries evidence but no summarised position is itself a gap —
-      // label it honestly so the adjacent suggest cue reads in context.
-      var unsum = (rec && !r.stance) ? '<span class="fsrec-norec is-soft">Evidence on file · no position summarised yet</span>' : '';
-      // Quiet "Suggest a receipt" on-ramp — shown ONLY on genuine gaps: a row with
-      // no record at all, or one with evidence but no summarised position. Rows
-      // with a documented stance backed by a record (strong evidence) never get
-      // it. Reuses the global _pdxSuggestReceipt deep-link; no new request.
-      function jsAttr(s) { return esc(String(s == null ? '' : s).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\r?\n/g, ' ')); }
-      var showSuggest = !!r.issueKey && (noRec || !r.stance);
-      var suggest = showSuggest
-        ? '<span class="fsrec-suggest" role="button" tabindex="0" ' +
-            'onclick="event.stopPropagation();window._pdxSuggestReceipt&&window._pdxSuggestReceipt(\'' + jsAttr(r.issueKey) + '\',\'' + jsAttr(lbl) + '\',\'' + jsAttr(name) + '\');" ' +
-            'onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();event.stopPropagation();this.click();}" ' +
-            'title="Suggest a receipt or track this issue for ' + esc(first) + ' on ' + esc(lbl) + ' in the Community Exchange">＋ Suggest a receipt</span>'
-        : '';
-      // The NAME is the accessible door — a real <button>, one focus stop, one
-      // accessible name — and the row around it is the pointer target. That split
-      // is not cosmetic: the row used to BE the <button>, and the evidence depth
-      // pill inside it is itself a <button>. HTML forbids that nesting, so the
-      // parser closed the row button at the pill and threw everything after it —
-      // the chips, the "No record yet" tag, the suggest cue and the ↗ chevron —
-      // out of the row as loose siblings. The rows that broke were precisely the
-      // ones with receipts, which is why the failure looked intermittent and why
-      // it was worst on the deepest profiles. Nothing interactive nests here now.
-      var door = clickable
-        ? ' data-pdxst-dos="' + esc(r.issueKey) + '" data-pdxst-pid="' + esc(id) + '"' +
-          ' data-pdxst-origin="' + esc(rowId) + '"'
-        : '';
-      var nameHtml = clickable
-        ? '<button type="button" class="fsrec-row-label fsrec-row-door"' + door +
-            ' aria-label="Open the issue dossier: ' + esc(lbl) + ' — ' + esc(first) + '">' + esc(lbl) + '</button>'
-        : '<span class="fsrec-row-label">' + esc(lbl) + '</span>';
-      var inner = '<span class="fsrec-row-ico" aria-hidden="true">' + ico + '</span>' +
-        '<span class="fsrec-row-main">' +
-          '<span class="fsrec-row-top">' + nameHtml +
-            (r.stance ? '<span class="fsrec-badge ' + sm.cls + '">' + sm.ico + ' ' + sm.label + '</span>' : '') + '</span>' +
-          (r.text ? '<span class="fsrec-row-text">' + esc(r.text) + '</span>' : '') +
-          '<span class="fsrec-row-meta">' + (depthPill || '') + chips.join('') + tag + unsum + suggest + '</span>' +
-        '</span>' +
-        (clickable ? '<span class="fsrec-row-go" aria-hidden="true">↗</span>' : '');
-      if (clickable) {
-        return '<div class="fsrec-row is-click" id="' + esc(rowId) + '"' + door + '>' + inner + '</div>';
-      }
-      return '<div class="fsrec-row">' + inner + '</div>';
-    }
-    function renderTopicOnly(s) {
-      var sm = STANCE_META[s.pos] || STANCE_META.tracking;
-      return '<div class="fsrec-row">' +
-        '<span class="fsrec-row-ico" aria-hidden="true">' + (s.icon || '🎯') + '</span>' +
-        '<span class="fsrec-row-main">' +
-          '<span class="fsrec-row-top"><span class="fsrec-row-label">' + esc(s.topic) + '</span>' +
-            '<span class="fsrec-badge ' + sm.cls + '">' + sm.ico + ' ' + sm.label + '</span></span>' +
-          (s.text ? '<span class="fsrec-row-text">' + esc(s.text) + '</span>' : '') +
-          '<span class="fsrec-row-meta"><span class="fsrec-norec">○ No connected record yet</span></span>' +
-        '</span></div>';
-    }
-
-    // ── Classify every row for the stat row + the segmented Show filter ──────
-    // leadRows carry some kind of record (receipts / on-record / promises);
-    // thinRows carry none. A row is a "gap" when it lacks a documented stance
-    // backed by a record — that's an unstated issue, a stated position with
-    // nothing connected yet, or evidence on file not summarised into a position.
-    var leadRows = list.filter(hasRecord);
-    var thinRows = list.filter(function (r) { return !hasRecord(r); });
-    var leadGaps = leadRows.filter(function (r) { return !r.stance; });
-    var withRec = leadRows.length;
-    var total = list.length + topicOnly.length;
-    var documentedCount = list.filter(function (r) { return r.stance; }).length + topicOnly.length;
-    var gapsCount = thinRows.length + topicOnly.length + leadGaps.length;
-    // Community discussions — straight from the cached per-politician comment
-    // count (no new network). W in the stat row, and a tappable gold chip.
-    var commentN = (typeof _commentCounts !== 'undefined' && _commentCounts[id]) ? _commentCounts[id] : 0;
-
-    var view = (st.view === 'evidence' || st.view === 'gaps') ? st.view : 'all';
-
-    // ── THE FORMAL RECORD, IN FULL ────────────────────────────────────────────
-    // Everything above this line is CURATED: documented stance cards, the evidence
-    // map, the receipt-depth index. That is why this overlay opened at seven issues
-    // on a senator whose roll-call record runs to sixty-four — it was listing what
-    // we have written down, under a title promising what they have done.
-    //
-    // So the formal record gets its own list, built by the consistency engine from
-    // the same row model the profile's stance rows use, with the same pattern chips
-    // and the same dossier doors. It is rendered ABOVE the curated list because it
-    // is the longer and more complete answer to the question the title asks; the
-    // curated list keeps every control and every on-ramp it had, one heading down.
-    //
-    // The engine owns its own filters and re-renders itself in place, so nothing
-    // here has to know about them. It is handed this overlay's Sort state so one
-    // Sort control governs both lists rather than two disagreeing about the order.
-    var fpiHtml = '', fpiN = 0;
-    try {
-      var FPI = window.PDXConsistency && window.PDXConsistency.formalPatternIndex;
-      if (FPI) {
-        fpiN = FPI.count(id) || 0;
-        fpiHtml = FPI.html(id, { sort: (st.sort === 'az' ? 'az' : 'strength') }) || '';
-      }
-    } catch (e) { fpiHtml = ''; fpiN = 0; }
-
-    // Rows actually rendered for the active Show filter, and the count shown in
-    // the live result note. "Gaps only" drops every documented-stance-with-record
-    // row, leaving the honest gaps + unsummarised rows the suggest cues live on.
-    var bodyHtml, shownCount;
-    if (view === 'evidence') {
-      bodyHtml = leadRows.map(renderRow).join('');
-      shownCount = leadRows.length;
-    } else if (view === 'gaps') {
-      bodyHtml = leadGaps.map(renderRow).join('') + thinRows.map(renderRow).join('') + topicOnly.map(renderTopicOnly).join('');
-      shownCount = gapsCount;
-    } else {
-      bodyHtml = leadRows.map(renderRow).join('') + thinRows.map(renderRow).join('') + topicOnly.map(renderTopicOnly).join('');
-      shownCount = total;
-    }
-
-    // Quick stats — an instant read on how complete (or thin) the record is
-    // before scrolling. Same muted pill language as the rest of the surface.
-    var summary = '<div class="fsrec-summary">' +
-        '<span class="fsrec-sum-chip"><b>' + documentedCount + '</b> documented position' + (documentedCount === 1 ? '' : 's') + '</span>' +
-        '<span class="fsrec-sum-chip is-ev"><b>' + withRec + '</b> with evidence</span>' +
-        '<span class="fsrec-sum-chip is-thin"><b>' + gapsCount + '</b> gap' + (gapsCount === 1 ? '' : 's') + '</span>' +
-        // The count that used to be missing from this row entirely: how many issues
-        // their FORMAL record touched, which on most officeholders is several times
-        // the number of documented cards above it.
-        (fpiN ? '<span class="fsrec-sum-chip is-formal">🏛 <b>' + fpiN + '</b> issue' + (fpiN === 1 ? '' : 's') + ' on the formal record</span>' : '') +
-        (commentN
-          ? '<button type="button" class="fsrec-sum-chip is-community" onclick="event.stopPropagation();window.openCommentModal&&openCommentModal(\'' + jsId + '\')" title="Read &amp; add community discussion for ' + esc(first) + '">💬 <b>' + commentN + '</b> active community discussion' + (commentN === 1 ? '' : 's') + '</button>'
-          : '<span class="fsrec-sum-chip is-thin is-community">💬 <b>0</b> community discussions</span>') +
-      '</div>';
-
-    // Sort on the left, the segmented Show filter on the right — grouped so the
-    // bar reads as two scannable clusters. "Gaps only" is easy to find but quiet.
-    function segBtn(val, lbl, gapStyle) {
-      var on = (view === val);
-      return '<button type="button" class="fsrec-segbtn' + (on ? ' is-on' : '') + (gapStyle ? ' is-gaps' : '') + '" ' +
-        'onclick="window._pdxRecordSet&&window._pdxRecordSet(\'view\',\'' + val + '\')"' +
-        (on ? ' aria-pressed="true"' : '') + '>' + lbl + '</button>';
-    }
-    var controls = '<div class="fsrec-controls">' +
-        '<div class="fsrec-sortset" role="group" aria-label="Sort the record">' +
-          '<span class="fsrec-ctrl-lbl">Sort</span>' +
-          '<button type="button" class="fsrec-sortbtn' + (st.sort === 'strength' ? ' is-on' : '') + '" onclick="window._pdxRecordSet&&window._pdxRecordSet(\'sort\',\'strength\')">Strongest first</button>' +
-          '<button type="button" class="fsrec-sortbtn' + (st.sort === 'az' ? ' is-on' : '') + '" onclick="window._pdxRecordSet&&window._pdxRecordSet(\'sort\',\'az\')">A–Z</button>' +
-        '</div>' +
-        '<div class="fsrec-filterset" role="group" aria-label="Filter the record">' +
-          '<span class="fsrec-ctrl-lbl">Show</span>' +
-          '<div class="fsrec-seg">' +
-            segBtn('all', 'All', false) +
-            segBtn('evidence', 'With evidence', false) +
-            segBtn('gaps', 'Gaps only', true) +
-          '</div>' +
-        '</div>' +
-      '</div>';
-
-    // Live result count — what the active filter is showing vs. the whole record.
-    var viewNote = view === 'gaps' ? ' · gaps only' : (view === 'evidence' ? ' · with evidence' : '');
-    var resultNote = '<p class="fsrec-result-note">Showing <b>' + shownCount + '</b> of ' + total + ' tracked issue' + (total === 1 ? '' : 's') + viewNote + '</p>';
-
-    // Prominent Evidence-blue header action — the one obvious jump into the full
-    // evidence file. _pdxOpenEvidenceLocker already dismisses this overlay, so the
-    // politician-filtered results land in view immediately. Cached deep-link only.
-    var headLocker = (hasLocker)
-      ? '<button type="button" class="fsrec-head-locker" onclick="window._pdxOpenEvidenceLocker&&window._pdxOpenEvidenceLocker({pol:\'' + jsId + '\'});" ' +
-          'aria-label="Browse all evidence for ' + esc(first) + ' in the Evidence Locker">📂 Browse all evidence in the Locker <span aria-hidden="true">→</span></button>'
-      : '';
-
-    // The heading that keeps the two lists from reading as one. Only printed when
-    // the formal index is actually above it — on a profile with no formal record
-    // the curated list is the whole surface and needs no divider.
-    var curatedHead = fpiHtml
-      ? '<div class="fsrec-curated-h"><span class="fsrec-curated-t">' +
-          '<span aria-hidden="true">📑</span> Documented positions &amp; receipts</span>' +
-          '<span class="fsrec-curated-s">' + documentedCount + ' issue' + (documentedCount === 1 ? '' : 's') +
-          ' someone has written up for ' + esc(first) + ' — their stated words, the receipts connected to ' +
-          'them, and the honest gaps. The formal record above is the longer list.</span></div>'
-      : '';
-
-    var content;
-    if (!total && !fpiHtml) {
-      content = '<div class="fsrec-empty"><span aria-hidden="true">📋</span>' +
-        '<p>No documented positions or evidence are on record for ' + esc(first) + ' yet. As statements, votes and receipts are verified and tagged, they’ll appear here — this view stays honest about what isn’t known.</p></div>';
-    } else if (!total) {
-      // A FORMAL RECORD AND NOTHING WRITTEN UP. Before this pass the overlay showed
-      // the empty state above over a politician with a full voting record, because
-      // "total" only ever counted curated cards. The record is the answer here.
-      content = summary + fpiHtml +
-        '<div class="fsrec-empty"><span aria-hidden="true">📋</span>' +
-        '<p>No documented positions have been written up for ' + esc(first) + ' yet — everything above is what the formal record itself did. As their stated positions are sourced and tagged, they’ll appear here beside it.</p></div>';
-    } else if (!shownCount) {
-      // Filter selected but nothing matches (e.g. "Gaps only" on a complete record).
-      content = summary + fpiHtml + curatedHead + controls +
-        '<div class="fsrec-empty"><span aria-hidden="true">✅</span>' +
-        '<p>No issues match this filter. ' +
-        (view === 'gaps' ? 'Every tracked issue for ' + esc(first) + ' already has a documented position with evidence.' : 'Switch back to “All” to see the full record.') +
-        '</p></div>' +
-        '<p class="fsrec-foot">Built only from ' + esc(first) + '’s own documented positions, tracked promises and on-record items — never their party’s record. Blue 📂 pills open the Evidence Locker filtered to that issue.</p>';
-    } else {
-      content = summary + fpiHtml + curatedHead + controls + resultNote +
-        '<div class="fsrec-list">' + bodyHtml + '</div>' +
-        '<p class="fsrec-foot">Built only from ' + esc(first) + '’s own documented positions, tracked promises and on-record items — never their party’s record. Blue 📂 pills open the Evidence Locker filtered to that issue.</p>';
-    }
-
-    return '<div class="fsrec" role="dialog" aria-modal="true" aria-label="Full record on the issues for ' + esc(name) + '" onclick="event.stopPropagation();">' +
-        '<div class="fsrec-head">' +
-          '<div class="fsrec-headwrap">' +
-            '<div class="fsrec-eyebrow">📑 Full Record on the Issues</div>' +
-            '<div class="fsrec-title">' + esc(name) + '</div>' +
-            (p.office ? '<div class="fsrec-office">' + esc(p.office) + '</div>' : '') +
-            headLocker +
-            // The same slot, on the surface that shows the formal-pattern index
-            // itself. Cheap: one call, the identical guards, and it is where a
-            // reader who has just read the rows would look for a way to send
-            // them. The arrival path of the card it shares lands right back
-            // here.
-            window._pdxWordRecordShareSlot(id) +
-          '</div>' +
-          '<button class="fsrec-x" onclick="window._pdxCloseStanceRecord()" aria-label="Close">✕</button>' +
-        '</div>' +
-        content +
-      '</div>';
-  };
 
   // ── "Suggest a receipt / Track this issue" bridge ─────────────────────
   // A single, low-friction on-ramp that turns a visible gap (a "No record yet"
@@ -5688,11 +5209,6 @@
       _navItems.push({ target: 'pdxsec-positions', icon: '🎯', label: 'Positions',
         live: 'positions', value: _navChips.positions.value, color: _navChips.positions.color,
         note: _navChips.positions.note, pending: _navChips.positions.pending });
-      // Full Report — a dedicated rail entry that OPENS the Full Stance Record
-      // overlay (every issue + evidence depth + honest gaps) rather than scrolling
-      // to a section, so the deepest per-issue view is one tap from the map. Sits
-      // right after Positions since it is the "see everything" extension of it.
-      _navItems.push({ action: 'stance', stanceId: _pdxEvJsId(id), icon: '📑', label: 'Full Report', value: 'All Stances', color: '#7fb4ff' });
     }
     // 🏛️ / ✒️ Official Record — the one formal-record lane, and until this pass the
     // one section on the profile with no pill at all. The rail carried "Promises",
@@ -5827,7 +5343,8 @@
     // record and the biography below the fold. The letterhead now leads with the
     // three glance figures — 💰 Funding, 🕑 Activity, ⚖️ Word vs Action — on one
     // compact row, and every other jump (Term, Status, By topic, Positions, Record,
-    // Evidence, Votes, …) sits in a closed "More sections" disclosure. All of them
+    // Evidence, Votes, …) follows as always-visible chips in the same skin — no
+    // collapse control. All of them
     // stay inside #pdx-profile-nav, so the live repaint and the scroll-spy reach
     // them exactly as before; only the track's own pills are re-sorted.
     const _NAV_LEAD_ORDER = ['pdxsec-funding', 'pdxsec-activity', 'pdxsec-wordaction'];
@@ -5860,20 +5377,6 @@
         '</button>'
       : '';
     const _navPillHtml = function (n) {
-              // Action pill — opens an overlay (Full Stance Record) instead of
-              // scrolling to an in-page anchor. It carries no data-target, so the
-              // scroll-spy cleanly ignores it and it never steals the active state.
-              if (n.action === 'stance') {
-                return '<button type="button" class="pdx-pnav-pill pdx-pnav-action" ' +
-                  'aria-label="' + n.label + ': ' + String(n.value).replace(/"/g, '') + ' — opens the full record on the issues" ' +
-                  'onclick="window._pdxOpenStanceRecord && window._pdxOpenStanceRecord(\'' + n.stanceId + '\')">' +
-                  '<span class="pdx-pnav-ico" aria-hidden="true">' + n.icon + '</span>' +
-                  '<span class="pdx-pnav-txt">' +
-                    '<span class="pdx-pnav-label">' + n.label + '</span>' +
-                    '<span class="pdx-pnav-val" style="color:' + n.color + ';">' + n.value + '</span>' +
-                  '</span>' +
-                '</button>';
-              }
               // `data-pdxnav-live` is the handle the warm repaint writes through, and
               // `data-pdxnav-label` is what it rebuilds the accessible name from. A
               // pending pill is marked as data so the skin can say it is still
@@ -5890,20 +5393,14 @@
                 '</span>' +
               '</button>';
     };
-    const _navMoreN = _navFacts.length + _navRest.length;
     const _navBar = (_navOrdered.length >= 2 || _navFacts.length)
       ? '<nav id="pdx-profile-nav" class="pdx-pnav" data-pdxnav-pid="' + id +
           '" aria-label="Jump to a section of this profile">' +
           (_navLeadPair.length ? '<div class="pdx-pnav-lead">' + _navLeadPair.map(_navPillHtml).join('') + '</div>' : '') +
           ((_navLeadWva || _navWvaSlot)
             ? '<div class="pdx-pnav-wva">' + (_navLeadWva ? _navPillHtml(_navLeadWva) : _navWvaSlot) + '</div>' : '') +
-          '<details class="pdx-pnav-more"' + (_navLead.length ? '' : ' open') + '>' +
-            '<summary class="pdx-pnav-more-sum">More sections' +
-              (_navMoreN ? ' <span class="pdx-pnav-more-n">' + _navMoreN + '</span>' : '') + '</summary>' +
-          '<div class="pdx-pnav-track">' + _navFactsHtml +
-            _navRest.map(_navPillHtml).join('') +
-          '</div>' +
-          '</details>' +
+          ((_navFacts.length || _navRest.length)
+            ? '<div class="pdx-pnav-track">' + _navFactsHtml + _navRest.map(_navPillHtml).join('') + '</div>' : '') +
         '</nav>'
       : '';
 
@@ -8697,41 +8194,14 @@
   // Close on Escape key
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') {
-      // Close the Full Stance Record overlay first if it's open, then the stance
-      // evidence popover, then the share sheet, otherwise close the profile modal.
-      var _rec = document.getElementById('pdx-record-overlay');
-      if (_rec && _rec.style.display !== 'none') { window._pdxCloseStanceRecord(); return; }
+      // Close the stance evidence popover first, then the share sheet,
+      // otherwise close the profile modal.
       var _sag = document.getElementById('sag-pop-overlay');
       if (_sag && _sag.style.display !== 'none') { window._pdxCloseStanceEvidence(); return; }
       var _sh = document.getElementById('pdx-share-overlay');
       if (_sh && _sh.style.display !== 'none') { window._pdxCloseShareSheet(); return; }
       closeModal();
     }
-  });
-
-  // Deep-link support for the Full Stance Record overlay (#record/<id>): open it
-  // when the hash is set (back/forward, a shared link) and close it when the hash
-  // leaves. The CTA opens the overlay directly and writes this hash; this listener
-  // keeps browser navigation in sync. Best-effort — never throws into the page.
-  window._pdxSyncRecordHash = function () {
-    try {
-      var h = String(location.hash || '');
-      var m = h.match(/^#record\/(.+)$/);
-      var overlay = document.getElementById('pdx-record-overlay');
-      if (!overlay) return;
-      if (m) {
-        var id = decodeURIComponent(m[1]);
-        var open = !!(window._pdxRecordState && window._pdxRecordState.id === id && overlay.style.display !== 'none');
-        if (!open && typeof window._pdxOpenStanceRecord === 'function') window._pdxOpenStanceRecord(id);
-      } else if (overlay.style.display !== 'none') {
-        window._pdxCloseStanceRecord({ keepHash: true });
-      }
-    } catch (e) {}
-  };
-  window.addEventListener('hashchange', function () { window._pdxSyncRecordHash(); });
-  window.addEventListener('load', function () {
-    // Defer so PROFILES / CMP_DATA are populated before a cold deep-link opens.
-    try { setTimeout(function () { window._pdxSyncRecordHash(); }, 400); } catch (e) {}
   });
 
   // ════════════════════════════════════════════════════════════

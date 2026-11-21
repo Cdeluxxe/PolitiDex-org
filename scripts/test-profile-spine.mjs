@@ -1311,15 +1311,10 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
   ok(!/PDXExecRecordUI\.navPill/.test(rail),
      "rail: the Enactments pill is back — the executive lane lives inside the Official Record now,\n" +
      "    so it must not also claim a rail entry of its own");
-  ok(rail.indexOf("action: 'stance'") > pillAt("pdxsec-positions") &&
-     rail.indexOf("action: 'stance'") < pillAt("pdxsec-evidence"),
-     "rail: Full Report stays attached to Positions — it is the see-everything extension of that pill, not a stage of its own");
-  // Full Report carries no anchor: railOrder ranks it by the pill ahead of it, so it
-  // is only ever correctly placed if it cannot ship without Positions. They are
-  // pushed under one gate, and that shared gate is the guarantee.
-  ok(rail.slice(pillAt("pdxsec-positions"), rail.indexOf("action: 'stance'")).indexOf("\n    }") === -1,
-     "rail: the Full Report pill has left the Positions gate — an anchorless pill that can ship without\n" +
-     "    the pill it inherits its rank from will land somewhere arbitrary in the rail");
+  // The Full Report pill and the overlay it opened were retired: nothing on the
+  // rail opens the stance record, and no anchorless action pill is left to rank.
+  ok(rail.indexOf("action: 'stance'") === -1 && !/Full Report/.test(rail),
+     "rail: the retired Full Report pill is back — the full stance record overlay no longer exists");
   // Exactly one percentage on the rail, still. Reordering must not have smuggled
   // the pledge rate back in beside the primary read.
   //

@@ -175,31 +175,15 @@ section("1 · phase 0 — the overlay is not a stance appendix");
 // reads the name. Every string on the way in, and the dialog itself, is renamed
 // to the thing behind the door — the record on the issues.
 {
-  const cta = A._pdxStanceRecordCta(DEEP, A.CMP_DATA[DEEP]);
-  const mini = A._pdxStanceRecordMiniLink(DEEP, A.CMP_DATA[DEEP]);
-  const body = A._pdxStanceRecordBody(DEEP, A.CMP_DATA[DEEP]);
-  must(cta && mini && body, "the record overlay's entry points no longer render");
-
-  for (const [name, html] of [["the profile CTA", cta], ["the in-context mini link", mini],
-                              ["the overlay body", body]]) {
-    lacksI(html, "Full Stance Record",
-      `${name} still calls the overlay a stance record — the contents are formal-primary`);
-    lacksI(html, "stance record",
-      `${name} still says "stance record" somewhere in its visible markup`);
-  }
-  hasI(cta, "record on the issues", "the CTA names the record, not the stances");
-  hasI(mini, "on the record", "the mini link names the record");
-
-  // The dialog shell and the rail entry — the two places a screen-reader user is
-  // told what they are opening.
-  has(PF_RAW, 'aria-label="Full record on the issues for',
-    "the overlay dialog still announces itself under the retired name");
-  has(PF_RAW, '📑 Full Record on the Issues',
-    "the overlay eyebrow no longer carries the new name");
-  ok(!/aria-label="Open the full stance record/i.test(PF_RAW),
-    "an aria-label still opens a 'full stance record'");
-  ok(!/>\s*View the Full Stance Record\s*</.test(PF_RAW),
-    "the CTA title string is still the retired name");
+  // The overlay and every control that opened it were later retired outright.
+  // What is left of this phase is that nothing ships the old name, and nothing
+  // ships the overlay at all.
+  eq(typeof A._pdxStanceRecordBody, "undefined", "the retired overlay body is back");
+  eq(typeof A._pdxStanceRecordMiniLink, "undefined", "the retired mini link is back");
+  ok(!/Full record on the issues for|Full Record on the Issues/.test(PF_RAW),
+    "the retired overlay dialog is back in profiles-full.js");
+  const cta = A._pdxStanceRecordCta(DEEP, A.CMP_DATA[DEEP]) || "";
+  ok(!/_pdxOpenStanceRecord|pdx-fsr-btn/.test(cta), "the profile slot still opens the retired overlay");
 
   // The name is one name. A second wording on a sibling surface is how a rename
   // half-lands and then rots.

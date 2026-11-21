@@ -2001,8 +2001,8 @@
     /* ── THE COMPACT LETTERHEAD CHIP BLOCK ────────────────────────────────────
        Row 1: the three glance figures (Funding · Activity · Word vs Action), one
        line each — label and figure side by side rather than stacked, so a pill is
-       ~30px tall instead of 44. Everything else on the rail sits in a closed
-       "More sections" disclosure. Row 2 is .profile-meta below (FEC, OGE, AIPAC,
+       ~30px tall instead of 44. Everything else on the rail follows as
+       always-visible chips in the same skin, with no collapse control. Row 2 is .profile-meta below (FEC, OGE, AIPAC,
        AIPAC Tracker, Bills sponsored), tightened to one band. */
     .profile-hero-id > .pdx-pnav { margin: 0.1rem 0 0.45rem; }
     .pdx-pnav-lead { display: flex; flex-wrap: wrap; gap: 0.35rem; }
@@ -2012,26 +2012,6 @@
     .profile-hero-id > .pdx-pnav .pdx-pnav-txt { flex-direction: row; align-items: baseline; gap: 0.38rem; line-height: 1.1; }
     .profile-hero-id > .pdx-pnav .pdx-pnav-ico { font-size: 0.86rem; }
     .profile-hero-id > .pdx-pnav .pdx-pnav-val { font-size: 0.9rem; }
-    .pdx-pnav-more { margin-top: 0.35rem; }
-    .pdx-pnav-lead + .pdx-pnav-more:not([open]) { margin-top: 0.3rem; }
-    .pdx-pnav-more-sum {
-      display: inline-flex; align-items: center; gap: 0.35rem; cursor: pointer;
-      list-style: none; user-select: none;
-      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
-      font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase; color: #8fa6c8;
-      padding: 0.14rem 0.5rem; border-radius: 999px;
-      border: 1px dashed rgba(148,163,184,0.3);
-    }
-    .pdx-pnav-more-sum::-webkit-details-marker { display: none; }
-    .pdx-pnav-more-sum::after { content: "\25BE"; font-size: 0.7rem; transition: transform 0.15s ease; }
-    .pdx-pnav-more[open] > .pdx-pnav-more-sum::after { transform: rotate(180deg); }
-    .pdx-pnav-more-sum:hover { color: #cbd9ec; border-color: rgba(148,163,184,0.5); }
-    .pdx-pnav-more-sum:focus-visible { outline: 2px solid rgba(96,165,250,0.8); outline-offset: 2px; }
-    .pdx-pnav-more-n {
-      font-size: 0.56rem; letter-spacing: 0.04em; color: #cbd9ec;
-      background: rgba(148,163,184,0.16); border-radius: 999px; padding: 0 0.34rem;
-    }
-    .pdx-pnav-more[open] > .pdx-pnav-track { margin-top: 0.35rem; }
     /* (The rule that stands the letterhead's second ⚖️ copy down when the chip row
        carries the figure now lives with the letterhead grid, below .pdx-nav-anchor.) */
     /* Row 2, one tight band: smaller gap, and the AIPAC Tracker line pulled up
@@ -2040,7 +2020,6 @@
     .profile-hero-id .pdx-atk { margin-top: 0.3rem; font-size: 0.66rem; gap: 0.15rem 0.4rem; }
     @media (hover: none), (pointer: coarse) {
       .profile-hero-id > .pdx-pnav .pdx-pnav-pill { min-height: 36px; }
-      .pdx-pnav-more-sum { min-height: 1.9rem; }
     }
     /* Term and Status are facts, not destinations: same skin, no pointer, no lift. */
     .pdx-pnav-pill.pdx-pnav-fact { cursor: default; }
@@ -2082,19 +2061,6 @@
       color: #8fa6c8;
     }
     .pdx-pnav-pill.is-active .pdx-pnav-label { color: #e9d8a6; }
-    /* "Full Report" action pill — opens the Full Stance Record overlay rather than
-       scrolling to a section. An Evidence-blue accent + a trailing ↗ marks it as a
-       jump into the deeper view, distinct from the section-scroll pills. */
-    .pdx-pnav-pill.pdx-pnav-action {
-      background: linear-gradient(135deg, rgba(56,132,255,0.16), rgba(124,58,237,0.12));
-      border-color: rgba(96,165,250,0.45);
-    }
-    .pdx-pnav-pill.pdx-pnav-action:hover {
-      background: linear-gradient(135deg, rgba(56,132,255,0.24), rgba(124,58,237,0.18));
-      border-color: rgba(96,165,250,0.7);
-    }
-    .pdx-pnav-pill.pdx-pnav-action .pdx-pnav-label { color: #7fb4ff; }
-    .pdx-pnav-pill.pdx-pnav-action .pdx-pnav-label::after { content: " \2197"; opacity: 0.85; }
     .pdx-pnav-val {
       font-family: 'Bebas Neue', sans-serif; font-size: 0.95rem;
       letter-spacing: 0.02em;
@@ -2117,7 +2083,7 @@
        height. Now:
          row 1–4, beside the photo : eyebrow · name · seat · 💰 Funding + 🕑 Activity
          next line, full width      : ⚖️ Word vs Action (figure and verdict word)
-         below, full width          : More sections · candidacy line · money chips
+         below, full width          : section chips · candidacy line · money chips
                                       · AIPAC Tracker — unchanged, in their order.
        .profile-hero-id and #pdx-profile-nav become display:contents so their
        children are placed on this grid directly; the DOM, the chips, the live
@@ -2143,7 +2109,7 @@
       display: flex; flex-wrap: nowrap; gap: 0.35rem; margin: 0.1rem 0 0;
     }
     .profile-hero-id > .pdx-pnav > .pdx-pnav-wva { grid-column: 1 / -1; grid-row: 5; margin-top: 0.6rem; min-width: 0; }
-    .profile-hero-id > .pdx-pnav > .pdx-pnav-more { grid-column: 1 / -1; grid-row: 6; margin-top: 0.45rem; min-width: 0; }
+    .profile-hero-id > .pdx-pnav > .pdx-pnav-track { grid-column: 1 / -1; grid-row: 6; margin-top: 0.45rem; min-width: 0; }
     .profile-hero-id > .profile-running { grid-row: 7; margin-top: 0.45rem; }
     .profile-hero-id > .profile-meta { grid-row: 8; margin-top: 0.45rem; }
     .profile-hero-id > .pdx-atk { grid-row: 9; }
@@ -2154,19 +2120,10 @@
        wider: each may shrink, and its figure wraps inside the pill instead. */
     .profile-hero-id > .pdx-pnav > .pdx-pnav-lead > .pdx-pnav-pill { flex: 0 1 auto; min-width: 0; white-space: normal; }
     .profile-hero-id > .pdx-pnav > .pdx-pnav-lead .pdx-pnav-val { overflow-wrap: anywhere; }
-    /* Word vs Action, the full width of the letterhead: label left, the figure and
-       verdict word in a larger face beside it, so "42% · Contradicted" reads at a
-       glance instead of being squeezed into a third pill. */
-    .profile-hero-id > .pdx-pnav > .pdx-pnav-wva > .pdx-pnav-pill {
-      display: flex; width: 100%; min-width: 0; white-space: normal;
-      padding: 0.4rem 0.75rem; justify-content: flex-start;
-    }
-    .profile-hero-id > .pdx-pnav > .pdx-pnav-wva .pdx-pnav-txt {
-      flex: 1 1 auto; flex-wrap: wrap; justify-content: space-between; align-items: baseline;
-      gap: 0.2rem 0.6rem;
-    }
-    .profile-hero-id > .pdx-pnav > .pdx-pnav-wva .pdx-pnav-label { font-size: 0.66rem; }
-    .profile-hero-id > .pdx-pnav > .pdx-pnav-wva .pdx-pnav-val { font-size: 1.12rem; overflow-wrap: anywhere; }
+    /* Word vs Action keeps the compact chip treatment — the same size and skin
+       as the other letterhead chips, never stretched into a full-width banner. */
+    .profile-hero-id > .pdx-pnav > .pdx-pnav-wva > .pdx-pnav-pill { flex: 0 1 auto; min-width: 0; white-space: normal; }
+    .profile-hero-id > .pdx-pnav > .pdx-pnav-wva .pdx-pnav-val { overflow-wrap: anywhere; }
     /* A reserved Word vs Action slot with no figure yet is worth nothing at all. */
     .pdx-pnav-pill[hidden] { display: none !important; }
     .pdx-pnav-wva:not(:has(> .pdx-pnav-pill:not([hidden]))) { display: none; }
