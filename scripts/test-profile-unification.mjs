@@ -460,7 +460,7 @@ lacks(repRowsText, "executive action", "executive vocabulary leaked onto a membe
 // The section's question moved into the "How to read this" sheet when the header was
 // compressed to two lines. The office-awareness it carried did NOT move: the header
 // digest still names, in the lane's own nouns, what these rows were tested against.
-has(text(CS.officialRecordSectionHtml(REP, RP)), "tested against roll-call votes",
+has(text(CS.officialRecordSectionHtml(REP, RP)), "scored against roll-call votes",
   "the member's Official Record no longer says what its rows were tested against");
 
 // The last place vote vocabulary survives a merge is a cross-reference: a sub-line

@@ -1349,10 +1349,10 @@
   // object's figure for this tree — so a filtered view narrows what a reader sees
   // without inventing a second total for anything.
   var TALLY_WARM = 'Checking the formal record…';
-  // The shared counts do not know about promoted Locker stances (they are display
-  // only and never enter the row model), so the tree's own header adds the leaves
-  // they put on this tree and the stated positions they fill. Nothing else that
-  // reads profileCounts changes.
+  // The shared counts do not know about the leaves promoted Locker stances put on
+  // this tree (they are display only and never enter the row model), so the
+  // tree's own header adds those to the issues shown. The stated figure needs no
+  // top-up: it is the stated list's count, promoted stances included.
   function treeCountsOf(pid) {
     var c = countsOf(pid);
     if (!c) return null;
@@ -1362,7 +1362,9 @@
     var out = {};
     Object.keys(c).forEach(function (k) { out[k] = c[k]; });
     out.shown = (c.shown || 0) + x.added;
-    out.stated = (c.stated || 0) + x.promoted;
+    // `stated` is NOT topped up here any more: it is the ✒️ list's own row count,
+    // and that list already carries the promoted Locker stances, so adding them
+    // again printed a larger "with a stated position" than the chip beside it.
     out.promoted = x.promoted;
     return out;
   }

@@ -6062,7 +6062,15 @@
   // section's subtitle cannot describe the same figure two ways.
   //
   //   total      issues we track for them — one per issue row
-  //   stated     issues with a stated position of theirs on file
+  //   stated     stated positions on file — THE ✒️ "Stated positions on file"
+  //              LIST's own row count (PDXWordAction.statedCount), curated and
+  //              pipeline-sourced, so every "N stated" on a profile is a number a
+  //              reader can count off that list. The row fold is only the
+  //              fallback for a page without word-action.js.
+  //   acts       formal acts behind the record — THE DEPTH FIGURE ("N formal
+  //              acts across M issues"), formalPatternIndex.shape().judged, read
+  //              here so the depth line, the rail and the hero print one number.
+  //              Its M is always `onRecord`.
   //   tested     issues Direction Match actually tested (its numerator)
   //   scorable   issues Direction Match counts as testable (its denominator)
   //   onRecord   issues with ≥1 mapped formal vote or formal action — THE DISPLAY
@@ -6071,7 +6079,7 @@
   //              way by a chip and another way by the row it jumps to
   //   scored     issues the FORMAL RECORD scored — row.scored, which is the split the
   //              Official Record section itself makes and the numerator its own
-  //              digest leads with ("35 issues tested against orders, signings and
+  //              digest leads with ("35 issues scored against orders, signings and
   //              vetoes"). It is a subset of onRecord by construction: a row is
   //              only `scored` when a formal instrument on it was judged.
   //   shown      issues that reach a browse surface: a stated position, or a formal
@@ -6086,7 +6094,8 @@
   // decides a verdict or feeds one.
   var _PC_OF = {
     total: 'issues we track for them',
-    stated: 'issues with a stated position',
+    stated: 'stated positions on file',
+    acts: 'formal acts on the issues with a formal record on file',
     tested: 'issues Direction Match could test',
     scorable: 'issues Direction Match counts',
     onRecord: 'issues with a formal record on file',
@@ -6096,7 +6105,7 @@
   };
   function _profileCountsBuild(pid, p) {
     var out = { pid: pid || '', total: 0, stated: 0, tested: 0, scorable: 0,
-                onRecord: 0, scored: 0, shown: 0, signature: 0, warming: false, of: _PC_OF };
+                onRecord: 0, scored: 0, shown: 0, signature: 0, acts: 0, warming: false, of: _PC_OF };
     if (!pid) return out;
     var rows = [];
     try { rows = issueRows(pid) || []; } catch (e) { rows = []; }
@@ -6124,13 +6133,30 @@
         }
       }
     } catch (e) {}
+    // STATED IS THE LIST'S COUNT. The row fold above and the ✒️ list could
+    // disagree by one on a handful of files (a row flagged as said whose stance
+    // the list cannot print), and the chip, the tree and the counts line each
+    // picked a different one. The list is what a reader can count, so it wins.
+    try {
+      var WAs = window.PDXWordAction;
+      if (WAs && typeof WAs.statedCount === 'function' && !_pcStatedBusy) {
+        _pcStatedBusy = true;
+        try { out.stated = +WAs.statedCount(pid) || 0; } finally { _pcStatedBusy = false; }
+      }
+    } catch (e) {}
+    // The depth figure: the same fold shape() makes over the same index rows
+    // (shape().judged), taken off the rows directly because shape() also
+    // injects the index's stylesheet and a count has no business touching the DOM.
+    try {
+      (_fpiRows(pid) || []).forEach(function (x) { out.acts += (x && +x.judged) || 0; });
+    } catch (e) { out.acts = 0; }
     try {
       if (typeof window._pdxKeyIssues === 'function') out.signature = (window._pdxKeyIssues(p) || []).length;
       else if (p) out.signature = ((p.issues || p.keyIssues || []) || []).length;
     } catch (e) { out.signature = 0; }
     return out;
   }
-  var _pcCache = {}, _pcEpoch = -1;
+  var _pcCache = {}, _pcEpoch = -1, _pcStatedBusy = false;
   // Memoized per (politician, term scope) on the derivation epoch, exactly as the
   // row cache is — the counts are a fold over those rows, so they may not outlive
   // them. A warming profile is NOT cached: `warming` can go false without the
@@ -6225,7 +6251,11 @@
     // tested against, in the lane's own nouns, so a president's Official Record still
     // never frames itself around a vote he never cast.
     var digest = [];
-    digest.push(scored.length + ' issue' + (scored.length === 1 ? '' : 's') + ' tested against ' +
+    // "SCORED", NOT "TESTED". "Tested" is Direction Match's figure everywhere
+    // else on the profile (the ⚖️ chip, the tree tally, the counts line), and
+    // this count is a different set — issues the formal record produced a result
+    // on — so it may not borrow that word and print a second "tested" total.
+    digest.push(scored.length + ' issue' + (scored.length === 1 ? '' : 's') + ' scored against ' +
       (isExecSection ? 'orders, signings and vetoes' : 'roll-call votes'));
     if (awaiting > 0) {
       digest.push(awaiting + ' stated position' + (awaiting === 1 ? '' : 's') + ' awaiting one');

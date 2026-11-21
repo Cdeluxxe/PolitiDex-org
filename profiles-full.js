@@ -3670,21 +3670,6 @@
     try { if (p) { take(p.updatedAt); take(p.lastUpdated); } } catch (e) {}
     return best;
   };
-  // The 🕑 Activity value: "Updated 2d ago" off the newest evidence item or
-  // pipeline mention. Only a person with no dated receipt at all falls back to
-  // the profile document's own timestamp. Returns the relative string ('' when
-  // nothing is dated).
-  window._pdxActivityRel = function (id, p) {
-    if (typeof window._pdxRelTime !== 'function') return '';
-    try {
-      p = p || (window.PROFILES && window.PROFILES[id]) ||
-          ((typeof CMP_DATA !== 'undefined' && CMP_DATA[id]) ? CMP_DATA[id] : null) || null;
-      var ts = window._pdxNewestEvidenceTs(id, p);
-      if (ts) return window._pdxRelTime(ts);
-      var st = p && (p.updatedAt || p.createdAt);
-      return st ? window._pdxRelTime(st) : '';
-    } catch (e) { return ''; }
-  };
   window._pdxNavChips = function (id, p) {
     p = p || (window.PROFILES && window.PROFILES[id]) ||
         ((typeof CMP_DATA !== 'undefined' && CMP_DATA[id]) ? CMP_DATA[id] : null) || {};
@@ -3755,10 +3740,16 @@
       } else if (!named && !shaped && SO && typeof SO.pick === 'function') {
         var so = SO.pick(id);
         if (so && so.any) {
-          out.standout = { value: so.issues + ' issue' + (so.issues === 1 ? '' : 's') + ' read',
+          // THE DEPTH FIGURE, FROM THE COUNTS OBJECT. The strip's own pick counts
+          // only the issues it could read, so this pill said "5 issues read" beside
+          // a depth line saying "25 formal acts across 7 issues". Both halves
+          // come from profileCounts (acts and onRecord), the same pair the depth
+          // line and the brief print.
+          var dActs = counts ? counts.acts : so.judged;
+          var dIss = counts ? counts.onRecord : so.issues;
+          out.standout = { value: dActs + ' formal act' + (dActs === 1 ? '' : 's'),
             color: '#9fdbd0', pending: false,
-            note: so.judged + ' vote' + (so.judged === 1 ? '' : 's') +
-              ' and formal action' + (so.judged === 1 ? '' : 's') + ' behind them' };
+            note: 'across ' + dIss + ' issue' + (dIss === 1 ? '' : 's') + ' with a formal record on file' };
         }
       }
     } catch (e) {}
@@ -3783,12 +3774,17 @@
     // — read from the same rows Word vs Action's "Stated positions on file" list
     // prints (PDXWordAction.statedCount), so the chip and the list agree. The
     // tagged key-issue count only gates the pill on a shell without that list.
+    // counts.stated IS that list's count (profileCounts reads statedCount), so
+    // the chip, the tree tally and the counts line print one figure.
     var stN = -1;
-    try {
-      if (window.PDXWordAction && typeof window.PDXWordAction.statedCount === 'function') {
-        stN = window.PDXWordAction.statedCount(id) || 0;
-      }
-    } catch (e3) { stN = -1; }
+    if (counts) stN = counts.stated || 0;
+    else {
+      try {
+        if (window.PDXWordAction && typeof window.PDXWordAction.statedCount === 'function') {
+          stN = window.PDXWordAction.statedCount(id) || 0;
+        }
+      } catch (e3) { stN = -1; }
+    }
     if (stN >= 0 && (stN || sig)) {
       out.positions = { value: stN + ' Stated', color: '#c4b5fd', pending: false,
         note: 'stated position' + (stN === 1 ? '' : 's') + ' on file, curated and pipeline-sourced' };
@@ -3796,27 +3792,22 @@
       out.positions = { value: sig + ' Issue' + (sig === 1 ? '' : 's'), color: '#c4b5fd',
         pending: false, note: of.signature || 'issues tagged on this profile' };
     }
-    // 🏛️ / ✒️ Record — how much of the formal record has been tested, out of how
-    // much formal record is on file. Both figures are the counts object's, and the
-    // numerator is the same one the Official Record's own digest leads with, so the
-    // pill and the section it jumps to cannot state different totals.
+    // 🏛️ / ✒️ Record — how much formal record is on file. It used to read
+    // "<scored> of <onRecord> tested", a second "tested" figure beside Direction
+    // Match's own ("7 of 7 tested" next to "1 of 12 tested" on one file). The pill
+    // now states the on-file count, and its note carries the one tested figure the
+    // rest of the profile prints. Both are the counts object's.
     if (counts && (counts.onRecord || counts.scorable || counts.tested)) {
       out.record = counts.warming
         ? { value: _NAV_PEND, color: '#9fdbd0', pending: true,
             note: 'still reading the formal record' }
-        : { value: counts.scored + ' of ' + counts.onRecord + ' tested', color: '#9fdbd0',
+        : { value: counts.onRecord + ' on file', color: '#9fdbd0',
             pending: false,
-            note: (of.scored || 'issues the formal record scored') + ', out of ' +
-              (of.onRecord || 'issues with a formal record on file') };
+            note: (of.onRecord || 'issues with a formal record on file') +
+              (counts.scorable ? ' · ' + counts.tested + ' of ' + counts.scorable + ' tested by Direction Match' : '') };
     }
-    // 🕑 Activity — when the newest evidence item or pipeline mention landed.
-    try {
-      var rel = window._pdxActivityRel(id, p);
-      if (rel) {
-        out.activity = { value: 'Updated ' + rel, color: '#9fb4d4', pending: false,
-          note: 'newest dated item on file — evidence, votes, formal actions or profile edits' };
-      }
-    } catch (e) {}
+    // 🕑 Activity carries no "Updated <n> ago" figure any more — see the note
+    // over _navActivityVal in openModal. Its build-time value is final.
     // 🔗 Evidence — receipts, not issues, and it says so.
     var ev = window._pdxNavEvidenceCount(id, p);
     if (ev > 0) {
@@ -4066,15 +4057,6 @@
       if (c.pending) btn.setAttribute('data-pdxnav-pending', '1');
       else btn.removeAttribute('data-pdxnav-pending');
     }
-    // The 🕑 Activity footer prints the same stamp; keep it in step with the chip.
-    try {
-      var rel = window._pdxActivityRel(id, null);
-      if (rel) {
-        var body = document.getElementById('modal-body') || document;
-        var foot = body.querySelectorAll('[data-pdx-activity-rel]');
-        for (var f = 0; f < foot.length; f++) if (foot[f].textContent !== rel) foot[f].textContent = rel;
-      }
-    } catch (e3) {}
   };
   // Does an event's pid name the file the rail is for? The record cache is keyed
   // by the canonical id and listeners by whatever id their surface resolved
@@ -5140,14 +5122,15 @@
     // helper the live repaint reads — see window._pdxNavEvidenceCount.
     const _navEvidenceCount = window._pdxNavEvidenceCount(id, p);
 
-    // Freshness is the newest evidence item or pipeline mention, not the profile
-    // document's own (often stale) timestamp — see window._pdxActivityRel.
-    let _navActivityRel = '';
-    try { _navActivityRel = window._pdxActivityRel(id, p) || ''; } catch (e) { _navActivityRel = ''; }
-    const _navActivityHas = !!(_navActivityRel || (p.promises && p.promises.length) || _navEvidenceCount || window._pdxKeyIssues(p).length);
-    const _navActivityVal = _navActivityRel ? ('Updated ' + _navActivityRel)
-      : ((p.promises && p.promises.length) ? (p.promises.length + ' tracked')
-      : (_navEvidenceCount ? (_navEvidenceCount + ' receipts') : 'View'));
+    // NO "UPDATED <n> AGO". The Activity pill and footer used to print a relative
+    // time off the newest DATED item on file — the day a vote was cast or a
+    // source was published — which is not when this file last changed, so a
+    // file maintained this week read "Updated 4mo ago". There is no honest
+    // last-change stamp to print in its place, so the claim is gone and the pill
+    // states what is tracked instead.
+    const _navActivityHas = !!((p.promises && p.promises.length) || _navEvidenceCount || window._pdxKeyIssues(p).length);
+    const _navActivityVal = (p.promises && p.promises.length) ? (p.promises.length + ' tracked')
+      : (_navEvidenceCount ? (_navEvidenceCount + ' receipts') : 'View');
 
     const _navItems = [];
     // The pushes below are written in reading order, but that is a courtesy to the
@@ -5283,8 +5266,7 @@
     } catch (e) {}
     // Activity — freshness / how much is tracked.
     if (_navActivityHas) {
-      _navItems.push({ target: 'pdxsec-activity', icon: '🕑', label: 'Activity', value: _navActivityVal, color: '#9fb4d4',
-        live: 'activity' });
+      _navItems.push({ target: 'pdxsec-activity', icon: '🕑', label: 'Activity', value: _navActivityVal, color: '#9fb4d4' });
     }
 
     // The rail order is the spine order. Sorting here rather than trusting the push
@@ -7713,7 +7695,6 @@
       ${(function(){
         function chip(lbl, val, attr){ return '<div class="pdx-activity-chip"><span class="lbl">' + lbl + '</span><span class="val"' + (attr || '') + '>' + val + '</span></div>'; }
         let chips = '';
-        if (_navActivityRel) chips += chip('Last updated', _navActivityRel, ' data-pdx-activity-rel');
         if (p.promises && p.promises.length) chips += chip('Promises tracked', p.promises.length);
         if (_navEvidenceCount) chips += chip('Evidence', _navEvidenceCount);
         if (window._pdxKeyIssues(p).length) chips += chip('Key issues', window._pdxKeyIssues(p).length);

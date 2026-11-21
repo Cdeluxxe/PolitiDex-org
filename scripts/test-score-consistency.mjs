@@ -605,17 +605,18 @@ const [displayScore, promiseState] = (() => {
     "    the Promises pill that already shows it");
   // The pill's figure is decided in window._pdxNavChips now — one derivation shared
   // by the build-time string and the warm repaint — so coverage is checked there, and
-  // the pill is checked for being wired to it. The numerator is the counts object's
-  // `scored`, which is the same split the Official Record's own digest leads with, so
-  // the pill and the section it jumps to cannot state different totals. While the
-  // record is still arriving it says so rather than printing the 0 it would retract.
+  // the pill is checked for being wired to it. The figure is the counts object's
+  // on-file count, and its note carries Direction Match's tested pair — the one
+  // "tested" figure the whole profile prints. While the record is still arriving
+  // it says so rather than printing the 0 it would retract.
   const chipSrc = PROFILES.slice(PROFILES.indexOf("window._pdxNavChips = function"),
     PROFILES.indexOf("window._pdxNavChipAria = function"));
   must(chipSrc.length > 400, "could not isolate the nav chip derivation");
-  ok(/counts\.scored \+ ' of ' \+ counts\.onRecord \+ ' tested'/.test(chipSrc) &&
+  ok(/counts\.onRecord \+ ' on file'/.test(chipSrc) &&
+    /counts\.tested \+ ' of ' \+ counts\.scorable \+ ' tested by Direction Match'/.test(chipSrc) &&
     /out\.record = counts\.warming/.test(chipSrc),
     "the nav rail's Record pill no longer reports Official Record coverage — it is the\n" +
-    "    only pill for the formal-record lane, so it has to say how much of it was tested");
+    "    only pill for the formal-record lane, so it has to say how much is on file and how much was tested");
   ok(/label:\s*'Record',\s*live:\s*'record',\s*\n?\s*value:\s*_navChips\.record\.value/.test(rail),
     "the Record pill builds its own coverage figure instead of taking the live chip's — a\n" +
     "    string built before the roll-call fetch returns cannot be corrected when it does");

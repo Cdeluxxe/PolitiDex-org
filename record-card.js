@@ -296,9 +296,18 @@
         sh = (cs && cs.formalPatternIndex && typeof cs.formalPatternIndex.shape === 'function')
           ? cs.formalPatternIndex.shape(pid) : null;
       } catch (e) { sh = null; }
-      if (sh && (sh.judged || sh.read)) {
-        lines.push(sh.judged + ' judged formal act' + (sh.judged === 1 ? '' : 's') +
-          ' across ' + sh.read + ' issue' + (sh.read === 1 ? '' : 's') + ' on file');
+      // The depth pair is the profile's own (profileCounts acts / onRecord), so
+      // the card cannot say "across 5 issues" under a profile saying 7.
+      var pcd = null;
+      try {
+        var csd = CS();
+        pcd = (csd && typeof csd.profileCounts === 'function') ? csd.profileCounts(pid) : null;
+      } catch (e) { pcd = null; }
+      var dActs = pcd ? (+pcd.acts || 0) : (sh ? sh.judged : 0);
+      var dIss = pcd ? (+pcd.onRecord || 0) : (sh ? sh.read : 0);
+      if (sh && (dActs || dIss)) {
+        lines.push(dActs + ' judged formal act' + (dActs === 1 ? '' : 's') +
+          ' across ' + dIss + ' issue' + (dIss === 1 ? '' : 's') + ' on file');
         var buckets = [];
         if (sh.strongN) buckets.push(sh.strongN + ' where the record points one way');
         if (sh.splitN) buckets.push(sh.splitN + ' where it ran both ways');

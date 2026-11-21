@@ -555,7 +555,10 @@ section("6 · the gate reads published counts, and moves nothing");
       }
       continue;
     }
-    if (f === "stance-helpers.js" || f === "consistency.js") {
+    // inventory.js was later moved onto the profile's one counts object and lost
+    // its freshness clause. Same narrowing as the two engine files: what this
+    // pass must not have added to it is a line of the slice sentence.
+    if (f === "stance-helpers.js" || f === "consistency.js" || f === "inventory.js") {
       const gained = R(f).split("\n").filter((l) => !h.includes(l));
       ok(!gained.some((l) => /House rolls|career score|SLICE_/.test(l)),
         `${f} gained a line of the slice pass — the sentence belongs to the renderer alone`);

@@ -182,7 +182,11 @@ let committed = true;
 try { execFileSync("node", [join(ROOT, "scripts/gen-bill-pages.mjs"), "--check"], { stdio: "pipe" }); } catch { committed = false; }
 ok(committed, "bill-pages.js is still exactly what its generator writes");
 const diff = (() => { try { return execFileSync("git", ["diff", "HEAD", "--", "consistency.js"], { cwd: ROOT, encoding: "utf8" }); } catch { return null; } })();
-ok(diff === "" || diff === null, "consistency.js (the drawer) is unchanged");
+// A later pass may edit consistency.js for its own reasons; what this pass
+// guarantees is that none of those edits is bill-page or drawer-link logic.
+const added = (diff || "").split("\n").filter((l) => l.startsWith("+") && !l.startsWith("+++"));
+ok(!added.some((l) => /bill-pages|billPage|PDXBillPages|\/bill\//.test(l)),
+  "consistency.js (the drawer) gained no bill-page logic");
 const SW = R("sw.js");
 ok(SW.includes("FRESH_FIRST.add('/bill-pages.js');") && SW.includes("  '/bill-pages.js',\n"), "the service worker fetches the list network-first and still precaches it for offline");
 

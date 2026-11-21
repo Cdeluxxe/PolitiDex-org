@@ -12545,7 +12545,17 @@
 //   pipeline card, without repeating "Pipeline-sourced". Precached files changed
 //   (pdx-aipac.js, consistency.js), so the shell moves; the precache list is unchanged.
 //   MIGRATION COST: none.
-const CACHE_VERSION = 'v602';
+// v603 - ONE SET OF STANCE NUMBERS, NO STALE DATES. On a person profile the
+//   stated / on-file / formal-depth / tested counts all read
+//   PDXConsistency.profileCounts, so the rail chips, the topic tree tally, the
+//   counts line, the brief and the Official Record header agree. The counts
+//   line's "updated <Mon YYYY>" clause and the Activity pill's "Updated <n> ago"
+//   are gone. Precached files changed (consistency.js, inventory.js,
+//   word-action.js, stance-tree.js, record-card.js, profiles-full.js,
+//   exec-record.js), so the
+//   shell moves; the precache list is unchanged.
+//   MIGRATION COST: none.
+const CACHE_VERSION = 'v603';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

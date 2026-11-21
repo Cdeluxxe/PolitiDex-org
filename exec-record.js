@@ -819,7 +819,12 @@
     if (!sum || !sum.actions) return '';
     var docs = sum.actions.total + (sum.unstatedStanding || 0);
     if (!docs) return '';
-    var iss = sum.issues.total;
+    // ACROSS THE ISSUES THE ACTIONS ARE ON. issues.total also counts the stated
+    // issues where no action was found, so "88 across 47 issues" sat beside a
+    // profile saying 44 issues have a formal record on file — three of the 47
+    // hold no action at all. Those are still counted in the summary; they are
+    // just not issues the actions are "across".
+    var iss = Math.max(0, (sum.issues.total || 0) - (sum.issues.noActionFound || 0));
     return FRAMING + ' — ' + docs + ' across ' + iss + ' ' + plural(iss, 'issue', 'issues') +
       (sum.thin ? ', still a thin record' : '');
   }
