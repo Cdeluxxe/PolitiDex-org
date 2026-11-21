@@ -99,14 +99,16 @@ section("1 · AIPAC receipts → AIPAC-backed, source named");
   ok(!boot().PDXAipac.isAffiliated("Club for Growth"), "an unrelated PAC is treated as AIPAC-affiliated");
 }
 
-section("2 · no AIPAC data → No AIPAC file on hand");
+section("2 · no AIPAC data → no relationship chip (the Tracker chip states the status)");
 {
   const w = boot({ filings: { n: NONE } });
   for (const pid of ["n", "nobody_at_all"]) {
+    ok(w.PDXAipac.read(pid).state === "empty", `${pid}: not empty`);
     const html = w.PDXAipac.chipHtml(pid);
-    ok(/data-pdx-aipac-state="empty"/.test(html), `${pid}: not empty`);
-    ok(visible(html) === "💰 No AIPAC file on hand", `${pid}: visible text is "${visible(html)}"`);
-    ok(/No AIPAC file on hand/.test(aria(html)), `${pid}: accessible name lacks the empty-state words`);
+    ok(html === "", `${pid}: an empty read still prints a chip ("${visible(html)}")`);
+    ok(!/No AIPAC file on hand/i.test(w.PDXAipac.chipMount(pid)), `${pid}: the mount still prints "No AIPAC file on hand"`);
+    const tr = typeof w.PDXAipac.trackerHtml === "function" ? w.PDXAipac.trackerHtml(pid) : "";
+    ok(/AIPAC Tracker/i.test(tr), `${pid}: the AIPAC Tracker chip is gone`);
   }
 }
 
@@ -240,11 +242,19 @@ section("7 · three scored votes read from the scorecard, fewer stay empty");
   const three = w.PDXAipac.chipHtml("three");
   ok(!/data-pdx-aipac-state="empty"/.test(three), "three scored votes still read empty");
   ok(/Track AIPAC reading/.test(aria(three)) && /Track AIPAC reading/.test(visible(three)), "a reading does not name its publisher");
-  const two = w.PDXAipac.chipHtml("two");
-  ok(/data-pdx-aipac-state="empty"/.test(two), "two scored votes produced a read");
-  // The empty-state wording, pinned word for word.
-  eq(visible(two), "💰 No AIPAC file on hand", "empty-state visible text");
-  eq(aria(two), "AIPAC relationship: No AIPAC file on hand. No AIPAC or AIPAC-affiliated PAC receipts in the OpenSecrets or FEC data on file, and fewer than three IMEU or Track AIPAC scored votes mapped to this archive. This is not a finding that there is no relationship.", "empty-state accessible name");
+  ok(w.PDXAipac.read("two").state === "empty", "two scored votes produced a read");
+  // The empty state prints no relationship chip at all.
+  eq(w.PDXAipac.chipHtml("two"), "", "empty-state chip");
+}
+
+section("8b · Thomas Massie: no relationship chip, the Tracker chip states his status");
+{
+  const w = boot({ filings: { massie: NONE } });
+  ok(w.PDXAipac.read("massie").state === "empty", "fixture: Massie has an AIPAC read on file");
+  ok(!/No AIPAC file on hand/i.test(w.PDXAipac.chipMount("massie")), "Massie's page still prints “No AIPAC file on hand”");
+  const tr = w.PDXAipac.trackerHtml("massie");
+  ok(/AIPAC Tracker/.test(tr) && /Has not accepted funds/.test(tr), `Massie's Tracker chip lost its status: ${tr.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim()}`);
+  ok(/href="https:\/\/www\.trackaipac\.com\//.test(tr), "Massie's Tracker chip no longer links to the tracker");
 }
 
 section("9 · the cutoffs: >= 45 backed, 12 < x < 45 mixed, <= 12 not aligned");
@@ -294,7 +304,7 @@ section("10 · the shipped IMEU rows, read against the archive's own senators");
     ok(/pdxsec-voting/.test(html) === votesOnly, `${pid}: a chip opens the wrong section`);
     ok(!/AIPAC scorecard/i.test(html) && !/\$|%|\d/.test(visible(html) + " " + aria(html)), `${pid}: figure or "AIPAC scorecard" on the chip`);
   }
-  eq(visible(w.PDXAipac.chipHtml("gallego")), "💰 No AIPAC file on hand", "gallego empty text");
+  eq(w.PDXAipac.chipHtml("gallego"), "", "gallego empty chip");
 }
 
 section("11 · AIPAC PAC's own reported contributions");
@@ -340,7 +350,7 @@ section("11 · AIPAC PAC's own reported contributions");
   // scored IMEU votes and no AIPAC PAC contributions on file.
   for (const pid of ["patrick_ryan", "gallego", "nobody_at_all"]) {
     ok(!PAC[pid], `fixture: ${pid} is on the AIPAC PAC table`);
-    eq(visible(w.PDXAipac.chipHtml(pid)), "💰 No AIPAC file on hand", `${pid} visible`);
+    eq(w.PDXAipac.chipHtml(pid), "", `${pid} chip`);
   }
 
   // Money beats a not-aligned voting record: "Not AIPAC-aligned" needs no money on file.

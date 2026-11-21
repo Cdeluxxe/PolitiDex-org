@@ -1514,6 +1514,9 @@
   function chipHtml(pid) {
     try {
       var r = read(pid);
+      // Nothing on file: no relationship chip at all. The AIPAC Tracker chip
+      // under the row (trackerHtml) states the tracker's own status instead.
+      if (r.state === 'empty') return '';
       var segs = segments(r);
       var inner = '';
       for (var i = 0; i < segs.length; i++) {
@@ -1546,7 +1549,7 @@
       for (var i = 0; i < hosts.length; i++) {
         var h = hosts[i];
         if (h.getAttribute('data-pdx-aipac-pid') !== pid) continue;
-        var cur = h.firstChild && h.firstChild.getAttribute ? h.firstChild.getAttribute('data-pdx-aipac-state') : null;
+        var cur = h.firstChild && h.firstChild.getAttribute ? h.firstChild.getAttribute('data-pdx-aipac-state') : 'empty';
         if (cur !== 'empty' || read(pid).state === 'empty') continue;
         h.innerHTML = chipHtml(pid);
       }
