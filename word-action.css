@@ -2891,6 +2891,9 @@
     transparent 66%
   );
 }
+/* An issue the topic tree files under no core topic wears the tree's neutral
+   rail (the colour system's own fallback), as its leaf does. */
+.pdxwa-stated-row[data-pdxwa-ic-neutral] { border-left-color: var(--pdx-ic, rgba(159, 180, 212, 0.25)); }
 .pdxwa-stated-row .pdx-stance-iss { color: #dbe6f5; }
 .pdxwa-stated-row[data-ic] .pdx-stance-iss { color: var(--pdx-ic-ink, #dbe6f5); }
 .pdxwa-stated-row .pdx-stance-pos { color: #f5c842; }

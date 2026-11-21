@@ -5632,7 +5632,9 @@
           return {
             key: issueKey, side: rs.key, sideLabel: rs.label, label: rs.label,
             source: 'curated', provenance: 'pipeline', signal: 'pipeline', strength: 'pipeline', signalLabel: STORE_SIGNAL.pipeline,
-            note: src ? 'Pipeline-sourced · ' + String(src.label || 'Source') : 'Pipeline-sourced',
+            // The signal already says "Pipeline-sourced stance"; the note names
+            // only the source, so the line never reads the tag twice.
+            note: src ? 'Source: ' + (String(src.label || '').replace(/^\s*Source:\s*/i, '') || 'Source') : 'No linked source',
             url: src ? String(src.url) : '', cited: !!src, n: 0, items: [], text: rs.text || ''
           };
         }
@@ -5654,7 +5656,7 @@
             key: issueKey, side: ps.side, sideLabel: ps.label || _OR_STANCE[ps.side].lb, label: ps.label || _OR_STANCE[ps.side].lb,
             source: 'pipeline', signal: strong ? 'strong' : 'weak', strength: strong ? 'strong' : 'weak',
             signalLabel: STORE_SIGNAL[strong ? 'strong' : 'weak'],
-            note: 'Pipeline-sourced · from ' + its.length + ' Locker item' + (its.length === 1 ? '' : 's'),
+            note: 'From ' + its.length + ' Locker item' + (its.length === 1 ? '' : 's'),
             url: /^https?:\/\//.test(String(s0.url || '')) ? String(s0.url) : '', cited: true,
             n: its.length, items: its.slice(), strong: ps.strong, weak: ps.weak, text: ''
           };
@@ -20719,6 +20721,64 @@
     return (sp > 120 ? cut.slice(0, sp) : cut).replace(/[\s,;:.—-]+$/, '') + '…';
   }
   function _gapHttp(u) { return /^https?:\/\//.test(String(u || '')); }
+  // ── VOTES STAY IN THE FORMAL RECORD ─────────────────────────────────────────
+  // The evidence section backs what they SAID. A roll call or a vote write-up is
+  // the formal record's (the record section below prints it), so a spotlight
+  // item filed as a vote, or a source that is a roll-call page, is never listed
+  // as evidence.
+  var _GAP_VOTE_URL = /clerk\.house\.gov\/(?:Votes|evs)\b|senate\.gov\/legislative\/LIS\/roll_call|congress\.gov\/(?:roll-call-vote|votes)\b|\/roll[-_]?call[-_]?votes?\b/i;
+  var _GAP_VOTE_KIND = /^(?:vote|votes|voting|roll[ _-]?call(?:[ _-]?vote)?|floor[ _-]?vote)$/i;
+  function _gapIsVoteUrl(u) { return _GAP_VOTE_URL.test(String(u || '')); }
+  function _gapIsVoteSource(x) {
+    if (!x) return false;
+    if (typeof x === 'string') return _gapIsVoteUrl(x);
+    return _GAP_VOTE_KIND.test(String(x.type || x.kind || '').trim()) || _gapIsVoteUrl(x.url || x.link);
+  }
+  function _gapIsVoteItem(it) {
+    if (!it) return false;
+    if (_GAP_VOTE_KIND.test(String(it.category || '').trim()) || _GAP_VOTE_KIND.test(String(it.sourceType || '').trim())) return true;
+    return _gapIsVoteUrl(it.source && it.source.url);
+  }
+  // ── A VIDEO ITEM'S LINK AND MOMENT ──────────────────────────────────────────
+  // A video statement carries the moment it was said: a `t=` start on its link
+  // (the transcriber's own deep link, e.g. "&t=938s") or a media timestamp
+  // ("15:38"). Printed the way every other video receipt is — "▶ Watch official
+  // video · 15:38 ↗" — opening at that moment. null for anything not a video.
+  function _gapClock(sec) {
+    sec = Math.max(0, Math.floor(sec || 0));
+    var h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60), x = sec % 60;
+    var pad = function (n) { return (n < 10 ? '0' : '') + n; };
+    return h ? h + ':' + pad(m) + ':' + pad(x) : m + ':' + pad(x);
+  }
+  function _gapSecs(t) {
+    t = String(t == null ? '' : t).trim();
+    if (!t) return 0;
+    var hms = /^(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s?)?$/i.exec(t);
+    if (hms && (hms[1] || hms[2] || hms[3])) return (+hms[1] || 0) * 3600 + (+hms[2] || 0) * 60 + (+hms[3] || 0);
+    var parts = t.split(':'), n = 0;
+    for (var i = 0; i < parts.length; i++) { var v = parseInt(parts[i], 10); if (isNaN(v)) return 0; n = n * 60 + v; }
+    return n;
+  }
+  function _gapVideoOf(it) {
+    if (!it) return null;
+    var m = it.media || null;
+    var pl = it.pipeline || {};
+    var src = (it.source && it.source.url) || '';
+    var url = (m && m.type === 'video' && m.url) ? String(m.url) : String(src || '');
+    var isYt = /(?:youtube\.com|youtu\.be)\//i.test(url);
+    var isVideo = isYt || !!(m && m.type === 'video') || /\bvideo\b/i.test(String(pl.source_type || ''));
+    if (!isVideo || !_gapHttp(url)) return null;
+    var ts = (m && m.timestamp) || it.timestamp || '';
+    var secs = _gapSecs(ts);
+    if (!secs) {
+      var tm = /[?&#]t=([0-9hms]+)/i.exec(url);
+      if (tm) secs = _gapSecs(tm[1]);
+    }
+    if (secs && isYt && !/[?&#]t=/.test(url)) url += (url.indexOf('?') === -1 ? '?' : '&') + 't=' + secs + 's';
+    var official = /official|own channel/i.test(String(pl.source_type || '') + ' ' + String((it.source && it.source.label) || ''));
+    return { url: url, timestamp: secs ? _gapClock(secs) : '', seconds: secs,
+      label: 'Watch ' + (official ? 'official ' : '') + 'video' + (secs ? ' · ' + _gapClock(secs) : '') };
+  }
   // THE EVIDENCE BEHIND THE STANCE. Only what is already attached to it:
   //   · the stance card's own sources — its `sources` array, or the single
   //     `source` a card carries when it has no array;
@@ -20731,12 +20791,14 @@
   function _gapEvidence(pid, issueKey, s) {
     var out = [], seen = {};
     if (!s || !pid || !issueKey) return out;
-    var add = function (url, label, summary, from) {
+    var add = function (url, label, summary, from, video) {
       if (!_gapHttp(url)) return;
       var u = String(url);
       if (seen[u]) return;
       seen[u] = 1;
-      out.push({ url: u, label: String(label || '').trim() || 'Source', summary: _gapClip(summary), from: from });
+      var x = { url: u, label: String(label || '').trim() || 'Source', summary: _gapClip(summary), from: from };
+      if (video && _gapHttp(video.url)) x.video = video;
+      out.push(x);
     };
     // 1 · the stance card's own sources (curated stances only).
     if (s.source === 'curated') {
@@ -20754,11 +20816,13 @@
           var srcs = Array.isArray(c.sources) && c.sources.length ? c.sources : (c.source ? [c.source] : []);
           srcs.forEach(function (x) {
             if (!x) return;
-            if (typeof x === 'string') { add(x, '', c.evidence || c.text, 'stance'); return; }
+            if (typeof x === 'string') { if (!_gapIsVoteUrl(x)) add(x, '', c.evidence || c.text, 'stance', _gapVideoOf({ source: { url: x } })); return; }
+            if (_gapIsVoteSource(x)) return;
             // The locked stance-record schema names the URL `link` and the
             // kind of source `type`; older cards use `url` and `label`.
             add(x.url || x.link, x.label || x.title || x.type,
-              x.excerpt || x.summary || x.quote || c.evidence || c.text, 'stance');
+              x.excerpt || x.summary || x.quote || c.evidence || c.text, 'stance',
+              _gapVideoOf({ source: { url: x.url || x.link }, media: x.media, timestamp: x.timestamp }));
           });
         });
       } catch (e) {}
@@ -20784,6 +20848,8 @@
     var L2 = window.PDXProfileLocker;
     lockerItems.forEach(function (it) {
       if (!it || !it.source) return;
+      // A vote is the formal record's, never evidence of what they said.
+      if (_gapIsVoteItem(it)) return;
       var pl = it.pipeline || {};
       var rv = (it.review && it.review.status) || (pl.review && pl.review.status) || '';
       if (rv === 'hidden') return;
@@ -20792,7 +20858,7 @@
         if ((pos === 'support' || pos === 'oppose') && pos !== s.side) return;
         try { if (L2 && typeof L2.strengthOf === 'function' && it.pipeline && L2.strengthOf(it) === 'mention') return; } catch (e3) {}
       }
-      add(it.source.url, it.source.label, pl.excerpt || it.facts || it.headline, 'locker');
+      add(it.source.url, it.source.label, pl.excerpt || it.facts || it.headline, 'locker', _gapVideoOf(it));
     });
     return out;
   }
@@ -20803,10 +20869,15 @@
       '<div class="pdxgap-sec-h">Evidence</div>' +
       '<ul class="pdxgap-ev-list">' +
         ev.map(function (x) {
-          return '<li class="pdxgap-ev-item" data-pdxgap-ev="' + escAttr(x.from) + '">' +
+          return '<li class="pdxgap-ev-item" data-pdxgap-ev="' + escAttr(x.from) + '"' +
+              (x.video ? ' data-pdxgap-ev-video="1"' + (x.video.timestamp ? ' data-pdxgap-ev-ts="' + escAttr(x.video.timestamp) + '"' : '') : '') + '>' +
             (x.summary ? '<p class="pdxgap-ev-sum">' + esc(x.summary) + '</p>' : '') +
-            '<a class="pdxgap-ev-src" href="' + escAttr(x.url) + '" target="_blank" rel="noopener noreferrer">' +
-              esc(x.label) + ' ↗</a></li>';
+            (x.video
+              ? '<span class="pdxgap-ev-srclb">' + esc(x.label) + '</span> · ' +
+                '<a class="pdxgap-ev-src pdxgap-ev-vid" href="' + escAttr(x.video.url) + '" target="_blank" rel="noopener noreferrer">▶ ' +
+                  esc(x.video.label) + ' ↗</a>'
+              : '<a class="pdxgap-ev-src" href="' + escAttr(x.url) + '" target="_blank" rel="noopener noreferrer">' +
+                  esc(x.label) + ' ↗</a>') + '</li>';
         }).join('') +
       '</ul>' +
     '</section>';
@@ -20851,8 +20922,8 @@
           '<ul class="pdxgap-qp-list">' + evShown.map(function (x) {
             return '<li class="pdxgap-qp-ev" data-pdxgap-qp-ev="' + escAttr(x.from) + '">' +
               (x.summary ? '<span class="pdxgap-qp-sn">' + esc(_gapQpClip(x.summary)) + '</span> ' : '') +
-              '<a class="pdxgap-qp-src" href="' + escAttr(x.url) + '" target="_blank" rel="noopener noreferrer">' +
-                esc(x.label) + ' ↗</a></li>';
+              '<a class="pdxgap-qp-src" href="' + escAttr(x.video ? x.video.url : x.url) + '" target="_blank" rel="noopener noreferrer">' +
+                (x.video ? '▶ ' + esc(x.video.label) : esc(x.label)) + ' ↗</a></li>';
           }).join('') + '</ul>' +
         '</div>'
       : '';

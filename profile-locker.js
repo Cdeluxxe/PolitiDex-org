@@ -1252,8 +1252,44 @@
     return r;
   }
 
+  // One politician's items, through the endpoint's ?pid= read (a prefix list
+  // of that person's blobs). The full list has outgrown the time the CDN waits
+  // for it, so a person file asks for its own politician first; the items fold
+  // in through the same ingest and repaint, and the full list still follows.
+  var loadingFor = {};
+  function pidIds(pid) {
+    var out = [];
+    var add = function (x) {
+      x = String(x == null ? '' : x).trim();
+      if (x && /^[A-Za-z0-9_-]{1,80}$/.test(x) && out.indexOf(x) === -1) out.push(x);
+    };
+    add(pid); add(canon(pid));
+    try { if (typeof window.PDXCanonicalPid === 'function') add(window.PDXCanonicalPid(pid)); } catch (e) {}
+    return out.slice(0, 6);
+  }
+  function loadFor(pid) {
+    var ids = pidIds(pid);
+    if (!ids.length) return Promise.resolve(null);
+    var k = ids.join(',');
+    if (loadingFor[k]) return loadingFor[k];
+    if (typeof fetch !== 'function') return (loadingFor[k] = Promise.resolve(null));
+    loadingFor[k] = fetch(ENDPOINT + '?pid=' + encodeURIComponent(k), { headers: { accept: 'application/json' } })
+      .then(function (res) { return res && res.ok ? res.json() : null; })
+      .then(function (body) { return (body && body.count) ? onBody(body) : null; })
+      .catch(function () { return null; });
+    return loadingFor[k];
+  }
+  function pagePid() {
+    try {
+      var m = /^\/p\/([^\/?#]+)/.exec(String((window.location && window.location.pathname) || ''));
+      if (m) return decodeURIComponent(m[1]);
+    } catch (e) {}
+    try { return String(window._pdxCurrentProfileId || ''); } catch (e) { return ''; }
+  }
+
   function load() {
     if (loading) return loading;
+    try { var pp = pagePid(); if (pp) loadFor(pp); } catch (e) {}
     if (typeof fetch !== 'function') return (loading = Promise.resolve(null));
     loading = fetch(ENDPOINT, { headers: { accept: 'application/json' } })
       .then(function (res) { return res && res.ok ? res.json() : null; })
@@ -1388,7 +1424,7 @@
 
   window.PDXProfileLocker = {
     ENDPOINT: ENDPOINT, HEAD: HEAD, WA_NOTE: WA_NOTE, TREE_NOTE: TREE_NOTE, POS: POS,
-    ingest: ingest, onBody: onBody, load: load,
+    ingest: ingest, onBody: onBody, load: load, loadFor: loadFor,
     items: items, forIssue: forIssue,
     treeLeafHtml: treeLeafHtml, treeFootHtml: treeFootHtml, treeLineHtml: treeLineHtml,
     waMatches: waMatches, waHtml: waHtml,
@@ -1408,7 +1444,7 @@
     FORMAL_MATCH_ISSUES: FORMAL_MATCH_ISSUES, FORMAL_MATCH_MEMBERS: FORMAL_MATCH_MEMBERS,
     formalMatch: formalMatch, formalMatches: formalMatches, measureNamedIn: measureNamedIn,
     // Test seam: forget everything ingested (does not touch SPOTLIGHT_DATA).
-    _reset: function () { byPid = {}; loading = null; }
+    _reset: function () { byPid = {}; loading = null; loadingFor = {}; }
   };
 
   // The 🕑 Activity badge's hook (profiles-full.js _pdxNewestEvidenceTs): the

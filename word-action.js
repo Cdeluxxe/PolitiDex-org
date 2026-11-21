@@ -4499,6 +4499,7 @@
     var list = [];
     try { list = CS.statedStances(pid) || []; } catch (e) { list = []; }
     var rows = [];
+    var place = treePlacement(pid);
     for (var i = 0; i < list.length; i++) {
       var se = list[i];
       if (!se || !se.key || !se.side) continue;
@@ -4527,12 +4528,49 @@
         ? '<a class="pdxwa-stated-go" href="' + esc(fileHref) + '" data-pdxwa-stated-file="' + esc(se.key) + '"' +
             ' aria-label="' + esc('Open the issue file for ' + (issueLabelOf(se.key) || se.key)) + '"></a>'
         : '';
-      rows.push({ key: se.key, pipeline: !!(pipe || se.provenance === 'pipeline'),
+      var pl = treePlaceOf(place, se.key);
+      rows.push({ key: se.key, pipeline: !!(pipe || se.provenance === 'pipeline'), order: pl ? pl.rank : null, i: i,
         html: '<li class="pdxwa-stated-row" data-pdxwa-stated="' + esc(se.key) + '"' + (fileHref ? ' data-pdxwa-stated-go="1"' : '') +
-          lockerAttrs + storeAttrs(se) + issueTintAttr(se.key) + '>' + fileLink + line +
+          (pl && pl.topic ? ' data-pdxwa-stated-topic="' + esc(pl.topic) + '"' : '') +
+          lockerAttrs + storeAttrs(se) + (pl ? treeTintAttr(pl.skin) : issueTintAttr(se.key)) + '>' + fileLink + line +
           proofControlsHtml(se.key, pid, issueLabelOf(se.key) || se.key, 'stated') + '</li>' });
     }
+    // THE TREE'S ORDER. The topic tree below files these same issues by topic
+    // (the taxonomy's branch order, each branch's own leaf order); the list
+    // reads in that order too, so a row and its leaf are found in the same
+    // place. Without the tree on the page the store's own order stands.
+    if (place) {
+      rows.sort(function (a, b) {
+        if (a.order !== b.order) return a.order < b.order ? -1 : 1;
+        return a.i - b.i;
+      });
+    }
     return rows;
+  }
+  // Where the topic tree (stance-tree.js) files each issue, or null when the
+  // tree is not on this page. One rank per row: a leaf's place in the tree,
+  // or — for an issue the tree has no leaf for — after every leaf, by its
+  // topic's place in the taxonomy.
+  function treePlacement(pid) {
+    var T = window.PDXStanceTree;
+    if (!pid || !T || typeof T.placement !== 'function') return null;
+    try { return { T: T, map: T.placement(pid) || {} }; } catch (e) { return null; }
+  }
+  function treePlaceOf(place, key) {
+    if (!place) return null;
+    var p = place.map[key];
+    if (p) return { rank: p.at, topic: p.topic, skin: p.skin };
+    var q = null;
+    try { q = typeof place.T.placeOf === 'function' ? place.T.placeOf(key) : null; } catch (e) { q = null; }
+    if (!q) return null;
+    return { rank: 100000 + (q.topicAt || 0), topic: q.topic, skin: q.skin };
+  }
+  // The tree's own skin on a row: its four colour properties always (an
+  // off-register issue gets the colour system's neutral, as its leaf does), and
+  // the [data-ic] topic treatment only where the issue lands on a core topic.
+  function treeTintAttr(skin) {
+    if (!skin || !skin.style) return '';
+    return (skin.on ? ' data-ic="on"' : ' data-pdxwa-ic-neutral="1"') + ' style="' + esc(skin.style) + '"';
   }
   // ── 🧾 SEE PROOF — the claim's own door to its backing ──────────────────────
   // Every ✒️ stated-position row and every formal-record bar carries one short

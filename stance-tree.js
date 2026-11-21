@@ -965,6 +965,37 @@
     });
     return out;
   }
+  // ── WHERE EACH ISSUE SITS IN THE TREE, FOR LISTS BESIDE IT ────────────────
+  // The ✒️ stated-positions list (word-action.js) prints the same issues this
+  // tree files, so it reads in the tree's own order and wears the tree's own
+  // skin: branches in the taxonomy's order, leaves in each branch's own order
+  // (its mids, when it has them, in theirs). { key: { at, topic, topicAt, skin } }.
+  // An issue the tree holds no leaf for is placed after every leaf, by its
+  // topic's place in the taxonomy. Read-only: it builds nothing and opens nothing.
+  function placement(pid) {
+    var out = {}, at = 0;
+    var tix = {};
+    TOPICS().forEach(function (t, i) { tix[t.key] = i; });
+    try {
+      groups(pid).forEach(function (g) {
+        var ls = (g.mids && g.mids.length)
+          ? g.mids.reduce(function (acc, m) { return acc.concat(m.leaves || []); }, [])
+          : g.leaves;
+        (ls || []).forEach(function (lf) {
+          if (!lf || !lf.key || out[lf.key]) return;
+          out[lf.key] = { at: at++, topic: g.topicKey || '', topicAt: tix[g.topicKey] != null ? tix[g.topicKey] : 999, skin: lf.skin || skinFor(lf.key) };
+        });
+      });
+    } catch (e) {}
+    return out;
+  }
+  function placeOf(key) {
+    var topic = '';
+    try { topic = coreKeyOf(key) || ''; } catch (e) { topic = ''; }
+    var at = 999;
+    TOPICS().forEach(function (t, i) { if (t.key === topic) at = i; });
+    return { topic: topic, topicAt: at, skin: skinFor(key) };
+  }
   function count(pid) { try { return leaves(pid).length; } catch (e) { return 0; } }
 
   // ── WALL 4 · NOTHING IS OPEN WHEN THE TREE FIRST PAINTS ───────────────────
@@ -2113,6 +2144,9 @@
   }
 
   window.PDXStanceTree = {
+    // Where an issue sits in this tree (order and skin), for the lists beside it.
+    placement: placement,
+    placeOf: placeOf,
     // The grouping map and the vocabularies, as data. Every label this surface can
     // print is reachable from here, which is what lets the tests assert the copy
     // instead of scraping markup for literals.
