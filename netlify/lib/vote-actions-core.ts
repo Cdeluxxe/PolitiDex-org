@@ -59,15 +59,16 @@
 // scripts/test-vote-actions.mjs runs it with no network and no database.
 
 import { BILL_KEY_PATTERNS, MAPPED_KEYS } from "./bill-key-patterns.mjs";
-import { ISSUE_KEYS, suggestIssue, mapActionType, canonicalMeasureNumber } from "./vr-normalize.js";
+import { ISSUE_KEYS, ISSUE_KEYWORDS, mapActionType, canonicalMeasureNumber } from "./vr-normalize.js";
 import { ISSUE_TOPIC_VOCAB, DIRECTIONAL_TOPIC_VOCAB, buildTopicRules, buildDirectionalTopicRules } from "./stance-topic-vocab.mjs";
 import { RELATED_ISSUE_KEYS } from "./related-issue-keys.mjs";
 import { runQuality, pctText } from "./vote-actions-quality.js";
-import { type PageBill, PAGES_PER_RUN, PAGE_REFRESH_DAYS, PAGE_MAX_ATTEMPTS, buildBillPage, pageSignature, pageStoreKey, billPageUrl, docKey, wantsPage } from "./vote-actions-pages.js";
+import { type PageBill, PAGES_PER_RUN, PAGE_REFRESH_DAYS, PAGE_MAX_ATTEMPTS, buildBillPage, pageSignature, pageStoreKey, billPageUrl, docKey, wantsPage, pageTags, effectLineOk } from "./vote-actions-pages.js";
 import coreCategories from "../../db/issue-core-categories.json" with { type: "json" };
+import tagCorrectionsFile from "../../db/vote-actions-tag-corrections.json" with { type: "json" };
 
 // ── Knobs ────────────────────────────────────────────────────────────────────
-export const TAGGER_VERSION = "va-tagger-v4"; // v2: no tag-count cap · v3: presence-only · v4: high / low impact tiers
+export const TAGGER_VERSION = "va-tagger-v5"; // v2: no tag-count cap · v3: presence-only · v4: high / low impact tiers · v5: whole-word keywords, measure stoplist, amendments inherit the parent bill, one subject term no longer forces high, reviewed corrections
 export const STATE_STORE_NAME = "vote-actions-state";
 export const STATE_KEY = "state.json";
 export const RUN_BUDGET_MS = 22_000;          // scheduled functions stop at ~30 s
@@ -487,19 +488,105 @@ export function patternHits(text: string): string[] {
   return hits;
 }
 
+// ── The keyword matcher, for measures ───────────────────────────────────────
+// The same rule as vr-normalize.ts suggestIssue (ONE issue, only when exactly
+// one issue's keywords match), over the same keyword lists, with two fixes for
+// bill text. suggestIssue itself is unchanged (it is shared with the formal
+// record's proposal path, and fenced).
+//
+// WHOLE WORDS ONLY. A keyword matches only as a word (or phrase) of its own, with
+// an optional plural "s"/"es": "land" no longer fires inside "Homeland", "ranch"
+// inside "branch", "fire" inside "firearms", "dust" inside "industry", "va"
+// inside "private", "life" inside "nonproliferation".
+//
+// A MEASURE STOPLIST. The keyword lists come from the client's ISSUE_MAP, where
+// they read a politician's own statements. A bill title, summary or CRS subject
+// term is a different kind of text, so the words below are not used to classify
+// a MEASURE (the client's lists are unchanged). Each is either too generic to
+// name an issue in a bill ("state", "life", "rules", "benefits", "employment") or
+// hits ordinary drafting language ("carry out", "removal of", "funding for").
+export const MEASURE_KEYWORD_STOPLIST: ReadonlySet<string> = new Set([
+  "state", "life", "land", "ranch", "tent", "rules", "family", "funding", "benefits", "data",
+  "social", "services", "investment", "development", "growth", "business", "industry", "cost",
+  "supply", "construction", "transfer", "county", "removal", "remove", "enforcement", "emergency",
+  "recovery", "treatment", "crisis", "safety", "secure", "accessible", "bipartisan", "reform",
+  "balance", "balanced", "responsible", "fair", "fairness", "respect", "liberty", "tolerance",
+  "common sense", "common ground", "moderate", "exceptions", "viability", "carry", "fiscal",
+  "appropriation", "spending", "budget", "audit", "fraud", "waste", "efficiency", "accountability",
+  "transparency", "oversight", "testimony", "confirmation", "constitution", "delegation", "leverage",
+  "exemptions", "carve-out", "supplemental", "strategic", "allies", "engagement", "judicial",
+  "judiciary", "justices", "contempt", "injunction", "court order", "district court", "merit",
+  "equity", "inclusion", "diversity", "speech", "expression", "viewpoint", "conscience", "senior",
+  "seniors", "dependent", "parents", "utilities", "prices", "affordable", "opportunity", "clinic",
+  "underserved", "shelter", "transient", "tenure", "at-will", "cooling", "dust", "permit", "sunset",
+  "compliance", "bureaucracy", "modernize", "modernization", "mitigation", "preparedness",
+  "resilience", "dark money", "disclosure", "special interests", "rule of law", "emergency powers",
+  "licensing", "employment", "democracy",
+]);
+const KEYWORD_RE = new Map<string, RegExp>();
+export function keywordMatches(text: string, kw: string): boolean {
+  const k = String(kw || "").toLowerCase().trim();
+  if (!k || MEASURE_KEYWORD_STOPLIST.has(k)) return false;
+  let re = KEYWORD_RE.get(k);
+  if (!re) {
+    const esc = k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/\s+/g, "\\s+");
+    re = new RegExp(`(?<![a-z0-9])${esc}(?:s|es)?(?![a-z0-9])`, "i");
+    KEYWORD_RE.set(k, re);
+  }
+  return re.test(text);
+}
+export function suggestIssue(text: string): string | null {
+  const t = String(text || "").toLowerCase();
+  if (!t) return null;
+  const hits: string[] = [];
+  for (const key of Object.keys(ISSUE_KEYWORDS)) {
+    if ((ISSUE_KEYWORDS[key] || []).some((kw) => keywordMatches(t, String(kw)))) hits.push(key);
+  }
+  return hits.length === 1 && ISSUE_KEYS.has(hits[0]) ? hits[0] : null;
+}
+
 let _rules: Record<string, RegExp> | null = null;
 function mentionRules(): Record<string, RegExp> {
   if (_rules) return _rules;
   const out: Record<string, RegExp> = {};
   for (const [k, r] of Object.entries({ ...buildTopicRules(ISSUE_TOPIC_VOCAB), ...buildDirectionalTopicRules(DIRECTIONAL_TOPIC_VOCAB) }) as Array<[string, any]>) {
-    if (TAG_KEYS.has(k) && r?.mention) out[k] = new RegExp(r.mention.source, "i");
+    if (TAG_KEYS.has(k) && r?.mention) out[k] = new RegExp(r.mention.source, "gi");
   }
   return (_rules = out);
 }
 
+// Words the stance vocabulary counts as a mention in a politician's statement
+// but that, in a bill's title or CRS summary, are ordinary drafting language:
+// "exceptions" (repro_balance), "as appropriate" / "funds appropriated"
+// (power_of_purse), "investment" (econ_growth), "removal of" (deportations),
+// "public access" (lands_keep_public), "fraud" (gov_waste). A vocabulary rule
+// still tags the key when it matches any OTHER word in the same text. The
+// vocabulary itself (stance-topic-vocab.mjs, which scores statements) is not
+// changed; this filter applies to measures only.
+export const VOCAB_MEASURE_STOP_TERMS: ReadonlySet<string> = new Set([
+  "exceptions", "exception", "appropriate", "appropriated", "appropriation", "investment", "investments",
+  "removal", "removals", "public access", "fraud", "fraudulent",
+]);
+export function mentionHit(re: RegExp, text: string): boolean {
+  if (!text) return false;
+  re.lastIndex = 0;
+  for (const m of String(text).matchAll(re)) {
+    if (!VOCAB_MEASURE_STOP_TERMS.has(String(m[0]).toLowerCase().replace(/\s+/g, " "))) return true;
+  }
+  return false;
+}
+
+// Reviewed corrections (db/vote-actions-tag-corrections.json): per bill key, the
+// keys a curator found the text-derived tagger got clearly wrong ("drop") or
+// missed ("add"), each with why. Applied after the text signals, by bill key
+// only, so every other bill is tagged from its own text exactly as before.
+type TagCorrection = { drop?: string[]; add?: string[]; why?: string };
+export const TAG_CORRECTIONS: Record<string, TagCorrection> = ((tagCorrectionsFile as any)?.bills || {}) as Record<string, TagCorrection>;
+
 export type TagInput = {
   measureType: string; title?: string | null; shortTitle?: string | null; summary?: string | null;
   policyArea?: string | null; subjects?: string[] | null;
+  billKey?: string | null; // only used to look up a reviewed correction
 };
 
 // ── Impact tiers ─────────────────────────────────────────────────────────────
@@ -509,28 +596,33 @@ export type TagInput = {
 //   1. its confidence is at or above HIGH_TIER_MIN_CONFIDENCE (25)
 //   2. the bill is an appropriations / NDAA / reconciliation / major authorization bill
 //   3. the bill's text carries large-scale language or a dollar figure ≥ $10 million
-//   4. one of its signals is an official legislative subject term
+//   4. TWO OR MORE official legislative subject terms name it (one subject term
+//      alone no longer promotes a key: CRS files "Congressional oversight",
+//      "Legislative rules and procedure" and the like on almost every bill)
 // Exception: a private relief bill or a single-facility naming bill is LOW
 // whatever else matched — those are the incidental-noise shape the tiers exist for.
 //
 // Confidence (tiering only — never a filter, never a rank). The strongest signal:
 //   pattern over the title 40 · pattern over title + summary 30 · keyword over the
 //   title 20 · keyword over title + summary 15 · vocabulary mention in the title 15
-//   · vocabulary mention in the summary 10 · a subject term 30
+//   · vocabulary mention in the summary 10 · a subject term 20 (below the high
+//   bar on its own) · a reviewed correction 40
 // plus 10 for each further text LOCATION (title / summary / subjects) that names
 // the key. Two matchers reading the same word in the same place are one piece of
 // evidence, so they add nothing.
 export const HIGH_TIER_MIN_CONFIDENCE = 25;
 export const SIGNAL_POINTS: Record<string, number> = {
   "pattern:title": 40, "pattern:text": 30, "keyword:title": 20, "keyword:text": 15,
-  "vocab:title": 15, "vocab:summary": 10, subject: 30,
+  "vocab:title": 15, "vocab:summary": 10, subject: 20, correction: 40, parent: 0,
 };
+export const SUBJECT_TERMS_FOR_HIGH = 2;
 export const EXTRA_LOCATION_POINTS = 10;
 export const SCALE_DOLLARS_MIN = 10_000_000;
 
-const signalKind = (sig: string) => (sig.startsWith("subject:") ? "subject" : sig);
+const signalKind = (sig: string) => (sig.startsWith("subject:") ? "subject" : sig.startsWith("correction:") ? "correction" : sig.startsWith("parent:") ? "parent" : sig);
 const signalLocations = (sig: string): string[] => {
   if (sig.startsWith("subject:")) return ["subjects"];
+  if (sig.startsWith("correction:") || sig.startsWith("parent:")) return [];
   if (sig.endsWith(":title")) return ["title"];
   if (sig === "vocab:summary") return ["summary"];
   return ["title", "summary"]; // pattern:text / keyword:text read both
@@ -614,13 +706,19 @@ export function tagMeasure(m: TagInput): TagResult {
   if (summary) hit(suggestIssue(full), "keyword:text");
   // 3. Topic vocabulary mentions.
   for (const [k, re] of Object.entries(mentionRules())) {
-    if (title && re.test(title)) hit(k, "vocab:title");
-    if (summary && re.test(summary)) hit(k, "vocab:summary");
+    if (title && mentionHit(re, title)) hit(k, "vocab:title");
+    if (summary && mentionHit(re, summary)) hit(k, "vocab:summary");
   }
   // 4. Legislative subject terms, one term at a time.
   for (const term of (m.subjects || []).map(str).filter(Boolean)) {
     hit(suggestIssue(term), `subject:${term}`);
-    for (const [k, re] of Object.entries(mentionRules())) if (re.test(term)) hit(k, `subject:${term}`);
+    for (const [k, re] of Object.entries(mentionRules())) if (mentionHit(re, term)) hit(k, `subject:${term}`);
+  }
+  // 5. A reviewed correction for this bill, if one is on file.
+  const fix = m.billKey ? TAG_CORRECTIONS[m.billKey] : undefined;
+  if (fix) {
+    for (const k of fix.drop || []) found.delete(k);
+    for (const k of fix.add || []) hit(k, "correction:reviewed");
   }
 
   const tags = [...found.keys()].sort();
@@ -634,7 +732,8 @@ export function tagMeasure(m: TagInput): TagResult {
     if (confidence >= HIGH_TIER_MIN_CONFIDENCE) reasons.push(`confidence:${confidence}`);
     if (majorBill) reasons.push(`major-bill:${majorBill}`);
     if (scale) reasons.push(scale);
-    if (signals.some((x) => x.startsWith("subject:"))) reasons.push("subject-term");
+    if (signals.filter((x) => x.startsWith("subject:")).length >= SUBJECT_TERMS_FOR_HIGH) reasons.push("subject-terms");
+    if (signals.some((x) => x.startsWith("correction:"))) reasons.push("reviewed-correction");
     const impactTier: ImpactTier = !minorBill && reasons.length ? "high" : "low";
     if (minorBill) reasons.unshift(`minor-bill:${minorBill}`);
     return { key, category: CATEGORY_OF[key] || null, signals, confidence, impactTier, tierReasons: reasons };
@@ -649,6 +748,89 @@ export function tagMeasure(m: TagInput): TagResult {
     ...(tags.length ? {} : { untagged: title || summary || (m.subjects || []).length ? "no-signal" : "no-text" }),
   };
 }
+
+// ── Amendments inherit their parent bill's tags ─────────────────────────────
+// An amendment's own text is a one-line purpose ("To improve the bill.") that
+// often names no topic, so 75 amendments had no tag and their roll calls were
+// never published. An amendment is a change to its parent bill, so an amendment
+// whose own text names NO topic carries its parent's tags: the parent's
+// high-tier tags (or, when the parent has none, all of them, as its page lists
+// them), each at the parent's tier and marked with the signal
+// "parent:<bill key>". An amendment whose own text names a topic keeps its own
+// tags only — an amendment on voter ID to an appropriations bill is about voter
+// ID, not about every account the bill funds.
+export function inheritParentTags(own: TagResult, parent: TagResult | null | undefined, parentBillKey: string): TagResult {
+  if (own.tags.length || !parent || !parent.detail?.length) return own;
+  const minor = !!parent.billImpact?.minorBill;
+  const high = parent.detail.filter((d) => d.impactTier === "high");
+  const from = high.length ? high : minor ? [] : parent.detail;
+  if (!from.length) return own;
+  const detail: TagDetail[] = from.map((d) => ({
+    key: d.key, category: d.category, signals: [`parent:${parentBillKey}`], confidence: d.confidence,
+    impactTier: d.impactTier, tierReasons: ["parent-bill", ...d.tierReasons],
+  })).sort((a, b) => a.key.localeCompare(b.key));
+  const tags = detail.map((d) => d.key);
+  const cats = new Set(detail.map((d) => d.category).filter(Boolean));
+  const { untagged: _u, ...rest } = own;
+  return {
+    ...rest, tags, detail,
+    highTags: detail.filter((d) => d.impactTier === "high").map((d) => d.key),
+    lowTags: detail.filter((d) => d.impactTier === "low").map((d) => d.key),
+    multiTopic: cats.size >= MULTI_TOPIC_CATEGORIES,
+  };
+}
+
+type TaggableRow = Pick<BillRow, "billKey" | "measureType" | "title" | "shortTitle" | "summary" | "policyArea" | "officialSubjects" | "parentBillKey">;
+export const tagRow = (b: TaggableRow): TagResult =>
+  tagMeasure({ billKey: b.billKey, measureType: b.measureType, title: b.title, shortTitle: b.shortTitle, summary: b.summary, policyArea: b.policyArea, subjects: b.officialSubjects });
+// A stored row's tags, with its parent's when it is an amendment. The parent is
+// tagged afresh from ITS stored text (not its stored tags, which may be from an
+// older tagger version).
+export function tagBillRow(b: TaggableRow, parent?: TaggableRow | null): TagResult {
+  const own = tagRow(b);
+  return b.measureType === "amendment" && parent && b.parentBillKey === parent.billKey ? inheritParentTags(own, tagRow(parent), parent.billKey) : own;
+}
+// ── Effect lines for a generated page ───────────────────────────────────────
+// Per page key, the first sentence of the bill's OWN official text that names
+// that topic: the CRS summary's sentences for a bill, the stated purpose (then
+// the description) for an amendment. A sentence "names" a key when the tagger,
+// run on that sentence alone, tags it. Only a sentence that passes the
+// hand-built line rule (effectLineOk) is used; nothing is reworded beyond
+// collapsing whitespace and closing an amendment purpose with a period.
+export function splitSentences(text: string): string[] {
+  const t = String(text || "").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim();
+  if (!t) return [];
+  // A CRS summary opens with the measure's name run into its first sentence
+  // ("GENIUS Act This act establishes …"): start at "This bill / act / …".
+  const lead = t.search(/\bThis (?:bill|act|joint resolution|concurrent resolution|resolution|amendment)\b/);
+  const body = lead > 0 ? t.slice(lead) : t;
+  const ABBR = /\b(?:U\.S|U\.S\.C|No|Sec|Mr|Mrs|Ms|Dr|Jr|Inc|Co|St|e\.g|i\.e|etc)\./g;
+  const masked = body.replace(ABBR, (m) => m.replace(/\./g, "\u0000"));
+  return masked.split(/(?<=[.!?])\s+(?=["“(]?[A-Z0-9])/).map((x) => x.replace(/\u0000/g, ".").trim()).filter(Boolean);
+}
+export function effectLinesFor(b: { measureType: string; title?: string | null; summary?: string | null }, keys: string[]): Record<string, string> {
+  const out: Record<string, string> = {};
+  if (!keys.length) return out;
+  const candidates: string[] = [];
+  if (b.measureType === "amendment") {
+    for (const x of [b.title, b.summary]) {
+      const s = str(x).replace(/\s+/g, " ").trim();
+      if (s) candidates.push(/[.!?]$/.test(s) ? s : `${s}.`);
+    }
+  } else {
+    candidates.push(...splitSentences(str(b.summary)));
+  }
+  const want = new Set(keys);
+  for (const sentence of candidates) {
+    if (out && Object.keys(out).length === want.size) break;
+    const line = effectLineOk(sentence);
+    if (!line) continue;
+    for (const k of tagMeasure({ measureType: "bill", title: line }).tags) if (want.has(k) && !out[k]) out[k] = line;
+  }
+  return out;
+}
+
+const hasParentSignal = (detail: TagDetail[] | null | undefined) => (detail || []).some((d) => d.signals?.some((s) => s.startsWith("parent:")));
 
 // ── Congress.gov bill text (key-gated) ───────────────────────────────────────
 const stripHtml = (s: string) => decodeXml(String(s || "").replace(/<[^>]+>/g, " ")).replace(/\s+/g, " ").trim();
@@ -856,9 +1038,14 @@ export function buildVoteRows(r: RollRecord, bill: BillRow, ids: { memberMap: Re
 // envelope's fetched_at), so a replay rebuilds the identical row.
 export function billFromMeta(rec: RollRecord, meta: BillMeta, at: Date, rawRef: string | null): { bill: BillRow; tags: TagResult } {
   const m = rec.measure!;
-  const tags = tagMeasure({ measureType: m.measureType, title: meta.title, shortTitle: meta.shortTitle, summary: meta.summary, policyArea: meta.policyArea, subjects: meta.subjects });
+  const tags = tagMeasure({ billKey: m.billKey, measureType: m.measureType, title: meta.title, shortTitle: meta.shortTitle, summary: meta.summary, policyArea: meta.policyArea, subjects: meta.subjects });
   if (!m.parentBillKey && isRuleResolution(m.billType, meta.title)) m.parentBillKey = ruleTarget(rec.congress, meta.title);
   const bill = { ...buildBillRow(rec.congress, m, meta, tags, null, at), rawRef };
+  // An amendment whose own text names no topic is finished by inheriting its
+  // parent's tags, which needs the parent's row. Until a caller does that, the
+  // row carries a version the re-tag step (6) picks up on the next run, so a
+  // replay or a parent-not-yet-stored read never leaves it untagged for good.
+  if (m.measureType === "amendment" && !tags.tags.length && m.parentBillKey) bill.taggerVersion = `${TAGGER_VERSION}+parent-pending`;
   return { bill, tags };
 }
 // The vote rows for one roll call against its bill row.
@@ -1249,11 +1436,27 @@ export async function runVoteActions(deps: RunDeps): Promise<{ report: RunReport
           : null;
         const meta = billMetaFromResponses(responses, rec.congress, rec.measure);
         const built = billFromMeta(rec, meta, new Date(fetchedAt), metaRef);
-        const tags = built.tags;
+        let tags = built.tags;
         bill = built.bill;
+        if (bill.measureType === "amendment" && bill.parentBillKey) {
+          const parent = await deps.repo.getBill(bill.parentBillKey);
+          if (parent) {
+            tags = inheritParentTags(tags, tagRow(parent), parent.billKey);
+            bill = { ...bill, topicTags: tags.tags, tagDetail: tags.detail, multiTopic: tags.multiTopic, taggerVersion: tags.version };
+          }
+        }
         await deps.repo.upsertBill(bill);
         tags.tags.length ? report.billsTagged++ : report.billsUntagged++;
         log(`vote-actions: BILL ${bill.billKey} ${bill.number || ""} — tags high [${tags.highTags.join(", ")}] low [${tags.lowTags.join(", ")}]${tags.untagged ? ` (untagged: ${tags.untagged})` : ""}${tags.multiTopic ? " multi-topic" : ""} · ${meta.metaSource}`);
+      } else if (bill.measureType === "amendment" && bill.parentBillKey && !hasParentSignal(bill.tagDetail)) {
+        // An amendment read before its parent bill had a row: inherit now that it may.
+        const parent = await deps.repo.getBill(bill.parentBillKey);
+        const tags = parent ? tagBillRow(bill, parent) : null;
+        if (tags && hasParentSignal(tags.detail)) {
+          bill = { ...bill, topicTags: tags.tags, tagDetail: tags.detail, multiTopic: tags.multiTopic, taggerVersion: tags.version };
+          await deps.repo.upsertBill(bill);
+          await deps.repo.retagVotes(bill.billKey, bill.topicTags, bill.taggerVersion);
+        }
       }
       const { rows, unmapped } = rowsForRoll(rec, bill, { memberMap: deps.memberMap, lis: lis || {} }, rollRef);
       const w = await deps.repo.upsertVotes(rows);
@@ -1296,11 +1499,17 @@ export async function runVoteActions(deps: RunDeps): Promise<{ report: RunReport
     const prev = state.pages[b.billKey];
     try {
       const src = await pageSources(deps, b, at, log);
-      const page = buildBillPage(b, src, deps.memberMap, new Date(at));
+      // The summary is not in the light page read: one row read for the lines.
+      let lines: Record<string, string> = {};
+      try {
+        const full = await deps.repo.getBill(b.billKey);
+        if (full) lines = effectLinesFor(full, pageTags(b));
+      } catch { lines = {}; }
+      const page = buildBillPage(b, { ...src, lines }, deps.memberMap, new Date(at));
       await deps.pageStore!.setJSON(pageStoreKey(b.congress, b.number!), page);
       state.pages[b.billKey] = { sig, at, url: page.url };
       refresh ? report.pagesRefreshed++ : report.pagesGenerated++;
-      log(`vote-actions: PAGE ${page.url} — ${b.billKey} · issues [${(page.doc.m || []).map((x) => x.k).join(", ")}]${page.doc.sl ? ` · ${page.doc.sl}` : ""}`);
+      log(`vote-actions: PAGE ${page.url} — ${b.billKey} · issues [${(page.doc.m || []).map((x) => x.k).join(", ")}] · ${(page.doc.m || []).filter((x) => x.l).length} effect line(s)${page.doc.sl ? ` · ${page.doc.sl}` : ""}`);
       return true;
     } catch (e: any) {
       if (e instanceof RateLimited) throw e;
@@ -1363,7 +1572,11 @@ export async function runVoteActions(deps: RunDeps): Promise<{ report: RunReport
       catch (e: any) { report.errors.push(`bills ${congress}: ${e?.message || e}`); }
     }
     if (bills) {
-      for (const b of bills) {
+      // Pages that last went out with no issues at all go first, so the blank
+      // generated pages fill before the rest are rebuilt.
+      const wasBlank = (b: PageBill) => { const e = state.pages[b.billKey]; return !!e && !e.failed && String(e.sig || "").split("|")[2] === ""; };
+      const ordered = [...bills].sort((a, b) => Number(wasBlank(b)) - Number(wasBlank(a)));
+      for (const b of ordered) {
         if (pageState(b) !== "pending") continue;
         if (pagesUsed() >= maxPages) break;
         if (overBudget()) { report.budgetHit = true; break; }
@@ -1424,7 +1637,9 @@ export async function runVoteActions(deps: RunDeps): Promise<{ report: RunReport
             } satisfies BillEnvelope, log)
           : null;
         const meta = billMetaFromResponses(responses, b.congress, m);
-        const tags = tagMeasure({ measureType: b.measureType, title: meta.title, shortTitle: meta.shortTitle, summary: meta.summary, policyArea: meta.policyArea, subjects: meta.subjects });
+        const own = tagMeasure({ billKey: b.billKey, measureType: b.measureType, title: meta.title, shortTitle: meta.shortTitle, summary: meta.summary, policyArea: meta.policyArea, subjects: meta.subjects });
+        const parentRow = b.measureType === "amendment" && b.parentBillKey ? await deps.repo.getBill(b.parentBillKey) : null;
+        const tags = parentRow ? inheritParentTags(own, tagRow(parentRow), parentRow.billKey) : own;
         // The row keeps its old text when the refetch found nothing, so it keeps its old raw_ref too.
         const fresh = meta.metaSource === "congress_gov";
         const row = { ...buildBillRow(b.congress, m, fresh ? meta : { ...meta, title: b.title, summary: b.summary }, tags, b, new Date(at)), rawRef: fresh ? metaRef : b.rawRef ?? null };
@@ -1437,7 +1652,11 @@ export async function runVoteActions(deps: RunDeps): Promise<{ report: RunReport
     // 6. Tagger version bump: re-tag stored bills from their stored text (no fetch).
     if (!overBudget()) {
       for (const b of await deps.repo.billsWithStaleTags(TAGGER_VERSION, RETAG_PER_RUN)) {
-        const tags = tagMeasure({ measureType: b.measureType, title: b.title, shortTitle: b.shortTitle, summary: b.summary, policyArea: b.policyArea, subjects: b.officialSubjects });
+        // A version bump re-tags every stored bill; stop inside the run budget
+        // and let the next run continue (the rest still carry the old version).
+        if (overBudget()) { report.budgetHit = true; break; }
+        const parent = b.measureType === "amendment" && b.parentBillKey ? await deps.repo.getBill(b.parentBillKey) : null;
+        const tags = tagBillRow(b, parent);
         await deps.repo.upsertBill({ ...b, topicTags: tags.tags, tagDetail: tags.detail, multiTopic: tags.multiTopic, taggerVersion: tags.version });
         await deps.repo.retagVotes(b.billKey, tags.tags, tags.version);
         report.retagged++;

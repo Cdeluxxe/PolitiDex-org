@@ -265,7 +265,11 @@ export async function generatedBillDoc(sitting: string, number: string): Promise
   const d = rec && rec.doc;
   if (!d || String(d.s) !== s || String(d.n) !== n) return null;
   const m = (Array.isArray(d.m) ? d.m : [])
-    .map((x: any) => (x && typeof x.k === "string" && /^[A-Za-z0-9_]+$/.test(x.k) ? { i: stripEmoji(INDEX.issues[x.k] || ""), k: x.k } : null))
+    .map((x: any) => (x && typeof x.k === "string" && /^[A-Za-z0-9_]+$/.test(x.k)
+      // The effect line the job stored (a sentence of the bill's own official
+      // text, held to the hand-built line rule there); re-checked for length here.
+      ? { i: stripEmoji(INDEX.issues[x.k] || ""), k: x.k, ...(typeof x.l === "string" && x.l.trim() && x.l.length <= 140 ? { l: x.l.trim() } : {}) }
+      : null))
     .filter((x: any) => x && x.i)
     .sort((p: any, q: any) => p.i.localeCompare(q.i));
   return billDocOf({ ...d, s, n, m });

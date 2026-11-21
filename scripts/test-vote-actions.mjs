@@ -116,9 +116,39 @@ ok(inc.tags.length && inc.detail.every((d) => d.confidence < C.HIGH_TIER_MIN_CON
 // A private relief bill is low even with a subject term.
 const priv = C.tagMeasure({ measureType: "bill", title: "For the relief of John Doe", subjects: ["Immigration status and procedures"] });
 ok(priv.tags.length === 0 || priv.lowTags.length === priv.tags.length, "private bill: every tag low tier");
-// Buried matches promoted by a subject term or by scale language.
+// One subject term alone no longer promotes a key; two subject terms do.
 const buried = C.tagMeasure({ measureType: "bill", title: "To amend title 38", subjects: ["Veterans' medical care"] });
-ok(buried.highTags.includes("veterans") && buried.detail.find((d) => d.key === "veterans").tierReasons.includes("subject-term"), "buried subject-term match is high tier");
+ok(buried.tags.includes("veterans") && buried.lowTags.includes("veterans"), `a single subject-term match is kept, low tier (${JSON.stringify(buried.detail)})`);
+const buried2 = C.tagMeasure({ measureType: "bill", title: "To amend title 38", subjects: ["Veterans' medical care", "Veterans' education, employment, rehabilitation"] });
+ok(buried2.highTags.includes("veterans") && buried2.detail.find((d) => d.key === "veterans").tierReasons.includes("subject-terms"), "two subject terms naming the key make it high tier");
+const oversight = C.tagMeasure({ measureType: "bill", title: "To amend title 5", subjects: ["Congressional oversight"] });
+ok(!oversight.highTags.includes("congress_oversight"), "a CRS 'Congressional oversight' subject alone does not put the key in the top tier");
+
+section("whole-word keywords and the measure stoplist");
+eq(C.tagMeasure({ measureType: "bill", title: "Department of Homeland Security Appropriations Act" }).tags.includes("enviro_balance"), false, "'land' does not fire inside 'Homeland'");
+eq(C.tagMeasure({ measureType: "bill", title: "To reorganize the executive branch" }).tags.includes("rural_ag"), false, "'ranch' does not fire inside 'branch'");
+eq(C.tagMeasure({ measureType: "bill", title: "To amend the law on arms control and nonproliferation" }).tags.includes("pro_life"), false, "'life' does not fire inside 'nonproliferation'");
+eq(C.tagMeasure({ measureType: "bill", title: "A bill relating to State and local government operations" }).tags.includes("repro_balance"), false, "'state' alone does not tag abortion policy");
+eq(C.tagMeasure({ measureType: "bill", title: "To prohibit content moderation by a patent office" }).tags.includes("homeless"), false, "'tent' does not fire inside 'content' / 'patent'");
+eq(C.tagMeasure({ measureType: "bill", title: "Stablecoin act", summary: "This act establishes a framework, with exceptions, as appropriate." }).tags.filter((k) => k === "repro_balance" || k === "power_of_purse"), [], "generic drafting words do not tag repro_balance / power_of_purse");
+ok(C.tagMeasure({ measureType: "bill", title: "Ban late-term abortion act" }).tags.some((k) => k === "pro_life" || k === "repro_balance"), "a real abortion bill is still tagged");
+
+section("amendments inherit the parent bill");
+const parentRow = { billKey: "us-119-hr-9", measureType: "bill", title: "Secure the Border Act", shortTitle: null, summary: "This bill funds border wall construction and hires Border Patrol agents.", policyArea: null, officialSubjects: ["Border security and unlawful immigration"], parentBillKey: null };
+const bareAmdt = { billKey: "us-119-hamdt-1", measureType: "amendment", title: "To improve the bill.", shortTitle: null, summary: "", policyArea: null, officialSubjects: [], parentBillKey: "us-119-hr-9" };
+const inh = C.tagBillRow(bareAmdt, parentRow);
+ok(inh.tags.includes("border_security") && inh.detail.every((d) => d.signals.every((x) => x === "parent:us-119-hr-9")), `an amendment with no topic of its own carries its parent's tags (${inh.tags.join(",")})`);
+ok(!inh.untagged, "an inheriting amendment is not untagged");
+const ownAmdt = { ...bareAmdt, title: "To require photo identification to vote in federal elections." };
+const own = C.tagBillRow(ownAmdt, parentRow);
+ok(own.tags.length && own.detail.every((d) => !d.signals.some((x) => x.startsWith("parent:"))), `an amendment that names its own topic keeps only its own tags (${own.tags.join(",")})`);
+eq(C.tagBillRow({ ...bareAmdt, measureType: "bill" }, parentRow).tags, [], "a non-amendment never inherits");
+
+section("effect lines");
+const effLines = C.effectLinesFor({ measureType: "bill", title: "X", summary: "Secure the Border Act This bill funds border wall construction. It also renames a post office in Ohio and makes many other changes that run on far past the one hundred and forty character limit of a line." }, ["border_security"]);
+eq(effLines, { border_security: "This bill funds border wall construction." }, "the summary sentence naming the topic is the line; the act's name prefix is dropped");
+eq(C.effectLinesFor({ measureType: "amendment", title: "To require photo identification to vote in federal elections" }, ["voter_id"]).voter_id, "To require photo identification to vote in federal elections.", "an amendment's purpose is its line");
+eq(C.effectLinesFor({ measureType: "bill", summary: "This bill does a thing to forests." }, ["border_security"]), {}, "no sentence names the topic: no line");
 const scaled = C.tagMeasure({ measureType: "bill", title: "To amend the Internal Revenue Code", summary: "Among other provisions, the bill makes a technical change affecting small business filers in all states." });
 const sd = scaled.detail.find((d) => d.key === "econ_smallbiz");
 ok(sd && sd.impactTier === "high" && sd.tierReasons.some((r) => r.startsWith("scale-language:")), `buried match + scale language is high tier (${JSON.stringify(sd)})`);

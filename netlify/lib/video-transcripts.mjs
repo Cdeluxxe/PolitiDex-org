@@ -46,7 +46,12 @@ export const TRANSCRIPT_MODEL = "gemini-3.5-flash";
 export const MAX_TRANSCRIBE_SECONDS = 1200;      // the first 20 minutes of a video
 export const TRANSCRIBE_PER_RUN = 4;             // videos per background run (kept small for Gemini rate limits)
 export const TRANSCRIBE_CONCURRENCY = 1;         // one Gemini call at a time …
-export const TRANSCRIBE_CALL_DELAY_MS = 1500;    // … with a pause between calls, to stay under the 429 limit
+// … with a pause between calls, to stay under the 429 limit. A 20-minute video
+// is a large request, so the limit that bites is tokens per minute, not
+// requests: at 1.5 s the 3rd and 4th call of a batch drew 429s. 18 s keeps a
+// 4-video batch near three calls a minute (a run is ~1–4 min, well inside the
+// 11-min budget and the 15-min lock).
+export const TRANSCRIBE_CALL_DELAY_MS = 18_000;
 export const TRANSCRIBE_BUDGET_MS = 11 * 60_000; // stop starting new videos after this (15-min limit)
 export const MAX_ATTEMPTS = 3;
 export const LOCK_KEY = "worker-lock.json";

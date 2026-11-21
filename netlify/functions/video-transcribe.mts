@@ -16,14 +16,16 @@ import { getStore } from "@netlify/blobs";
 // 15 minutes) and not inside the every-minute cron (30 s). The cron wakes this
 // function when a run queued videos; a run that leaves work in the queue wakes
 // the next one — unless most of its calls failed (likely a Gemini 429), then
-// the chain stops. Gemini calls run one at a time, 1.5 s apart. A worker
+// the chain stops. Gemini calls run one at a time, 18 s apart
+// (TRANSCRIBE_CALL_DELAY_MS), and a self-wake waits the same pause first so
+// the next run's first call is not back-to-back with this run's last. A worker
 // lock in the store keeps runs from overlapping, so an extra wake only costs
 // a lock check. The function takes no input — it only
 // works the queue. Background functions cannot carry a schedule, so the
-// every-15-minute schedule (and the "Run now" button) live on
+// every-10-minute schedule (and the "Run now" button) live on
 // video-transcribe-cron.mts, which only wakes this function.
 
-import { processTranscriptQueue, scoreIntoLocker, nameFromId, TRANSCRIPT_STORE_NAME } from "../lib/video-transcripts.mjs";
+import { processTranscriptQueue, scoreIntoLocker, nameFromId, TRANSCRIPT_STORE_NAME, TRANSCRIBE_CALL_DELAY_MS } from "../lib/video-transcripts.mjs";
 import { RAW_STORE_NAME, ROSTER, RESOLVER_PEOPLE } from "../lib/raw-ingest-core.mjs";
 import { loadReviewFlags, LOCKER_STORE_NAME } from "../lib/evidence-locker-core.mjs";
 import groundTruth from "../../db/stance-ground-truth-talarico-cost-of-living.json" with { type: "json" };
@@ -73,6 +75,10 @@ export async function transcribeRun(deps: { store?: any; rawStore?: any; lockerS
       log(`video-transcribe: ${summary.failed + summary.retry_later} of ${summary.failed + summary.retry_later + summary.transcribed} transcription call(s) failed — not waking the next run`);
       return { ...summary, writes };
     }
+    // Same pause as between calls, so the next run's first call does not land
+    // straight after this run's last one (tokens-per-minute limit).
+    const pause = deps.callDelayMs ?? TRANSCRIBE_CALL_DELAY_MS;
+    if (pause > 0) await (deps.sleep ?? ((ms: number) => new Promise<void>((r) => setTimeout(r, ms))))(pause);
     try { await (deps.wake ?? wakeSelf)(); } catch (e: any) { log(`video-transcribe: next run not woken — ${e?.message || e}`); }
   }
   return { ...summary, writes };
