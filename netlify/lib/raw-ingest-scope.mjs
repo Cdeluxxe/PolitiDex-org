@@ -1,20 +1,24 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // RAW-INGEST SCOPE · the one switch that narrows the scheduled pipeline
 // ─────────────────────────────────────────────────────────────────────────────
+// DEFAULT: OFF. INGEST_ALLOW_LIST is [] so every scheduled run plans from the
+// whole roster (video / speech evidence included). It stays as a dormant
+// option: put ids back in it (e.g. ["thomas_massie"]) to narrow the run.
+//
 // While INGEST_ALLOW_LIST holds ids, every scheduled raw-ingest-cron run plans,
 // pulls, discovers, harvests and scores ONLY those politicians. Everyone else is
 // skipped: nothing of theirs is fetched, nothing is written for them, and their
 // existing raw records, Locker items, stated positions and frontier entries are
 // left exactly as they are.
 //
-// TO LIFT THE RESTRICTION: set INGEST_ALLOW_LIST to [] (or null). No other code
+// TO LIFT THE RESTRICTION: set INGEST_ALLOW_LIST to [] (or null) — the default. No other code
 // has to change — every consumer treats an empty list as "whole roster".
 //
 // Ids may be written in the public form ("thomas_massie"); INGEST_ID_ALIASES
 // maps them to the id the ingest roster uses ("massie"). Both forms match.
 // ─────────────────────────────────────────────────────────────────────────────
 
-export const INGEST_ALLOW_LIST = ["thomas_massie"];
+export const INGEST_ALLOW_LIST = [];
 
 export const INGEST_ID_ALIASES = { thomas_massie: "massie" };
 

@@ -2,9 +2,11 @@
 // test-raw-ingest-scope.mjs — the politician allow-list on the scheduled
 // raw-ingest pipeline (netlify/lib/raw-ingest-scope.mjs).
 //
-// While INGEST_ALLOW_LIST holds "thomas_massie", every scheduled run plans,
-// pulls, discovers, harvests and scores Thomas Massie only (roster id "massie").
-// Everyone else is skipped and nothing of theirs is written. One flag lifts it.
+// INGEST_ALLOW_LIST defaults to [] (off → whole roster). It stays as a dormant
+// option: when a run is given ["thomas_massie"], it plans, pulls, discovers,
+// harvests and scores Thomas Massie only (roster id "massie"). Everyone else is
+// skipped and nothing of theirs is written. These checks pass the list
+// explicitly to prove the dormant option still works.
 //
 //   node scripts/test-raw-ingest-scope.mjs
 //
@@ -71,14 +73,15 @@ const rawStore = memStore();
 const { value: res, lines } = await quiet(() => cron.scheduled({
   fetch: fakeFetch, store: rawStore, lockerStore, rotationStore, transcriptStore: memStore(),
   suggestionsStore: memStore(), statedDb: null, now: NOW, triggerTranscriber: async () => {},
-  curatedStances: {},
+  curatedStances: {}, scope: ['thomas_massie'],
 }));
 const report = await res.json();
-const MASSIE_IDS = scope.scopeIds();
+const MASSIE_IDS = scope.scopeIds(['thomas_massie']);
 const isMassie = (pid) => MASSIE_IDS.has(String(pid || ''));
 
-await t('the flag: INGEST_ALLOW_LIST is the single switch, naming thomas_massie, and resolves to the roster id "massie"', () => {
-  assert.deepEqual(scope.INGEST_ALLOW_LIST, ['thomas_massie']);
+await t('the flag: INGEST_ALLOW_LIST defaults to off; given thomas_massie it resolves to the roster id "massie"', () => {
+  assert.deepEqual(scope.INGEST_ALLOW_LIST, [], 'off by default (whole roster)');
+  assert.equal(scope.scopeIds(), null, 'the default resolves to "no restriction"');
   assert.ok(MASSIE_IDS.has('massie') && MASSIE_IDS.has('thomas_massie'));
   assert.ok(core.ROSTER.some((r) => r.politician_id === 'massie'), 'Massie is on the ingest roster');
   assert.equal(scope.scopeIds([]), null, 'an empty list turns the restriction off');
@@ -132,12 +135,11 @@ await t('the whole-roster rotation position is left untouched for when the scope
   assert.ok(rotationStore.data.get(k), 'the scoped run keeps its own rotation doc');
 });
 
-await t('lifting the flag restores the whole-roster run without other code changes', async () => {
+await t('the default (allow-list off) runs the whole roster without other code changes', async () => {
   const rs = memStore({ [core.ROTATION_KEY]: { cycle: 0, done: [], pool_version: core.POOL_VERSION } });
   const { value: r2 } = await quiet(() => cron.scheduled({
     fetch: fakeFetch, store: memStore(), lockerStore: memStore(), rotationStore: rs, transcriptStore: memStore(),
     suggestionsStore: memStore(), statedDb: null, now: NOW, triggerTranscriber: async () => {}, curatedStances: {},
-    scope: [],
   }));
   const rep = await r2.json();
   assert.ok(rep.plan.roster_size > 1, 'the whole roster is planned again');

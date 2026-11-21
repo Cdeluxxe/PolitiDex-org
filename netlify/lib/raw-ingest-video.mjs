@@ -4,9 +4,21 @@
 // Until this pass the scheduled rotation read web pages only (homepages, press
 // releases, issue pages). Hearings, floor speeches and a member's own video
 // posts never reached the frontier, so they were never pulled or scored. This
-// module adds that path. It is keyed by politician (VIDEO_SPEECH_SOURCES) and,
-// on top of the raw-ingest allow-list, only politicians configured here get
-// video / speech discovery — today that is Thomas Massie alone.
+// module adds that path. It runs for EVERY politician the normal raw-ingest
+// run plans (the raw-ingest allow-list is off by default). Each politician's
+// configuration is either hand-written in VIDEO_SPEECH_SOURCES (Thomas Massie,
+// with verified channel ids — used exactly as before) or derived from the
+// ingest roster by videoSpeechConfigFromRoster:
+//   · member channel feed — only channel ids already verified on the roster
+//     (a "youtube" source with a channel_id); none are guessed;
+//   · C-SPAN search — the politician's full name, a clip title must name them
+//     (full name, or an office title + surname);
+//   · GovInfo floor speeches / hearings — sitting House / Senate members only
+//     (chamber from the member map, else the official .house.gov /
+//     .senate.gov host); the speaking-turn match uses their surname;
+//   · Facebook — never queued while no Facebook access is configured.
+// VIDEO_SPEECH_ALLOW_LIST is a dormant switch: when it holds ids, only those
+// politicians get this path. It defaults to [] (off → whole roster).
 //
 // DISCOVERY (discoverVideoSpeech) — at most once per VIDEO_DISCOVERY_INTERVAL_MS
 // per politician (a small state doc in the rotation store remembers when), so
@@ -71,8 +83,12 @@ export const VIDEO_SPEECH_CLASSES = {
 const UA = "PolitiDex raw-ingest (+https://politidex.fyi)";
 const VS_PREFIX = "fresh-vs-";
 
-// Per-politician configuration. Only ids listed here get video / speech
-// discovery, and the raw-ingest allow-list still applies on top.
+// Dormant allow-list for this path alone. [] (or null) → every planned
+// politician with a usable configuration; ids here → only those.
+export const VIDEO_SPEECH_ALLOW_LIST = [];
+
+// Hand-written per-politician configuration (verified channel ids). These
+// win over anything derived from the roster.
 export const VIDEO_SPEECH_SOURCES = {
   massie: {
     name: "Thomas Massie",
@@ -96,7 +112,95 @@ export const VIDEO_SPEECH_SOURCES = {
 export const isVideoSpeechClass = (c) => Object.prototype.hasOwnProperty.call(VIDEO_SPEECH_CLASSES, c);
 /** A frontier entry / pull-list source queued by this module. */
 export const isVideoSpeechEntry = (s) => String(s?.source_id || "").startsWith(VS_PREFIX) && isVideoSpeechClass(s?.source_class);
-export const videoSpeechConfigFor = (pid) => VIDEO_SPEECH_SOURCES[String(pid || "")] || null;
+const CSPAN_CHANNEL_ID = "UCb--64Gl51jIEVE-GLDAVTg";
+const NAME_SUFFIX = /^(?:jr|sr|ii|iii|iv|v|md|phd|esq)\.?$/i;
+const asciiName = (s) => String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "");
+const reEsc = (s) => String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+/** Whether the dormant allow-list (if on) admits this politician. */
+export function videoSpeechAllowed(pid, list = VIDEO_SPEECH_ALLOW_LIST) {
+  if (!Array.isArray(list) || !list.length) return true;
+  return list.map(String).includes(String(pid || ""));
+}
+
+/** First / last name parts of a display name ("Thomas Massie", "Robert F. Kennedy Jr."). */
+export function nameParts(name) {
+  const parts = asciiName(name).replace(/["“”(].*?["“”)]/g, " ").split(/[\s,]+/).filter(Boolean);
+  while (parts.length > 1 && NAME_SUFFIX.test(parts[parts.length - 1])) parts.pop();
+  if (parts.length < 2) return null;
+  return { first: parts[0].replace(/\.$/, ""), last: parts[parts.length - 1] };
+}
+
+function chamberFromUrls(row) {
+  const urls = [row?.official?.url, row?.page?.url, ...((row?.sources || []).map((s) => s?.url))].filter(Boolean).map(String);
+  const host = (u) => { try { return new URL(u).hostname.toLowerCase(); } catch { return ""; } };
+  if (urls.some((u) => /(^|\.)house\.gov$/.test(host(u)))) return "house";
+  if (urls.some((u) => /(^|\.)senate\.gov$/.test(host(u)))) return "senate";
+  return null;
+}
+
+/**
+ * Video / speech configuration for one roster politician that has no
+ * hand-written entry. `member` (optional) is their member-map row
+ * ({ name, chamber, serving119 }). Null when nothing can be searched for.
+ */
+export function videoSpeechConfigFromRoster(row, { member = null } = {}) {
+  if (!row || !row.politician_id) return null;
+  // Display name (roster, e.g. "Chuck Schumer") for the search; the member-map
+  // name ("Charles E. Schumer") as a fallback. Either first name matches a title.
+  const display = oneLine(row.name || member?.name || "");
+  const name = oneLine(member?.name || row.name || "");
+  const np = nameParts(display) || nameParts(name);
+  const firsts = [...new Set([nameParts(display)?.first, nameParts(name)?.first].filter(Boolean))];
+  const chamber = member && member.serving119 !== false && /^(house|senate)$/.test(String(member.chamber || "")) ? member.chamber : chamberFromUrls(row);
+  const channels = [];
+  for (const s of [row.official, ...(row.sources || [])]) {
+    const id = String(s?.channel_id || "");
+    if (s?.source_class === "youtube" && /^UC[A-Za-z0-9_-]{22}$/.test(id) && !channels.some((c) => c.channel_id === id)) {
+      channels.push({ channel_id: id, label: "member channel" });
+    }
+  }
+  if (!np && !channels.length) return null;
+  const topics = [row.official?.topic, ...(row.sources || []).map((s) => s?.topic)].filter((t) => t && hasRulesFor(t));
+  const office = "(?:rep|sen|gov|senator|representative|congressman|congresswoman|governor|speaker|leader)\\.?";
+  return {
+    name: display || name || row.politician_id,
+    ...(np ? { surname: np.last } : {}),
+    chamber,
+    default_topic: topics[0] || "cost_living",
+    youtube_channels: channels,
+    search_channels: np ? [{
+      channel_id: CSPAN_CHANNEL_ID, label: "C-SPAN", query: `${np.first} ${np.last}`,
+      title_must: new RegExp(`\\b(?:(?:${firsts.map(reEsc).join("|")})\\s+(?:[A-Z]\\.\\s+)?${reEsc(np.last)}|${office}\\s+${reEsc(np.last)})\\b`, "i"),
+    }] : [],
+    govinfo: { collections: np && chamber ? ["CREC", "CHRG"] : [] },
+    facebook_pages: [],
+    derived: true,
+  };
+}
+
+/**
+ * Configurations for a set of roster rows (hand-written entries win).
+ * `members` is the member map's `members` list (slug → name / chamber).
+ */
+export function buildVideoSpeechConfigs(roster = [], { members = [], allow = VIDEO_SPEECH_ALLOW_LIST } = {}) {
+  const bySlug = new Map();
+  for (const m of members || []) if (m?.slug && (m.serving119 !== false || !bySlug.has(m.slug))) bySlug.set(m.slug, m);
+  const out = {};
+  for (const row of roster || []) {
+    const pid = String(row?.politician_id || "");
+    if (!pid || out[pid] || !videoSpeechAllowed(pid, allow)) continue;
+    const cfg = VIDEO_SPEECH_SOURCES[pid] || videoSpeechConfigFromRoster(row, { member: bySlug.get(pid) || null });
+    if (cfg) out[pid] = cfg;
+  }
+  return out;
+}
+
+/** The configuration for one politician: `configs` first, then the hand-written set. */
+export const videoSpeechConfigFor = (pid, configs = null) => {
+  const id = String(pid || "");
+  return (configs && configs[id]) || VIDEO_SPEECH_SOURCES[id] || null;
+};
 
 const oneLine = (s) => String(s || "").replace(/\s+/g, " ").trim();
 const sourceIdFor = (url) => VS_PREFIX + createHash("sha1").update(normUrl(url)).digest("hex").slice(0, 12);
@@ -130,6 +234,9 @@ function entry(pid, cfg, { url, source_class, source_type, title, published, fou
     title: oneLine(title).slice(0, 300),
     ...(published ? { published: String(published).slice(0, 10) } : {}),
     speech_kind: kind,
+    // Derived configurations only: who to match in the speaking turns at pull
+    // time (hand-written ones are looked up by id, so their entries are unchanged).
+    ...(cfg.derived && cfg.surname ? { speaker_name: cfg.name, speaker_surname: cfg.surname } : {}),
     found_from,
     found_at: now.toISOString(),
     rank,
@@ -228,21 +335,21 @@ export async function readVideoSpeechState(store) {
 }
 
 /**
- * Discover fresh video / speech URLs for the planned politicians that are
- * configured in VIDEO_SPEECH_SOURCES and queue them into the frontier
+ * Discover fresh video / speech URLs for the planned politicians that have a
+ * configuration (`configs`, else VIDEO_SPEECH_SOURCES) and queue them into the frontier
  * (`fresh.frontier`, the same one the web-page harvest fills). Never throws.
  * Returns { checked, added, entries, sources: [{ politician_id, source, via, found, added, error?, skipped? }] }.
  */
 export async function discoverVideoSpeech({
   politicians = [], fresh, fetch, store = null, state = null, now = () => new Date(), log = console.log,
   youtubeKey = process.env.YOUTUBE_API_KEY || "", govinfoKey = process.env.GOVINFO_API_KEY || process.env.CONGRESS_GOV_API_KEY || "",
-  force = false, interval = VIDEO_DISCOVERY_INTERVAL_MS, mergeFrontier,
+  force = false, interval = VIDEO_DISCOVERY_INTERVAL_MS, mergeFrontier, configs = null,
 } = {}) {
   const out = { checked: [], added: 0, entries: [], sources: [] };
   if (!fresh || typeof fetch !== "function") return out;
   const st = state ? { last: { ...(state.last || {}) } } : await readVideoSpeechState(store);
   const at = now();
-  const pids = [...new Set(politicians)].filter((p) => videoSpeechConfigFor(p));
+  const pids = [...new Set(politicians)].filter((p) => videoSpeechConfigFor(p, configs));
   const seen = (u) => !!fresh.seen?.[normUrl(u)];
   for (const pid of pids) {
     const last = Date.parse(st.last[pid] || "");
@@ -250,7 +357,7 @@ export async function discoverVideoSpeech({
       log(`video/speech discovery: ${pid} — checked ${Math.round((at.getTime() - last) / 60_000)} min ago; next check in ${Math.max(1, Math.ceil((interval - (at.getTime() - last)) / 60_000))} min (frontier entries already queued are still pulled)`);
       continue;
     }
-    const cfg = videoSpeechConfigFor(pid);
+    const cfg = videoSpeechConfigFor(pid, configs);
     out.checked.push(pid);
     const jobs = [
       ...cfg.youtube_channels.map((ch) => memberChannelVideos(ch, { fetch, youtubeKey }).then((r) => ({ r, source: `YouTube ${ch.label} ${ch.handle || ch.channel_id}`, make: (v) => entry(pid, cfg, {
@@ -304,13 +411,13 @@ export async function discoverVideoSpeech({
  * politician into the pull list (newest first), only in free slots under
  * `max` and `perPolitician`; nothing already in the list is displaced.
  */
-export function addVideoSpeechSources(sources, fresh, { politicians = [], max, perPolitician, per = VIDEO_SPEECH_PER_POLITICIAN, skipHosts = new Set(), log = console.log } = {}) {
+export function addVideoSpeechSources(sources, fresh, { politicians = [], max, perPolitician, per = VIDEO_SPEECH_PER_POLITICIAN, skipHosts = new Set(), log = console.log, configs = null } = {}) {
   const out = [...sources];
   const added = [];
   const known = new Set(out.map((s) => normUrl(s.url)));
   const hostOf = (u) => { try { return new URL(u).hostname.replace(/^www\./, "").toLowerCase(); } catch { return ""; } };
   for (const pid of politicians) {
-    if (!videoSpeechConfigFor(pid)) continue;
+    if (!videoSpeechConfigFor(pid, configs)) continue;
     const list = (fresh?.frontier?.[pid] || []).filter(isVideoSpeechEntry)
       .sort((a, b) => String(b.published || b.found_at || "").localeCompare(String(a.published || a.found_at || "")) || (Number(b.rank) || 0) - (Number(a.rank) || 0));
     let n = 0, waiting = 0;
@@ -366,7 +473,8 @@ const speechKey = (src, fetchedAt) => `${[src.politician_id, src.topic, src.sour
  */
 export async function pullSpeechTranscript(src, { fetch, store, now = () => new Date(), onRecord, log = console.log, storeName = "raw-ingest" }) {
   const fetchedAt = now().toISOString();
-  const cfg = videoSpeechConfigFor(src.politician_id);
+  const cfg = videoSpeechConfigFor(src.politician_id)
+    || (src.speaker_surname ? { name: oneLine(src.speaker_name) || src.politician_id, surname: src.speaker_surname } : null);
   const speech = { kind: src.source_class, own_turns: 0 };
   try {
     if (!cfg) throw new Error("no video/speech configuration for this politician");
