@@ -1448,7 +1448,7 @@
         digestHtml +
         '<ul class="pdxwa-tiers">' + TIER_ORDER.map(function (t) { return tierRowHtml(t, r.tiers[t], r); }).join('') + '</ul>' +
         '<div class="pdxwa-cov">' +
-          '<span class="pdxwa-cov-n">' + r.coverage.tested + ' of ' + r.coverage.scorable + '</span> stated issue' +
+          '<span class="pdxwa-cov-n">' + r.coverage.tested + ' of ' + r.coverage.scorable + '</span> testable stated issue' +
           (r.coverage.scorable === 1 ? '' : 's') + ' have a formal-record verdict behind them' +
           (r.coverage.recordDerived
             ? ' · ' + r.coverage.recordDerived + ' more position' + (r.coverage.recordDerived === 1 ? '' : 's') +
@@ -1471,7 +1471,7 @@
       return 'No documented position, pledge or signature issue is on file for ' + name + ' yet, so there is nothing to test a vote against. ' +
              'Word is added only as it is sourced — never inferred from how they voted.';
     }
-    if (c.warming) return 'Checking ' + name + '’s formal record against ' + c.scorable + ' stated issue' + (c.scorable === 1 ? '' : 's') + '…';
+    if (c.warming) return 'Checking ' + name + '’s formal record against ' + c.scorable + ' testable stated issue' + (c.scorable === 1 ? '' : 's') + '…';
     // AFTER the warming branch, never before it: a lane still being fetched is not
     // an empty one. See formalLaneReadable — this is the office with no formal
     // record on file, not the person with a thin one, and the two are different
@@ -1484,10 +1484,10 @@
              'This read needs something ' + name + ' said independently — a quote, an interview, a platform position.';
     }
     if (!c.tested) {
-      return c.scorable + ' stated issue' + (c.scorable === 1 ? '' : 's') + ' on file, and no formal action on record to test ' +
+      return c.scorable + ' testable stated issue' + (c.scorable === 1 ? '' : 's') + ', and no formal action on record to test ' +
              (c.scorable === 1 ? 'it' : 'any of them') + ' against yet. That is a gap in the record, not a mark against ' + name + '.';
     }
-    return 'Only ' + c.tested + ' of ' + c.scorable + ' stated issue' + (c.scorable === 1 ? '' : 's') + ' has a formal-record verdict so far — ' +
+    return 'Only ' + c.tested + ' of ' + c.scorable + ' testable stated issue' + (c.scorable === 1 ? '' : 's') + ' has a formal-record verdict so far — ' +
            'below the ' + r.floors.items + '-item floor this read needs before it publishes a percentage. ' +
            'The tested items are shown below; the number waits until the record is deep enough to carry it.';
   }
@@ -4799,6 +4799,18 @@
   // answer twice — there is exactly one hero mount on a profile and this keeps it
   // that way.
   function shapeApplies(pid) { return !!shapeRead(pid); }
+  // THE DEPTH PAIR THE WHOLE PROFILE PRINTS — "N issues on the formal record ·
+  // M votes and formal actions" — read off PDXConsistency.profileCounts (onRecord,
+  // acts), the one counts object the rail chips, the topic tree and the counts
+  // line read too. The shape is only the fallback where that object is absent.
+  function depthPair(pid, sh) {
+    try {
+      var CS = window.PDXConsistency;
+      var pc = (CS && typeof CS.profileCounts === 'function') ? CS.profileCounts(pid) : null;
+      if (pc) return { issues: +pc.onRecord || 0, acts: +pc.acts || 0 };
+    } catch (e) {}
+    return { issues: (sh && +sh.issues) || 0, acts: (sh && +sh.judged) || 0 };
+  }
 
   // ONE PIECE OF RING ARITHMETIC, TWO RINGS. The primary ring and the demoted one
   // are different sizes and the same maths; a second copy of `pct / 100 * circ` is
@@ -5270,9 +5282,10 @@
       // become a second wording of the one rule that keeps these labels out of
       // the score.
       var wall = window._PDX_RD_TIER_NOTE || '';
-      var depth = '<b>' + sh.issues + '</b> issue' + (sh.issues === 1 ? '' : 's') + ' on the formal record' +
-        ' · <b>' + sh.judged + '</b> vote' + (sh.judged === 1 ? '' : 's') + ' and formal action' +
-          (sh.judged === 1 ? '' : 's') + ' read' +
+      var dp = depthPair(pid, sh);
+      var depth = '<b>' + dp.issues + '</b> issue' + (dp.issues === 1 ? '' : 's') + ' on the formal record' +
+        ' · <b>' + dp.acts + '</b> vote' + (dp.acts === 1 ? '' : 's') + ' and formal action' +
+          (dp.acts === 1 ? '' : 's') + ' read' +
         ' · <b>' + sh.characterised + '</b> deep enough to characterise';
       var tops = sh.tops.length
         ? '<div class="pdxwa-shape-grp">' +
@@ -7157,10 +7170,11 @@
       var total = (typeof FPI.count === 'function') ? (FPI.count(pid) || sh.issues) : sh.issues;
       // The depth line, in the letterhead's own nouns and the letterhead's own
       // order. Three counts, no rate.
+      var dpb = depthPair(pid, sh);
       var depth = '<p class="pdxwa-shape-depth">' +
-          '<b>' + sh.issues + '</b> issue' + (sh.issues === 1 ? '' : 's') + ' on the formal record' +
-          ' · <b>' + sh.judged + '</b> vote' + (sh.judged === 1 ? '' : 's') + ' and formal action' +
-            (sh.judged === 1 ? '' : 's') + ' read' +
+          '<b>' + dpb.issues + '</b> issue' + (dpb.issues === 1 ? '' : 's') + ' on the formal record' +
+          ' · <b>' + dpb.acts + '</b> vote' + (dpb.acts === 1 ? '' : 's') + ' and formal action' +
+            (dpb.acts === 1 ? '' : 's') + ' read' +
           ' · <b>' + sh.characterised + '</b> deep enough to characterise' +
         '</p>';
       return briefBodyHtml(pid, p, sh, { census: depth, total: total, cls: '' });

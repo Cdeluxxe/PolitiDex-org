@@ -141,7 +141,7 @@ leaves.forEach((lf) => { byKey[lf.key] = lf; });
 section("0 · one counts object, and every figure names its own M");
 // ═════════════════════════════════════════════════════════════════════════════
 {
-  const FIGURES = ["total", "stated", "tested", "scorable", "onRecord", "scored", "shown", "signature"];
+  const FIGURES = ["total", "stated", "tested", "scorable", "onRecord", "scored", "shown", "signature", "acts"];
   eq(Object.keys(counts).sort().join(","),
      ["of", "pid", "warming"].concat(FIGURES).sort().join(","),
     "the counts object holds exactly the documented figures — a new one is a new parallel total");
@@ -182,20 +182,25 @@ section("1 · the chips are live, and they match the section they jump to");
   const chips = WARM._pdxNavChips(PID, WARM.CMP_DATA[PID]);
   ok(!!chips.record, "the Record chip is built for a profile with a formal record");
   eq(chips.record.pending, false, "…and it is not pending once the record has arrived");
-  eq(chips.record.value, counts.scored + " of " + counts.onRecord + " tested",
-    "the Record chip's figure is the counts object's, not a second coverage read");
-  has(chips.record.note, counts.of.scored, "…and its accessible note names the numerator's M");
-  has(chips.record.note, counts.of.onRecord, "…and the denominator's");
+  // The Record chip states the ON-FILE figure; the one "tested" figure on the
+  // profile is Direction Match's, and the chip's note carries it as such.
+  eq(chips.record.value, counts.onRecord + " on file",
+    "the Record chip's figure is the counts object's on-file count, not a second coverage read");
+  has(chips.record.note, counts.of.onRecord, "…and its accessible note names that figure's M");
+  if (counts.scorable) {
+    has(chips.record.note, counts.tested + " of " + counts.scorable + " tested by Direction Match",
+      "…and carries the profile's one tested figure, not a second one");
+  }
 
-  // CHIP ↔ SECTION. The Record chip jumps to the Official Record, whose own
-  // digest leads with the number of issues it tested. One number, two places.
+  // The Official Record's digest counts the issues the formal record SCORED, and
+  // no longer calls that set "tested" — the word belongs to Direction Match.
   const orSection = CS.officialRecordSectionHtml(PID, WARM.CMP_DATA[PID]) || "";
   must(orSection.length > 400, "the Official Record renders nothing for the fixture");
-  const digest = (orSection.match(/(\d+) issues? tested against (?:orders, signings and vetoes|roll-call votes)/) || [])[1];
-  must(digest !== undefined, "the Official Record digest no longer states what it tested");
-  eq(Number(digest), counts.scored,
-    "the Record chip and the section it jumps to state different totals — the chip is the\n" +
-    "    compressed version of that section, so its numerator is that section's own");
+  const digest = (orSection.match(/(\d+) issues? scored against (?:orders, signings and vetoes|roll-call votes)/) || [])[1];
+  must(digest !== undefined, "the Official Record digest no longer states what it scored");
+  eq(Number(digest), counts.scored, "the Official Record digest is the counts object's scored figure");
+  ok(!/issues? tested against/.test(orSection),
+    "the Official Record digest still borrows the word 'tested' for a second total");
 
   // The ⚖️ chip is the one percentage, and it is the engine's, not a rounding of
   // something else.
@@ -419,13 +424,13 @@ section("4 · the executive lane has a Record too");
   const echips = WARM._pdxNavChips(EXEC, p);
   ok(!!echips.record, `${EXEC}: the rail carries a Record chip`);
   eq(echips.record.pending, false, "…not pending");
-  ok(/^\d+ of \d+ tested$/.test(echips.record.value),
-    `…and it states coverage (got ${JSON.stringify(echips.record.value)})`);
+  eq(echips.record.value, ec.onRecord + " on file",
+    `…and it states what is on file (got ${JSON.stringify(echips.record.value)})`);
   const eOr = CS.officialRecordSectionHtml(EXEC, p) || "";
-  const eDigest = (eOr.match(/(\d+) issues? tested against orders, signings and vetoes/) || [])[1];
+  const eDigest = (eOr.match(/(\d+) issues? scored against orders, signings and vetoes/) || [])[1];
   must(eDigest !== undefined, "the executive Official Record digest no longer names its lane");
   eq(Number(eDigest), ec.scored,
-    "the executive Record chip and its section state the same numerator");
+    "the executive Official Record digest is the counts object's scored figure");
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

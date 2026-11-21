@@ -762,7 +762,7 @@ for (const k of CS.issuesWithSignal(MEMBER, "official")) {
 }
 // The member's section keeps the congressional wording, verbatim.
 const msec = CS.officialRecordSectionHtml(MEMBER, MP);
-has(msec, "tested against roll-call votes",
+has(msec, "scored against roll-call votes",
   "control: the member's section stopped naming the roll-call record");
 lacks(msec, "orders, signings and vetoes",
   "control: and is not told its rows were tested against an executive record");

@@ -85,7 +85,8 @@ function build({
   gaps = 3,                                // PDXGaps.count()
   records = [{ date: '2026-03-11' }, { date: '2025-12-02' }],
   person = { name: 'Cory Booker' },
-  gapsJump = null
+  gapsJump = null,
+  counts = null                            // PDXConsistency.profileCounts(), when present
 } = {}) {
   const win = {};
   const styles = [];
@@ -115,6 +116,10 @@ function build({
   head.appendChild = (n) => { styles.push(n); return n; };
 
   if (formal) win.PDXConsistency = { formalPatternIndex: { shape: () => formal } };
+  if (counts) {
+    win.PDXConsistency = win.PDXConsistency || {};
+    win.PDXConsistency.profileCounts = () => counts;
+  }
   if (word) win.PDXWordAction = { read: () => ({ coverage: word }) };
   if (gaps !== null) win.PDXGaps = Object.assign({ count: () => gaps }, gapsJump ? { jump: gapsJump } : {});
   if (records) win.PDXVotingRecord = { memberRecords: () => records };
@@ -143,7 +148,7 @@ section('1 · load + shape');
   eq(iv.word.held, 9, 'read() lost the held-word count');
   eq(iv.word.tested, 4, 'read() lost the tested-word count');
   eq(iv.gaps, 3, 'read() lost the open-gap count');
-  eq(iv.updated.iso, '2026-03-11', 'read() did not take the NEWEST record date');
+  eq(iv.updated, undefined, 'read() still carries a freshness date — the "updated <Mon YYYY>" clause is retired');
   eq(iv.held, true, 'a record with 18 acts is not marked as held');
   eq(I.read('').held, false, 'read() with no pid claims to hold something');
 }
@@ -154,11 +159,11 @@ section('2 · the clauses are counts, in print order');
 {
   const { I } = build();
   const keys = I.clauses('booker').map((c) => c.key);
-  eq(keys.join(','), 'formal,word,gaps,updated',
-    'the clause order changed — a reader asks what the record did, then what we hold them saying, then what is missing, then when it grew');
+  eq(keys.join(','), 'formal,word,gaps',
+    'the clause order changed — a reader asks what the record did, then what we hold them saying, then what is missing');
 
   const t = I.text('booker');
-  eq(t, '18 formal acts across 6 issues · 4 of 9 stated positions tested · 3 open gaps · updated Mar 2026',
+  eq(t, '18 formal acts across 6 issues · 9 stated positions on file, 4 of 9 tested · 3 open gaps',
     'the inventory line is not the shape the brief asked for');
 
   // Every clause carries its noun. A bare number in a row of numbers is a score.
@@ -171,7 +176,7 @@ section('2 · the clauses are counts, in print order');
   // exists for.
   const one = build({ formal: { issues: 1, judged: 1 }, word: { word: 1, tested: 1 }, gaps: 1 }).I;
   eq(one.text('booker'),
-    '1 formal act across 1 issue · 1 of 1 stated position tested · 1 open gap · updated Mar 2026',
+    '1 formal act across 1 issue · 1 stated position on file, 1 of 1 tested · 1 open gap',
     'the thin-file singulars are wrong');
 
   // Zero held word is inventory too — it is the "missing" half, and on a record
@@ -249,7 +254,7 @@ section('4 · no percentage, no ratio over the vocabulary, no denominator');
   // positions held), which is a fact about that lane and has a real denominator.
   // It must never be issues-out-of-vocabulary.
   const t = I.text('booker');
-  has(t, '4 of 9 stated positions tested', 'the word clause lost its own within-lane denominator');
+  has(t, '4 of 9 tested', 'the word clause lost its own within-lane denominator');
   ok(!/of \d+ issues/.test(t), 'the formal clause grew a denominator over the issue vocabulary');
 }
 
@@ -278,9 +283,9 @@ section('5 · a cold source drops its clause — it never estimates');
   ok(!zeroGaps.clauses('booker').map((c) => c.key).includes('gaps'),
     'zero open gaps printed a "0 open gaps" chip instead of saying nothing');
 
-  const noDates = build({ records: [] }).I;
-  ok(!noDates.clauses('booker').map((c) => c.key).includes('updated'),
-    'a record with no dated items still printed a freshness clause');
+  const withDates = build({ records: [{ date: '2026-07-04' }] }).I;
+  ok(!withDates.clauses('booker').map((c) => c.key).includes('updated'),
+    'a record with dated items printed a freshness clause — the clause is retired');
 
   // A source that throws is a cold source, not a broken page.
   const win = {};
@@ -319,11 +324,11 @@ section('5 · a cold source drops its clause — it never estimates');
   no(wtext, '0 of 33', 'a warming record printed a zero tested count');
   // Once the read lands, the tested half appears — same held count, more to say.
   const warm = build({ word: { word: 33, tested: 4, untested: 29, warming: false } }).I;
-  has(warm.text('booker'), '4 of 33 stated positions tested',
+  has(warm.text('booker'), '33 stated positions on file, 4 of 33 tested',
     'a warm record did not report the tested count');
   // And a warm record with a genuine zero DOES say zero: that is a real read.
   has(build({ word: { word: 5, tested: 0, untested: 5, warming: false } }).I.text('booker'),
-    '0 of 5 stated positions tested', 'a warm record with nothing tested hid the zero');
+    '5 stated positions on file, 0 of 5 tested', 'a warm record with nothing tested hid the zero');
 
   // Every source read is individually guarded in the source.
   const guards = (INV_SRC.match(/catch \(e\) \{ return null; \}/g) || []).length;
@@ -410,26 +415,30 @@ section('8 · the gaps clause is a door, not a verdict');
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-section('9 · freshness is the record’s date, never the clock');
+section('9 · no freshness clause, and one source for every count');
 // ═════════════════════════════════════════════════════════════════════════════
 {
-  // "updated today" on a page rendered today is true of the page and false of the
-  // file. Every file would look freshly maintained.
-  ok(!/new Date\(\)/.test(INV_SRC), 'inventory.js reads the clock — a page rendered today is not a record updated today');
+  // "updated <Mon YYYY>" was the newest item date on the record — the day a vote
+  // was cast — not the day the file last changed, so it aged a maintained file by
+  // months. It is gone, whatever dates the record carries.
+  const dated = build({ records: [{ date: '2024-01-01' }, { date: '2026-07-04' }, { date: 'not a date' }, {}] }).I;
+  no(dated.text('booker'), 'updated', 'the line still prints a freshness clause');
+  no(dated.lineHtml('booker'), 'Jul 2026', 'the line still prints a month-and-year stamp');
+  ok(!/memberRecords/.test(INV_SRC.replace(/\/\*[\s\S]*?\*\//g, '')), 'inventory.js still reads item dates');
+  ok(!/new Date\(\)/.test(INV_SRC), 'inventory.js reads the clock');
   ok(!/Date\.now\(\)/.test(INV_SRC), 'inventory.js reads the clock');
-  has(INV_SRC, 'not "now"', 'inventory.js does not state that freshness comes from the record');
 
-  // The newest item wins regardless of the order the record arrives in, and an
-  // unparseable date is skipped rather than becoming an Invalid Date.
-  const shuffled = build({ records: [{ date: '2024-01-01' }, { date: '2026-07-04' }, { date: 'not a date' }, {}] }).I;
-  eq(shuffled.read('booker').updated.iso, '2026-07-04', 'freshness did not take the newest parseable date');
-  has(shuffled.text('booker'), 'updated Jul 2026', 'the freshness clause is not a month and year');
-  no(shuffled.text('booker'), 'NaN', 'an unparseable date leaked into the line');
-  no(shuffled.text('booker'), 'Invalid', 'an unparseable date leaked into the line');
-
-  // Month-and-year, not a day: a day-level date on a file that grows in batches
-  // implies a precision the ingest does not have.
-  ok(!/updated \d{1,2} /.test(shuffled.text('booker')), 'the freshness clause claims day-level precision');
+  // With the profile's counts object on the page, every figure is that object's:
+  // the stated count is the stated list's (not Direction Match's testable subset),
+  // the tested pair is Direction Match's own, and the depth pair is acts across
+  // the on-file issues. A shape or a coverage block that disagrees loses.
+  const one = build({
+    formal: { issues: 5, judged: 99 },
+    word: { word: 34, scorable: 12, tested: 9, untested: 3 },
+    counts: { stated: 31, onRecord: 7, acts: 25, tested: 1, scorable: 12, warming: false }
+  }).I;
+  eq(one.text('booker'), '25 formal acts across 7 issues · 31 stated positions on file, 1 of 12 tested · 3 open gaps',
+    'the inventory line does not read the profile counts object');
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

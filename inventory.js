@@ -2,8 +2,7 @@
    PolitiDex — Coverage inventory  ·  window.PDXInventory
    ────────────────────────────────────────────────────────────────────────────
    ONE LINE OF COUNTS, BESIDE THE FINDINGS. What we hold on this record, what
-   we have tested, what we are still missing, and when it was last added to.
-   Nothing else. It rides under the person file's record strip, under the formal
+   we have tested and what we are still missing. Nothing else. It rides under the person file's record strip, under the formal
    index head, and inside the Direction Match card.
 
    WHAT IT IS NOT, AND WHY THE RULE IS ABSOLUTE.
@@ -23,11 +22,16 @@
      denominator, so they cannot lie about one.
    · NOT a second engine. Every number below is read off a surface that already
      computed and already prints it:
-        formal acts / issues   ← PDXConsistency.formalPatternIndex.shape()
-        word held / tested     ← PDXWordAction.read().coverage
+        formal acts / issues   ← PDXConsistency.profileCounts() acts / onRecord
+        stated / tested        ← PDXConsistency.profileCounts() stated / tested
+                                 (of scorable) — the same object the rail chips,
+                                 the topic tree and the brief read
         open gaps              ← PDXGaps.count()
-        last added             ← PDXVotingRecord.memberRecords() item dates
      If one of them is cold, that clause is dropped — never estimated.
+   · NO FRESHNESS CLAUSE. It used to end "updated <Mon YYYY>", off the newest
+     item date on the record. That is when the newest vote was CAST, not when
+     the file last changed, so it aged a freshly maintained file by months. It is
+     gone rather than guessed; 'updated' in opts.omit is still accepted.
 
    EMPTY IS SOMEBODY ELSE'S SENTENCE. With nothing held, nothing tested and
    nothing askable, lineHtml() returns '' and the surface keeps whatever honest
@@ -36,20 +40,17 @@
    a plain admission belongs.
 
    API:
-     PDXInventory.read(pid [, p])            → {formal, word, gaps, updated, held}
+     PDXInventory.read(pid [, p])            → {formal, word, gaps, held}
      PDXInventory.clauses(pid [, p])         → string[]  (in print order)
      PDXInventory.text(pid [, p] [, opts])   → 'N formal acts across M issues · …'
      PDXInventory.lineHtml(pid [, p] [, opts]) → one <p>, or '' when nothing is held
-        opts.omit   — ['formal'|'word'|'gaps'|'updated'] clauses the host already
+        opts.omit   — ['formal'|'word'|'gaps'] clauses the host already
                       states in its own words, so no surface prints a fact twice
         opts.cls    — extra class on the line
    ═══════════════════════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
   if (window.PDXInventory) return;
-
-  var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-                'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
   function esc(s) {
     return String(s == null ? '' : s)
@@ -73,8 +74,7 @@
         '.pdxinv b{color:#e8f0ff;font-weight:800;}' +
         '.pdxinv-gap{cursor:pointer;background:none;border:0;padding:0;font:inherit;color:#cfa6f8;' +
           'text-decoration:underline;text-decoration-style:dotted;text-underline-offset:2px;}' +
-        '.pdxinv-gap:hover,.pdxinv-gap:focus-visible{color:#e8d5ff;}' +
-        '.pdxinv-when{color:#7f95b5;font-weight:700;}';
+        '.pdxinv-gap:hover,.pdxinv-gap:focus-visible{color:#e8d5ff;}';
       var el = document.createElement('style');
       el.id = 'pdx-inventory-css';
       el.textContent = css;
@@ -102,13 +102,27 @@
   }
 
   // ── The four sources, each guarded, each optional ──────────────────────────
-  function formalOf(pid) {
+  // The profile's one counts object, or null where consistency.js is absent.
+  function countsOf(pid, p) {
     try {
       var C = window.PDXConsistency;
-      var fpi = C && C.formalPatternIndex;
-      var s = (fpi && typeof fpi.shape === 'function') ? fpi.shape(pid) : null;
-      if (!s) return null;
-      var issues = +s.issues || 0, acts = +s.judged || 0;
+      return (C && typeof C.profileCounts === 'function') ? (C.profileCounts(pid, p) || null) : null;
+    } catch (e) { return null; }
+  }
+
+  function formalOf(pid, p) {
+    try {
+      var issues = 0, acts = 0;
+      var pc = countsOf(pid, p);
+      if (pc) {
+        issues = +pc.onRecord || 0; acts = +pc.acts || 0;
+      } else {
+        var C = window.PDXConsistency;
+        var fpi = C && C.formalPatternIndex;
+        var s = (fpi && typeof fpi.shape === 'function') ? fpi.shape(pid) : null;
+        if (!s) return null;
+        issues = +s.issues || 0; acts = +s.judged || 0;
+      }
       // NO ZERO-ACT CLAUSE. `judged` is 0 both when the record genuinely holds
       // nothing judged on this file and — for the whole window before the
       // roll-call read lands, and forever in any environment where it never does
@@ -136,12 +150,19 @@
       // positions tested" would report a floor failure that has not happened. In
       // that state the clause reports only what is held, which is the half we
       // actually know offline and mid-load alike.
+      // HELD IS THE STATED LIST'S COUNT — the same "N Stated" the rail chip and
+      // the topic tree print — and TESTED IS DIRECTION MATCH'S, out of its own
+      // scorable set, the same "X of Y tested" its chip prints. Held used to be
+      // the scorable set itself, which put "12 stated positions" one line under
+      // a chip reading "31 Stated" on the same file.
+      var pc = countsOf(pid, p);
+      var held = pc ? (+pc.stated || 0)
+        : ((typeof c.scorable === 'number' ? +c.scorable : +c.word) || 0);
       return {
-        // The stated ISSUES the read can test — the same Y the Word vs Action chip
-        // prints in "X of Y tested" — not the raw statement count, which could be
-        // several statements per issue and was a second denominator for one read.
-        held: (typeof c.scorable === 'number' ? +c.scorable : +c.word) || 0,
-        tested: +c.tested || 0,
+        held: held,
+        tested: pc ? (+pc.tested || 0) : (+c.tested || 0),
+        scorable: pc ? (+pc.scorable || 0)
+          : ((typeof c.scorable === 'number' ? +c.scorable : +c.word) || 0),
         untested: +c.untested || 0,
         warming: !!c.warming
       };
@@ -157,36 +178,14 @@
     } catch (e) { return null; }
   }
 
-  // The freshness clause is the newest item date we hold, not "now". A page
-  // rendered today does not mean the record was added to today, and printing the
-  // clock would make every file look freshly maintained.
-  function updatedOf(pid) {
-    try {
-      var VR = window.PDXVotingRecord;
-      var recs = (VR && typeof VR.memberRecords === 'function') ? VR.memberRecords(pid) : null;
-      if (!recs || !recs.length) return null;
-      var best = null;
-      recs.forEach(function (it) {
-        var d = it && it.date;
-        if (!d) return;
-        var t = new Date(d);
-        if (isNaN(t.getTime())) return;
-        if (!best || t > best) best = t;
-      });
-      if (!best) return null;
-      return { iso: best.toISOString().slice(0, 10), label: MONTHS[best.getUTCMonth()] + ' ' + best.getUTCFullYear() };
-    } catch (e) { return null; }
-  }
-
   function read(pid, p) {
-    if (!pid) return { formal: null, word: null, gaps: null, updated: null, held: false };
+    if (!pid) return { formal: null, word: null, gaps: null, held: false };
     p = personOf(pid, p);
     var out = {
       pid: String(pid),
-      formal: formalOf(pid),
+      formal: formalOf(pid, p),
       word: wordOf(pid, p),
       gaps: gapsOf(pid, p),
-      updated: updatedOf(pid),
       held: false
     };
     out.held = !!(out.formal || (out.word && out.word.held));
@@ -195,8 +194,7 @@
 
   // ── The clauses ────────────────────────────────────────────────────────────
   // Each is a count with its noun attached, in the order a reader asks for them:
-  // what the record did, what we hold them saying, what we are still missing,
-  // when it last grew. `omit` drops a clause the host surface already states, so
+  // what the record did, what we hold them saying, what we are still missing. `omit` drops a clause the host surface already states, so
   // the same fact is never printed twice on one screen.
   function clauses(pid, p, opts) {
     var o = opts || {};
@@ -224,12 +222,16 @@
           html: '<b>' + iv.word.held + '</b> stated ' + plural(iv.word.held, 'position') + ' on file'
         });
       } else if (iv.word.held) {
-        var t = iv.word.tested + ' of ' + iv.word.held + ' stated ' +
-          plural(iv.word.held, 'position') + ' tested';
+        // Two figures, each the one printed everywhere else on the profile: the
+        // stated count, then Direction Match's "X of Y tested" as its chip says it.
+        var tst = iv.word.scorable
+          ? (iv.word.tested + ' of ' + iv.word.scorable + ' tested') : '';
         out.push({
-          key: 'word', text: t,
-          html: '<b>' + iv.word.tested + '</b> of <b>' + iv.word.held + '</b> stated ' +
-            plural(iv.word.held, 'position') + ' tested'
+          key: 'word',
+          text: iv.word.held + ' stated ' + plural(iv.word.held, 'position') + ' on file' +
+            (tst ? ', ' + tst : ''),
+          html: '<b>' + iv.word.held + '</b> stated ' + plural(iv.word.held, 'position') + ' on file' +
+            (tst ? ', <b>' + iv.word.tested + '</b> of <b>' + iv.word.scorable + '</b> tested' : '')
         });
       } else {
         // A held count of zero is still inventory — it is the "missing" half, and
@@ -246,12 +248,6 @@
         html: '<button type="button" class="pdxinv-gap" data-pdxinv-gaps="' + esc(String(pid)) + '"' +
           ' onclick="window._pdxInventoryGaps&&window._pdxInventoryGaps(this)">' +
           '<b>' + iv.gaps + '</b> open ' + plural(iv.gaps, 'gap') + '</button>'
-      });
-    }
-    if (!skip.updated && iv.updated) {
-      out.push({
-        key: 'updated', text: 'updated ' + iv.updated.label,
-        html: '<span class="pdxinv-when">updated ' + esc(iv.updated.label) + '</span>'
       });
     }
     return out;
