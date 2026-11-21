@@ -304,15 +304,15 @@ await t("the transcriber picks at most 4 videos per run", async () => {
   assert.equal(summary.remaining, 6, "the rest waits in the queue");
 });
 
-await t("transcription calls run one at a time with a 1.5 s pause between them", async () => {
-  assert.equal(vt.TRANSCRIBE_CALL_DELAY_MS, 1500);
+await t("transcription calls run one at a time with an 18 s pause between them", async () => {
+  assert.equal(vt.TRANSCRIBE_CALL_DELAY_MS, 18_000);
   const ts = memStore(); await queueN(ts, 4);
   let inFlight = 0, peak = 0;
   const { events, sleeps } = await throttledRun({ ts, generate: async () => { inFlight++; peak = Math.max(peak, inFlight); await new Promise((r) => setTimeout(r, 5)); inFlight--; return CLEAR; } });
   assert.equal(peak, 1, "never two Gemini calls at once");
-  assert.deepEqual(sleeps, [1500, 1500, 1500], "a pause before every call but the first");
+  assert.deepEqual(sleeps, [18_000, 18_000, 18_000], "a pause before every call but the first");
   assert.ok(events[0].startsWith("call:"), "the first call starts at once");
-  for (let i = 1; i < events.length; i += 2) { assert.equal(events[i], "sleep:1500"); assert.ok(events[i + 1].startsWith("call:")); }
+  for (let i = 1; i < events.length; i += 2) { assert.equal(events[i], "sleep:18000"); assert.ok(events[i + 1].startsWith("call:")); }
   // Cache hits make no call, so they never wait.
   const ts2 = memStore(); await queueN(ts2, 2);
   for (let i = 0; i < 2; i++) await ts2.setJSON(vt.cacheKey(vidOf(i)), { video_id: vidOf(i), status: "empty", segments: [] });
@@ -323,8 +323,8 @@ await t("transcription calls run one at a time with a 1.5 s pause between them",
 await t("the real delay is applied when no sleep is injected", async () => {
   const ts = memStore(); await queueN(ts, 2);
   const t0 = Date.now();
-  await quiet(() => vt.processTranscriptQueue({ store: ts, rawStore: memStore(), generate: async () => CLEAR, log: () => {} }));
-  assert.ok(Date.now() - t0 >= 1450, `two calls took ${Date.now() - t0} ms`);
+  await quiet(() => vt.processTranscriptQueue({ store: ts, rawStore: memStore(), generate: async () => CLEAR, log: () => {}, callDelayMs: 300 }));
+  assert.ok(Date.now() - t0 >= 280, `two calls took ${Date.now() - t0} ms`);
 });
 
 await t("retries (up to 3 attempts) and give-up still work under the throttle", async () => {

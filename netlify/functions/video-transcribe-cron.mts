@@ -1,7 +1,7 @@
 import type { Config } from "@netlify/functions";
 
 // ──────────────────────────────────────────────────────────────────────────
-// Video transcriber — scheduled wake (every 15 minutes)
+// Video transcriber — scheduled wake (every 10 minutes)
 // ──────────────────────────────────────────────────────────────────────────
 // video-transcribe.mts is a BACKGROUND function (a batch of videos takes
 // minutes, far past the 30 s limit of a scheduled function), and Netlify does
@@ -16,6 +16,12 @@ import type { Config } from "@netlify/functions";
 // worker keeps its own batch size, lock, transcription, scoring, Evidence
 // Locker writes and queue handling exactly as before; if a run is already
 // going, the worker lock turns this wake into a no-op.
+//
+// Every 10 minutes (was 15): a 4-video run with 18 s between Gemini calls
+// takes ~1–4 minutes, so a run normally ends before the next wake; one that
+// runs long (11-min budget) still holds the 15-min worker lock, so the wake
+// that overlaps it is a no-op. A run that dies leaves a lock that expires
+// after 15 min, i.e. at most two wakes are skipped.
 
 export default async (): Promise<void> => {
   const origin = process.env.URL || "https://politidex.fyi";
@@ -28,5 +34,5 @@ export default async (): Promise<void> => {
 };
 
 export const config: Config = {
-  schedule: "*/15 * * * *",
+  schedule: "*/10 * * * *",
 };

@@ -1,0 +1,54 @@
+{
+  "_about": "Reviewed corrections to the vote-actions tagger (netlify/lib/vote-actions-core.ts TAG_CORRECTIONS). Per bill key: issue keys the text-derived tagger got clearly wrong (drop) or missed (add), with why. 'add' keys come from the reviewed measure issues (vr_measure_issues, curated) unless the note says otherwise. Applied after the text signals, for that bill only; an amendment with a correction keeps its own (corrected) tags and does not inherit its parent's. Edit by hand; a change takes effect on the next re-tag of that bill (bump TAGGER_VERSION to re-tag every stored bill). Reviewed 2026-11-21.",
+  "bills": {
+    "us-119-hr-1": {
+      "add": ["tax_middle_class", "family_support", "energy_production", "deportations", "strong_defense", "school_choice", "edu_college_cost", "lands_energy", "lower_taxes", "healthcare", "border_security", "housing_support", "gov_services", "child_care", "health_drug_prices", "econ_corp_account", "econ_smallbiz", "permitting_reform", "water_storage"],
+      "drop": ["senate_filibuster", "edu_parental"],
+      "why": "The summary mentions the filibuster only to explain reconciliation procedure, and 'parents' only in the SNAP work-requirement section; neither is a topic of the act. The added keys are the act's reviewed component issues."
+    },
+    "us-119-s-1582": {
+      "add": ["tech_balance", "states_federal_power"],
+      "drop": ["judicial_check"],
+      "why": "GENIUS Act: judicial_check came only from the CRS subject 'Judicial review and appeals'; the act does not touch court power. Added the reviewed keys (the state/federal issuer regimes, tech guardrails)."
+    },
+    "us-119-hr-5334": {
+      "drop": ["public_schools", "child_care", "immig_balance"],
+      "why": "Russia/Iran sanctions act: 'teacher' and 'early childhood' come from a tax-deduction rider for educator expenses, not school or child-care policy; immig_balance came only from the CRS subject on visa bans for sanctioned persons."
+    },
+    "us-119-s-1383": {
+      "add": ["election_security"],
+      "drop": ["veterans", "healthcare", "social_security", "gov_services", "strong_defense", "border_security", "immigration_reform", "gov_regulation"],
+      "why": "S. 1383 was the Senate vehicle for the SAVE America Act: its summary and roll call are about proof of citizenship and photo ID to vote. Veterans and health care come from the shell bill's title and subjects; Social Security, military and citizenship words appear only as ID options and exemptions."
+    },
+    "us-119-hr-4690": { "add": ["climate_action"], "drop": ["reform_balance"], "why": "Repeals federal-building energy efficiency and fossil-fuel phase-out standards: 'efficiency' here is energy efficiency, not government-reform efficiency." },
+    "us-119-hr-3616": { "add": ["energy_production"], "drop": ["reform_balance"], "why": "Grid-reliability act; reform_balance came only from the CRS subject 'Energy efficiency and conservation'." },
+    "us-119-hr-3632": { "add": ["energy_production"], "why": "Power plant retirement review; reviewed key added." },
+    "us-119-hr-3628": { "add": ["energy_production"], "drop": ["reform_balance", "tariffs_prices"], "why": "State resource-adequacy planning: tariffs_prices came from 'Affordability' in the title (no tariff content), reform_balance from the energy-efficiency subject." },
+    "us-119-hr-9770": { "add": ["gov_services", "national_debt"], "why": "Continuing resolution; reviewed keys added." },
+    "us-119-hr-1005": { "add": ["gov_transparency"], "drop": ["tariffs_china"], "why": "Disclosure of PRC-linked funding in schools; it has no tariff or trade content." },
+    "us-119-hr-276": { "add": ["america_first"], "why": "Gulf of America Act; the text names no tagged topic, reviewed key added." },
+    "us-119-hamdt-256": { "add": ["lgbtq_rights"], "why": "Reviewed key." },
+    "us-119-hamdt-266": { "add": ["cut_spending", "gov_waste"], "why": "Reviewed keys." },
+    "us-119-hamdt-261": { "add": ["privacy_rights"], "why": "Automated speed-camera ban; reviewed key." },
+    "us-119-hamdt-258": { "add": ["religious_liberty"], "drop": ["tough_on_crime"], "why": "Military chaplain protections; nothing about crime." },
+    "us-119-hamdt-251": { "add": ["america_first_fp", "foreign_balance", "cut_spending"], "why": "Reviewed keys." },
+    "us-119-hamdt-250": { "add": ["states_federal_power"], "why": "Preemption of state and local laws; reviewed key." },
+    "us-119-hamdt-232": { "add": ["cut_spending", "america_first_fp"], "why": "Fulbright funding cut; reviewed keys replace the parent bill's inherited tags." },
+    "us-119-hamdt-249": { "add": ["states_federal_power"], "why": "Reviewed key." },
+    "us-119-hamdt-247": { "add": ["judicial_check"], "why": "Limits on court orders; reviewed key." },
+    "us-119-hamdt-243": { "add": ["foreign_balance", "america_first_fp"], "why": "Reviewed keys." },
+    "us-119-hamdt-242": { "add": ["gov_transparency"], "why": "Reviewed key replaces the parent bill's inherited tags." },
+    "us-119-hamdt-237": { "add": ["america_first_fp", "cut_spending"], "why": "Reviewed keys replace the parent bill's inherited tags." },
+    "us-119-hamdt-236": { "add": ["america_first_fp", "cut_spending"], "why": "Reviewed keys." },
+    "us-119-hamdt-234": { "add": ["cut_spending", "america_first_fp", "climate_action"], "why": "Global Environment Facility funding cut; reviewed keys replace the parent bill's inherited tags." },
+    "us-119-hamdt-196": { "add": ["states_federal_power"], "drop": ["lands_preserve"], "why": "Pesticide-labeling preemption; nothing about public lands." },
+    "us-119-samdt-3428": { "add": ["gov_transparency"], "why": "Earmark disclosure; reviewed key replaces the parent bill's inherited tags." },
+    "us-119-hamdt-81": { "add": ["tough_on_crime"], "drop": ["gov_regulation"], "why": "Criminal penalties for entering a military installation; not a regulation question." },
+    "us-119-hamdt-79": { "add": ["climate_action"], "why": "Alternative-fuel vehicle preference; reviewed key." },
+    "us-119-hamdt-89": { "add": ["lgbtq_rights"], "why": "Reviewed key." },
+    "us-119-hamdt-88": { "add": ["lgbtq_rights"], "why": "Reviewed key." },
+    "us-119-hamdt-87": { "add": ["lgbtq_rights"], "why": "Reviewed key replaces the parent bill's inherited tags." },
+    "us-119-hamdt-86": { "add": ["lgbtq_rights"], "why": "Reviewed key." },
+    "us-119-hamdt-85": { "add": ["lgbtq_rights"], "why": "Reviewed key replaces the parent bill's inherited tags." }
+  }
+}

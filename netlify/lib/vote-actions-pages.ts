@@ -8,10 +8,18 @@
 // db/bill-docs.json (scripts/gen-bill-docs.mjs), so the page prints the same
 // blocks a snapshot bill prints:
 //   s / n / c / t   sitting, number, chamber of origin, the stored title
-//   m               the related issues — the bill's HIGH-tier topic tags, keys
-//                   only; share-target.ts labels them from the share index the
-//                   way it labels the live mapping table, and drops a key with
-//                   no label. No effect line: the tagger writes none.
+//   m               the related issues — the bill's HIGH-tier topic tags (or, on
+//                   a bill with no high-tier tag that is not a private-relief or
+//                   naming bill, all of its tags, so the page is never blank
+//                   while the bill carries topics); share-target.ts labels them
+//                   from the share index the way it labels the live mapping
+//                   table, and drops a key with no label. Each key may carry
+//                   `l`, its effect line: a sentence of the bill's OWN official
+//                   text (the CRS summary, or an amendment's stated purpose)
+//                   that names that topic, held to the hand-built pages' line
+//                   rule (one sentence, 140 characters or fewer, no coding
+//                   words). Nothing is composed; a key with no such sentence
+//                   is listed bare, as on a hand-built page.
 //   st / sl         status, derived from the official actions by the same
 //                   deriveStatus / statusLabel the snapshot uses
 //   o / sp / su / h origin, roster-linked sponsors (bioguide → roster through the
@@ -36,13 +44,13 @@ export const PAGE_MAX_ATTEMPTS = 6;
 // The fields of a stored bill row the page reads.
 export type PageBill = {
   billKey: string; congress: number; measureType: string; billType: string; number: string | null;
-  title: string; topicTags: string[]; tagDetail: Array<{ key: string; impactTier?: string }>;
+  title: string; topicTags: string[]; tagDetail: Array<{ key: string; impactTier?: string; tierReasons?: string[] }>;
   taggerVersion: string; hasSummary: boolean; sourceUrl: string; rawRef?: string | null;
 };
 
 // db/bill-docs.json's per-bill shape (share-target.ts BillDocRec), keys only in m.
 export type BillPageDoc = {
-  s: string; n: string; c?: string; t?: string; m?: { k: string }[];
+  s: string; n: string; c?: string; t?: string; m?: { k: string; l?: string }[];
   st?: string; sl?: string; o?: { c?: string; d?: string };
   sp?: { s?: string[]; c?: string[] }; su?: { s?: number; c?: number };
   h?: { d: string; a: string; x: string }[]; rs?: string;
@@ -66,12 +74,34 @@ export const wantsPage = (b: { measureType: string; number: string | null }) => 
 // What the page depends on. A different signature = the page is rebuilt.
 // `keyed` records whether the official record could be read at all.
 export function pageSignature(b: PageBill, keyed: boolean): string {
-  return [PAGE_VERSION, b.taggerVersion, highTags(b).join(","), b.title, b.hasSummary ? 1 : 0, keyed ? "k" : "-"].join("|");
+  return [PAGE_VERSION, b.taggerVersion, pageTags(b).join(","), b.title, b.hasSummary ? 1 : 0, keyed ? "k" : "-"].join("|");
 }
 
 export function highTags(b: Pick<PageBill, "topicTags" | "tagDetail">): string[] {
   const tiers = new Map((b.tagDetail || []).map((d) => [d.key, d.impactTier]));
   return (b.topicTags || []).filter((k) => tiers.get(k) !== "low").sort();
+}
+
+// The keys the page lists: the high tier; when nothing is high, every tag —
+// unless the bill is a private-relief or single-facility naming bill (the
+// incidental-noise shape the low tier exists for), which then lists none.
+export function pageTags(b: Pick<PageBill, "topicTags" | "tagDetail">): string[] {
+  const high = highTags(b);
+  if (high.length) return high;
+  const minor = (b.tagDetail || []).some((d) => (d.tierReasons || []).some((r) => r.startsWith("minor-bill:")));
+  return minor ? [] : [...(b.topicTags || [])].sort();
+}
+
+// The hand-built pages' effect-line rule (scripts/gen-bill-docs.mjs effectOk,
+// transcribed from consistency.js _dosEffectOk): one sentence, ≤ 140 chars,
+// ends in . ! or ?, no word about how the archive coded the act.
+const METHOD = /\b(?:precedent|mirror|discriminator|primary row|secondary row|vocabulary (?:carries|has) no|coded|chip|mapped|filed as|weighted)\b/i;
+export function effectLineOk(raw: unknown): string {
+  const s = String(raw == null ? "" : raw).replace(/\s+/g, " ").trim();
+  if (!s || s.length > 140 || !/[.!?]$/.test(s)) return "";
+  if (/[.!?]\s+["“(]?[A-Z0-9]/.test(s.replace(/\bU\.S\./g, "US"))) return "";
+  if (METHOD.test(s)) return "";
+  return s;
 }
 
 // The day a Congress ended (noon Jan 3 of the odd year after it), when that day
@@ -105,7 +135,7 @@ export function recordFrom(b: PageBill, main: any, actions: any[] | null): { src
 // `actions` its action list — both null without a key or on a failed read.
 export function buildBillPage(
   b: PageBill,
-  src: { main?: any; actions?: any[] | null; keyed: boolean },
+  src: { main?: any; actions?: any[] | null; keyed: boolean; lines?: Record<string, string> | null },
   memberMap: Record<string, string>,
   now: Date,
 ): BillPageRecord {
@@ -113,8 +143,8 @@ export function buildBillPage(
   const number = String(b.number);
   const rec = recordFrom(b, src.main || null, src.actions ?? null);
   const doc: BillPageDoc = { s: sitting, n: number, c: rec?.ch || chamberOf(b.billType.startsWith("h") ? "house" : "senate"), t: String(b.title || "").trim() };
-  const keys = highTags(b);
-  if (keys.length) doc.m = keys.map((k) => ({ k }));
+  const keys = pageTags(b);
+  if (keys.length) doc.m = keys.map((k) => { const l = effectLineOk(src.lines?.[k]); return l ? { k, l } : { k }; });
   if (rec) {
     const ended = congressEndedOn(b.congress, now) || undefined;
     const status = deriveStatus(sitting, number, rec, ended);
