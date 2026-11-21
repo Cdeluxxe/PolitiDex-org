@@ -19,7 +19,9 @@ import { getStore } from "@netlify/blobs";
 // the chain stops. Gemini calls run one at a time, 1.5 s apart. A worker
 // lock in the store keeps runs from overlapping, so an extra wake only costs
 // a lock check. The function takes no input — it only
-// works the queue.
+// works the queue. Background functions cannot carry a schedule, so the
+// every-15-minute schedule (and the "Run now" button) live on
+// video-transcribe-cron.mts, which only wakes this function.
 
 import { processTranscriptQueue, scoreIntoLocker, nameFromId, TRANSCRIPT_STORE_NAME } from "../lib/video-transcripts.mjs";
 import { RAW_STORE_NAME, ROSTER, RESOLVER_PEOPLE } from "../lib/raw-ingest-core.mjs";
