@@ -488,10 +488,12 @@ function lift(file, name) {
   return src.slice(at, end + 1);
 }
 
+// The record CTA's button (and the overlay it opened) were retired; the slot
+// now carries only the whole-person share control. So the empty-record wording
+// this section guarded can no longer reach a Bean-class file from here at all.
 const CTA_SRC = lift("profiles-full.js", "window._pdxStanceRecordCta = function (id, p)");
-must(/thinRecord/.test(CTA_SRC), "the record CTA no longer decides on a thinRecord flag");
 
-function cardFor(stats) {
+function cardFor(stats, slot) {
   const ctx = {
     console, JSON, Math,
     setTimeout: () => 0,
@@ -500,53 +502,23 @@ function cardFor(stats) {
   ctx.window = ctx; ctx.globalThis = ctx;
   ctx._pdxStanceRecordStats = () => stats;
   ctx._pdxEvJsId = (x) => String(x);
-  ctx._pdxWordRecordShareSlot = () => "";
+  ctx._pdxWordRecordShareSlot = () => slot || "";
   vm.runInContext(CTA_SRC + ";", vm.createContext(ctx), { filename: "record-cta" });
   return String(ctx.window._pdxStanceRecordCta("aaron_bean", {}) || "");
 }
 
 const EMPTY_COPY = ["still being built", "No qualifying votes", "no record", "No record", "nothing on file"];
 
-// BEAN, COLD. 23 acts in the formal brief the reader can see, nothing cited, the
-// roll-call lane not yet warm. This is the reported screen.
-{
-  const html = cardFor({ tracked: 0, withEvidence: 0, gaps: 0, formal: 0, formalActs: 23, formalRead: false });
-  ok(html.length > 0, "the record CTA rendered nothing for a Bean-class file");
-  for (const s of EMPTY_COPY)
-    lacks(html, s, `a file with 23 acts on the formal record rendered the empty-record copy`);
-  has(html, "View the Full Record on the Issues", "the Bean-class card lost its label entirely");
-}
-
-// BEAN, WARM. Same person one repaint later: 11 formal issue rows, 23 acts, still
-// nothing cited. Same answer — the copy must not depend on the clock.
-{
-  const html = cardFor({ tracked: 0, withEvidence: 0, gaps: 0, formal: 11, formalActs: 23, formalRead: true });
-  for (const s of EMPTY_COPY) lacks(html, s, "a warm Bean-class file rendered the empty-record copy");
-  has(html, "11 issues on the formal record", "the warm Bean-class card stopped naming the formal list");
-}
-
-// THE LANE HAS NOT ANSWERED and there is nothing else either. "Still being built"
-// would be a finding about a record nobody has read yet, so the label is neutral
-// and the reader gets the real one a beat later.
-{
-  const html = cardFor({ tracked: 0, withEvidence: 0, gaps: 0, formal: 0, formalActs: 0, formalRead: false });
-  lacks(html, "still being built",
-        "the card called the record unbuilt before the record lane had answered for this person");
-}
-
-// THE UTAH EMPTY-TEN CASE. Nothing cited, and a lane that ANSWERED with nothing.
-// This is the one state the phrase was written for, and it keeps it.
-{
-  const html = cardFor({ tracked: 0, withEvidence: 0, gaps: 0, formal: 0, formalActs: 0, formalRead: true });
-  has(html, "still being built",
-      "a read-and-empty file lost the honest 'still being built' label — the fix is the condition, not the copy");
-}
-
-// A curated-only file is unaffected: it was never in this branch.
-{
-  const html = cardFor({ tracked: 7, withEvidence: 4, gaps: 2, formal: 0, formalActs: 0, formalRead: true });
-  lacks(html, "still being built", "a file with seven tracked issues was called unbuilt");
-  has(html, "7 issues tracked", "the curated wording moved");
+for (const st of [
+  { tracked: 0, withEvidence: 0, gaps: 0, formal: 0, formalActs: 23, formalRead: false },
+  { tracked: 0, withEvidence: 0, gaps: 0, formal: 11, formalActs: 23, formalRead: true },
+  { tracked: 0, withEvidence: 0, gaps: 0, formal: 0, formalActs: 0, formalRead: true },
+]) {
+  const html = cardFor(st, '<div class="pdx-fsr-share">share</div>');
+  for (const s of EMPTY_COPY) lacks(html, s, "the record slot printed empty-record copy");
+  lacks(html, "_pdxOpenStanceRecord", "the record slot still opens the retired overlay");
+  has(html, 'class="pdx-fsr-share"', "the share control lost its place in the slot");
+  eq(cardFor(st, ""), "", "with no share control the slot renders nothing");
 }
 
 // The stats the card reads actually carry the two new facts, computed from the

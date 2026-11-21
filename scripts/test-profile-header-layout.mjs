@@ -15,7 +15,7 @@
 //      arrival event ('pdx-record-noted'), which a cold /p/ open does fire.
 //   4. A file with no reserved figure keeps a hidden slot that the repaint
 //      reveals, and a slot that never gets a figure stays hidden.
-//   5. The chip content, the "More sections" disclosure and the money chips
+//   5. The chip content, the always-visible section chips and the money chips
 //      are unchanged; nothing in the grid can push the page wider on a phone.
 //
 //   node scripts/test-profile-header-layout.mjs
@@ -129,10 +129,9 @@ for (const pid of ["massie", "curtis", "zach_dembo"]) {
   ok(!/pdxsec-wordaction/.test(lead), `${pid}: Word vs Action is not in the Funding / Activity pair`);
   ok(!lead || /data-target="pdxsec-(funding|activity)"/.test(lead), `${pid}: the pair holds Funding and/or Activity`);
   ok(/data-target="pdxsec-wordaction"/.test(wva), `${pid}: Word vs Action has its own line`);
-  const order = [nav.indexOf('class="pdx-pnav-lead"'), nav.indexOf('class="pdx-pnav-wva"'), nav.indexOf('class="pdx-pnav-more"')].filter((n) => n >= 0);
-  ok(order.every((n, i) => !i || n > order[i - 1]), `${pid}: pair, then Word vs Action, then More sections`);
-  ok(/<summary class="pdx-pnav-more-sum">More sections/.test(nav), `${pid}: the More sections disclosure is still there`);
-  ok(!/<details class="pdx-pnav-more" open/.test(nav), `${pid}: and still closed`);
+  const order = [nav.indexOf('class="pdx-pnav-lead"'), nav.indexOf('class="pdx-pnav-wva"'), nav.indexOf('class="pdx-pnav-track"')].filter((n) => n >= 0);
+  ok(order.every((n, i) => !i || n > order[i - 1]), `${pid}: pair, then Word vs Action, then the section chips`);
+  ok(!/<details|<summary|pdx-pnav-more|More sections/.test(nav), `${pid}: no More sections disclosure`);
 }
 {
   const nav = navOf(open("massie"));
@@ -144,8 +143,8 @@ ok(/\.profile-hero-face \{ grid-column: 1; grid-row: 1 \/ span 4;/.test(CSS), "t
 ok(/\.profile-hero-id > \.pdx-pnav > \.pdx-pnav-lead \{\s*grid-column: 2; grid-row: 4;/.test(CSS), "the pair sits in the column beside the photo");
 ok(/\.pdx-pnav-lead \{[^}]*flex-wrap: nowrap/.test(CSS.slice(CSS.indexOf("THE LETTERHEAD AS ONE GRID"))), "the pair stays side by side");
 ok(/\.profile-hero-id > \.pdx-pnav > \.pdx-pnav-wva \{ grid-column: 1 \/ -1;/.test(CSS), "Word vs Action spans the letterhead");
-ok(/\.pdx-pnav-wva > \.pdx-pnav-pill \{[^}]*width: 100%/.test(CSS), "the Word vs Action pill fills its line");
-ok(/\.profile-hero-id > \.pdx-pnav > \.pdx-pnav-more \{ grid-column: 1 \/ -1; grid-row: 6;/.test(CSS), "More sections sits below, full width");
+ok(!/\.pdx-pnav-wva > \.pdx-pnav-pill \{[^}]*width: 100%/.test(CSS), "the Word vs Action pill is a compact chip, not a full-width banner");
+ok(/\.profile-hero-id > \.pdx-pnav > \.pdx-pnav-track \{ grid-column: 1 \/ -1; grid-row: 6;/.test(CSS), "the section chips sit below, full width");
 ok(/\.profile-hero-id > \.profile-meta \{ grid-row: 8;/.test(CSS), "the money chips stay below the disclosure");
 
 section("3 · Word vs Action reaches the letterhead on Massie's real record");

@@ -2,6 +2,9 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // test-row-tap-dossier.mjs — every issue row opens its dossier, on every device
 // ─────────────────────────────────────────────────────────────────────────────
+// (The Full Stance Record overlay was later retired; the curated-row half of this
+// suite went with it, and the formal-index rows below are what remains.)
+//
 // The bug this pins: on a deep formal profile the issue rows in the Full Stance
 // Record stopped being tappable, and the chevrons stopped being tappable with
 // them. It was never a handler problem. It was two separate ways of building a
@@ -127,8 +130,6 @@ const PID = "schumer";
 const probe = boot();
 must(probe.PDXConsistency && probe.PDXConsistency.formalPatternIndex,
   "PDXConsistency.formalPatternIndex is not exposed");
-must(typeof probe._pdxStanceRecordBody === "function",
-  "_pdxStanceRecordBody is not exposed");
 must(typeof probe._pdxEvidenceDepthPill === "function",
   "the Evidence-depth pill is not exposed — the nesting case cannot be built");
 
@@ -176,13 +177,13 @@ function render(mutants) {
     rows: FPI.rows(PID),
     index: FPI.html(PID, { sort: "strength", view: "all" }) || "",
     face: FPI.html(PID, { sort: "strength", mount: "face" }) || "",
-    body: win._pdxStanceRecordBody(PID, win.CMP_DATA[PID]) || "",
   };
 }
 const A = render();
 must(A.rows.length > 20, `the seeded fixture produced only ${A.rows.length} index rows`);
-must((A.body.match(/pdx-depth-pill/g) || []).length >= 2,
-  "no depth pill rendered — the nested-button case is not in the fixture");
+// The Full Stance Record overlay and its curated rows were retired; what remains
+// is the formal index and the profile face's formal list.
+ok(typeof A.win._pdxStanceRecordBody === "undefined", "the retired overlay body is not rebuilt");
 
 // ── Shape helpers ────────────────────────────────────────────────────────────
 // The one thing the HTML parser will not forgive: a button inside a button. Walks
@@ -198,16 +199,12 @@ function maxDepth(html, tag) {
 }
 // Chunks, split on the OUTERMOST element of each row so the opening tag — the one
 // a descendant's closest() would have to reach — is what gets inspected.
-const fsrecRows = (html) =>
-  html.split(/(?=<div class="fsrec-row(?=[" ]))/).filter((c) => c.indexOf('<div class="fsrec-row') === 0);
 const fpiRows = (html) =>
   html.split(/(?=<div class="pdxfpi-row(?=[" ]))/).filter((c) => c.indexOf('<div class="pdxfpi-row') === 0);
 const openTag = (chunk) => chunk.slice(0, chunk.indexOf(">") + 1);
 const attr = (s, name) => (s.match(new RegExp(name + '="([^"]*)"')) || [])[1];
 
 const CJS = R("consistency.js");
-const PFJ = R("profiles-full.js");
-const CSS = R("app.css");
 const JCSS = R("journey.css");
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -216,75 +213,14 @@ section("1 · nothing interactive nests inside anything interactive");
 {
   // This is the blocker, stated as an invariant. A depth of 2 means the browser
   // rewrote the row and ejected its own contents; it is not a style question.
-  eq(maxDepth(A.body, "button"), 1,
-    "the Full Stance Record never nests a <button> inside a <button>");
   eq(maxDepth(A.index, "button"), 1,
     "the formal index never nests a <button> inside a <button>");
   eq(maxDepth(A.face, "button"), 1,
     "the profile face's formal list never nests a <button> inside a <button>");
-  ok(maxDepth(A.body, "a") <= 1, "…and no anchor is nested inside an anchor either");
-  // The depth pill IS still a button, and it is still inside a row. What changed
-  // is the row: it is a div now, so the pill is legal where it stands.
-  has(A.body, '<button type="button" class="pdx-depth-pill',
-    "the Evidence-depth pill is still a real button");
-  has(A.body, "event.stopPropagation();window._pdxOpenEvidenceLocker",
-    "…still swallowing its own tap so the row's dossier door does not also fire");
-  for (const c of fsrecRows(A.body)) {
-    if (c.indexOf("pdx-depth-pill") < 0) continue;
-    // The pill sits in the meta line; the meta line and the chevron after it have
-    // to still be INSIDE the row, which is exactly what the old shape lost.
-    has(c, 'class="fsrec-row-meta"', "a row with a depth pill still owns its meta line");
-    ok(c.indexOf("pdx-depth-pill") < c.indexOf("fsrec-row-go") || c.indexOf("fsrec-row-go") < 0,
-      "…and the chevron still comes after it inside the same row");
-  }
-  lacks(A.body, '<button type="button" class="fsrec-row is-click"',
-    "the curated row is no longer a button wrapping other buttons");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("2 · every issue-keyed curated row is a dossier door");
-// ═════════════════════════════════════════════════════════════════════════════
-{
-  const rows = fsrecRows(A.body);
-  must(rows.length >= 8, `only ${rows.length} curated rows rendered`);
-  let doors = 0, dead = 0, norec = 0;
-  for (const c of rows) {
-    const t = openTag(c);
-    const key = attr(t, "data-pdxst-dos");
-    if (!key) { dead++; lacks(t, "is-click", "a row with no issue key is not dressed as a control"); continue; }
-    doors++;
-    eq(attr(t, "data-pdxst-pid"), PID, `${key}: the row door names the politician`);
-    eq(attr(t, "data-pdxst-origin"), attr(t, "id"),
-      `${key}: the row is its own origin, so closing the sheet returns to it`);
-    has(t, "is-click", `${key}: …and it is dressed as a control`);
-    // The name is the ONE focus stop and the ONE accessible name. The row around
-    // it is a pointer target only — no role, no tabindex, nothing for a screen
-    // reader to announce twice.
-    has(c, 'class="fsrec-row-label fsrec-row-door"', `${key}: the name is a real button`);
-    has(c, "aria-label=\"Open the issue dossier:", `${key}: …and it says what it opens`);
-    lacks(t, 'role="button"', `${key}: the row wrapper is not a second announced control`);
-    lacks(t, "tabindex=", `${key}: …and not a second tab stop`);
-    has(c, 'class="fsrec-row-go"', `${key}: the row shows the ↗ affordance`);
-    if (c.indexOf("fsrec-norec") >= 0) norec++;
-  }
-  ok(doors >= 8, `every issue-keyed curated row is a door (${doors} of ${rows.length})`);
-  eq(dead, rows.length - doors, "the only rows without a door are the ones without an issue key");
-  ok(norec >= 1,
-    `rows with no curated record at all are doors too (${norec} such rows) — the dossier is what they are for`);
-  // What the row no longer does. The Locker was the wrong destination for a row
-  // that names an issue, and it is still reachable — see section 6.
-  lacks(A.body, 'aria-label="Open the Evidence Locker filtered to',
-    "the row no longer claims to open the Locker");
-  // The suggest cue is a role=button span, not a <button>, and it still eats its
-  // own tap — otherwise it would open the dossier behind the composer.
-  has(A.body, '<span class="fsrec-suggest" role="button" tabindex="0"',
-    "the suggest cue stays a non-button control so it can live inside the row");
-  has(A.body, "event.stopPropagation();window._pdxSuggestReceipt",
-    "…and still swallows its own tap");
-}
-
-// ═════════════════════════════════════════════════════════════════════════════
-section("3 · the whole formal row is the door — thin, split and unread included");
+section("2 · the whole formal row is the door — thin, split and unread included");
 // ═════════════════════════════════════════════════════════════════════════════
 {
   const seen = {};
@@ -319,7 +255,7 @@ section("3 · the whole formal row is the door — thin, split and unread includ
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("4 · every door reaches the one shared entry point");
+section("3 · every door reaches the one shared entry point");
 // ═════════════════════════════════════════════════════════════════════════════
 {
   has(CJS, "closest('[data-pdxst-dos]')",
@@ -339,18 +275,10 @@ section("4 · every door reaches the one shared entry point");
   const known = new Set(Object.keys(A.win.ISSUE_MAP || {}));
   ok(keys.length > 20 && keys.every((k) => known.has(k)),
     `every formal row door names a real issue (${keys.length} rows)`);
-  const bodyKeys = fsrecRows(A.body).map((c) => attr(openTag(c), "data-pdxst-dos")).filter(Boolean);
-  ok(bodyKeys.length > 0 && bodyKeys.every((k) => known.has(k)),
-    `every curated row door names a real issue (${bodyKeys.length} rows)`);
-  // Ids are the return address; two rows sharing one would send the back pill to
-  // the wrong place — and the two lists are on screen together.
-  const ids = fsrecRows(A.body).concat(fpiRows(A.body))
-    .map((c) => attr(openTag(c), "id")).filter(Boolean);
-  eq(new Set(ids).size, ids.length, "no two rows in the overlay share a return address");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("5 · mobile: the target is visible and thumb-sized");
+section("4 · mobile: the target is visible and thumb-sized");
 // ═════════════════════════════════════════════════════════════════════════════
 {
   // The chevron used to be revealed by :hover, with one width override for phones
@@ -362,61 +290,17 @@ section("5 · mobile: the target is visible and thumb-sized");
     "…and hovering anywhere in the row reveals it, not only the name");
   has(CJS, "cursor:pointer;'\n        + 'min-height:2.75rem;",
     "the formal row is a 44px-class target in its own right");
-  has(CSS, "@media (hover: none), (pointer: coarse) {\n      .fsrec-row.is-click { min-height: 44px; }",
-    "the curated row is a 44px-class target on touch");
-  has(CSS, "button.fsrec-row-label {",
-    "the name button is reset to look like the text it replaced");
-  has(CSS, "button.fsrec-row-label:focus-visible {",
-    "…and still shows a focus ring for keyboard readers");
   // Acceptance 4's other half: nothing sticky sits over these rows. The journey
   // bar is the only fixed bottom rail in the product, and it is far below both
-  // the record overlay and the dossier's own backdrop.
+  // the dossier's own backdrop.
   has(JCSS, "bottom: 0; z-index: 45;", "the sticky journey rail sits at z-index 45");
-  has(CSS, "position: fixed; inset: 0; z-index: 72;", "…the Full Stance Record overlay is above it");
   has(CJS, "z-index:2147483000", "…and the dossier's own backdrop is above everything");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("6 · the Evidence Locker is not orphaned by the reroute");
+section("5 · counterfactuals — each guard is load-bearing");
 // ═════════════════════════════════════════════════════════════════════════════
 {
-  // Rerouting the row to the dossier only removes a Locker door that the row's
-  // own receipts pill already duplicates — plus a sheet-level one in the header.
-  has(A.body, 'class="fsrec-head-locker"', "the overlay header still jumps into the full Locker");
-  const pilled = fsrecRows(A.body).filter((c) => c.indexOf("pdx-depth-pill") >= 0);
-  ok(pilled.length >= 2, `rows with curated receipts still carry their own Locker door (${pilled.length})`);
-  for (const c of pilled) {
-    has(c, "window._pdxOpenEvidenceLocker&&window._pdxOpenEvidenceLocker({pol:",
-      "…filtered to that politician and that issue");
-  }
-  // The receipts count that used to gate clickability is the same number the pill
-  // is built from, so "had a Locker tap" and "has a pill" are the same set.
-  has(PFJ, "r.receipts = dd.count || 0;",
-    "row receipts and the depth pill read one index, so no row loses a Locker path silently");
-}
-
-// ═════════════════════════════════════════════════════════════════════════════
-section("7 · counterfactuals — each guard is load-bearing");
-// ═════════════════════════════════════════════════════════════════════════════
-{
-  // M1 · curation back as the gate for clickability.
-  const m1 = render({ "profiles-full.js": [[
-    "      var clickable = !!r.issueKey;",
-    "      var clickable = (rec || r.receipts) && r.issueKey;",
-  ]] });
-  const m1doors = fsrecRows(m1.body).filter((c) => attr(openTag(c), "data-pdxst-dos")).length;
-  const a1doors = fsrecRows(A.body).filter((c) => attr(openTag(c), "data-pdxst-dos")).length;
-  ok(m1doors < a1doors,
-    `M1: gating on curation again strands rows (${a1doors} doors → ${m1doors})`);
-
-  // M2 · the row back as a <button>, with the depth pill still inside it.
-  const m2 = render({ "profiles-full.js": [[
-    "        return '<div class=\"fsrec-row is-click\" id=\"' + esc(rowId) + '\"' + door + '>' + inner + '</div>';",
-    "        return '<button type=\"button\" class=\"fsrec-row is-click\" id=\"' + esc(rowId) + '\"' + door + '>' + inner + '</button>';",
-  ]] });
-  eq(maxDepth(m2.body, "button"), 2,
-    "M2: putting the row back as a button re-creates the nesting the parser rejects");
-
   // M3 · the door back on the name only, leaving the chips and meta inert.
   const m3 = render({ "consistency.js": [[
     "        ' data-pdxst-dos=\"' + escAttr(x.key) + '\" data-pdxst-pid=\"' + escAttr(x.pid) + '\"' +\n        ' data-pdxst-origin=\"' + escAttr(_fpiRowId(mount, x.pid, x.key)) + '\"' +\n        ' data-pdxfpi-said=\"'",
@@ -433,14 +317,6 @@ section("7 · counterfactuals — each guard is load-bearing");
   ok(m4src.indexOf("(pointer:coarse){.pdxfpi-go") < 0,
     "M4: removing the coarse-pointer rule is what hides the chevron on touch");
 
-  // M5 · the accessible name back to a plain span — the row would be pointer-only.
-  const m5 = render({ "profiles-full.js": [[
-    "        ? '<button type=\"button\" class=\"fsrec-row-label fsrec-row-door\"' + door +",
-    "        ? '<span class=\"fsrec-row-label fsrec-row-door\"' + door +",
-  ]] });
-  ok((m5.body.match(/class="fsrec-row-label fsrec-row-door"/g) || []).length > 0 &&
-     m5.body.indexOf('<button type="button" class="fsrec-row-label') < 0,
-    "M5: the name is the keyboard door — drop the button and the row is pointer-only");
 }
 
 // ── Result ───────────────────────────────────────────────────────────────────
@@ -451,5 +327,5 @@ if (failures.length) {
   process.exit(1);
 }
 console.log(`✓ row tap → dossier: all ${passed} assertions passed — ` +
-  `${fsrecRows(A.body).length} curated rows + ${fpiRows(A.index).length} formal rows, ` +
+  `${fpiRows(A.index).length} formal rows, ` +
   `every issue-keyed one a door, nothing interactive nested`);

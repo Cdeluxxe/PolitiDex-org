@@ -485,14 +485,14 @@ const personLines = person.split("\n");
 //
 // IT MOVED BY SIX in v522: person.html gained stance-sides.js, my-stances.js
 // (with their note) and your-file.js for the drawer's "Where this conflicts"
-// section. Same bytes, found at 2822–3017.
+// section. Same bytes, found at 2818–3013 (2822–3017 before the stance-record overlay left).
 const COPIES = [
   [1405, 1920, "the promise ledger and the deferred-event capture (firebase-boot.js reads _firestoreLoaded and _checkAndTrigger as bare identifiers)"],
   [2005, 2059, "the Firebase compat bundles, the key injection, the synchronous stub and firebase-boot.js"],
   [2062, 2096, "the split-seam stubs (_pdxMandateForIssue is called unguarded from inside stance-helpers.js)"],
   [2114, 2158, "the share furniture share-preview.ts rewrites"],
   [2221, 2224, "the Bebas Neue / Barlow preload swap"],
-  [2822, 3017, "the PWA runtime and the service-worker registration"],
+  [2818, 3013, "the PWA runtime and the service-worker registration"],
 ];
 for (const [a, b, what] of COPIES) {
   // AN EMPTY OR OUT-OF-RANGE WINDOW IS A DEAD PIN, NOT A PASSING ONE. Checked

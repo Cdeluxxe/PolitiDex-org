@@ -172,8 +172,9 @@ const FPI = CS.formalPatternIndex;
 const ROWS = FPI.rows(PID);
 const rowOf = (k) => ROWS.filter((x) => x.key === k)[0];
 const INDEX = FPI.html(PID, { sort: "strength", view: "all" });
-const BODY = A._pdxStanceRecordBody(PID, A.CMP_DATA[PID]);
-const COLD_BODY = COLD._pdxStanceRecordBody(PID, COLD.CMP_DATA[PID]);
+// The Full Stance Record overlay that used to host this index was retired; the
+// index is checked as the engine renders it, and against the cold profile.
+const COLD_INDEX = COLD.PDXConsistency.formalPatternIndex.html(PID, { sort: "strength", view: "all" }) || "";
 // One rendered row, by issue key.
 const chunkOf = (html, k) => {
   for (const c of html.split(/<div class="pdxfpi-row["\s]/).slice(1)) {
@@ -182,37 +183,19 @@ const chunkOf = (html, k) => {
   return "";
 };
 const countRows = (html) => (html.match(/class="pdxfpi-row/g) || []).length;
-const countCards = (html) => (html.match(/class="fsrec-row(?=[" ])/g) || []).length;
 must(ROWS.length > 20, `the seeded fixture produced only ${ROWS.length} index rows`);
 
 // ═════════════════════════════════════════════════════════════════════════════
 section("1 · it is the longer list");
 // ═════════════════════════════════════════════════════════════════════════════
 {
-  const cards = countCards(COLD_BODY);
-  ok(cards > 0 && cards < 12,
-    `the curated Full Stance Record is the small list it was (${cards} cards)`);
-  eq(countRows(COLD_BODY), 0,
-    "…and with no vote record on file the formal index does not render at all");
-  ok(ROWS.length > cards * 3,
-    `the formal index is multiples longer than the written cards (${ROWS.length} vs ${cards})`);
-  eq(countRows(BODY), ROWS.length,
-    "every index row the engine built is rendered in the overlay");
-  ok(countCards(BODY) === cards,
-    "…and the curated list is untouched beside it, not replaced");
-  // The index is ABOVE the curated cards: it is the more complete answer to the
-  // question the overlay's title asks.
-  ok(BODY.indexOf('class="pdxfpi"') < BODY.indexOf('class="fsrec-curated-h"'),
-    "the formal record leads, the documented cards follow");
-  has(BODY, "Documented positions", "…under their own heading, so the two never read as one list");
-  has(BODY, "issues on the formal record", "the stat row now counts the formal record too");
-  // The promise on the way in matches the list that opens.
-  has(A._pdxStanceRecordMiniLink(PID, A.CMP_DATA[PID]), "See all " + ROWS.length + " issues on the record",
-    "the stance-navigation link names the longer list");
-  has(A._pdxStanceRecordCta(PID, A.CMP_DATA[PID]), ROWS.length + " issues on the formal record",
-    "…and so does the profile's Full Stance Record button");
+  eq(countRows(COLD_INDEX), 0,
+    "with no vote record on file the formal index does not render at all");
+  eq(countRows(INDEX), ROWS.length,
+    "every index row the engine built is rendered");
   eq(A._pdxStanceRecordStats(PID, A.CMP_DATA[PID]).formal, ROWS.length,
-    "…both reading the index's own count, so they cannot drift from it");
+    "the profile's stats read the index's own count, so they cannot drift from it");
+  eq(typeof A._pdxStanceRecordBody, "undefined", "the retired overlay body is not rebuilt");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -391,8 +374,8 @@ section("7 · every row is a door into the dossier");
     ok(id.indexOf("pdxfpi-row-") === 0, `${x.key}: the index owns its own row ids`);
     has(c, "Open the issue dossier", `${x.key}: …announced the way every other door is`);
   }
-  // The overlay carries the doors too, and the shipped delegated handler is armed.
-  has(BODY, "data-pdxst-dos=", "the doors are live inside the Full Stance Record overlay");
+  // The index carries the doors, and the shipped delegated handler is armed.
+  has(INDEX, "data-pdxst-dos=", "the doors are live inside the index");
   has(R("consistency.js"), "closest('[data-pdxst-dos]')",
     "…handled by the one shipped [data-pdxst-dos] listener, not a second one");
   // And the dossier those doors open actually assembles for an index row.
@@ -471,7 +454,7 @@ section("9 · it is not a score, and not a stance");
   has(INDEX, "none of it enters Direction Match", "…while stating the wall it sits behind");
   // Rendering the index does not write a stance anywhere.
   const before = JSON.stringify(A._polPositionMap ? A._polPositionMap(PID, A.CMP_DATA[PID]) : {});
-  FPI.rows(PID); FPI.html(PID, { view: "all" }); A._pdxStanceRecordBody(PID, A.CMP_DATA[PID]);
+  FPI.rows(PID); FPI.html(PID, { view: "all" });
   const after = JSON.stringify(A._polPositionMap ? A._polPositionMap(PID, A.CMP_DATA[PID]) : {});
   eq(after, before, "the position map is untouched by building or rendering the index");
   // A ROW WITH NOTHING STATED ON IT STILL MAY NOT CLAIM A QUOTE. What it may do —
@@ -543,6 +526,6 @@ if (failures.length) {
 const census = {};
 ROWS.forEach((x) => { census[x.tier] = (census[x.tier] || 0) + 1; });
 console.log(`\n✓ formal-pattern index: all ${passed} assertions passed — ` +
-  `${countCards(COLD_BODY)} written cards → ${ROWS.length} issues on the formal record ` +
+  `${ROWS.length} issues on the formal record ` +
   `(${JSON.stringify(census)}), every one a door into the dossier, ` +
   `Direction Match byte-identical either way`);

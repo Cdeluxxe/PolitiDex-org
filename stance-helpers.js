@@ -4117,31 +4117,6 @@
     return String(pid == null ? '' : pid).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
   }
 
-  // Secondary, quieter jump to the same Full Stance Record overlay, sized to sit
-  // inside the "Key Issue Stances" header so a reader already looking at stances
-  // can expand to the complete per-issue record (gaps included) without scrolling
-  // back up. Same cached sources as the primary CTA — no new network cost.
-  window._pdxStanceRecordMiniLink = function (id, p) {
-    try {
-      p = p || {};
-      var s = _pdxStanceRecordStats(id, p);
-      var jsId = _pdxEvJsId(id);
-      // The label names the LONGER of the two lists the overlay holds, because that
-      // is the one a reader clicking "see all" is asking for. Where the formal
-      // record is the longer one it is named as the formal record — "all 64 issues"
-      // beside seven stance cards would read as a promise of 64 written positions.
-      var label = (s.formal > s.tracked)
-        ? ('See all ' + s.formal + ' issues on the record')
-        : (s.tracked
-          ? ('See all ' + s.tracked + ' issues + gaps')
-          : 'See every issue + gaps');
-      return '<button type="button" class="pdx-fsr-mini" ' +
-        'onclick="event.stopPropagation();window._pdxOpenStanceRecord&&window._pdxOpenStanceRecord(\'' + jsId + '\');" ' +
-        'aria-label="Open the full record on the issues — every issue the formal record touched, the documented positions beside it, and what is still missing">' +
-        label + ' <span aria-hidden="true">→</span></button>';
-    } catch (e) { return ''; }
-  };
-
   // HTML escaper for the mandate chip (duplicated internal, renamed from the
   // inline script's local `esc` to avoid a generic module-scope name).
   function _pdxMandateEsc(s) {

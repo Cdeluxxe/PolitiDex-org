@@ -12507,7 +12507,18 @@
 //   word-action.js, word-action.css, consistency.js, person-outline.js, app.css,
 //   person-bills.js), so the shell moves; the precache list is unchanged.
 //   MIGRATION COST: none.
-const CACHE_VERSION = 'v598';
+// v599 - THE LETTERHEAD CHIPS UNCOLLAPSED, THE FULL STANCE MODAL RETIRED. The
+//   "More sections" disclosure is gone: Term, Status and every section chip
+//   (The record, By topic, Positions, Record, Evidence, Flashpoints) sit as
+//   always-visible chips in the letterhead. The Full Report chip and the "Full Record on the Issues"
+//   overlay it opened are removed, along with every other button on the person
+//   file that opened it. Word vs Action keeps the compact chip size. Precached
+//   files changed (profiles-full.js, stance-helpers.js, app.css, person.html,
+//   index.html, plus the copied-block line pins in issue.html, evidence.html,
+//   stances.html and me.html), so the shell moves; the precache list is
+//   unchanged.
+//   MIGRATION COST: none.
+const CACHE_VERSION = 'v599';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
