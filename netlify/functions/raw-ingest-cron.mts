@@ -254,7 +254,7 @@ import {
 } from "../lib/raw-ingest-core.mjs";
 import { resolutionLine } from "../lib/raw-ingest-resolve.mjs";
 import { logCandidateStances, SCORED_TOPICS } from "../lib/stance-score-core.mjs";
-import { maybeWriteLockerItem, loadReviewFlags, lockerBaselineCounts, LOCKER_STORE_NAME } from "../lib/evidence-locker-core.mjs";
+import { maybeWriteLockerItem, loadReviewFlags, lockerBaselineCounts, cachedBaselineCounts, bumpBaselineCounts, LOCKER_STORE_NAME } from "../lib/evidence-locker-core.mjs";
 import { appendRunSuggestions, SUGGESTIONS_STORE_NAME } from "../lib/raw-ingest-suggestions.mjs";
 import { lockerEntriesFor, syncPolitician, promotableWrite } from "../lib/stated-positions-core.mjs";
 import {
@@ -357,6 +357,9 @@ export async function run(deps: {
   // discovery-timing doc, `force` ignores the interval, and `youtubeKey` /
   // `govinfoKey` override the environment (tests). Omitted → off.
   videoSpeech?: boolean | { state?: any; force?: boolean; youtubeKey?: string; govinfoKey?: string; per?: number };
+  // Baseline counts cache (cachedBaselineCounts), kept in rotationStore. Omitted
+  // → the whole-Locker read every run (the earlier behaviour; tests).
+  baselineCache?: boolean;
 }) {
   const log = deps.log ?? ((l: string) => console.log(l));
   const startedAt = Date.now();
@@ -409,7 +412,20 @@ export async function run(deps: {
     if (scope) log(`raw-ingest: scope — planning ${roster.length} of ${fullRoster.length} roster politician(s) (allow-list: ${[...scope].sort().join(", ")}); the rest are skipped this run`);
     const pids = roster.map((r: any) => r.politician_id);
     const state = ro.state !== undefined ? normaliseRotationState(ro.state) : await readRotationState(deps.rotationStore, log, rotationKey);
-    counts = ro.counts ?? await lockerBaselineCounts(deps.lockerStore, { flags, pids, log });
+    if (ro.counts) counts = ro.counts;
+    else if (deps.baselineCache) {
+      // Cached counts (see cachedBaselineCounts): the whole-Locker read runs at
+      // most every 30 minutes instead of every minute.
+      const b = await cachedBaselineCounts(deps.lockerStore, deps.rotationStore, { flags, pids, log, now: nowFn });
+      counts = b.counts;
+      log(`evidence-locker: baseline counts — ${b.source} (${Object.keys(counts).length} pair(s), ${b.ms}ms${b.age_ms != null ? `, ${Math.round(b.age_ms / 60_000)} min old` : ""})`);
+      // A run that just spent most of its time refreshing stops here, so it
+      // ends inside the function limit; the next run pulls with fresh counts.
+      if (b.source === "refreshed" && Date.now() - startedAt > RUN_BUDGET_MS / 2) {
+        log(`raw-ingest: baseline counts refreshed from the Locker in ${b.ms}ms — this run stops before pulling; the next run continues the rotation`);
+        return new Response(JSON.stringify({ ok: true, baseline_refreshed: true, results: [], duration_ms: Date.now() - startedAt, budget_ms: RUN_BUDGET_MS }), { status: 200, headers: { "content-type": "application/json" } });
+      }
+    } else counts = await lockerBaselineCounts(deps.lockerStore, { flags, pids, log });
     knownUrls = new Set([...knownUrls, ...allRosterUrls(roster)]);
     const max = ro.max ?? MAX_SOURCES_PER_RUN;
     // Word vs Action gaps, loaded only for the politicians this run may plan
@@ -701,8 +717,10 @@ export async function run(deps: {
     // Baseline progress after this run's writes (recounted from the Locker when
     // anything new landed; the injected/pre-run counts otherwise).
     const ro = typeof deps.rotate === "object" ? deps.rotate : {};
+    // With the baseline cache on, this run's writes are added to the counts it
+    // started from instead of re-reading the whole Locker a second time.
     const after = lockerWrites.length && deps.lockerStore && !ro.counts
-      ? await lockerBaselineCounts(deps.lockerStore, { flags, pids: roster.map((r: any) => r.politician_id), log })
+      ? (deps.baselineCache ? bumpBaselineCounts(counts, lockerWrites) : await lockerBaselineCounts(deps.lockerStore, { flags, pids: roster.map((r: any) => r.politician_id), log }))
       : counts;
     const rs = rosterSummary(roster, after);
     report.baseline = { strong: BASELINE_STRONG, weak: BASELINE_WEAK, reached: rs.reached, counts: after };
@@ -762,6 +780,9 @@ export async function scheduled(deps: { run?: typeof run; suggestionsStore?: any
     // Video / speech discovery + transcription (raw-ingest-video.mjs) for every
     // planned politician (inside the allow-list, which is off by default).
     videoSpeech: true,
+    // Baseline counts from the cached doc in the rotation store, refreshed from
+    // the Locker at most every 30 minutes (evidence-locker-core.mjs).
+    baselineCache: true,
     // The allow-list (raw-ingest-scope.mjs). Defaults to [] (whole roster);
     // ids there narrow the run again.
     scope: INGEST_ALLOW_LIST,
