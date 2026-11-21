@@ -15,8 +15,10 @@ import { getStore } from "@netlify/blobs";
 // Background mode: transcription takes 10–45 s a video, so it runs here (up to
 // 15 minutes) and not inside the every-minute cron (30 s). The cron wakes this
 // function when a run queued videos; a run that leaves work in the queue wakes
-// the next one. A worker lock in the store keeps runs from overlapping, so an
-// extra wake only costs a lock check. The function takes no input — it only
+// the next one — unless most of its calls failed (likely a Gemini 429), then
+// the chain stops. Gemini calls run one at a time, 1.5 s apart. A worker
+// lock in the store keeps runs from overlapping, so an extra wake only costs
+// a lock check. The function takes no input — it only
 // works the queue.
 
 import { processTranscriptQueue, scoreIntoLocker, nameFromId, TRANSCRIPT_STORE_NAME } from "../lib/video-transcripts.mjs";
@@ -29,7 +31,17 @@ const NAMES = new Map<string, string>();
 for (const r of ROSTER as any[]) if (r?.politician_id && r?.name) NAMES.set(r.politician_id, r.name);
 export const politicianName = (pid: string): string => NAMES.get(pid) || (RESOLVER_PEOPLE as any)[pid]?.n || nameFromId(pid);
 
-export async function transcribeRun(deps: { store?: any; rawStore?: any; lockerStore?: any; generate?: any; log?: (l: string) => void; wake?: () => Promise<void> } = {}) {
+// A run where more than half of its transcription calls failed (retry-later or
+// given up) is most likely being rate-limited: it does not wake the next run.
+// The queue stays put and the next cron wake (or a later run) picks it up.
+export const MAX_FAILURE_SHARE = 0.5;
+export function tooManyFailures(summary: any): boolean {
+  const failures = (Number(summary?.failed) || 0) + (Number(summary?.retry_later) || 0);
+  const calls = failures + (Number(summary?.transcribed) || 0);
+  return calls > 0 && failures / calls > MAX_FAILURE_SHARE;
+}
+
+export async function transcribeRun(deps: { store?: any; rawStore?: any; lockerStore?: any; generate?: any; log?: (l: string) => void; wake?: () => Promise<void>; sleep?: (ms: number) => Promise<void>; callDelayMs?: number } = {}) {
   const log = deps.log ?? ((l: string) => console.log(l));
   const lockerStore = deps.lockerStore ?? getStore(LOCKER_STORE_NAME);
   const flags = loadReviewFlags(reviewFile);
@@ -39,6 +51,8 @@ export async function transcribeRun(deps: { store?: any; rawStore?: any; lockerS
     rawStore: deps.rawStore ?? getStore(RAW_STORE_NAME),
     nameOf: politicianName,
     ...(deps.generate ? { generate: deps.generate } : {}),
+    ...(deps.sleep ? { sleep: deps.sleep } : {}),
+    ...(deps.callDelayMs !== undefined ? { callDelayMs: deps.callDelayMs } : {}),
     log,
     onRecord: async (rec: any) => {
       const r = await scoreIntoLocker(rec, { lockerStore, gt: groundTruth, flags, log });
@@ -49,6 +63,10 @@ export async function transcribeRun(deps: { store?: any; rawStore?: any; lockerS
   // More waiting and this run got through some: hand the rest to a fresh run.
   const progressed = summary.transcribed + summary.cache_hits + summary.failed + summary.retry_later > 0;
   if (!summary.locked && summary.remaining > 0 && progressed) {
+    if (tooManyFailures(summary)) {
+      log(`video-transcribe: ${summary.failed + summary.retry_later} of ${summary.failed + summary.retry_later + summary.transcribed} transcription call(s) failed — not waking the next run`);
+      return { ...summary, writes };
+    }
     try { await (deps.wake ?? wakeSelf)(); } catch (e: any) { log(`video-transcribe: next run not woken — ${e?.message || e}`); }
   }
   return { ...summary, writes };
