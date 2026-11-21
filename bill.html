@@ -209,6 +209,22 @@
     .pdx-bill-step-x { display: block; color: #9fb4d4; font-size: 0.88rem; }
     .pdx-bill-src { font-size: 0.85rem; }
 
+    /* "What this bill does": plain-language points, each with the source
+       wording it came from one tap away. Generated pages only. */
+    .pdx-bill-does li { padding: 0.7rem 0.85rem; }
+    .pdx-bill-doc .pdx-bill-does-t { margin: 0; color: #eef4ff; font-size: 1.02rem; line-height: 1.55; }
+    .pdx-bill-does-q { margin-top: 0.35rem; }
+    .pdx-bill-does-q summary {
+      cursor: pointer; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.7rem;
+      letter-spacing: 0.08em; text-transform: uppercase; color: #7596c0;
+    }
+    .pdx-bill-does-q summary:focus-visible { outline: 2px solid #9fdbff; outline-offset: 2px; }
+    .pdx-bill-does-q blockquote {
+      margin: 0.4rem 0 0; padding: 0.1rem 0 0.1rem 0.7rem; border-left: 2px solid rgba(159, 180, 212, 0.3);
+      color: #9fb4d4; font-size: 0.88rem; line-height: 1.5;
+    }
+    .pdx-bill-doc .pdx-bill-does-note { margin: 0.2rem 0 0; font-size: 0.8rem; color: #7596c0; }
+
     /* The panel opens below this document's one-row bar rather than over it. */
     .bd-overlay { top: var(--pdx-chrome); }
   </style>

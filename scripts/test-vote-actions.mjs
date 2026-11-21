@@ -422,7 +422,11 @@ const readers = readdirSync(join(ROOT, "netlify/functions")).filter((f) => !f.st
 // Phase 5 added three PUBLIC readers, each only through the publish gate
 // (vote-actions-publish.ts with the read-only publishDeps): the roll-call page,
 // the person-file coverage read (attendance) and the "what changed" feed.
-eq(readers, ["changes-feed.mts", "person-coverage.mts", "vote-page.mts", "vr-ingest-cron.mts", "vr-ingest.mts"], "only the vr ingest and the Phase 5 publish-gated reads read the action tables");
+// The provisions generator (bill-provisions.mts) reads bill TEXT only — the
+// title / CRS summary of bills that already have a public generated page —
+// through the bridge (loadActionBillTexts), never a vote row, and writes only
+// its own Blobs store.
+eq(readers, ["bill-provisions.mts", "changes-feed.mts", "person-coverage.mts", "vote-page.mts", "vr-ingest-cron.mts", "vr-ingest.mts"], "only the vr ingest, the provisions generator's bill-text read and the Phase 5 publish-gated reads read the action tables");
 for (const f of ["changes-feed.mts", "person-coverage.mts", "vote-page.mts"]) {
   const src = read(`netlify/functions/${f}`);
   ok(/vote-actions-publish/.test(src) && !/pdxVoteActions|pdxActionBills|pdx_vote_actions/.test(src), `${f} reads the action tables only through the publish gate`);

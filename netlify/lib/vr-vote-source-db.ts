@@ -7,13 +7,31 @@
 // and on Blobs "raw-ingest-votes": vote-actions stays their only writer.
 import { and, eq, inArray, sql } from "drizzle-orm";
 import { db } from "../../db/index.js";
-import { pdxVoteActions, vrMemberVotes, vrVoteCorrectionOverlays } from "../../db/schema.js";
+import { pdxActionBills, pdxVoteActions, vrMemberVotes, vrVoteCorrectionOverlays } from "../../db/schema.js";
 import type { RawVote } from "./vr-normalize.js";
 import { rollFromEnvelope, type RawStore, type RollEnvelope } from "./vote-actions-core.js";
 import {
   overlayMemberVotes, planReconcile, rawVoteFromSenateRecord, rollIdentity,
   type OverlayReport, type ReconcileChange, type VoteActionRow,
 } from "./vr-vote-source.js";
+
+// The stored text of the bills that have a generated page — title, CRS summary
+// (or an amendment's description), Congress.gov address and the raw payload
+// reference — for the provisions generator (netlify/functions/bill-provisions.mts),
+// which rewrites that text into "What this bill does". Read-only, bill rows
+// only: no vote row is read, and nothing is written.
+export type ActionBillText = {
+  billKey: string; congress: number | null; number: string | null; measureType: string; title: string;
+  summary: string | null; sourceUrl: string; metaSource: string; rawRef: string | null;
+};
+export async function loadActionBillTexts(congresses: number[], numbers: string[]): Promise<ActionBillText[]> {
+  if (!congresses.length || !numbers.length) return [];
+  return db.select({
+    billKey: pdxActionBills.billKey, congress: pdxActionBills.congress, number: pdxActionBills.number,
+    measureType: pdxActionBills.measureType, title: pdxActionBills.title, summary: pdxActionBills.summary,
+    sourceUrl: pdxActionBills.sourceUrl, metaSource: pdxActionBills.metaSource, rawRef: pdxActionBills.rawRef,
+  }).from(pdxActionBills).where(and(inArray(pdxActionBills.congress, congresses), inArray(pdxActionBills.number, numbers)));
+}
 
 const rowsOf = (res: any): any[] => (Array.isArray(res) ? res : res?.rows ?? []);
 
