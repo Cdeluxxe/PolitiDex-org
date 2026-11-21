@@ -140,6 +140,15 @@
 //       mentions keep zero weight; 1–2 aligned mentions produce no position.
 //       Implied reads are never an R8 stated position and never a cross-topic
 //       candidate (R13 still needs an explicit anchor).
+//   R16 Own words on video: a transcript of the politician's own YouTube video
+//       (the video transcriber's record — type "video", a youtube-transcript
+//       body made of the politician's spoken segments only) that takes a clear
+//       side in their own explicit words, with nothing on the other side (or an
+//       explicit reversal), reads at WEIGHTS.videoTranscriptConfidence (1.0),
+//       the scorer's maximum. A title cue (R14) is not speech and does not
+//       qualify; implication-only and implied reads do not move. Every other
+//       source keeps its weight and the WEIGHTS.maxConfidence cap, including
+//       campaign pages, press releases and Congressional Record floor speeches.
 //   Splitter: an initialism ("U.S.", "U.N.", "A.I.") or a short abbreviation
 //       ("Jan.", "vs.", "e.g.") does not end a sentence (mergeAbbreviations).
 //
@@ -172,6 +181,7 @@ export const WEIGHTS = {
   corroborationBonus: 0.15, // …add this much
   outlierPenalty: 0.1,    // R5: per opposite-side clear statement
   maxConfidence: 0.95,
+  videoTranscriptConfidence: 1.0, // R16: a clear stance in the politician's own video transcript
   mentionOnlyConfidence: 0.3, // "no clear position" when only mentions exist
   statedPositionConfidence: 0.8, // R8: floor for an explicit claim on a primary source
   impliedMentionsMin: 3,  // R15: this many aligned mentions (and no contradiction)…
@@ -1026,7 +1036,16 @@ export function leadStance(raw, list, topic, speakers = []) {
 const trunc = (t) => (t.length > 300 ? t.slice(0, 297) + "…" : t);
 
 const round2 = (n) => Math.round(n * 100) / 100;
-const clamp = (n) => Math.max(0, Math.min(WEIGHTS.maxConfidence, n));
+const clamp = (n, max = WEIGHTS.maxConfidence) => Math.max(0, Math.min(max, n));
+
+/**
+ * R16: is this raw record a transcript of the politician's own video (the
+ * video transcriber's page-shaped record — its body is only their spoken words)?
+ */
+export function isVideoTranscript(raw) {
+  return raw?.type === "video" && /\byoutube-transcript\b/.test(String(raw?.content_type || ""))
+    && Array.isArray(raw?.segments) && raw.segments.length > 0;
+}
 
 // ── SUBJECT SPANS ───────────────────────────────────────────────────────────
 // A subject span is a stretch of a page about one subject (Ukraine, Iran,
@@ -1471,6 +1490,18 @@ export function scoreRawRecord(raw, topic = raw?.topic, sentences = null, opts =
     if (mentions) parts.push(`${mentions} mention(s) recorded at zero weight (R3)`);
     reason = parts.join("; ");
   }
+  // R16: a clear side in the politician's own words on their own video is the
+  // strongest evidence of what they said — the scorer's maximum confidence.
+  let ceiling = WEIGHTS.maxConfidence;
+  if ((position === "support" || position === "oppose") && isVideoTranscript(raw)) {
+    const other = position === "support" ? "oppose" : "support";
+    const spoken = clear.filter((s) => s.side === position && s.quoted_speaker !== "other" && s.lead_signal !== "title");
+    const uncontested = (reversal && reversal.side === position) || !(n[other] + ni[other]);
+    if (spoken.length && uncontested) {
+      confidence = ceiling = WEIGHTS.videoTranscriptConfidence;
+      reason += `; ${spoken.length} clear statement(s) in the politician's own words on video read at the maximum confidence (R16)`;
+    }
+  }
   const stated = statedOk(position);
 
   const firstClear = clear.find((s) => s.side === position) || clear[0]
@@ -1480,7 +1511,7 @@ export function scoreRawRecord(raw, topic = raw?.topic, sentences = null, opts =
     politician_id: raw.politician_id,
     topic,
     position,
-    confidence: round2(clamp(confidence)),
+    confidence: round2(clamp(confidence, ceiling)),
     confidence_reason: reason,
     sources: [{
       type: raw.source_type,
