@@ -1836,6 +1836,8 @@ export const pdxStatedPositions = pgTable(
     status: text().notNull().default("active"),
     provenance: text().notNull().default("pipeline"),
     evidence: jsonb().$type<string[]>().default([]),
+    // Steady / Mixed / Thin (stanceConsistency) — null until the next recompute.
+    consistency: jsonb().$type<Record<string, unknown> | null>(),
     promotedAt: timestamp("promoted_at", { withTimezone: true }).defaultNow().notNull(),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),

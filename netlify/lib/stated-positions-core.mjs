@@ -9,14 +9,31 @@
 // merges them into _resolveStanceList / _polPositionMap — the one chokepoint
 // every stance surface reads.
 //
+// CONSISTENCY (phase9-v1). Every promoted record carries a consistency signal
+// (stanceConsistency), read from the same entries the promotion reads:
+//   · steady — two or more strong items on the leading side and no solid
+//              evidence the other way (a stray item on the other side is
+//              counted — "same position in 14 of 15 items" — not hidden);
+//   · mixed  — solid evidence on BOTH sides (each side at level 2: one strong
+//              item, or PROMOTE_WEAK_N weak items, and the smaller side at
+//              least MIXED_MIN_SHARE of the clear items or MIXED_MIN_STRONG
+//              strong items), or a clear change over time (dated items: at
+//              least SHIFT_MIN_ITEMS on one side, then at least as many on the
+//              other, the later side holding a strong item);
+//   · thin   — anything else: one or two items, or only weak evidence.
+// Contradictions are not errors: when both sides are solid the issue is
+// promoted as a MIXED stance (it used to be dropped as an even split) and the
+// card says how often the politician kept the same position.
+//
 // THE THRESHOLDS ARE profile-locker.js promotedStance()'s, unchanged:
 //   · an item's strength is strengthOf(): strong = clear support/oppose at
 //     confidence ≥ 0.8 (or no confidence given), weak = clear at 0.3–0.79,
 //     anything else is a mention and never a stance;
 //   · per issue and side, level 2 = at least one strong item OR
 //     PROMOTE_WEAK_N (3) weak items; level 1 = at least one weak item;
-//   · the higher level wins; equal levels (nothing, or an even split) promote
-//     nothing.
+//   · the higher level wins; equal levels promote nothing, EXCEPT both sides
+//     at level 2: a 'mixed' stance when the consistency signal is Mixed, else
+//     the majority side (phase9-v1).
 // The items read are exactly the ones the Locker endpoint serves: hidden items
 // dropped, older items regraded, one claim restated under several keys served
 // once (listLockerEntries in evidence-locker-items.mts).
@@ -75,6 +92,75 @@ export function strengthOf(entry) {
 
 const level = (s) => (s.strong || s.weak >= PROMOTE_WEAK_N ? 2 : s.weak ? 1 : 0);
 
+export const MIXED_MIN_SHARE = 0.25;
+export const MIXED_MIN_STRONG = 2;
+export const SHIFT_MIN_ITEMS = 2;
+export const CONSISTENCY_LABELS = { steady: "Steady", mixed: "Mixed", thin: "Thin" };
+const CONSISTENCY_NOTES = {
+  steady: "Several strong statements, all on the same side.",
+  mixed: "Solid evidence on both sides, or a change of position over time.",
+  thin: "Only one or two items, or only weak evidence, so far.",
+};
+
+/**
+ * The consistency signal for ONE politician + issue from its Locker entries
+ * (spotlight shape). Pure. Returns
+ *   { label: 'steady'|'mixed'|'thin', title, note, support: { strong, weak },
+ *     oppose: { strong, weak }, items, same, side, shift? }
+ * or null when there is no clear item at all. `same` is how many clear items
+ * sit on the leading side (`side`), out of `items`.
+ */
+export function stanceConsistency(entries) {
+  const side = { support: { strong: 0, weak: 0 }, oppose: { strong: 0, weak: 0 } };
+  const dated = [];
+  for (const it of entries || []) {
+    if (!it || !isUrl(it.source && it.source.url)) continue;
+    if (it.review && it.review.status === "hidden") continue;
+    const st = strengthOf(it);
+    if (st !== "strong" && st !== "weak") continue;
+    const pos = it.pipeline.position;
+    if (!side[pos]) continue;
+    side[pos][st]++;
+    const d = String(it.pipeline.stated_date || "");
+    if (/^\d{4}-\d{2}-\d{2}$/.test(d)) dated.push({ d, pos, st });
+  }
+  const n = (x) => x.strong + x.weak;
+  const items = n(side.support) + n(side.oppose);
+  if (!items) return null;
+  const lead = n(side.oppose) > n(side.support) || (n(side.oppose) === n(side.support) && side.oppose.strong > side.support.strong) ? "oppose" : "support";
+  const other = lead === "support" ? "oppose" : "support";
+  // A change over time: dated items sorted by date fall into exactly two runs,
+  // one per side, and the later run holds a strong item.
+  let shift = null;
+  dated.sort((a, b) => a.d.localeCompare(b.d));
+  if (dated.length >= 2) {
+    const runs = [];
+    for (const x of dated) { const r = runs[runs.length - 1]; if (r && r.pos === x.pos) { r.to = x.d; r.items.push(x); } else runs.push({ pos: x.pos, from: x.d, to: x.d, items: [x] }); }
+    if (runs.length === 2 && runs.every((r) => r.items.length >= SHIFT_MIN_ITEMS) && runs[1].items.some((x) => x.st === "strong")) shift = { from: runs[0].pos, to: runs[1].pos, until: runs[0].to, since: runs[1].from };
+  }
+  // Both sides must be real evidence: each at the promotion bar, and the smaller
+  // side at least MIXED_MIN_SHARE of the clear items or MIXED_MIN_STRONG strong
+  // items. One stray item against fourteen is a steady record with an outlier,
+  // shown in the count ("same position in 14 of 15 items"), not a mixed one.
+  const solidBoth = level(side.support) === 2 && level(side.oppose) === 2
+    && (n(side[other]) / items >= MIXED_MIN_SHARE || side[other].strong >= MIXED_MIN_STRONG);
+  let label;
+  if (solidBoth || shift) label = "mixed";
+  else if (side[lead].strong >= 2) label = "steady";
+  else label = "thin";
+  return {
+    label, title: CONSISTENCY_LABELS[label], note: CONSISTENCY_NOTES[label],
+    support: { ...side.support }, oppose: { ...side.oppose },
+    items, same: n(side[lead]), side: lead,
+    ...(shift ? { shift } : {}),
+  };
+}
+
+// Words of the issue key that a page about the issue would carry in its URL
+// ("cost_living" → cost, living): the card prefers a page about the issue.
+const slugWords = (key) => String(key || "").split("_").filter((w) => w.length > 2 && !["and", "the", "for", "pro"].includes(w));
+const slugScore = (url, key) => { const p = String(url || "").toLowerCase(); return slugWords(key).filter((w) => p.includes(w)).length; };
+
 /**
  * One issue's promotion from its entries, or null. `entries` are Locker entries
  * in the spotlight shape (toSpotlightEntry) for ONE politician and ONE issue.
@@ -92,13 +178,24 @@ export function promoteIssue(entries) {
     s.items.push({ it, st });
   }
   const ls = level(side.support), lo = level(side.oppose);
-  if (ls === lo) return null; // nothing, or an even split
-  const pos = ls > lo ? "support" : "oppose";
-  const s = side[pos];
+  // Equal levels: nothing, or a weak split → no stance. Solid evidence on both
+  // sides → a MIXED stance (phase9-v1), quoting the best item of either side.
+  if (ls === lo && ls < 2) return null;
+  // Both sides at level 2: Mixed only when the evidence really is mixed
+  // (stanceConsistency); a lone outlier leaves the majority side standing.
+  const cons = stanceConsistency(entries);
+  const pos = ls !== lo ? (ls > lo ? "support" : "oppose") : cons && cons.label === "mixed" ? "mixed" : (cons ? cons.side : "support");
+  const s = pos === "mixed"
+    ? { strong: side.support.strong + side.oppose.strong, weak: side.support.weak + side.oppose.weak, items: [...side.support.items, ...side.oppose.items] }
+    : side[pos];
   // The card quotes the best item on the winning side: strong before weak, then
-  // higher confidence, then the newer capture, then the store key (deterministic).
+  // a page filed under this issue before a cross-topic read of another page,
+  // then a page whose address names the issue, then higher confidence, then the
+  // newer capture, then the store key (deterministic).
   const best = s.items.slice().sort((a, b) =>
     (a.st === b.st ? 0 : a.st === "strong" ? -1 : 1)
+    || ((a.it.pipeline.page_topic ? 1 : 0) - (b.it.pipeline.page_topic ? 1 : 0))
+    || (slugScore(b.it.source.url, b.it.issueKey) - slugScore(a.it.source.url, a.it.issueKey))
     || ((num(b.it.pipeline.confidence) ?? 1) - (num(a.it.pipeline.confidence) ?? 1))
     || String(b.it.pipeline.captured || "").localeCompare(String(a.it.pipeline.captured || ""))
     || String(a.it.pipeline.key || "").localeCompare(String(b.it.pipeline.key || "")))[0].it;
@@ -108,6 +205,7 @@ export function promoteIssue(entries) {
     strength: Math.max(ls, lo) === 2 ? "strong" : "weak",
     strongCount: s.strong,
     weakCount: s.weak,
+    consistency: cons,
     text: String(best.pipeline.excerpt || "").trim(),
     sourceUrl: String(best.source.url),
     sourceLabel: String(best.source.label || best.pipeline.attribution || "Source"),
@@ -157,7 +255,8 @@ const sameRow = (row, p) =>
   && Number(row.strongCount) === p.strongCount && Number(row.weakCount) === p.weakCount
   && (num(Number(row.confidence)) ?? null) === (p.confidence ?? null)
   && (row.rulesVersion || null) === (p.rulesVersion || null)
-  && JSON.stringify(row.evidence || []) === JSON.stringify(p.evidence);
+  && JSON.stringify(row.evidence || []) === JSON.stringify(p.evidence)
+  && JSON.stringify(row.consistency ?? null) === JSON.stringify(p.consistency ?? null);
 
 /**
  * A row the promoter must leave exactly as it is: a curated (non-pipeline)
@@ -268,6 +367,9 @@ export function toCard(row, labels = {}) {
       weak: Number(row.weakCount) || 0,
       items: Array.isArray(row.evidence) ? row.evidence.length : 0,
       rules_version: row.rulesVersion || null,
+      // Steady / Mixed / Thin (stanceConsistency), or null on rows promoted
+      // before the signal existed (filled on the next recompute).
+      consistency: row.consistency ?? null,
       promoted_at: row.promotedAt ? new Date(row.promotedAt).toISOString() : null,
       updated_at: row.updatedAt ? new Date(row.updatedAt).toISOString() : null,
     },
@@ -323,7 +425,7 @@ export function dbAdapter(db, table, { eq, and, inArray }) {
         sourceUrl: rec.sourceUrl, sourceLabel: rec.sourceLabel, confidence: rec.confidence,
         strength: rec.strength, strongCount: rec.strongCount, weakCount: rec.weakCount,
         rulesVersion: rec.rulesVersion, status: "active", provenance: PROVENANCE,
-        evidence: rec.evidence, updatedAt: at,
+        evidence: rec.evidence, consistency: rec.consistency ?? null, updatedAt: at,
       };
       const { politicianId, issueKey, ...set } = values;
       // A curated (non-pipeline) row on the same key is never overwritten.

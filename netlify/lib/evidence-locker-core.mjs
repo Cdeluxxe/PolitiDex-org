@@ -24,15 +24,21 @@
 //           is on a .gov host).
 //   W5  Never overwrite a manually flagged item (reviewed / needs_edit /
 //       hidden — see "Manual review flags" below), whatever its strength.
-//   W4  Never overwrite a strong item. A weak or mention item already at the
-//       key is only replaced by a STRONGER read of the same page; same or
-//       weaker reads leave it exactly as it is.
-//   W6  A cross-topic read (a candidate scored from a page filed under another
-//       topic — `page_topic`) never writes a position that conflicts with a
-//       stance the Locker already holds for that politician + topic from a
-//       different page (heldConflict). The held stance stays; an on-topic read
-//       is written as before. So two issue pages scored onto one topic cannot
-//       leave a support and an oppose record for it.
+//   W4  Under the SAME rules version, never overwrite a strong item; a weak or
+//       mention item already at the key is only replaced by a STRONGER read of
+//       the same page. An item written under an OLDER rules version is replaced
+//       by the current read of the same page, whatever its strength — up,
+//       down or onto the other side (phase9-v1: older, weaker rules must not
+//       stay frozen in the Locker). The replaced read is kept on the item under
+//       `rescored`. See also locker-rescore.mjs, which re-reads items whose
+//       page the cron has not come back to.
+//   W6  A WEAK cross-topic read (a candidate scored from a page filed under
+//       another topic — `page_topic`) never writes a position that conflicts
+//       with a stance the Locker already holds for that politician + topic
+//       from a different page (heldConflict). A STRONG one is written: a
+//       politician can say different things, and solid evidence on both sides
+//       is kept and reported as a Mixed record (stanceConsistency), not
+//       suppressed as an error (phase9-v1).
 //
 // CITATIONS. A clear-position item (support / oppose, strong or weak) must come
 // from the politician's own page (isOwnPage) and quote at least one verbatim
@@ -382,6 +388,8 @@ export function buildLockerItem(candidate, raw, strength = lockerStrength(candid
     formal_record: false,
     item_version: LOCKER_ITEM_VERSION,
     captured_at: raw?.fetched_at ?? null,
+    // When the page says it was published (statementDateOf), if it says.
+    ...(statementDateOf(raw) ? { stated_date: statementDateOf(raw) } : {}),
     ...(raw?.source_id ? { source_id: raw.source_id } : {}),
     // Evidence tier of the page the item came from (pool v2): 1 = first-party
     // campaign / official page (every untagged page), 2 = official government
@@ -463,6 +471,9 @@ export function toSpotlightEntry(item, { key = null, review = null } = {}) {
       layer: "stated",
       formal_record: false,
       ...(item.regraded_from ? { regraded_from: item.regraded_from } : {}),
+      ...(item.page_topic && item.page_topic !== item.topic ? { page_topic: item.page_topic } : {}),
+      ...(item.stated_date ? { stated_date: item.stated_date } : {}),
+      ...(item.rescored ? { rescored: item.rescored } : {}),
       ...(item.implication_count ? { implication_count: item.implication_count } : {}),
       source_tier: sourceTierOf(item),
       ...(key ? { key } : {}),
@@ -501,6 +512,13 @@ export async function maybeWriteLockerItem(candidate, raw, { store, gt = null, l
       return { written: false, key, reason: why, held: conflict.key };
     }
     const fields = () => JSON.stringify({ strength: item.strength, position: item.position, confidence: item.confidence, ...(item.implication_count ? { implication_count: item.implication_count } : {}), link: item.link, attribution: item.attribution, source_tier: item.source_tier, reason: d.reason });
+    if (existing && isOlderRules(existing, item)) {
+      // W4 (phase9-v1): a read under older rules is replaced by today's read.
+      const next = withRescore(item, existing);
+      await store.setJSON(key, next);
+      log(`evidence-locker: RESCORE ${id} → ${LOCKER_STORE_NAME}/${key} (${existing.rules_version || "unversioned"} ${storedStrength(existing)} ${existing.position} → ${item.rules_version} ${item.strength} ${item.position}) ${fields()}`);
+      return { written: true, key, item: next, reason: d.reason, rescored_from: next.rescored };
+    }
     if (existing) {
       const was = storedStrength(existing);
       if (STRENGTH_RANK[item.strength] <= STRENGTH_RANK[was]) {
@@ -527,6 +545,57 @@ export async function maybeWriteLockerItem(candidate, raw, { store, gt = null, l
   }
 }
 
+/** Was `existing` written under an older scorer rules version than `item`? */
+export function isOlderRules(existing, item) {
+  if (!existing || !item?.rules_version) return false;
+  return String(existing.rules_version || "") !== String(item.rules_version);
+}
+
+/** `item` carrying the read it replaced (audit): `rescored: { at, from }`. */
+export function withRescore(item, existing, at = new Date().toISOString()) {
+  return {
+    ...item,
+    rescored: {
+      at,
+      from: {
+        position: existing?.position ?? null,
+        confidence: existing?.confidence ?? null,
+        strength: storedStrength(existing),
+        rules_version: existing?.rules_version ?? null,
+        excerpt: existing?.excerpt ?? null,
+      },
+    },
+  };
+}
+
+// ── STATEMENT DATE (phase9-v1) ──────────────────────────────────────────────
+// When the politician SAID it, read from the page itself — never the capture
+// date. Used only to tell a change of position over time (stanceConsistency).
+// Sources, most specific first: article:published_time / datePublished /
+// <time datetime>, a "Month D, YYYY" dateline near the top, a /YYYY/MM/(DD)/
+// URL path. Nothing found → null (the item is simply undated).
+const MONTH_N = { jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6, jul: 7, aug: 8, sep: 9, sept: 9, oct: 10, nov: 11, dec: 12 };
+const isoOk = (y, m, d) => y >= 1990 && y <= 2100 && m >= 1 && m <= 12 && d >= 1 && d <= 31;
+const iso = (y, m, d) => `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+// Living pages (issue / priority / platform pages, homepages, member pages) are
+// edited in place and carry a site-wide date, not a statement date: undated.
+const DATED_DOCUMENT = /\b(?:release|statement|speech|remarks|floor|op-?ed|letter|transcript|hearing|congressional record|interview|newsletter|column|testimony)\b/i;
+const LIVING_PAGE = /\b(?:issues?|priorit\w*|platform|homepage|home page|member page|about|biography|newsroom)\b/i;
+export function statementDateOf(raw) {
+  const type = String(raw?.source_type || "");
+  if (!DATED_DOCUMENT.test(type) || (LIVING_PAGE.test(type) && !/\b(?:release|statement)\b/i.test(type))) return null;
+  const body = String(raw?.body || "").slice(0, 200_000);
+  const meta = /(?:article:published_time|datePublished|date_published|publish(?:ed)?[_-]?date|dc\.date)["']?\s*(?:content|:)\s*=?\s*["']\s*(\d{4})-(\d{2})-(\d{2})/i.exec(body)
+    || /<time[^>]*\bdatetime=["'](\d{4})-(\d{2})-(\d{2})/i.exec(body);
+  if (meta && isoOk(+meta[1], +meta[2], +meta[3])) return iso(+meta[1], +meta[2], +meta[3]);
+  const text = body.replace(/<(script|style)\b[\s\S]*?<\/\1>/gi, " ").replace(/<[^>]+>/g, " ").slice(0, 6000);
+  const dl = /\b(Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|June?|July?|Aug(?:ust)?|Sep(?:t(?:ember)?)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\.?\s+(\d{1,2}),\s+(\d{4})\b/.exec(text);
+  if (dl) { const m = MONTH_N[dl[1].slice(0, 4).toLowerCase()] || MONTH_N[dl[1].slice(0, 3).toLowerCase()]; if (isoOk(+dl[3], m, +dl[2])) return iso(+dl[3], m, +dl[2]); }
+  const u = /\/((?:19|20)\d{2})\/(\d{1,2})(?:\/(\d{1,2}))?\//.exec(String(raw?.final_url || raw?.url || ""));
+  if (u && isoOk(+u[1], +u[2], +(u[3] || 1))) return iso(+u[1], +u[2], +(u[3] || 1));
+  return null;
+}
+
 /**
  * W6: for a cross-topic candidate with a clear position, the first item the
  * Locker holds for the same politician + topic from a different page whose
@@ -536,6 +605,8 @@ export async function maybeWriteLockerItem(candidate, raw, { store, gt = null, l
  */
 export async function heldConflict(candidate, key, { store, flags = null } = {}) {
   if (!candidate?.page_topic || candidate.page_topic === candidate.topic || !isClear(candidate.position)) return null;
+  // phase9-v1: strong evidence on the other side is kept (Mixed), never held back.
+  if (lockerStrength(candidate).strength === "strong") return null;
   if (!store || typeof store.list !== "function") return null;
   const prefix = `${candidate.politician_id}/${candidate.topic}/`;
   let blobs = [];

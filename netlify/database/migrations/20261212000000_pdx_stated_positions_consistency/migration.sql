@@ -1,0 +1,14 @@
+-- ─────────────────────────────────────────────────────────────────────────────
+-- Promoted stances — consistency signal on pdx_stated_positions
+-- ─────────────────────────────────────────────────────────────────────────────
+-- Each promoted stance carries how consistent the politician's Locker evidence
+-- on the issue is: { label: 'steady' | 'mixed' | 'thin', support: { strong, weak },
+-- oppose: { strong, weak }, items, same, side, shift? } (stanceConsistency in
+-- netlify/lib/stated-positions-core.mjs). Served on the stance card as
+-- pipeline.consistency. Nullable and additive: rows promoted before this column
+-- keep NULL until their next recompute; no existing column or row changes.
+--
+-- WHY THE VERSION WAS HAND-SET. One version after the applied tail
+-- (20261211000000_vote_actions_senate_member_identity); the drizzle-generated stamp
+-- (20261121230111) sorted behind it.
+ALTER TABLE "pdx_stated_positions" ADD COLUMN "consistency" jsonb;

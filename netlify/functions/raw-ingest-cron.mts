@@ -10,9 +10,25 @@
 //
 // Phase 5: after each record is stored, the existing Phase 4 scorer runs on it
 // and LOGS a candidate stance (position + confidence) and whether the rules
-// found a clear position. LOG ONLY — no candidate is written to the raw store,
-// the ground-truth file, or any live stance store. Every run logs one
+// found a clear position. (Phase 5 was log-only; since Phase 6 every candidate
+// also goes to the Evidence Locker, and since the promoted-stances pass the
+// Locker feeds pdx_stated_positions — see below. The ground-truth file is
+// still never written.) Every run logs one
 // "raw-ingest: OK …" / "raw-ingest: FAIL …" line per source plus a summary.
+//
+// Framing + re-score pass (scorer rules phase9-v1):
+//   · The scorer reads what is actually said: only the politician's own voice
+//     scores (reported speech, letters' "your policy", "the policy that bans …"
+//     are someone else acting); opposing a cut is support for the program
+//     (counter-frames flip the side); negations and reported figures are
+//     mentions; "Roe v. Wade" is one sentence; a cross-topic read needs a page
+//     that addresses the topic (stance-score-core.mjs R17).
+//   · The Locker writer replaces an item written under OLDER rules with the
+//     current read when the page is re-read (W4), and keeps a strong read on
+//     the other side instead of holding it back (W6).
+//   · Items the cron has not come back to are re-read by locker-rescore-cron.mts.
+//   · Promotion carries a Steady / Mixed / Thin consistency signal, and solid
+//     evidence on both sides promotes a Mixed stance (stated-positions-core.mjs).
 //
 // Phase 6:
 //   · DISCOVERY — before pulling, each politician in SOURCES gets one extra
