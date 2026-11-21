@@ -12555,7 +12555,14 @@
 //   exec-record.js), so the
 //   shell moves; the precache list is unchanged.
 //   MIGRATION COST: none.
-const CACHE_VERSION = 'v603';
+// v604 - STEADY / MIXED / THIN. Pipeline stance cards and the Evidence Locker's
+//   "Said:" lines carry a consistency chip (how often the politician kept the
+//   same position across Locker items), and solid evidence on both sides now
+//   promotes a Mixed stance instead of nothing. Precached files changed
+//   (consistency.js, profile-locker.js), so the shell moves; the precache list
+//   is unchanged.
+//   MIGRATION COST: none.
+const CACHE_VERSION = 'v604';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

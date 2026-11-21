@@ -101,7 +101,7 @@
     'Context only — they are not formal actions and are not part of the figure above, ' +
     'unless a claim names a measure their own formal record on the same issue answers.';
   var TREE_NOTE = 'Locker statements on issues not yet listed above.';
-  var POS = { support: 'Supports', oppose: 'Opposes' };
+  var POS = { support: 'Supports', oppose: 'Opposes', mixed: 'Mixed' };
   var STRONG_MIN = 0.8, WEAK_MIN = 0.3;
   var WEAK_BADGE = 'Weak signal';
   var WEAK_TITLE = 'Limited evidence: the pipeline read this position at low confidence. It is not a firm stance.';
@@ -562,15 +562,108 @@
     });
     var level = function (s) { return (s.strong || s.weak >= PROMOTE_WEAK_N) ? 2 : (s.weak ? 1 : 0); };
     var ls = level(side.support), lo = level(side.oppose);
-    if (ls === lo) return null;                          // nothing, or an even split
+    // A weak split promotes nothing; solid evidence on both sides is a MIXED
+    // stance (phase9-v1, the same rule as stated-positions-core.mjs).
+    if (ls === lo && ls < 2) return null;
     if (curatedOn(pid, key)) return null;                // curated always wins
-    var pos = ls > lo ? 'support' : 'oppose';
-    var s = side[pos];
+    var cons = consistencyOf(pid, key);
+    var pos = ls !== lo ? (ls > lo ? 'support' : 'oppose') : (cons && cons.label === 'mixed') ? 'mixed' : (cons ? cons.side : 'support');
+    var s = pos === 'mixed'
+      ? { strong: side.support.strong + side.oppose.strong, weak: side.support.weak + side.oppose.weak, items: side.support.items.concat(side.oppose.items) }
+      : side[pos];
     return {
       key: key, side: pos, label: POS[pos],
       strength: Math.max(ls, lo) === 2 ? 'strong' : 'weak',
-      strong: s.strong, weak: s.weak, items: s.items.slice(), source: 'pipeline'
+      strong: s.strong, weak: s.weak, items: s.items.slice(), source: 'pipeline',
+      consistency: cons
     };
+  }
+
+  // ── CONSISTENCY (phase9-v1) ──────────────────────────────────────────────
+  // Steady / Mixed / Thin for one politician + issue, from the same Locker
+  // items the promotion reads — the same rule as stanceConsistency() in
+  // netlify/lib/stated-positions-core.mjs (kept in step by
+  // scripts/test-stance-consistency.mjs):
+  //   steady — 2+ strong items on the leading side, no solid evidence the
+  //            other way (a stray item is counted, not hidden);
+  //   mixed  — solid evidence on both sides (each at the promotion bar, the
+  //            smaller side 25%+ of the items or 2+ strong), or a change over
+  //            time (2+ dated items on one side, then 2+ on the other);
+  //   thin   — anything else.
+  // It reports what the scorer found; it never changes a side.
+  var MIXED_MIN_SHARE = 0.25, MIXED_MIN_STRONG = 2, SHIFT_MIN_ITEMS = 2;
+  var CONSISTENCY = {
+    steady: { lb: 'Steady', c: '#6ee7b7', ico: '═', note: 'Several strong statements, all on the same side.' },
+    mixed:  { lb: 'Mixed',  c: '#f5c842', ico: '⇄', note: 'Solid evidence on both sides, or a change of position over time.' },
+    thin:   { lb: 'Thin',   c: '#9fb4d4', ico: '·', note: 'Only one or two items, or only weak evidence, so far.' }
+  };
+  function consistencyFromItems(list) {
+    var side = { support: { strong: 0, weak: 0 }, oppose: { strong: 0, weak: 0 } };
+    var dated = [];
+    (list || []).forEach(function (it) {
+      if (!it || !it.source || !/^https?:\/\//.test(String(it.source.url || ''))) return;
+      if (it.review && it.review.status === 'hidden') return;
+      var st = strengthOf(it);
+      if (st !== 'strong' && st !== 'weak') return;
+      var pos = it.pipeline.position;
+      if (!side[pos]) return;
+      side[pos][st]++;
+      var d = String(it.pipeline.stated_date || '');
+      if (/^\d{4}-\d{2}-\d{2}$/.test(d)) dated.push({ d: d, pos: pos, st: st });
+    });
+    var n = function (x) { return x.strong + x.weak; };
+    var total = n(side.support) + n(side.oppose);
+    if (!total) return null;
+    var lead = (n(side.oppose) > n(side.support) || (n(side.oppose) === n(side.support) && side.oppose.strong > side.support.strong)) ? 'oppose' : 'support';
+    var other = lead === 'support' ? 'oppose' : 'support';
+    var level = function (s) { return (s.strong || s.weak >= PROMOTE_WEAK_N) ? 2 : (s.weak ? 1 : 0); };
+    var shift = null;
+    dated.sort(function (a, b) { return a.d < b.d ? -1 : a.d > b.d ? 1 : 0; });
+    if (dated.length >= 2) {
+      var runs = [];
+      dated.forEach(function (x) {
+        var r = runs[runs.length - 1];
+        if (r && r.pos === x.pos) { r.to = x.d; r.items.push(x); } else runs.push({ pos: x.pos, from: x.d, to: x.d, items: [x] });
+      });
+      if (runs.length === 2 && runs[0].items.length >= SHIFT_MIN_ITEMS && runs[1].items.length >= SHIFT_MIN_ITEMS &&
+          runs[1].items.some(function (x) { return x.st === 'strong'; })) shift = { from: runs[0].pos, to: runs[1].pos, until: runs[0].to, since: runs[1].from };
+    }
+    var solidBoth = level(side.support) === 2 && level(side.oppose) === 2 &&
+      (n(side[other]) / total >= MIXED_MIN_SHARE || side[other].strong >= MIXED_MIN_STRONG);
+    var label = (solidBoth || shift) ? 'mixed' : side[lead].strong >= 2 ? 'steady' : 'thin';
+    var out = { label: label, title: CONSISTENCY[label].lb, note: CONSISTENCY[label].note,
+      support: { strong: side.support.strong, weak: side.support.weak }, oppose: { strong: side.oppose.strong, weak: side.oppose.weak },
+      items: total, same: n(side[lead]), side: lead };
+    if (shift) out.shift = shift;
+    return out;
+  }
+  function consistencyOf(pid, key) { return consistencyFromItems(forIssue(pid, key)); }
+  // "Steady · same position in 4 of 4 items" — the chip every surface prints.
+  function consistencyText(c) {
+    if (!c || !CONSISTENCY[c.label]) return '';
+    var m = CONSISTENCY[c.label];
+    var sideWord = { support: 'for', oppose: 'against' };
+    var detail;
+    if (c.shift) {
+      detail = 'changed: ' + (POS[c.shift.from] || c.shift.from).toLowerCase() + ' until ' + c.shift.until + ', ' + (POS[c.shift.to] || c.shift.to).toLowerCase() + ' since ' + c.shift.since;
+    } else if (c.label === 'mixed') {
+      var sp = c.support || {}, op = c.oppose || {};
+      detail = (sp.strong + sp.weak) + ' ' + sideWord.support + ' · ' + (op.strong + op.weak) + ' ' + sideWord.oppose;
+    } else {
+      detail = 'same position in ' + c.same + ' of ' + c.items + ' item' + (c.items === 1 ? '' : 's');
+    }
+    return m.lb + ' · ' + detail;
+  }
+  function consistencyChipHtml(c) {
+    if (!c || !CONSISTENCY[c.label]) return '';
+    var m = CONSISTENCY[c.label];
+    var sp = c.support || {}, op = c.oppose || {};
+    var title = m.note + ' Supports: ' + sp.strong + ' strong, ' + sp.weak + ' weak. Opposes: ' + op.strong + ' strong, ' + op.weak + ' weak.' +
+      ' Reports what the stance reader found; it does not change the stance.';
+    return '<span class="pdx-consistency" data-pdx-consistency="' + esc(c.label) + '" title="' + esc(title) + '" ' +
+      'style="display:inline-block;margin-left:0.3rem;padding:0 0.35rem;border:1px solid ' + m.c + '66;' +
+      'border-radius:0.6rem;font-size:0.62rem;font-weight:700;color:' + m.c + ';vertical-align:1px;">' +
+      esc(m.ico) + ' ' + esc(consistencyText(c)) + '</span>';
   }
   function promotedStances(pid) {
     var seen = {}, out = [];
@@ -626,6 +719,7 @@
       '<b class="pdx-locker-said-lb">' + esc(opts.lead || SAID_LABEL) + '</b> ' +
       '<b class="pdx-locker-said-pos" style="color:#f5c842;">' + esc(ps.label) + '</b>' +
       promoBadgeHtml(ps) + promoTagHtml() +
+      consistencyChipHtml(ps.consistency || consistencyOf(opts.pid || null, ps.key)) +
       ' <span style="color:#5f7da6;">· from ' + esc(promoCountText(ps)) + '</span>' +
     '</' + tag + '>';
   }
@@ -1439,6 +1533,8 @@
     REVIEWED_LABEL: REVIEWED_LABEL, reviewOf: reviewOf, reviewedHtml: reviewedHtml,
     PROMOTE_WEAK_N: PROMOTE_WEAK_N, PROMO_TAG: PROMO_TAG, PROMO_STRONG_BADGE: PROMO_STRONG_BADGE,
     promotedStance: promotedStance, promotedStances: promotedStances, saidLineHtml: saidLineHtml,
+    CONSISTENCY: CONSISTENCY, consistencyOf: consistencyOf, consistencyFromItems: consistencyFromItems,
+    consistencyText: consistencyText, consistencyChipHtml: consistencyChipHtml,
     decorateTopRows: decorateTopRows, decorateTopDom: decorateTopDom,
     curatedOn: curatedOn, decorateStanceLanes: decorateStanceLanes,
     FORMAL_MATCH_ISSUES: FORMAL_MATCH_ISSUES, FORMAL_MATCH_MEMBERS: FORMAL_MATCH_MEMBERS,

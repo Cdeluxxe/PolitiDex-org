@@ -526,7 +526,7 @@ export const ISSUE_TOPIC_VOCAB = {
     pro: [String.raw`\bexceptions? for\b[^.!?]{0,40}\b(?:rape|incest|life of the mother|health of the mother|the mother'?s (?:life|health))\b`, String.raw`\b(?:15|twelve|12|fifteen)[- ]weeks?\b[^.!?]{0,40}\b(?:limit|ban|protections?)\b`] },
   pro_choice: { label: "Protect Reproductive Rights", pos: "Protect abortion access and reproductive freedom",
     terms: String.raw`abortion|reproductive (?:rights|freedom|health)|roe|pro-choice|ivf|contraception`,
-    up: [String.raw`(?:abortion|reproductive) (?:rights|access|freedom|health ?care|care)`, String.raw`(?:a woman'?s |women'?s )?right to choose`, String.raw`roe(?: v\.? wade)?`, String.raw`(?:access to )?(?:IVF|contraception|birth control)`, String.raw`(?:the )?(?:women'?s health protection act)`],
+    up: [String.raw`(?:abortion|reproductive) (?:rights|access|freedom|health ?care|care)`, String.raw`(?:a woman'?s |women'?s )?right to choose`, String.raw`(?:the |a |her )?(?:constitutional |federal )?right to (?:an? )?abortion`, String.raw`roe(?: v\.? wade)?`, String.raw`(?:access to )?(?:IVF|contraception|birth control)`, String.raw`(?:the )?(?:women'?s health protection act)`],
     pro: [String.raw`\bcodif\w{0,3}\b${GAP}\broe\b`],
     down: [String.raw`(?:extreme |total |near-total |six-week )?abortion bans?`, String.raw`(?:government |politicians'?) (?:interference|control over women'?s bodies)`],
     upCon: [String.raw`(?:the )?(?:unborn|preborn)`, String.raw`(?:the )?heartbeat (?:bill|act|law)`, String.raw`abortion bans?`],
@@ -598,10 +598,12 @@ export const ISSUE_TOPIC_VOCAB = {
   // directional child keys in DIRECTIONAL_ISSUE_KEYS below.
   israel_support: { label: "Support for Israel", grouping: true, children: ["israel_military_aid"], pos: "Keep backing Israel with U.S. security aid, weapons and sanctions on its adversaries",
     terms: String.raw`israel|iron dome|hamas|hezbollah|gaza|jewish state`,
-    up: [String.raw`(?:our (?:ally|alliance) )?israel(?:'?s right to defend itself)?`, String.raw`(?:the )?iron dome`, String.raw`(?:security )?aid (?:to|for) israel`, String.raw`(?:the )?(?:u\.?s\.?-israel|israel) (?:alliance|relationship|partnership)`],
+    // phase9-v1: a bare "Israel" is the object only when nothing puts it in a
+    // place phrase ("secure peace in Israel and Palestine" is not backing Israel).
+    up: [String.raw`(?:our (?:ally|alliance) )?(?<!\b(?:in|between|across|throughout|of|from|on|and|to|for)\s)israel(?:'?s right to defend itself)?(?!\s+and\s+(?:palestin|gaza))`, String.raw`(?:the )?iron dome`, String.raw`(?:security )?aid (?:to|for) israel`, String.raw`(?:the )?(?:u\.?s\.?-israel|israel) (?:alliance|relationship|partnership)`],
     pro: [String.raw`\bstand\w{0,3} (?:with|by)\b${GAP}\bisrael\b`],
     down: [String.raw`hamas`, String.raw`hezbollah`, String.raw`(?:the )?BDS(?: movement)?`, String.raw`antisemitism`],
-    downCon: [String.raw`(?:military |offensive |security )?(?:aid|weapons|arms(?: sales)?) (?:to|for) israel`],
+    downCon: [String.raw`(?:military |offensive |security )?(?:aid|weapons(?: sales)?|arms(?: sales)?) (?:to|for) (?:israel|the netanyahu government|the israeli government)`],
     con: [String.raw`\b(?:arms|weapons) embargo on israel\b`, String.raw`\bcondition\w{0,3}\b${GAP}\baid to israel\b`],
     protects: [String.raw`(?:military |security )?aid to israel`] },
   // COUNTRY KEYS — the register names a subject, not a proposition ("What the

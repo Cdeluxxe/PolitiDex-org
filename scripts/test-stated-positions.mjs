@@ -64,10 +64,12 @@ section("1 · thresholds");
   eq(P([entry("housing", "oppose", 0.5)])?.strength, "weak", "one weak item promotes a weak stance");
   eq(P([entry("housing", "oppose", 0.5), entry("housing", "oppose", 0.4)])?.strength, "weak", "two weak items stay weak");
   eq(P([entry("housing", "oppose", 0.5), entry("housing", "oppose", 0.4), entry("housing", "oppose", 0.31)])?.strength, "strong", "three weak items reach the stronger level");
-  eq(P([entry("housing", "support", 0.9), entry("housing", "oppose", 0.9)]), null, "one strong item each way is an even split: nothing");
+  // phase9-v1: solid evidence on both sides is kept as a Mixed stance, not dropped.
+  eq(P([entry("housing", "support", 0.9), entry("housing", "oppose", 0.9)])?.stance, "mixed", "one strong item each way is a Mixed stance");
+  eq(P([entry("housing", "support", 0.9), entry("housing", "oppose", 0.9)])?.consistency?.label, "mixed", "…and its consistency signal is Mixed");
   eq(P([entry("housing", "support", 0.5), entry("housing", "oppose", 0.6)]), null, "one weak item each way is an even split: nothing");
   eq(P([entry("housing", "support", 0.9), entry("housing", "oppose", 0.5)])?.stance, "support", "strong beats weak on the other side");
-  eq(P([entry("housing", "oppose", 0.5), entry("housing", "oppose", 0.5), entry("housing", "oppose", 0.5), entry("housing", "support", 0.9)]), null, "three weak vs one strong is level 2 vs level 2: nothing");
+  eq(P([entry("housing", "oppose", 0.5), entry("housing", "oppose", 0.5), entry("housing", "oppose", 0.5), entry("housing", "support", 0.9)])?.stance, "mixed", "three weak vs one strong is level 2 vs level 2: Mixed");
   eq(P([entry("housing", "support", 0.2)]), null, "a low-confidence read is a mention: nothing");
   eq(P([entry("housing", "mixed", 0.9)]), null, "a mixed read is never a stance");
   eq(P([entry("housing", "support", 0.9, { review: { status: "hidden" } })]), null, "a hidden item never counts");
@@ -98,6 +100,8 @@ section("1 · thresholds");
       const c = L.promotedStance(`fx_${k}`, "housing");
       const s = SP.promoteIssue(v);
       eq(s ? [s.stance, s.strength] : null, c ? [c.side, c.strength] : null, `fixture ${k}: server and client promotion agree`);
+      // phase9-v1: the Steady / Mixed / Thin signal is the same rule on both sides.
+      eq(JSON.stringify(SP.stanceConsistency(v)), JSON.stringify(L.consistencyOf(`fx_${k}`, "housing")), `fixture ${k}: server and client consistency agree`);
     }
   } else {
     for (const [k, v] of Object.entries(FIX)) ok(true, k);

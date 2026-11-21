@@ -54,7 +54,9 @@ const quiet = { log: () => {} };
 const items = [
   item("pa", "housing", "support", 0.9),                                   // strong → promoted
   item("pa", "gun_safety", "oppose", 0.5), item("pa", "gun_safety", "oppose", 0.5), item("pa", "gun_safety", "oppose", 0.5), // 3 weak → promoted
-  item("pa", "energy_production", "support", 0.9), item("pa", "energy_production", "oppose", 0.9), // even split
+  // A WEAK even split promotes nothing (a strong split is a Mixed stance since
+  // phase9-v1 — covered in test-stated-positions.mjs).
+  item("pa", "energy_production", "support", 0.5), item("pa", "energy_production", "oppose", 0.5), // even split
   item("pa", "cost_living", "support", 0.1),                               // mention
   item("pb", "housing", "support", 0.9), item("pb", "housing", "oppose", 0.5), // strong beats weak: 1 promoted, 1 outweighed
 ];

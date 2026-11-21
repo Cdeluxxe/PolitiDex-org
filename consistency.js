@@ -5563,11 +5563,11 @@
   var _STANCE_DIR = { support: 1, oppose: -1, mixed: 0 };
   function _rowStance(pid, issueKey) {
     var key = positionStance(pid, issueKey);
-    var text = '', source = null, pipe = false;
+    var text = '', source = null, pipe = false, cons = null;
     try {
       if (typeof window._polPositionMap === 'function' && window.CMP_DATA) {
         var e = (window._polPositionMap(pid, window.CMP_DATA[pid]) || {})[issueKey];
-        if (e) { text = e.text || ''; source = e.source || null; pipe = e.provenance === 'pipeline'; }
+        if (e) { text = e.text || ''; source = e.source || null; pipe = e.provenance === 'pipeline'; cons = (e.pipeline && e.pipeline.consistency) || null; }
       }
     } catch (e2) {}
     var m = _OR_STANCE[key] || null;
@@ -5581,7 +5581,26 @@
       text: text, source: source
     };
     if (pipe) out.provenance = 'pipeline';
+    if (pipe && cons) out.consistency = cons;
     return out;
+  }
+  // phase9-v1: the Steady / Mixed / Thin signal on a pipeline stance — the
+  // promoted card's own (server, stanceConsistency) when it carries one, else
+  // the Locker items' read in the browser (PDXProfileLocker.consistencyOf).
+  function _pipeConsistency(pid, issueKey, given) {
+    if (given && given.label) return given;
+    try {
+      var L = window.PDXProfileLocker;
+      if (L && typeof L.consistencyOf === 'function') return L.consistencyOf(pid, issueKey) || null;
+    } catch (e) {}
+    return null;
+  }
+  function _consistencyChip(c) {
+    try {
+      var L = window.PDXProfileLocker;
+      if (c && L && typeof L.consistencyChipHtml === 'function') return L.consistencyChipHtml(c);
+    } catch (e) {}
+    return '';
   }
 
   // ── THE ONE STANCE STORE, READ ONE WAY ──────────────────────────────────────
@@ -5631,7 +5650,10 @@
         // in the position map), and says so in its signal and note.
         var pipeCard = rs.provenance === 'pipeline' || positionIsPipeline(pid, issueKey);
         if (pipeCard) {
+          var cons0 = rs.consistency || null;
+          if (!cons0) { try { cons0 = _rowStance(pid, issueKey).consistency || null; } catch (e5) { cons0 = null; } }
           return {
+            consistency: _pipeConsistency(pid, issueKey, cons0),
             key: issueKey, side: rs.key, sideLabel: rs.label, label: rs.label,
             source: 'curated', provenance: 'pipeline', signal: 'pipeline', strength: 'pipeline', signalLabel: STORE_SIGNAL.pipeline,
             // The signal already says "Pipeline-sourced stance"; the note names
@@ -5650,7 +5672,7 @@
       var L = window.PDXProfileLocker;
       if (L && typeof L.promotedStance === 'function') {
         var ps = L.promotedStance(pid, issueKey);
-        if (ps && (ps.side === 'support' || ps.side === 'oppose')) {
+        if (ps && (ps.side === 'support' || ps.side === 'oppose' || ps.side === 'mixed')) {
           var its = ps.items || [];
           var s0 = (its[0] && its[0].source) || {};
           var strong = ps.strength === 'strong';
@@ -5660,7 +5682,8 @@
             signalLabel: STORE_SIGNAL[strong ? 'strong' : 'weak'],
             note: 'From ' + its.length + ' Locker item' + (its.length === 1 ? '' : 's'),
             url: /^https?:\/\//.test(String(s0.url || '')) ? String(s0.url) : '', cited: true,
-            n: its.length, items: its.slice(), strong: ps.strong, weak: ps.weak, text: ''
+            n: its.length, items: its.slice(), strong: ps.strong, weak: ps.weak, text: '',
+            consistency: _pipeConsistency(pid, issueKey, ps.consistency)
           };
         }
       }
@@ -5760,7 +5783,9 @@
       : '<span class="pdx-stance-src">' + srcTxt + '</span>';
     return '<span class="pdx-stance-note" data-pdx-stance-note-for="' + escAttr(s.key) + '"' +
       ' style="font-size:0.66rem;color:#9fb4d4;margin-left:0.3rem;">' +
-      (noSignal ? '' : '<span class="pdx-stance-signal">' + esc(s.signalLabel) + '</span> · ') + body + '</span>';
+      (noSignal ? '' : '<span class="pdx-stance-signal">' + esc(s.signalLabel) + '</span> · ') + body +
+      // phase9-v1: how often they kept the same position (pipeline stances only).
+      (s.consistency ? _consistencyChip(s.consistency) : '') + '</span>';
   }
   // Tiers are the profile's sort contract, stated once:
   //   0  said + did, and they disagree      (contradiction / cuts both ways)
@@ -20639,7 +20664,7 @@
       var L = window.PDXProfileLocker;
       try {
         if (L && typeof L.saidLineHtml === 'function') {
-          return L.saidLineHtml({ key: s.key, side: s.side, label: s.sideLabel, strength: s.strength, items: s.items, source: 'pipeline' },
+          return L.saidLineHtml({ key: s.key, side: s.side, label: s.sideLabel, strength: s.strength, items: s.items, source: 'pipeline', consistency: s.consistency || null },
             tag || 'span', cls || '', opts) || '';
         }
       } catch (e) {}
