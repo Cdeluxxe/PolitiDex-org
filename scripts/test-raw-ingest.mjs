@@ -483,7 +483,9 @@ await t('the scheduled entry point turns on discovery and Locker writes; the ite
   const lockerStore = lockerFakeStore();
   await quiet(() => fn.run({ fetch: byUrl({ [CORNYN_URL]: HC_HTML }), store: fakeStore(), lockerStore, now: NOW, log: () => {} }));
   const body = await items.listLockerEntries(lockerStore);
-  assert.equal(body.count, lockerStore.data.size);
+  // Every stored item is served, except a sentence already counted from another
+  // page (the fake fetch serves one page body to several sources) — locker-own-v1.
+  assert.equal(body.count + (body.repeated || 0) + (body.site_menu || 0) + (body.not_own_page || 0), lockerStore.data.size);
   const own = body.items.john_cornyn.filter((e) => e.issueKey === 'healthcare_costs');
   assert.equal(own.length, 1);
   assert.equal(own[0].source.url, CORNYN_URL);

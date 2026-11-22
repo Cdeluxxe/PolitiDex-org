@@ -276,7 +276,8 @@ await t("legacy weak items: an explicit campaign claim is re-read as a stated po
 await t("phase8-v2 Locker: floor speech / release / co-sponsor items are strong stated items, never formal records; legacy weak copies re-read", async () => {
   for (const [type, body, kind, label] of [["floor speech", FLOOR, "floor_speech", "floor speech"], ["news release", RELEASE, "press_release", "press release"], ["cosponsor announcement", COSPONSOR, "cosponsor_statement", "co-sponsor statement"]]) {
     const st = fakeStore();
-    const raw = rawFor(type, body, { url: `https://example.org/${kind}`, final_url: `https://example.org/${kind}` });
+    // Crockett's own site (locker-own-v1 stores own pages only); not a .gov host.
+    const raw = rawFor(type, body, { url: `https://crockettforcongress.com/${kind}`, final_url: `https://crockettforcongress.com/${kind}` });
     await L.maybeWriteLockerItem(S.scoreRawRecord(raw), raw, { store: st, gt, log: () => {} });
     const item = [...st.data.values()].find((i) => i.topic === "healthcare_costs");
     assert.ok(item, type);

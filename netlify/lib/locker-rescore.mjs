@@ -37,10 +37,15 @@
 // caller and passed back. A new RULES_VERSION starts a fresh pass.
 
 import { RULES_VERSION, scoreAllTopics } from "./stance-score-core.mjs";
-import { lockerDecision, buildLockerItem, storedStrength, reviewFor, withRescore } from "./evidence-locker-core.mjs";
+import { lockerDecision, buildLockerItem, storedStrength, reviewFor, withRescore, ownEvidenceRows, collapseRestatedItems, regradeStatedPosition } from "./evidence-locker-core.mjs";
+import { itemOwnership, OWNERSHIP_VERSION } from "./page-ownership.mjs";
 import { readLockerDocs, mapLimit } from "./locker-read.mjs";
 
-export const RESCORE_VERSION = "locker-rescore-v1";
+// v2 (locker-own-v1): every item whose page is not the politician's own is
+// retired, whatever its rules version or strength, and every politician whose
+// served evidence loses foreign pages, site-menu text or repeated sentences has
+// their promoted stances recomputed.
+export const RESCORE_VERSION = "locker-rescore-v2";
 export const RESCORE_STATE_KEY = "locker-rescore-state.json";
 export const RETIRED_STORE_NAME = "evidence-locker-retired";
 const RAW_READ_CONCURRENCY = 6;
@@ -99,7 +104,8 @@ export function changeKind(r) {
 export function freshState(rulesVersion = RULES_VERSION) {
   return {
     version: RESCORE_VERSION, rules_version: rulesVersion, pid_index: 0, page_index: 0, complete: false, started_at: null, updated_at: null,
-    tallies: { examined: 0, eligible: { strong: 0, weak: 0 }, skipped: {}, no_raw: 0, outcomes: { strong: {}, weak: {} } },
+    tallies: { examined: 0, eligible: { strong: 0, weak: 0 }, skipped: {}, no_raw: 0, outcomes: { strong: {}, weak: {} },
+      ownership: { version: OWNERSHIP_VERSION, retired: { strong: 0, weak: 0, mention: 0 }, by_kind: {}, site_menu: 0, repeated: 0, politicians_recomputed: 0 } },
     pending_sync: [],
   };
 }
@@ -150,7 +156,43 @@ export async function rescoreStep(state, deps) {
   while (st.pid_index < pids.length && !over()) {
     const pid = pids[st.pid_index];
     const { blobs = [] } = (await lockerStore.list({ prefix: `${pid}/` })) || {};
-    const docs = await readLockerDocs(lockerStore, blobs.map((b) => b.key).sort());
+    const allDocs = await readLockerDocs(lockerStore, blobs.map((b) => b.key).sort());
+    let touched = false;
+    // locker-own-v1: an item from a page that is not the politician's own is
+    // retired (kept in the retired store with the reason), whatever its rules
+    // version or strength. Editor-flagged items are left to the editor.
+    const OW = (T.ownership ||= { version: OWNERSHIP_VERSION, retired: { strong: 0, weak: 0, mention: 0 }, by_kind: {}, site_menu: 0, repeated: 0, politicians_recomputed: 0 });
+    const docs = [];
+    for (const row of allDocs) {
+      const { key, doc } = row;
+      if (doc && doc.politician_id && doc.link && !reviewFor(doc, key, flags)) {
+        const o = itemOwnership(doc);
+        if (!o.own) {
+          const was = storedStrength(doc) || "mention";
+          OW.retired[was] = (OW.retired[was] || 0) + 1;
+          bump(OW.by_kind, o.kind);
+          log(`locker-rescore: NOT OWN PAGE ${key} — ${doc.position}/${was} — ${o.reason}`);
+          if (!dry) {
+            if (retiredStore) await retiredStore.setJSON(key, { ...doc, retired: { at: now().toISOString(), reason: `not the politician's own page (${o.kind}): ${o.reason}`, ownership_version: OWNERSHIP_VERSION } });
+            await lockerStore.delete(key);
+          }
+          touched = true;
+          continue;
+        }
+      }
+      docs.push(row);
+    }
+    // Site menus and repeated sentences are not stored differently — they are
+    // dropped when served (ownEvidenceRows) — but the politician's stances must
+    // be recomputed for the drop to reach the live cards.
+    if (st.page_index === 0) {
+      const served = docs.filter(({ key, doc }) => doc && doc.politician_id === pid && doc.link && reviewFor(doc, key, flags)?.status !== "hidden")
+        .map(({ key, doc }) => ({ key, doc: regradeStatedPosition(doc), review: reviewFor(doc, key, flags) }));
+      const { dropped } = ownEvidenceRows(collapseRestatedItems(served));
+      OW.site_menu += dropped.menu;
+      OW.repeated += dropped.repeated;
+      if (dropped.menu || dropped.repeated) touched = true;
+    }
     // Group eligible items by the page they came from.
     const groups = new Map();
     for (const { key, doc } of docs) {
@@ -164,7 +206,6 @@ export async function rescoreStep(state, deps) {
     const order = [...groups.keys()].sort();
     if (st.page_index === 0) for (const g of order) for (const { doc } of groups.get(g)) T.eligible[storedStrength(doc)]++;
     let idx = null;
-    let touched = false;
     while (st.page_index < order.length && !over()) {
       const group = groups.get(order[st.page_index]);
       idx = idx || (await rawIndexFor(rawStore, pid));
@@ -204,7 +245,10 @@ export async function rescoreStep(state, deps) {
       }
       st.page_index++;
     }
+    // A politician whose pass is split across runs keeps the "touched" mark.
+    if (touched) st.touched_pid = pid;
     if (st.page_index < order.length) break; // budget ran out inside this politician
+    if (st.touched_pid === pid) { touched = true; st.touched_pid = null; }
     if (touched && sync && !dry) {
       let synced = false;
       if (!over()) {
@@ -212,6 +256,7 @@ export async function rescoreStep(state, deps) {
         catch (e) { log(`locker-rescore: recompute for ${pid} deferred — ${e?.message || e}`); }
       }
       if (!synced) st.pending_sync = [...st.pending_sync, pid];
+      else OW.politicians_recomputed++;
     }
     st.pid_index++;
     st.page_index = 0;
@@ -228,5 +273,7 @@ export function rescoreSummaryLine(st) {
   return `locker-rescore: ${st.complete ? "COMPLETE" : "in progress"} under ${st.rules_version} — politician ${st.pid_index}` +
     ` · examined ${T.examined} · eligible strong ${T.eligible.strong}, weak ${T.eligible.weak}` +
     ` · strong: ${o("strong")} · weak: ${o("weak")} · no stored page ${T.no_raw}` +
-    ` · skipped ${Object.entries(T.skipped).map(([k, n]) => `${k} ${n}`).join(", ") || "none"}`;
+    ` · skipped ${Object.entries(T.skipped).map(([k, n]) => `${k} ${n}`).join(", ") || "none"}` +
+    (T.ownership ? ` · not own page retired: strong ${T.ownership.retired.strong}, weak ${T.ownership.retired.weak}, mention ${T.ownership.retired.mention}` +
+      ` · site menu ${T.ownership.site_menu} · repeated ${T.ownership.repeated} · recomputed ${T.ownership.politicians_recomputed}` : "");
 }

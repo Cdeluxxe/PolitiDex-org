@@ -32,6 +32,12 @@
 //       stay frozen in the Locker). The replaced read is kept on the item under
 //       `rescored`. See also locker-rescore.mjs, which re-reads items whose
 //       page the cron has not come back to.
+//   W7  The page must be the politician's own (page-ownership.mjs,
+//       locker-own-v1): their House / Senate office site, campaign site, state
+//       legislature member page or office site. Committee, Clerk, White House,
+//       agency and other members' pages are refused unless the quote is
+//       attributed to the politician by name. Items already stored from such
+//       pages are not served (ownEvidenceRows) and the re-score pass retires them.
 //   W6  A WEAK cross-topic read (a candidate scored from a page filed under
 //       another topic — `page_topic`) never writes a position that conflicts
 //       with a stance the Locker already holds for that politician + topic
@@ -66,6 +72,7 @@ import { createHash } from "node:crypto";
 import { ISSUE_TOPIC_LABELS } from "./stance-topic-vocab.mjs";
 import { statedSourceRule, namesBillOrOutcome, quotedSpeakerOf, KIND_LABELS, WEIGHTS as SCORE_WEIGHTS } from "./stance-score-core.mjs";
 import { readLockerDocs } from "./locker-read.mjs";
+import { pageOwnership, itemOwnership } from "./page-ownership.mjs";
 
 export const LOCKER_STORE_NAME = "evidence-locker";
 export const LOCKER_MIN_CONFIDENCE = 0.8;
@@ -320,6 +327,17 @@ export function lockerDecision(candidate, raw, gt = null) {
   if (!strength) return { write: false, reason };
   const src = candidate.sources?.[0] || {};
   if (!String(src.excerpt || "").trim()) return { write: false, reason: "no excerpt to show" };
+  // W7 (locker-own-v1): only the politician's OWN page is evidence for them —
+  // not a committee, Clerk, White House or agency page, another member's site,
+  // or any site that is not theirs (page-ownership.mjs). A committee / agency
+  // page counts only when the quote the item rests on is attributed to them.
+  const owner = pageOwnership({
+    link: raw?.final_url || raw?.url || src.link,
+    politicianId: candidate.politician_id,
+    sourceType: raw?.source_type ?? src.type,
+    quotes: [...citationExcerpts(candidate), src.excerpt].filter(Boolean),
+  });
+  if (!owner.own) return { write: false, reason: `not the politician's own page: ${owner.reason}`, ownership: owner.kind };
   const isGtPair = gt && candidate.politician_id === gt.politician_id && candidate.topic === gt.topic;
   if (isGtPair) {
     if (strength === "mention") return { write: true, strength, reason: `${reason}; ground-truth pair, mention carries no position` };
@@ -823,4 +841,97 @@ export function collapseRestatedItems(rows) {
     keep.add(list[0].i);
   }
   return rows.filter((_, i) => keep.has(i));
+}
+
+// ── Own evidence only, each sentence once (locker-own-v1) ───────────────────
+// Applied wherever Locker items are served or promoted, after
+// collapseRestatedItems:
+//   1. FOREIGN PAGE — an item whose page is not the politician's own
+//      (itemOwnership) is dropped. An editor-reviewed item stays (their call).
+//   2. SITE MENU — a sentence that one politician's items quote from
+//      MENU_MIN_PAGES (a heading / label) or SENTENCE_MENU_MIN_PAGES (a full
+//      sentence) or more different ARTICLE pages of the SAME site (listing
+//      pages — newsroom, homepage, release index — repeat every lead sentence
+//      and do not count, isIndexPage) is site text
+//      (a menu, sidebar, footer or repeated heading — "Help for Veterans",
+//      "Supporting Law Enforcement"), not a statement: every copy is dropped.
+//   3. REPEATED SENTENCE — the same sentence quoted from two pages on the same
+//      issue is one statement: it is served once, so it counts once toward
+//      Steady and every promotion threshold. The kept copy is the editor-
+//      reviewed one, then the page's own topic, then the stronger read, then
+//      higher confidence, then the first in input order.
+export const MENU_MIN_PAGES = 3;
+// A full sentence (12+ words, closing punctuation) repeated on a few pages is
+// usually one statement shown again in a "related news" sidebar: it counts
+// once (rule 3). Only on SENTENCE_MENU_MIN_PAGES or more pages is it site text.
+export const SENTENCE_MENU_MIN_PAGES = 6;
+const FULL_SENTENCE_WORDS = 12;
+/** Is this excerpt a full sentence, as opposed to a heading / label / fragment? */
+export const isFullSentence = (t) => String(t || "").trim().split(/\s+/).length >= FULL_SENTENCE_WORDS && /[.!?]["”’)]?$/.test(String(t || "").trim());
+export const OWN_EVIDENCE_VERSION = "locker-own-v1";
+
+// A listing page (newsroom, homepage, press-release index, page 2 …) repeats the
+// lead sentence of every release it lists. Those copies are not "the same text
+// on many pages": only article pages count toward the site-menu test.
+const INDEX_TYPE = /\b(?:newsroom|homepage|home page|index|in the news|press releases page|existing page)\b/i;
+const INDEX_PATH = /^\/?(?:index\.\w+)?$|\/(?:press-releases?|news|media|newsroom|statements|press|blog|updates|releases|in-the-news|media-center)\/?$/i;
+export function isIndexPage(doc) {
+  if (INDEX_TYPE.test(String(doc?.source_type || ""))) return true;
+  try { const u = new URL(String(doc?.link || "")); return INDEX_PATH.test(u.pathname) || /[?&](?:page|p|pg)=\d/.test(u.search); } catch { return false; }
+}
+const siteOf = (link) => { try { return new URL(String(link)).hostname.toLowerCase().replace(/^www\d?\./, ""); } catch { return ""; } };
+/** A sentence, normalised for "is this the same text?" (case, quotes, punctuation, spacing). */
+export const sameTextKey = (t) => String(t || "").toLowerCase().normalize("NFKC").replace(/[“”"‘’'…•●▪·|]/g, "").replace(/[^\p{L}\p{N}]+/gu, " ").trim();
+
+/**
+ * rows [{ key, doc, review }] → { kept, dropped: { foreign, menu, repeated },
+ * reasons: { [key]: reason } }. Pure; works on one or many politicians.
+ */
+export function ownEvidenceRows(rows, { menuMinPages = MENU_MIN_PAGES, sentenceMenuMinPages = SENTENCE_MENU_MIN_PAGES } = {}) {
+  const dropped = { foreign: 0, menu: 0, repeated: 0 };
+  const reasons = {};
+  const reviewed = (r) => r.review?.status === "reviewed";
+  // 1. Foreign pages.
+  const own = [];
+  for (const r of rows || []) {
+    const o = reviewed(r) ? { own: true } : itemOwnership(r.doc);
+    if (o.own) own.push(r);
+    else { dropped.foreign++; reasons[r.key] = `not their own page (${o.kind}): ${o.reason}`; }
+  }
+  // 2. Site menus: the same sentence on many pages of one site, per politician.
+  const pages = new Map();
+  for (const r of own) {
+    const t = sameTextKey(r.doc?.excerpt);
+    if (!t) continue;
+    const g = `${r.doc.politician_id}|${siteOf(r.doc.link)}|${t}`;
+    if (!pages.has(g)) pages.set(g, new Set());
+    if (!isIndexPage(r.doc)) pages.get(g).add(String(r.doc.link));
+  }
+  const menuGroup = (r) => { const t = sameTextKey(r.doc?.excerpt); return t ? pages.get(`${r.doc.politician_id}|${siteOf(r.doc.link)}|${t}`) : null; };
+  const notMenu = [];
+  for (const r of own) {
+    const g = menuGroup(r);
+    if (g && g.size >= (isFullSentence(r.doc.excerpt) ? sentenceMenuMinPages : menuMinPages) && !reviewed(r)) { dropped.menu++; reasons[r.key] = `site menu or repeated heading: the same text is on ${g.size} article pages of ${siteOf(r.doc.link)}`; }
+    else notMenu.push(r);
+  }
+  // 3. One sentence, one statement: the same text on one issue counts once.
+  const groups = new Map();
+  notMenu.forEach((r, i) => {
+    const t = sameTextKey(r.doc?.excerpt);
+    const g = t ? `${r.doc.politician_id}|${r.doc.topic}|${t}` : `#${i}`;
+    if (!groups.has(g)) groups.set(g, []);
+    groups.get(g).push({ r, i });
+  });
+  const keep = new Set();
+  for (const list of groups.values()) {
+    list.sort((a, b) =>
+      (reviewed(b.r) ? 1 : 0) - (reviewed(a.r) ? 1 : 0) ||
+      (a.r.doc.page_topic ? 1 : 0) - (b.r.doc.page_topic ? 1 : 0) ||
+      (STRENGTH_RANK[storedStrength(b.r.doc)] || 0) - (STRENGTH_RANK[storedStrength(a.r.doc)] || 0) ||
+      numOr(b.r.doc.confidence, 0) - numOr(a.r.doc.confidence, 0) ||
+      a.i - b.i);
+    keep.add(list[0].i);
+    for (const x of list.slice(1)) { dropped.repeated++; reasons[x.r.key] = `the same sentence is already counted from ${list[0].r.doc.link}`; }
+  }
+  return { kept: notMenu.filter((_, i) => keep.has(i)), dropped, reasons };
 }
