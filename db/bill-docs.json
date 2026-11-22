@@ -13090,6 +13090,408 @@
    ],
    "rs": "https://www.congress.gov/bill/119th-congress/senate-bill/5005"
   },
+  "119|S. 5653": {
+   "s": "119",
+   "n": "S. 5653",
+   "c": "senate",
+   "t": "Bipartisan American Affordability and Jobs Act of 2026",
+   "m": [
+    {
+     "i": "Court Orders on the Executive",
+     "k": "judicial_check"
+    },
+    {
+     "i": "Data Centers, Power & Ratepayers",
+     "k": "datacenter_power"
+    },
+    {
+     "i": "Energy & Resource Development",
+     "k": "lands_energy"
+    },
+    {
+     "i": "Expand Domestic Energy Production",
+     "k": "energy_production"
+    },
+    {
+     "i": "Faster Permits & Reviews",
+     "k": "permitting_reform"
+    },
+    {
+     "i": "Mine Cleanup & Mining Waste",
+     "k": "mine_cleanup"
+    },
+    {
+     "i": "Practical Stewardship",
+     "k": "enviro_balance"
+    },
+    {
+     "i": "Private Property Rights",
+     "k": "property_rights"
+    },
+    {
+     "i": "Protect Public Lands",
+     "k": "lands_preserve"
+    },
+    {
+     "i": "Rebuild Roads & Bridges",
+     "k": "infrastructure"
+    },
+    {
+     "i": "Tackle the Cost of Living",
+     "k": "cost_living"
+    },
+    {
+     "i": "Transparency & Anti-Corruption",
+     "k": "gov_transparency"
+    },
+    {
+     "i": "Tribal Consultation & Rights",
+     "k": "tribal_consultation"
+    },
+    {
+     "i": "Whose Rule Governs: State or Federal",
+     "k": "states_federal_power"
+    },
+    {
+     "i": "Wildfire & Disaster Resilience",
+     "k": "disaster_resilience"
+    }
+   ],
+   "st": "pending",
+   "sl": "Pending — in committee",
+   "o": {
+    "c": "senate",
+    "d": "2026-09-30"
+   },
+   "sp": {
+    "s": [
+     "capito"
+    ],
+    "c": [
+     "lee",
+     "whitehouse",
+     "heinrich"
+    ]
+   },
+   "h": [
+    {
+     "d": "2025-03-25",
+     "a": "H.R. 2347 — Introduced",
+     "x": "Introduced in House (vehicle; original tax-only text)."
+    },
+    {
+     "d": "2026-04-09",
+     "a": "H.R. 2347 — Reported from committee",
+     "x": "Reported (Amended) by the Committee on Ways and Means. H. Rept. 119-599."
+    },
+    {
+     "d": "2026-04-27",
+     "a": "H.R. 2347 — Passed the House",
+     "x": "On motion to suspend the rules and pass the bill, as amended Agreed to by voice vote."
+    },
+    {
+     "d": "2026-09-30",
+     "a": "Introduced",
+     "x": "Introduced in Senate"
+    },
+    {
+     "d": "2026-09-30",
+     "a": "Referred to committee",
+     "x": "Read twice and referred to the Committee on Energy and Natural Resources."
+    },
+    {
+     "d": "2026-11-09",
+     "a": "H.R. 2347 — Floor action",
+     "x": "Cloture on the motion to proceed invoked, 73-25 (record vote 257)."
+    },
+    {
+     "d": "2026-11-10",
+     "a": "H.R. 2347 — Floor action",
+     "x": "Motion to proceed agreed to, 62-21 (record vote 258)."
+    },
+    {
+     "d": "2026-11-10",
+     "a": "S.Amdt. 6883 — Floor action",
+     "x": "Amendment SA 6883 proposed by Senator Thune for Senator Capito. In the nature of a substitute."
+    },
+    {
+     "d": "2026-11-16",
+     "a": "S.Amdt. 6883 — Floor action",
+     "x": "Cloture on amendment SA 6883 invoked, 70-27 (record vote 264)."
+    },
+    {
+     "d": "2026-11-18",
+     "a": "H.R. 2347 — Floor action",
+     "x": "Motion to waive all applicable budgetary discipline agreed to, 70-26 (record vote 266)."
+    },
+    {
+     "d": "2026-11-18",
+     "a": "S.Amdt. 6883 — Floor action",
+     "x": "Amendment SA 6883 agreed to, 69-27 (record vote 267)."
+    },
+    {
+     "d": "2026-11-18",
+     "a": "H.R. 2347 — Floor action",
+     "x": "Cloture on the measure invoked, 65-31 (record vote 268)."
+    }
+   ],
+   "rs": "https://www.congress.gov/bill/119th-congress/senate-bill/5653",
+   "ld": {
+    "rows": [
+     {
+      "k": "permitting_reform",
+      "i": "Faster Permits & Reviews",
+      "d": "yea_supports",
+      "r": [
+       "Div. A, Title I, Sec. 1106",
+       "Div. A, Title I, Sec. 1110",
+       "Div. A, Title I, Sec. 1102",
+       "Div. A, Title II, Sec. 1202",
+       "Div. A, Title III, Sec. 1302",
+       "Div. B, Title II, Sec. 2201",
+       "Div. B, Title III, Sec. 2301"
+      ],
+      "qr": "Div. A, Title I, Sec. 1106",
+      "q": "the lead agency shall publish an environmental impact statement, if applicable, not later than the date that is 2 years after the earlier of, as applicable-- ``(I) the date on which the lead agency determines that section 102(2)(C) requires the issuance of an environmental impact statement with",
+      "w": "The key's scope is \"how long a federal review of a project takes and who may challenge it\". The bill sets 2-year and 1-year NEPA deadlines (1106), a 150-day window to sue (1110, 1205, 1305, 2201, and 1134 in the substitute), narrows what triggers review (1102, 2301), and shortens ESA consultation (1302). Advanced = narrower review and firm deadlines.",
+      "u": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm"
+     },
+     {
+      "k": "datacenter_power",
+      "i": "Data Centers, Power & Ratepayers",
+      "d": "yea_supports",
+      "r": [
+       "Div. B, Title I, Sec. 2107",
+       "Div. B, Title I, Sec. 2107 (FPA Sec. 229, substitute)"
+      ],
+      "qr": "Div. B, Title I, Sec. 2107",
+      "q": "(B) transmission service costs should be fully assigned to computational load owners and computational load operators so as to minimize or avoid the cost burden on other customers; and (C) computational load owners and computational load operators should incur the full cost of the transmission",
+      "w": "Chip: \"Make data centers ... pay their own way, so they don't raise family utility bills.\" Sec. 2107 assigns transmission costs fully to data-center owners and operators, and bars recovering their incremental costs from other customers.",
+      "u": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm"
+     },
+     {
+      "k": "energy_production",
+      "i": "Expand Domestic Energy Production",
+      "d": "yea_supports",
+      "r": [
+       "Div. B, Title II, Sec. 2211",
+       "Div. A, Title IV, Sec. 1401",
+       "Div. B, Title I, Sec. 2108",
+       "Div. B, Title II, Subtitle D, Secs. 2231-2234",
+       "Div. A, Title V, Secs. 1501-1504 (substitute only)"
+      ],
+      "qr": "Div. B, Title II, Sec. 2211",
+      "q": "the Secretary of the Interior shall not require a permit to drill for an oil and gas lease under the Mineral Leasing Act (30 U.S.C. 181 et seq.) for an action occurring within an oil and gas drilling or spacing unit if-- (1) the well is located on non-Federal land and the Federal Government owns",
+      "w": "Scope includes supply and \"firm generating capacity\". The bill drops federal drilling permits on mostly non-federal units (2211), keeps issued permits in place (1401), opens markets to dispatchable behind-the-meter resources (2108), eases hydropower licensing, and in the substitute eases nuclear licensing (1501-1503).",
+      "u": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm"
+     },
+     {
+      "k": "lands_energy",
+      "i": "Energy & Resource Development",
+      "d": "yea_supports",
+      "r": [
+       "Div. B, Title II, Sec. 2215",
+       "Div. B, Title II, Subtitle C, Secs. 2221-2229",
+       "Div. B, Title II, Sec. 2213"
+      ],
+      "qr": "Div. B, Title II, Sec. 2215",
+      "q": "the proprietor may-- ``(A) locate and include within the plan of operations as many mill site claims under this subsection as are reasonably necessary for its operations; and ``(B) use or occupy public land in accordance with an approved plan of operations. ``(3) Mill sites convey no mineral",
+      "w": "Scope names \"hardrock mining and the ground a claimant may occupy to work a claim\" and leasing availability on federal acreage. Sec. 2215 lets a claimant locate as many mill sites as reasonably necessary; Sec. 2223 moves geothermal lease sales from every 2 years to every year.",
+      "u": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm"
+     },
+     {
+      "k": "lands_preserve",
+      "i": "Protect Public Lands",
+      "d": "yea_opposes",
+      "r": [
+       "Div. A, Title III, Sec. 1302",
+       "Div. B, Title II, Subtitle F, Sec. 2251",
+       "Div. A, Title III, Sec. 1306",
+       "Div. A, Title III, Secs. 1307-1308",
+       "Div. A, Title III, Sec. 1309 (substitute only)"
+      ],
+      "qr": "Div. B, Title II, Subtitle F, Sec. 2251",
+      "q": "``(B) Exception.--Notwithstanding subparagraph (A), the Secretary, in consultation with the Secretary of Commerce under section 304(d) of the National Marine Sanctuaries Act (16 U.S.C. 1434(d)), may grant rights- of-way on the outer Continental Shelf within units of the National Marine Sanctuary",
+      "w": "Scope files endangered-species and protected-area measures here. Operative changes cut against protection: shorter ESA consultation (1302) and new authority to grant offshore rights-of-way inside sanctuaries and monuments (2251). On the other side are authorizations of appropriations ($150M a year for ESA, $50M a year for a coastal fund) and wildlife-plan deadlines; authorizations spend nothing until appropriated. Read as yea_opposes with that counterweight stated. Contested: see claims.",
+      "u": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm"
+     },
+     {
+      "k": "states_federal_power",
+      "i": "Whose Rule Governs: State or Federal",
+      "d": "yea_opposes",
+      "r": [
+       "Div. A, Title II, Sec. 1202",
+       "Div. B, Title I, Sec. 2101"
+      ],
+      "qr": "Div. A, Title II, Sec. 1202",
+      "q": "``(2) Scope of certification.-- ``(A) In general.--The scope of a certification provided under this section shall be limited to ensuring compliance with water quality requirements. ``(B) Prohibition.--In reviewing a certification application, no certifying authority may-- ``(i) deny certification",
+      "w": "Chip: \"let the state's choice stand.\" Sec. 1202 limits what a State may weigh or condition in a section 401 certification, and Sec. 2101 widens FERC's power to permit interstate lines over State siting. Both make the federal rule govern. The State roles in Secs. 1105(a)(5), 1304 and 1306 are delegations of federal work, not preemption, so they do not reverse this.",
+      "u": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm"
+     },
+     {
+      "k": "judicial_check",
+      "i": "Court Orders on the Executive",
+      "d": "yea_opposes",
+      "r": [
+       "Div. A, Title I, Sec. 1110"
+      ],
+      "qr": "Div. A, Title I, Sec. 1110",
+      "q": "``(5) Remedy.-- ``(A) In general.--Except as provided in subparagraph (B) and notwithstanding any other provision of law, if a court determines that an authorization does not comply with the requirements of this Act, the only remedy the court may order to redress that violation is to remand,",
+      "w": "Scope: \"the reach of a court's order against the executive branch ... equitable relief.\" Sec. 1110(5) makes remand \"without vacatur or issuance of an injunction\" the only remedy for a NEPA violation, with a narrow preliminary-injunction exception. Chip: \"Let federal courts halt unlawful executive action.\"",
+      "u": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm"
+     },
+     {
+      "k": "infrastructure",
+      "i": "Rebuild Roads & Bridges",
+      "d": "yea_supports",
+      "r": [
+       "Div. B, Title I, Sec. 2101",
+       "Div. B, Title I, Secs. 2102-2106, 2109-2110"
+      ],
+      "qr": "Div. B, Title I, Sec. 2101",
+      "q": "the Commission shall, after notice and an opportunity for hearing, including a public comment period of at least 45 days, issue one or more permits to individual or joint applicants for the construction or modification of electric transmission facilities necessary in the national interest if the",
+      "w": "Chip names \"the power grid.\" Title I widens FERC transmission siting (2101), speeds reconductoring, and requires regional and interregional planning. The mechanism is siting and planning authority, not new federal money.",
+      "u": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm"
+     },
+     {
+      "k": "cost_living",
+      "i": "Tackle the Cost of Living",
+      "d": "yea_supports",
+      "r": [
+       "Div. B, Title I, Sec. 2107"
+      ],
+      "qr": "Div. B, Title I, Sec. 2107",
+      "q": "(B) transmission service costs should be fully assigned to computational load owners and computational load operators so as to minimize or avoid the cost burden on other customers; and (C) computational load owners and computational load operators should incur the full cost of the transmission",
+      "w": "Chip names utility prices. Sec. 2107 keeps data-center grid costs off other customers' rates. Supporters' household-savings figures are modeling, not text, and are not relied on here.",
+      "u": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm"
+     },
+     {
+      "k": "enviro_balance",
+      "i": "Practical Stewardship",
+      "d": "yea_supports",
+      "r": [
+       "Div. A, Title VI, Sec. 1602 (substitute only)",
+       "Div. B, Title III, Sec. 2302",
+       "Div. A, Title III, Secs. 1307-1308"
+      ],
+      "qr": "Div. A, Title VI, Sec. 1602 (substitute only)",
+      "q": "``(A) In general.--There is authorized to be appropriated to carry out this subsection $200,000,000 for each of fiscal years 2027 through 2031. ``(B) Funding for oversight.--Of the amounts made available under this paragraph for each fiscal year, 0.5 percent shall be available to carry out",
+      "w": "Chip: \"Protect clean air and water while keeping responsible jobs.\" Brownfield cleanup-and-reuse grants (1602, substitute only) are the clearest fit, alongside the conservation and preservation fund authorizations. Precedent: H.R. 7567 conservation programs on this key.",
+      "u": "https://www.congress.gov/119/crec/2026/11/10/172/169/modified/CREC-2026-11-10-pt1-PgS5471-2.htm"
+     },
+     {
+      "k": "tribal_consultation",
+      "i": "Tribal Consultation & Rights",
+      "d": "yea_supports",
+      "r": [
+       "Div. B, Title II, Sec. 2212",
+       "Div. B, Title III, Sec. 2301 (Tribal property definition)",
+       "Div. B, Title III, Sec. 2302"
+      ],
+      "qr": "Div. B, Title III, Sec. 2301 (Tribal property definition)",
+      "q": "``(1) Definition of property of traditional religious or cultural importance.--In this subsection, the term `property of traditional religious or cultural importance' means an identifiable geographic location or feature at which an event of continuing religious or cultural significance to a living",
+      "w": "Scope: government-to-government consultation, Tribal sovereignty, and protection of Tribal land, resources and cultural sites. Sec. 2212 lets a Tribe grant rights-of-way over its own land without Interior approval, Sec. 2301 writes a definition of property of traditional religious or cultural importance into law, and Sec. 2302 creates grants for Tribal Historic Preservation Officers. Split row: the sections that run against this key are in the yea_opposes row below. Contested: see claim tribal-consultation.",
+      "u": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm"
+     },
+     {
+      "k": "tribal_consultation",
+      "i": "Tribal Consultation & Rights",
+      "d": "yea_opposes",
+      "r": [
+       "Div. B, Title III, Sec. 2301"
+      ],
+      "qr": "Div. B, Title III, Sec. 2301",
+      "q": "the Secretary shall disapprove the tribal program and suspend in whole or in part any contracts or cooperative agreements with the Indian tribe and the Tribal Historic Preservation Officer under this division, until the program is consistent with this division, unless the Secretary determines",
+      "w": "Sec. 2301 narrows what counts as an \"adverse effect\" (visual, atmospheric and audible elements generally excluded), which shrinks the set of effects on Tribal cultural sites that trigger review. It also adds 54 U.S.C. 302707, under which Interior must disapprove a Tribal preservation program, and suspend its contracts, if the Tribal Historic Preservation Officer does not regularly meet consultation timelines. Both cut against the key. The substitute adds that agencies keep their duty to consult Tribes under section 302706(b), which limits but does not remove these effects. Split row: the sections that run with this key are in the yea_supports row above. Contested: see claim tribal-consultation.",
+      "u": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm"
+     },
+     {
+      "k": "property_rights",
+      "i": "Private Property Rights",
+      "d": "yea_opposes",
+      "r": [
+       "Div. B, Title I, Sec. 2101",
+       "Div. B, Title I, Sec. 2101(d) (FPA 216(e) rights-of-way)"
+      ],
+      "qr": "Div. B, Title I, Sec. 2101(d) (FPA 216(e) rights-of-way)",
+      "q": "Section 216(e) of the Federal Power Act (16 U.S.C. 824p(e)) is amended by striking ``or a State'' in paragraph (1) and by striking ``shall conform as nearly as practicable to the practice and procedure in a similar action or proceeding in the courts of the State",
+      "w": "Scope: what a government may do to a parcel its owner holds, including eminent domain and condemnation. Sec. 2101 directs FERC to issue construction permits for interstate lines it finds in the national interest, and a permit holder may acquire rights-of-way by eminent domain under existing Federal Power Act sec. 216(e). Sec. 2101(d) amends that condemnation subsection: actions follow federal Rule 71.1 rather than State-court practice, and the substitute removes the exclusion for State-owned land. More permits carrying the same taking power run against the key. Split row: the section that runs with this key is in the yea_supports row below.",
+      "u": "https://www.congress.gov/119/crec/2026/11/10/172/169/modified/CREC-2026-11-10-pt1-PgS5471-2.htm"
+     },
+     {
+      "k": "property_rights",
+      "i": "Private Property Rights",
+      "d": "yea_supports",
+      "r": [
+       "Div. B, Title II, Sec. 2211"
+      ],
+      "qr": "Div. B, Title II, Sec. 2211",
+      "q": "(1) the well is located on non-Federal land and the Federal Government owns less than 50 percent of the oil and gas minerals within the oil and gas drilling or spacing unit;",
+      "w": "Scope covers a government forbidding a use of a parcel. Sec. 2211 bars Interior from requiring a federal drilling permit for wells on non-Federal land where the federal share of the unit's minerals is under 50 percent, leaving State and Tribal rules in place. That removes a federal condition on a use of non-federal land, which runs with the key. It is one section about a permit, not a taking. Split row: the sections that run against this key are in the yea_opposes row above.",
+      "u": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm"
+     },
+     {
+      "k": "mine_cleanup",
+      "i": "Mine Cleanup & Mining Waste",
+      "d": "yea_supports",
+      "r": [
+       "Div. B, Title II, Sec. 2215(d) (Abandoned Hardrock Mine Fund)"
+      ],
+      "qr": "Div. B, Title II, Sec. 2215(d) (Abandoned Hardrock Mine Fund)",
+      "q": "There is established in the Treasury of the United States a separate account, to be known as the ``Abandoned Hardrock Mine Fund''",
+      "w": "Scope: cleaning up abandoned mines and handling mining waste. Sec. 2215(d) creates a dedicated fund, paid by mill-site claim fees and hardrock lease receipts and spendable without further appropriation, only for the IIJA sec. 40704 abandoned hardrock mine reclamation program. New mandatory money for cleanup runs with the key. It is one subsection of Sec. 2215. Split row: the sections that run against this key are in the yea_opposes row below.",
+      "u": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm"
+     },
+     {
+      "k": "mine_cleanup",
+      "i": "Mine Cleanup & Mining Waste",
+      "d": "yea_opposes",
+      "r": [
+       "Div. B, Title II, Sec. 2215"
+      ],
+      "qr": "Div. B, Title II, Sec. 2215",
+      "q": "locate and include within the plan of operations as many mill site claims under this subsection as are reasonably necessary for its operations",
+      "w": "Scope covers where waste rock and tailings may go. Sec. 2215(a) defines a mill site as public land reasonably necessary for waste rock or tailings disposal and lets a claimant locate as many as are reasonably necessary, notwithstanding the existing limits in Revised Statutes sec. 2337(a) and (b). Each site is capped at 5 acres, but the number is not. Widening where mining waste may be placed on public land runs against the key. It is the operative body of the section. Split row: the subsection that runs with this key is in the yea_supports row above.",
+      "u": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm"
+     },
+     {
+      "k": "gov_transparency",
+      "i": "Transparency & Anti-Corruption",
+      "d": "yea_supports",
+      "r": [
+       "Div. A, Title I, Sec. 1132",
+       "Div. B, Title I, Secs. 2111, 2114",
+       "Div. B, Title II, Sec. 2261 (substitute only)",
+       "Div. A, Title I, Sec. 1121"
+      ],
+      "qr": "Div. B, Title II, Sec. 2261 (substitute only)",
+      "q": "(1) Public announcement.--Not later than 72 hours after altering a directive or safety standard relating to covered DOE nuclear facilities, the Secretary of Energy shall post, on a publicly accessible website of the Department of Energy, an announcement regarding such alteration. (2)",
+      "w": "Scope includes publishing the basis for decisions. A public permitting tracker (1132), EIA data-center load reporting (2114), and a 72-hour DOE notice of nuclear safety-standard changes (2261) all require more disclosure. These are narrow links.",
+      "u": "https://www.congress.gov/119/crec/2026/11/10/172/169/modified/CREC-2026-11-10-pt1-PgS5471-2.htm"
+     },
+     {
+      "k": "disaster_resilience",
+      "i": "Wildfire & Disaster Resilience",
+      "d": "yea_supports",
+      "r": [
+       "Div. A, Title VI, Sec. 1601 (substitute only)"
+      ],
+      "qr": "Div. A, Title VI, Sec. 1601 (substitute only)",
+      "q": "``(ii) Inclusion.--The term `prescribed fire' includes cultural burning activities, as determined by an Indian tribe.''; (B) in paragraph (2), by striking subparagraph (B) and inserting the following: ``(B) Revision of regulations.-- ``(i) Proposed revisions.--Not later than 270 days after the date",
+      "w": "Chip: \"Prepare for wildfires.\" Sec. 1601 (substitute only) makes prescribed fire, including Tribal cultural burning, an exceptional event for air-quality data, easing fuel-reduction burns. It is one section.",
+      "u": "https://www.congress.gov/119/crec/2026/11/10/172/169/modified/CREC-2026-11-10-pt1-PgS5471-2.htm"
+     }
+    ],
+    "cn": "15 keys mapped in 18 rows, 15 considered and declined. Three keys are split under splitMappingRule: tribal_consultation (added to the register 2026-11-19, listed as a vocabulary gap in the first pass) into a yea_supports row (Secs. 2212, 2301 definition, 2302) and a yea_opposes row (Sec. 2301 adverse-effect standard and program suspension); property_rights, first declined as running both ways, into a yea_opposes row (Sec. 2101 transmission permits and the 216(e) condemnation changes) and a yea_supports row (Sec. 2211 drilling permits on non-federal land); mine_cleanup (added to the register 2026-11-20) into a yea_supports row (Sec. 2215(d) Abandoned Hardrock Mine Fund) and a yea_opposes row (Sec. 2215 unlimited mill sites for waste rock and tailings).",
+    "eq": "Every mapping row is equal. Rows carry no weight, no primary label and no rank, and their order is not a ranking. Each row records a key, a direction, the sections it rests on, a quote and a rationale.",
+    "a": [
+     "BAAJA",
+     "American Affordability"
+    ],
+    "f": "db/bill-standard/119-s-5653.json",
+    "vr": true
+   }
+  },
   "119|S.Amdt. 8": {
    "s": "119",
    "n": "S.Amdt. 8",
@@ -38176,407 +38578,6 @@
     }
    ],
    "rs": "https://le.utah.gov/~2026/bills/static/SB0318.html"
-  },
-  "119|S. 5653": {
-   "s": "119",
-   "n": "S. 5653",
-   "c": "senate",
-   "t": "Bipartisan American Affordability and Jobs Act of 2026",
-   "m": [
-    {
-     "i": "Court Orders on the Executive",
-     "k": "judicial_check"
-    },
-    {
-     "i": "Data Centers, Power & Ratepayers",
-     "k": "datacenter_power"
-    },
-    {
-     "i": "Energy & Resource Development",
-     "k": "lands_energy"
-    },
-    {
-     "i": "Expand Domestic Energy Production",
-     "k": "energy_production"
-    },
-    {
-     "i": "Faster Permits & Reviews",
-     "k": "permitting_reform"
-    },
-    {
-     "i": "Mine Cleanup & Mining Waste",
-     "k": "mine_cleanup"
-    },
-    {
-     "i": "Practical Stewardship",
-     "k": "enviro_balance"
-    },
-    {
-     "i": "Private Property Rights",
-     "k": "property_rights"
-    },
-    {
-     "i": "Protect Public Lands",
-     "k": "lands_preserve"
-    },
-    {
-     "i": "Rebuild Roads & Bridges",
-     "k": "infrastructure"
-    },
-    {
-     "i": "Tackle the Cost of Living",
-     "k": "cost_living"
-    },
-    {
-     "i": "Transparency & Anti-Corruption",
-     "k": "gov_transparency"
-    },
-    {
-     "i": "Tribal Consultation & Rights",
-     "k": "tribal_consultation"
-    },
-    {
-     "i": "Whose Rule Governs: State or Federal",
-     "k": "states_federal_power"
-    },
-    {
-     "i": "Wildfire & Disaster Resilience",
-     "k": "disaster_resilience"
-    }
-   ],
-   "st": "pending",
-   "sl": "Pending — in committee",
-   "o": {
-    "c": "senate",
-    "d": "2026-09-30"
-   },
-   "sp": {
-    "s": [
-     "capito"
-    ],
-    "c": [
-     "lee",
-     "whitehouse",
-     "heinrich"
-    ]
-   },
-   "h": [
-    {
-     "d": "2025-03-25",
-     "a": "H.R. 2347 — Introduced",
-     "x": "Introduced in House (vehicle; original tax-only text)."
-    },
-    {
-     "d": "2026-04-09",
-     "a": "H.R. 2347 — Reported from committee",
-     "x": "Reported (Amended) by the Committee on Ways and Means. H. Rept. 119-599."
-    },
-    {
-     "d": "2026-04-27",
-     "a": "H.R. 2347 — Passed the House",
-     "x": "On motion to suspend the rules and pass the bill, as amended Agreed to by voice vote."
-    },
-    {
-     "d": "2026-09-30",
-     "a": "Introduced",
-     "x": "Introduced in Senate"
-    },
-    {
-     "d": "2026-09-30",
-     "a": "Referred to committee",
-     "x": "Read twice and referred to the Committee on Energy and Natural Resources."
-    },
-    {
-     "d": "2026-11-09",
-     "a": "H.R. 2347 — Floor action",
-     "x": "Cloture on the motion to proceed invoked, 73-25 (record vote 257)."
-    },
-    {
-     "d": "2026-11-10",
-     "a": "H.R. 2347 — Floor action",
-     "x": "Motion to proceed agreed to, 62-21 (record vote 258)."
-    },
-    {
-     "d": "2026-11-10",
-     "a": "S.Amdt. 6883 — Floor action",
-     "x": "Amendment SA 6883 proposed by Senator Thune for Senator Capito. In the nature of a substitute."
-    },
-    {
-     "d": "2026-11-16",
-     "a": "S.Amdt. 6883 — Floor action",
-     "x": "Cloture on amendment SA 6883 invoked, 70-27 (record vote 264)."
-    },
-    {
-     "d": "2026-11-18",
-     "a": "H.R. 2347 — Floor action",
-     "x": "Motion to waive all applicable budgetary discipline agreed to, 70-26 (record vote 266)."
-    },
-    {
-     "d": "2026-11-18",
-     "a": "S.Amdt. 6883 — Floor action",
-     "x": "Amendment SA 6883 agreed to, 69-27 (record vote 267)."
-    },
-    {
-     "d": "2026-11-18",
-     "a": "H.R. 2347 — Floor action",
-     "x": "Cloture on the measure invoked, 65-31 (record vote 268)."
-    }
-   ],
-   "rs": "https://www.congress.gov/bill/119th-congress/senate-bill/5653",
-   "ld": {
-    "rows": [
-     {
-      "k": "permitting_reform",
-      "i": "Faster Permits & Reviews",
-      "d": "yea_supports",
-      "r": [
-       "Div. A, Title I, Sec. 1106",
-       "Div. A, Title I, Sec. 1110",
-       "Div. A, Title I, Sec. 1102",
-       "Div. A, Title II, Sec. 1202",
-       "Div. A, Title III, Sec. 1302",
-       "Div. B, Title II, Sec. 2201",
-       "Div. B, Title III, Sec. 2301"
-      ],
-      "qr": "Div. A, Title I, Sec. 1106",
-      "q": "the lead agency shall publish an environmental impact statement, if applicable, not later than the date that is 2 years after the earlier of, as applicable-- ``(I) the date on which the lead agency determines that section 102(2)(C) requires the issuance of an environmental impact statement with",
-      "w": "The key's scope is \"how long a federal review of a project takes and who may challenge it\". The bill sets 2-year and 1-year NEPA deadlines (1106), a 150-day window to sue (1110, 1205, 1305, 2201, and 1134 in the substitute), narrows what triggers review (1102, 2301), and shortens ESA consultation (1302). Advanced = narrower review and firm deadlines.",
-      "u": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm"
-     },
-     {
-      "k": "datacenter_power",
-      "i": "Data Centers, Power & Ratepayers",
-      "d": "yea_supports",
-      "r": [
-       "Div. B, Title I, Sec. 2107",
-       "Div. B, Title I, Sec. 2107 (FPA Sec. 229, substitute)"
-      ],
-      "qr": "Div. B, Title I, Sec. 2107",
-      "q": "(B) transmission service costs should be fully assigned to computational load owners and computational load operators so as to minimize or avoid the cost burden on other customers; and (C) computational load owners and computational load operators should incur the full cost of the transmission",
-      "w": "Chip: \"Make data centers ... pay their own way, so they don't raise family utility bills.\" Sec. 2107 assigns transmission costs fully to data-center owners and operators, and bars recovering their incremental costs from other customers.",
-      "u": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm"
-     },
-     {
-      "k": "energy_production",
-      "i": "Expand Domestic Energy Production",
-      "d": "yea_supports",
-      "r": [
-       "Div. B, Title II, Sec. 2211",
-       "Div. A, Title IV, Sec. 1401",
-       "Div. B, Title I, Sec. 2108",
-       "Div. B, Title II, Subtitle D, Secs. 2231-2234",
-       "Div. A, Title V, Secs. 1501-1504 (substitute only)"
-      ],
-      "qr": "Div. B, Title II, Sec. 2211",
-      "q": "the Secretary of the Interior shall not require a permit to drill for an oil and gas lease under the Mineral Leasing Act (30 U.S.C. 181 et seq.) for an action occurring within an oil and gas drilling or spacing unit if-- (1) the well is located on non-Federal land and the Federal Government owns",
-      "w": "Scope includes supply and \"firm generating capacity\". The bill drops federal drilling permits on mostly non-federal units (2211), keeps issued permits in place (1401), opens markets to dispatchable behind-the-meter resources (2108), eases hydropower licensing, and in the substitute eases nuclear licensing (1501-1503).",
-      "u": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm"
-     },
-     {
-      "k": "lands_energy",
-      "i": "Energy & Resource Development",
-      "d": "yea_supports",
-      "r": [
-       "Div. B, Title II, Sec. 2215",
-       "Div. B, Title II, Subtitle C, Secs. 2221-2229",
-       "Div. B, Title II, Sec. 2213"
-      ],
-      "qr": "Div. B, Title II, Sec. 2215",
-      "q": "the proprietor may-- ``(A) locate and include within the plan of operations as many mill site claims under this subsection as are reasonably necessary for its operations; and ``(B) use or occupy public land in accordance with an approved plan of operations. ``(3) Mill sites convey no mineral",
-      "w": "Scope names \"hardrock mining and the ground a claimant may occupy to work a claim\" and leasing availability on federal acreage. Sec. 2215 lets a claimant locate as many mill sites as reasonably necessary; Sec. 2223 moves geothermal lease sales from every 2 years to every year.",
-      "u": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm"
-     },
-     {
-      "k": "lands_preserve",
-      "i": "Protect Public Lands",
-      "d": "yea_opposes",
-      "r": [
-       "Div. A, Title III, Sec. 1302",
-       "Div. B, Title II, Subtitle F, Sec. 2251",
-       "Div. A, Title III, Sec. 1306",
-       "Div. A, Title III, Secs. 1307-1308",
-       "Div. A, Title III, Sec. 1309 (substitute only)"
-      ],
-      "qr": "Div. B, Title II, Subtitle F, Sec. 2251",
-      "q": "``(B) Exception.--Notwithstanding subparagraph (A), the Secretary, in consultation with the Secretary of Commerce under section 304(d) of the National Marine Sanctuaries Act (16 U.S.C. 1434(d)), may grant rights- of-way on the outer Continental Shelf within units of the National Marine Sanctuary",
-      "w": "Scope files endangered-species and protected-area measures here. Operative changes cut against protection: shorter ESA consultation (1302) and new authority to grant offshore rights-of-way inside sanctuaries and monuments (2251). On the other side are authorizations of appropriations ($150M a year for ESA, $50M a year for a coastal fund) and wildlife-plan deadlines; authorizations spend nothing until appropriated. Read as yea_opposes with that counterweight stated. Contested: see claims.",
-      "u": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm"
-     },
-     {
-      "k": "states_federal_power",
-      "i": "Whose Rule Governs: State or Federal",
-      "d": "yea_opposes",
-      "r": [
-       "Div. A, Title II, Sec. 1202",
-       "Div. B, Title I, Sec. 2101"
-      ],
-      "qr": "Div. A, Title II, Sec. 1202",
-      "q": "``(2) Scope of certification.-- ``(A) In general.--The scope of a certification provided under this section shall be limited to ensuring compliance with water quality requirements. ``(B) Prohibition.--In reviewing a certification application, no certifying authority may-- ``(i) deny certification",
-      "w": "Chip: \"let the state's choice stand.\" Sec. 1202 limits what a State may weigh or condition in a section 401 certification, and Sec. 2101 widens FERC's power to permit interstate lines over State siting. Both make the federal rule govern. The State roles in Secs. 1105(a)(5), 1304 and 1306 are delegations of federal work, not preemption, so they do not reverse this.",
-      "u": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm"
-     },
-     {
-      "k": "judicial_check",
-      "i": "Court Orders on the Executive",
-      "d": "yea_opposes",
-      "r": [
-       "Div. A, Title I, Sec. 1110"
-      ],
-      "qr": "Div. A, Title I, Sec. 1110",
-      "q": "``(5) Remedy.-- ``(A) In general.--Except as provided in subparagraph (B) and notwithstanding any other provision of law, if a court determines that an authorization does not comply with the requirements of this Act, the only remedy the court may order to redress that violation is to remand,",
-      "w": "Scope: \"the reach of a court's order against the executive branch ... equitable relief.\" Sec. 1110(5) makes remand \"without vacatur or issuance of an injunction\" the only remedy for a NEPA violation, with a narrow preliminary-injunction exception. Chip: \"Let federal courts halt unlawful executive action.\"",
-      "u": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm"
-     },
-     {
-      "k": "infrastructure",
-      "i": "Rebuild Roads & Bridges",
-      "d": "yea_supports",
-      "r": [
-       "Div. B, Title I, Sec. 2101",
-       "Div. B, Title I, Secs. 2102-2106, 2109-2110"
-      ],
-      "qr": "Div. B, Title I, Sec. 2101",
-      "q": "the Commission shall, after notice and an opportunity for hearing, including a public comment period of at least 45 days, issue one or more permits to individual or joint applicants for the construction or modification of electric transmission facilities necessary in the national interest if the",
-      "w": "Chip names \"the power grid.\" Title I widens FERC transmission siting (2101), speeds reconductoring, and requires regional and interregional planning. The mechanism is siting and planning authority, not new federal money.",
-      "u": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm"
-     },
-     {
-      "k": "cost_living",
-      "i": "Tackle the Cost of Living",
-      "d": "yea_supports",
-      "r": [
-       "Div. B, Title I, Sec. 2107"
-      ],
-      "qr": "Div. B, Title I, Sec. 2107",
-      "q": "(B) transmission service costs should be fully assigned to computational load owners and computational load operators so as to minimize or avoid the cost burden on other customers; and (C) computational load owners and computational load operators should incur the full cost of the transmission",
-      "w": "Chip names utility prices. Sec. 2107 keeps data-center grid costs off other customers' rates. Supporters' household-savings figures are modeling, not text, and are not relied on here.",
-      "u": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm"
-     },
-     {
-      "k": "enviro_balance",
-      "i": "Practical Stewardship",
-      "d": "yea_supports",
-      "r": [
-       "Div. A, Title VI, Sec. 1602 (substitute only)",
-       "Div. B, Title III, Sec. 2302",
-       "Div. A, Title III, Secs. 1307-1308"
-      ],
-      "qr": "Div. A, Title VI, Sec. 1602 (substitute only)",
-      "q": "``(A) In general.--There is authorized to be appropriated to carry out this subsection $200,000,000 for each of fiscal years 2027 through 2031. ``(B) Funding for oversight.--Of the amounts made available under this paragraph for each fiscal year, 0.5 percent shall be available to carry out",
-      "w": "Chip: \"Protect clean air and water while keeping responsible jobs.\" Brownfield cleanup-and-reuse grants (1602, substitute only) are the clearest fit, alongside the conservation and preservation fund authorizations. Precedent: H.R. 7567 conservation programs on this key.",
-      "u": "https://www.congress.gov/119/crec/2026/11/10/172/169/modified/CREC-2026-11-10-pt1-PgS5471-2.htm"
-     },
-     {
-      "k": "tribal_consultation",
-      "i": "Tribal Consultation & Rights",
-      "d": "yea_supports",
-      "r": [
-       "Div. B, Title II, Sec. 2212",
-       "Div. B, Title III, Sec. 2301 (Tribal property definition)",
-       "Div. B, Title III, Sec. 2302"
-      ],
-      "qr": "Div. B, Title III, Sec. 2301 (Tribal property definition)",
-      "q": "``(1) Definition of property of traditional religious or cultural importance.--In this subsection, the term `property of traditional religious or cultural importance' means an identifiable geographic location or feature at which an event of continuing religious or cultural significance to a living",
-      "w": "Scope: government-to-government consultation, Tribal sovereignty, and protection of Tribal land, resources and cultural sites. Sec. 2212 lets a Tribe grant rights-of-way over its own land without Interior approval, Sec. 2301 writes a definition of property of traditional religious or cultural importance into law, and Sec. 2302 creates grants for Tribal Historic Preservation Officers. Split row: the sections that run against this key are in the yea_opposes row below. Contested: see claim tribal-consultation.",
-      "u": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm"
-     },
-     {
-      "k": "tribal_consultation",
-      "i": "Tribal Consultation & Rights",
-      "d": "yea_opposes",
-      "r": [
-       "Div. B, Title III, Sec. 2301"
-      ],
-      "qr": "Div. B, Title III, Sec. 2301",
-      "q": "the Secretary shall disapprove the tribal program and suspend in whole or in part any contracts or cooperative agreements with the Indian tribe and the Tribal Historic Preservation Officer under this division, until the program is consistent with this division, unless the Secretary determines",
-      "w": "Sec. 2301 narrows what counts as an \"adverse effect\" (visual, atmospheric and audible elements generally excluded), which shrinks the set of effects on Tribal cultural sites that trigger review. It also adds 54 U.S.C. 302707, under which Interior must disapprove a Tribal preservation program, and suspend its contracts, if the Tribal Historic Preservation Officer does not regularly meet consultation timelines. Both cut against the key. The substitute adds that agencies keep their duty to consult Tribes under section 302706(b), which limits but does not remove these effects. Split row: the sections that run with this key are in the yea_supports row above. Contested: see claim tribal-consultation.",
-      "u": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm"
-     },
-     {
-      "k": "property_rights",
-      "i": "Private Property Rights",
-      "d": "yea_opposes",
-      "r": [
-       "Div. B, Title I, Sec. 2101",
-       "Div. B, Title I, Sec. 2101(d) (FPA 216(e) rights-of-way)"
-      ],
-      "qr": "Div. B, Title I, Sec. 2101(d) (FPA 216(e) rights-of-way)",
-      "q": "Section 216(e) of the Federal Power Act (16 U.S.C. 824p(e)) is amended by striking ``or a State'' in paragraph (1) and by striking ``shall conform as nearly as practicable to the practice and procedure in a similar action or proceeding in the courts of the State",
-      "w": "Scope: what a government may do to a parcel its owner holds, including eminent domain and condemnation. Sec. 2101 directs FERC to issue construction permits for interstate lines it finds in the national interest, and a permit holder may acquire rights-of-way by eminent domain under existing Federal Power Act sec. 216(e). Sec. 2101(d) amends that condemnation subsection: actions follow federal Rule 71.1 rather than State-court practice, and the substitute removes the exclusion for State-owned land. More permits carrying the same taking power run against the key. Split row: the section that runs with this key is in the yea_supports row below.",
-      "u": "https://www.congress.gov/119/crec/2026/11/10/172/169/modified/CREC-2026-11-10-pt1-PgS5471-2.htm"
-     },
-     {
-      "k": "property_rights",
-      "i": "Private Property Rights",
-      "d": "yea_supports",
-      "r": [
-       "Div. B, Title II, Sec. 2211"
-      ],
-      "qr": "Div. B, Title II, Sec. 2211",
-      "q": "(1) the well is located on non-Federal land and the Federal Government owns less than 50 percent of the oil and gas minerals within the oil and gas drilling or spacing unit;",
-      "w": "Scope covers a government forbidding a use of a parcel. Sec. 2211 bars Interior from requiring a federal drilling permit for wells on non-Federal land where the federal share of the unit's minerals is under 50 percent, leaving State and Tribal rules in place. That removes a federal condition on a use of non-federal land, which runs with the key. It is one section about a permit, not a taking. Split row: the sections that run against this key are in the yea_opposes row above.",
-      "u": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm"
-     },
-     {
-      "k": "mine_cleanup",
-      "i": "Mine Cleanup & Mining Waste",
-      "d": "yea_supports",
-      "r": [
-       "Div. B, Title II, Sec. 2215(d) (Abandoned Hardrock Mine Fund)"
-      ],
-      "qr": "Div. B, Title II, Sec. 2215(d) (Abandoned Hardrock Mine Fund)",
-      "q": "There is established in the Treasury of the United States a separate account, to be known as the ``Abandoned Hardrock Mine Fund''",
-      "w": "Scope: cleaning up abandoned mines and handling mining waste. Sec. 2215(d) creates a dedicated fund, paid by mill-site claim fees and hardrock lease receipts and spendable without further appropriation, only for the IIJA sec. 40704 abandoned hardrock mine reclamation program. New mandatory money for cleanup runs with the key. It is one subsection of Sec. 2215. Split row: the sections that run against this key are in the yea_opposes row below.",
-      "u": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm"
-     },
-     {
-      "k": "mine_cleanup",
-      "i": "Mine Cleanup & Mining Waste",
-      "d": "yea_opposes",
-      "r": [
-       "Div. B, Title II, Sec. 2215"
-      ],
-      "qr": "Div. B, Title II, Sec. 2215",
-      "q": "locate and include within the plan of operations as many mill site claims under this subsection as are reasonably necessary for its operations",
-      "w": "Scope covers where waste rock and tailings may go. Sec. 2215(a) defines a mill site as public land reasonably necessary for waste rock or tailings disposal and lets a claimant locate as many as are reasonably necessary, notwithstanding the existing limits in Revised Statutes sec. 2337(a) and (b). Each site is capped at 5 acres, but the number is not. Widening where mining waste may be placed on public land runs against the key. It is the operative body of the section. Split row: the subsection that runs with this key is in the yea_supports row above.",
-      "u": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm"
-     },
-     {
-      "k": "gov_transparency",
-      "i": "Transparency & Anti-Corruption",
-      "d": "yea_supports",
-      "r": [
-       "Div. A, Title I, Sec. 1132",
-       "Div. B, Title I, Secs. 2111, 2114",
-       "Div. B, Title II, Sec. 2261 (substitute only)",
-       "Div. A, Title I, Sec. 1121"
-      ],
-      "qr": "Div. B, Title II, Sec. 2261 (substitute only)",
-      "q": "(1) Public announcement.--Not later than 72 hours after altering a directive or safety standard relating to covered DOE nuclear facilities, the Secretary of Energy shall post, on a publicly accessible website of the Department of Energy, an announcement regarding such alteration. (2)",
-      "w": "Scope includes publishing the basis for decisions. A public permitting tracker (1132), EIA data-center load reporting (2114), and a 72-hour DOE notice of nuclear safety-standard changes (2261) all require more disclosure. These are narrow links.",
-      "u": "https://www.congress.gov/119/crec/2026/11/10/172/169/modified/CREC-2026-11-10-pt1-PgS5471-2.htm"
-     },
-     {
-      "k": "disaster_resilience",
-      "i": "Wildfire & Disaster Resilience",
-      "d": "yea_supports",
-      "r": [
-       "Div. A, Title VI, Sec. 1601 (substitute only)"
-      ],
-      "qr": "Div. A, Title VI, Sec. 1601 (substitute only)",
-      "q": "``(ii) Inclusion.--The term `prescribed fire' includes cultural burning activities, as determined by an Indian tribe.''; (B) in paragraph (2), by striking subparagraph (B) and inserting the following: ``(B) Revision of regulations.-- ``(i) Proposed revisions.--Not later than 270 days after the date",
-      "w": "Chip: \"Prepare for wildfires.\" Sec. 1601 (substitute only) makes prescribed fire, including Tribal cultural burning, an exceptional event for air-quality data, easing fuel-reduction burns. It is one section.",
-      "u": "https://www.congress.gov/119/crec/2026/11/10/172/169/modified/CREC-2026-11-10-pt1-PgS5471-2.htm"
-     }
-    ],
-    "cn": "15 keys mapped in 18 rows, 15 considered and declined. Three keys are split under splitMappingRule: tribal_consultation (added to the register 2026-11-19, listed as a vocabulary gap in the first pass) into a yea_supports row (Secs. 2212, 2301 definition, 2302) and a yea_opposes row (Sec. 2301 adverse-effect standard and program suspension); property_rights, first declined as running both ways, into a yea_opposes row (Sec. 2101 transmission permits and the 216(e) condemnation changes) and a yea_supports row (Sec. 2211 drilling permits on non-federal land); mine_cleanup (added to the register 2026-11-20) into a yea_supports row (Sec. 2215(d) Abandoned Hardrock Mine Fund) and a yea_opposes row (Sec. 2215 unlimited mill sites for waste rock and tailings).",
-    "eq": "Every mapping row is equal. Rows carry no weight, no primary label and no rank, and their order is not a ranking. Each row records a key, a direction, the sections it rests on, a quote and a rationale.",
-    "a": [
-     "BAAJA",
-     "American Affordability"
-    ],
-    "f": "db/bill-standard/119-s-5653.json"
-   }
   }
  }
 }

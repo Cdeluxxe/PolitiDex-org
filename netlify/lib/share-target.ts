@@ -110,6 +110,8 @@ type BillDocRec = {
 type LedgerRec = {
   rows?: { k?: string; i?: string; d?: string; r?: string[]; qr?: string; q?: string; w?: string; u?: string }[];
   cn?: string; eq?: string; a?: string[]; f?: string;
+  // True when the Voting Record also holds the measure (gen-bill-docs.mjs).
+  vr?: boolean;
 };
 const BILL_DOCS: Record<string, BillDocRec> =
   (billDocsFile as unknown as { docs: Record<string, BillDocRec> }).docs || {};
@@ -154,6 +156,9 @@ export type BillDoc = {
     completenessNote: string;
     equality: string;
     shortNames: string[];
+    // The Voting Record holds this measure too, so the bill panel has a live
+    // record to open. False on a file published from its ledger alone.
+    inRecord: boolean;
   } | null;
   // "WHAT THIS BILL DOES" — only on a GENERATED page (Blobs "bill-provisions",
   // netlify/lib/bill-provisions-core.ts): the bill's main provisions in plain
@@ -200,6 +205,7 @@ function ledgerOf(ld: LedgerRec | undefined): BillDoc["ledger"] {
     completenessNote: str(ld.cn),
     equality: str(ld.eq),
     shortNames: (Array.isArray(ld.a) ? ld.a : []).filter((y) => typeof y === "string" && y),
+    inRecord: ld.vr === true,
   };
 }
 

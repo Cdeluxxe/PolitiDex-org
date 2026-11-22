@@ -22,13 +22,21 @@
 //      word, and the doc carries no such field.
 //   5. SEARCH FINDS IT. "baaja", "BAAJA", "S. 5653" and "American Affordability"
 //      each return the page in the eye.
-//   6. NOTHING ELSE MOVED. The ledger still validates as it stands, the person
-//      bill lists do not carry the ledger-published file, and every other bill
-//      document is the one the migrations alone produce.
+//   6. NOTHING ELSE MOVED. The ledger still validates as it stands, the bill
+//      now sits on its sponsors' person files (the record holds it), and every
+//      other bill document is the one the migrations alone produce.
+//   7. THE RECORD ROW IS THE LEDGER. 20261214000000_vr_seed_baaja_s5653.sql is
+//      exactly what scripts/gen-baaja-migration.mjs writes from the ledger: the
+//      18 mapping rows verbatim (key, direction, rationale, source), the six
+//      vehicle roll calls with all 600 senator votes, and the mapping index
+//      widened to one row per direction so the three split keys fit.
+//   8. THE PANEL LOADS. The bill page offers the panel control, and opening
+//      S. 5653 resolves its measure id and renders the live detail — all 18
+//      rows and all six roll calls — instead of "Could not load this bill".
 //
 //   node scripts/test-baaja-bill-file.mjs
 // ─────────────────────────────────────────────────────────────────────────────
-import { readFileSync, mkdtempSync } from "node:fs";
+import { readFileSync, readdirSync, mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -37,6 +45,8 @@ import vm from "node:vm";
 import { ENGINE_FILES, makeSandbox } from "./gen-hero-showcase.mjs";
 import { billDocs } from "./gen-bill-docs.mjs";
 import { validateLedger, RANKING_FIELDS } from "./bill-standard-core.mjs";
+import { renderMigration } from "./gen-baaja-migration.mjs";
+import { measureAddresses } from "./vr-measure-addresses.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -233,15 +243,104 @@ for (const [label, search] of [["page index", bootEye(ROWS)], ["page + curated i
 // ═════════════════════════════════════════════════════════════════════════════
 section("6 · nothing else moved");
 // ═════════════════════════════════════════════════════════════════════════════
+// S. 5653 is now in the Voting Record (20261214000000_vr_seed_baaja_s5653.sql),
+// so the migrations alone produce a document for it too. The ledger is laid
+// over that document: the page keeps the ledger's fields and mapping table, and
+// the bill joins its sponsors' person files like any record-held bill.
 const PB = JSON.parse(R("person-bills.json"));
-ok(!PB.bills.some((b) => b[0] === "119" && b[1] === NUM), "person bill lists do not carry the ledger-published file");
+const pbRow = PB.bills.findIndex((b) => b[0] === "119" && b[1] === NUM);
+ok(pbRow >= 0, "person bill lists carry S. 5653 now that the record holds it");
+for (const [pid, role] of [["capito", "s"], ["lee", "c"], ["whitehouse", "c"], ["heinrich", "c"]]) {
+  ok((PB.people[pid] || []).some(([i, r]) => i === pbRow && r === role), `${pid}'s person file lists S. 5653 (${role})`);
+}
 const migrationOnly = billDocs(ROOT, { noLedgers: true });
-ok(!migrationOnly[KEY], "the migrations alone hold no S. 5653 document");
-eq(Object.keys(DOCS).filter((k) => !migrationOnly[k]).join(","), KEY, "the ledger adds exactly one document");
-ok(Object.keys(migrationOnly).every((k) => JSON.stringify(migrationOnly[k]) === JSON.stringify(DOCS[k])), "every other bill document is unchanged");
+ok(!!migrationOnly[KEY], "the migrations alone now hold an S. 5653 document");
+eq(Object.keys(DOCS).filter((k) => !migrationOnly[k]).length, 0, "the ledger adds no document the migrations lack");
+eq(DOC.ld.vr, true, "the doc says the Voting Record holds the measure");
+ok(Object.keys(migrationOnly).filter((k) => k !== KEY).every((k) => JSON.stringify(migrationOnly[k]) === JSON.stringify(DOCS[k])), "every other bill document is unchanged");
 ok(ROWS.every((r) => r.length === 6), "every index row keeps the six-field shape");
 ok(ROWS.every((r) => r[1] === NUM || !DOCS[`${r[0]}|${r[1]}`] || r[2] === (DOCS[`${r[0]}|${r[1]}`].t || "")), "only the ledger-published row's searched title differs from its stored title");
 eq(R("all-seeing-eye.js"), execFileSync("git", ["show", "HEAD:all-seeing-eye.js"], { cwd: ROOT, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 }), "the eye itself is unchanged");
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("7 · the Voting Record row is the ledger, verbatim");
+// ═════════════════════════════════════════════════════════════════════════════
+const MIG_FILE = "netlify/database/migrations/20261214000000_vr_seed_baaja_s5653.sql";
+const MIG = R(MIG_FILE);
+eq(MIG, renderMigration(LEDGER), "the migration is exactly what gen-baaja-migration.mjs writes from the ledger");
+const sq = (x) => `'${String(x).replace(/'/g, "''")}'`;
+const issueBlock = MIG.slice(MIG.indexOf("INSERT INTO vr_measure_issues"), MIG.indexOf("ON CONFLICT (measure_id, issue_key, support_meaning)"));
+const migRows = [...issueBlock.matchAll(/\(m_s5653, '([a-z_]+)', 100, false, '(yea_supports|yea_opposes)',\n      ('(?:[^']|'')*'),\n      ('(?:[^']|'')*'), 'curated'\)/g)];
+eq(migRows.length, 18, "the migration writes 18 mapping rows");
+LEDGER.issues.forEach((row, i) => {
+  const m = migRows[i];
+  if (!m) return ok(false, `migration row ${i + 1} missing`);
+  eq(m[1], row.issueKey, `migration row ${i + 1}: key`);
+  eq(m[2], row.supportMeaning, `migration row ${i + 1} (${row.issueKey}): direction`);
+  eq(m[3], sq(row.rationale), `migration row ${i + 1} (${row.issueKey}): rationale, verbatim`);
+  eq(m[4], sq(row.sourceUrl), `migration row ${i + 1}: source`);
+});
+has(MIG, "CREATE UNIQUE INDEX IF NOT EXISTS vr_measure_issues_unique\n  ON vr_measure_issues (measure_id, issue_key, support_meaning);", "the mapping index is one row per direction");
+has(R("db/schema.ts"), 'uniqueIndex("vr_measure_issues_unique").on(t.measureId, t.issueKey, t.supportMeaning)', "db/schema.ts declares the same index");
+for (const f of ["netlify/lib/vr-ingest.ts", "netlify/lib/vr-issue-proposals-db.ts"]) {
+  ok(!/target: \[vrMeasureIssues\.measureId, vrMeasureIssues\.issueKey\]/.test(R(f)), `${f} no longer upserts against the retired two-column index`);
+}
+eq((MIG.match(/INSERT INTO vr_rollcalls/g) || []).length, 6, "six roll calls");
+for (const rc of LEDGER.votes.rollcalls) {
+  has(MIG, `'senate', 119, ${rc.session}, ${rc.roll}, TIMESTAMPTZ '${rc.date}T12:00:00-05:00', ${sq(rc.question)}, ${sq(rc.actionType)}`, `roll ${rc.roll} with its own question and type`);
+}
+eq((MIG.match(/^    \(rc, '/gm) || []).length, 600, "600 member votes, all 100 senators on each roll");
+const addr = measureAddresses(ROOT).published.find((a) => a.sitting === "119" && a.number === NUM);
+ok(!!addr, "the migration reader finds S. 5653");
+eq(addr && addr.mappings, 18, "the migration reader counts 18 mappings");
+eq(addr && [...addr.issues].sort().join(","), [...new Set(LEDGER.issues.map((x) => x.issueKey))].sort().join(","), "over the ledger's 15 keys");
+const alreadyApplied = readdirSync(join(ROOT, "netlify/database/migrations")).filter((f) => f > "20261213000000_pdx_stated_positions_text_kind.sql");
+eq(alreadyApplied.join(","), "20261214000000_vr_seed_baaja_s5653.sql", "exactly one new migration");
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("8 · the panel loads S. 5653");
+// ═════════════════════════════════════════════════════════════════════════════
+has(body, `<button type="button" data-pdx-bill-panel>`, "the bill page offers the panel control again");
+{
+  const MID = 5653000;
+  const fixture = {
+    measure: { id: MID, number: NUM, congress: 119, chamber: "senate", status: "pending", title: LEDGER.identity.shortTitle,
+      summary: LEDGER.overview.plainSummary, source: { url: LEDGER.identity.congressGovUrl, label: "Congress.gov" } },
+    issues: LEDGER.issues.map((x) => ({ issueKey: x.issueKey, weight: 100, supportMeaning: x.supportMeaning, rationale: x.rationale })),
+    rollcalls: LEDGER.votes.rollcalls.map((rc, i) => ({
+      id: i + 1, chamber: "senate", congress: 119, session: rc.session, rollNumber: rc.roll, voteDate: `${rc.date}T17:00:00Z`,
+      question: rc.question, actionType: rc.actionType, result: rc.result, totals: rc.totals, source: { url: rc.sourceUrl },
+      votes: rc.members.map((m) => ({ politicianId: m.politicianId, position: { Yea: "yea", Nay: "nay" }[m.vote] || "not_voting", isParty: null })),
+    })),
+    positions: [], provisions: [], actions: [],
+  };
+  const DOC_SCRIPTS = [...BILL_HTML.matchAll(/<script\b[^>]*\bsrc="\/([^"]+)"[^>]*><\/script>/g)].map((m) => m[1]);
+  const win = makeSandbox();
+  win.__PDX_BILL_DOC = true;
+  win.location = { href: ORIGIN + PAGE, pathname: PAGE, search: "", hash: "", origin: ORIGIN, assign() { win.__assigned = true; } };
+  const capture = { innerHTML: "", scrollTop: 0 };
+  win.document.getElementById = (id) => (id === "pdx-bd-scroll" ? capture : null);
+  win.history = { replaceState() {}, pushState() {} };
+  win.fetch = () => Promise.reject(new Error("offline"));
+  const ctx = vm.createContext(win);
+  for (const f of DOC_SCRIPTS) { try { vm.runInContext(R(f), ctx, { filename: f }); } catch (e) { /* page scripts the panel does not need */ } }
+  must(win.PDXBillDetail && typeof win.PDXBillDetail.open === "function", "bill-detail.js boots");
+  let asked = null;
+  win.PDXBills = {
+    list: (f) => Promise.resolve({ items: [{ id: MID, number: NUM, congress: 119, chamber: "senate" }] }),
+    get: (id) => { asked = id; return Promise.resolve(fixture); },
+    listSync: () => ({ items: [] }), isFollowed: () => false,
+  };
+  win.PDXBillDetail.open(NUM, "119", { arrival: true });
+  for (let i = 0; i < 60; i++) await Promise.resolve();
+  const html = capture.innerHTML;
+  eq(asked, MID, "the number resolves to the measure id and the detail is fetched");
+  ok(!html.includes("Could not load this bill right now."), "the panel does not print the load error");
+  ok(!html.includes("aren’t available right now"), "the panel is the live detail, not the card-only fallback");
+  ok(!win.__assigned, "the panel does not send the reader away");
+  eq((html.match(/<div class="bd-omni-row/g) || []).length, 18, "the panel lists all 18 mapping rows");
+  for (const rc of LEDGER.votes.rollcalls) has(html, esc(rc.question).replace(/"/g, "&quot;"), `the panel shows roll ${rc.roll}`);
+}
 
 console.log(`\n   ${failures.length ? "✗" : "✓"} baaja bill file: ${passed} passed, ${failures.length} failed`);
 for (const f of failures.slice(0, 40)) console.log(`      ✗ ${f.slice(0, 300)}`);

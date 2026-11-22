@@ -661,11 +661,11 @@ function billDocBlock(d: BillDoc, forPath: string): string {
     // The document's ONE control. The seam is the page; this opens the panel over
     // it — roll calls, members, the bundle — and closing the panel returns here.
     // The empty below has none: there is no measure to open. Neither does a
-    // file published from a ground-truth ledger: gen-bill-docs.mjs uses a ledger
-    // only for a bill the Voting Record holds no row for, so the panel would
-    // resolve nothing and print "Could not load this bill right now." The ledger
-    // rows above ARE this bill's whole record (S. 5653).
-    (d.ledger ? "" :
+    // file published from its ground-truth ledger alone: with no Voting Record
+    // row the panel would resolve nothing and print "Could not load this bill
+    // right now." A ledger file whose measure the record also holds (S. 5653)
+    // keeps the control.
+    (d.ledger && !d.ledger.inRecord ? "" :
     `<p class="pdx-bill-panel"><button type="button" data-pdx-bill-panel>Roll calls, members and the bundle</button></p>`) +
     `</main>`
   );

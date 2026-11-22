@@ -41,7 +41,7 @@
 // run by vr-ingest-cron) brings rows stored before that rule into line. The
 // editorial half (measures, mappings, packs) is still decided here.
 
-import { and, eq, inArray, sql } from "drizzle-orm";
+import { and, eq, inArray, ne, sql } from "drizzle-orm";
 import { getStore } from "@netlify/blobs";
 import { db } from "../../db/index.js";
 import {
@@ -584,9 +584,35 @@ export async function applyCuratedIssueSeed(
     for (const row of found) {
       const measureId = row.id;
       out.matchedMeasureIds.push(measureId);
+      // The directions this entry gives each key. The unique index is one row
+      // per (measure, key, direction). When the index was per key, a seed that
+      // named a key in ONE direction overwrote that key's row, direction and
+      // all; the same happens here by flipping the row in place — never by
+      // deleting — and only when no row in the seed's direction exists yet. A
+      // key the entry names in both directions keeps both rows, and a row the
+      // seed does not name is left exactly as it is.
+      const dirs = new Map<string, Set<string>>();
+      for (const iss of entry.issues) {
+        const sm = iss.supportMeaning === "yea_opposes" ? "yea_opposes" : "yea_supports";
+        if (!dirs.has(iss.issueKey)) dirs.set(iss.issueKey, new Set());
+        dirs.get(iss.issueKey)!.add(sm);
+      }
       for (const iss of entry.issues) {
         if (!ISSUE_KEYS.has(iss.issueKey)) { out.badKeys.push(iss.issueKey); continue; }
         const supportMeaning = iss.supportMeaning === "yea_opposes" ? "yea_opposes" : "yea_supports";
+        if (dirs.get(iss.issueKey)!.size === 1) {
+          await db
+            .update(vrMeasureIssues)
+            .set({ supportMeaning })
+            .where(and(
+              eq(vrMeasureIssues.measureId, measureId),
+              eq(vrMeasureIssues.issueKey, iss.issueKey),
+              ne(vrMeasureIssues.supportMeaning, supportMeaning),
+              sql`NOT EXISTS (SELECT 1 FROM vr_measure_issues x
+                   WHERE x.measure_id = ${measureId} AND x.issue_key = ${iss.issueKey}
+                     AND x.support_meaning = ${supportMeaning})`,
+            ));
+        }
         const values = {
           measureId,
           issueKey: iss.issueKey,
@@ -603,10 +629,9 @@ export async function applyCuratedIssueSeed(
           .insert(vrMeasureIssues)
           .values(values)
           .onConflictDoUpdate({
-            target: [vrMeasureIssues.measureId, vrMeasureIssues.issueKey],
+            target: [vrMeasureIssues.measureId, vrMeasureIssues.issueKey, vrMeasureIssues.supportMeaning],
             set: {
               weight: values.weight,
-              supportMeaning: values.supportMeaning,
               rationale: values.rationale,
               sourceUrl: values.sourceUrl,
               reviewStatus: "curated",
