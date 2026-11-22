@@ -12567,7 +12567,13 @@
 //   scorer rules). Precached files changed (consistency.js, word-action.js), so
 //   the shell moves; the precache list is unchanged.
 //   MIGRATION COST: none.
-const CACHE_VERSION = 'v605';
+// v606 - BILL FILE WITHOUT A MEASURE ROW. A search hit for a bill whose file
+//   was published from a ground-truth ledger (S. 5653, BAAJA) has no Voting
+//   Record row, so the panel printed "Could not load this bill right now." It
+//   now opens the bill's own /b/ document instead. Precached file changed
+//   (bill-detail.js), so the shell moves; the precache list is unchanged.
+//   MIGRATION COST: none.
+const CACHE_VERSION = 'v606';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
