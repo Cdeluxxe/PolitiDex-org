@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// Locker re-score — scheduled cron (phase9-v1)
+// Locker re-score — scheduled cron (re-runs on every RULES_VERSION bump; now phase9-v2)
 // ─────────────────────────────────────────────────────────────────────────────
 // Re-reads Evidence Locker items written under an older stance-scorer rules
 // version against the page they came from, keeps the new read when it differs

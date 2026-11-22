@@ -162,10 +162,14 @@ t("'must not fund' / 'will not agree' read as oppose", () => {
   assert.equal(S.scoreRawRecord(page("duckworth", "strong_defense", "official Senate press release", "https://www.duckworth.senate.gov/j", {
     h1: "Duckworth on the Defense Bill", paras: ["I will not agree to a National Defense Authorization Act that strips these protections.", "Servicemembers deserve better."] })).position, "oppose");
 });
-t("cosponsoring a named bill reads as support on the page's topic", () => {
+t("cosponsoring a named bill reads as support on the page's topic — when the page addresses the topic (phase9-v2)", () => {
   const c = S.scoreRawRecord(page("nancy_mace", "cost_living", "official House press release", "https://mace.house.gov/k", {
-    h1: "Mace Cosponsors H.R. 4410", paras: ["The bill is now before the Ways and Means Committee.", "A hearing is set for March."] }));
+    h1: "Mace Cosponsors H.R. 4410", paras: ["The bill is now before the Ways and Means Committee.", "It would help families facing high prices at the grocery store.", "Rent and utility bills keep climbing."] }));
   assert.equal(c.position, "support");
+  // A named bill on a page that never mentions the topic it is filed under is no read on that topic.
+  const off = S.scoreRawRecord(page("nancy_mace", "cost_living", "official House press release", "https://mace.house.gov/k", {
+    h1: "Mace Cosponsors H.R. 4410", paras: ["The bill is now before the Ways and Means Committee.", "A hearing is set for March."] }));
+  assert.equal(off.position, "no clear position");
 });
 t("R14 never adds a cross-topic candidate", () => {
   const topics = S.scoreAllTopics(MACE).map((c) => c.topic);
@@ -177,7 +181,7 @@ t("no-pole topics never read R14", () => {
     h1: "Ocasio-Cortez Votes Against Iran Sanctions Bill", paras: ["Iran is a threat.", "Diplomacy matters."] }));
   assert.equal(c.position, "no clear position");
 });
-t("rules version is phase9-v1 (R15 implied stance kept; phase9-v1 adds R17 framing)", () => assert.equal(S.RULES_VERSION, "phase9-v1"));
+t("rules version is phase9-v2 (R15 implied stance kept; phase9-v1 adds R17 framing)", () => assert.equal(S.RULES_VERSION, "phase9-v2"));
 
 if (failures) { console.error(`\n${failures} failure(s)`); process.exit(1); }
 console.log("\nall lead-signal checks passed");

@@ -17769,7 +17769,8 @@
         esc(st.source.label || 'Source') + '</a>'
       : '';
     return '<div class="pdxlg-said" data-pdxlg-said="1">' +
-      '<div class="pdxlg-said-k">They said' + (st.label ? ' · ' + esc(st.label) : '') + '</div>' +
+      // A page headline is labelled as one, not as words they said (phase9-v2).
+      '<div class="pdxlg-said-k">' + esc(st.saidLabel || 'They said') + (st.label ? ' · ' + esc(st.label) : '') + '</div>' +
       '<div class="pdxlg-said-v">' + esc(said || st.label) + src + '</div>' +
     '</div>';
   }
@@ -20442,7 +20443,7 @@
     // surfaces, the standalone export — is unaffected and still prints the line
     // here, which is why this is a flag rather than a deletion.
     if ((said || r.stance.label) && !(opts && opts.noSaid)) {
-      lines.push('<div class="pdxdos-line"><span class="pdxdos-k">They said</span>' +
+      lines.push('<div class="pdxdos-line"><span class="pdxdos-k">' + esc((said && r.stance.saidLabel) || 'They said') + '</span>' +
         '<span class="pdxdos-v">' + esc(said || r.stance.label) + '</span></div>');
     }
     // WHAT THE RECORD CONCLUDED, and WHICH LANE concluded it. One verdict per

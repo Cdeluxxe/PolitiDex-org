@@ -392,6 +392,8 @@ export function buildLockerItem(candidate, raw, strength = lockerStrength(candid
     // A weak signal or mention keeps only its clean readable text; a strong
     // stance's excerpt is stored exactly as before.
     excerpt: strength === "strong" ? trimExcerpt(src.excerpt) : trimExcerpt(cleanReadableText(src.excerpt)),
+    // phase9-v2 R18(b): the excerpt is the page's own headline, not a sentence they said.
+    ...(src.excerpt_kind === "headline" ? { excerpt_kind: "headline" } : {}),
     date,
     attribution: attributionFor(source_type, link),
     strength,
@@ -479,6 +481,7 @@ export function toSpotlightEntry(item, { key = null, review = null } = {}) {
       confidence: item.confidence,
       source_type: item.source_type,
       excerpt: item.excerpt,
+      ...(item.excerpt_kind ? { excerpt_kind: item.excerpt_kind } : {}),
       attribution: item.attribution,
       rules_version: item.rules_version,
       captured: item.date,

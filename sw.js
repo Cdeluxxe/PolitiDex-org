@@ -12562,7 +12562,12 @@
 //   (consistency.js, profile-locker.js), so the shell moves; the precache list
 //   is unchanged.
 //   MIGRATION COST: none.
-const CACHE_VERSION = 'v604';
+// v605 - HEADLINE LABEL. A pipeline stance card whose quoted text is the page's
+//   own headline is labelled "Headline" instead of "They said" (phase9-v2
+//   scorer rules). Precached files changed (consistency.js, word-action.js), so
+//   the shell moves; the precache list is unchanged.
+//   MIGRATION COST: none.
+const CACHE_VERSION = 'v605';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

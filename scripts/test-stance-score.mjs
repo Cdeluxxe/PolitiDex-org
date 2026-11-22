@@ -187,7 +187,6 @@ const one = (pid, text, topic = 'cost_living') =>
 await t("a sentence naming the page's own politician as actor is scored as their position", () => {
   for (const [pid, text, topic] of [
     ['john_cornyn', 'Senator John Cornyn passed a bill to lower prescription drug costs for seniors.', 'healthcare_costs'],
-    ['john_cornyn', 'Cornyn, Blumenthal, Grassley, Durbin Bill to Lower Drug Costs Passes Senate Unanimously', 'healthcare_costs'],
     ['ken_paxton', 'Ken Paxton will fight to cut taxes for Texas families.'],
     ['greg_abbott', 'Governor Abbott will lower the cost of home insurance for every Texan.'],
     ['donald_trump', 'President Trump signed a law to lower prices at the pump.'],
@@ -218,6 +217,19 @@ await t('a sentence that explicitly frames someone else as the opponent is not t
   assert.equal(one('john_cornyn', 'Senator John Cornyn voted to cut taxes for working families.').kind, 'clear');
   const code = readFileSync(corePath, 'utf8').replace(/^\s*\/\/.*$/gm, '');
   assert.ok(!/Cornyn|Paxton|Trump|Republicans|Talarico/.test(code), 'no fixed list of politician or party names in the rules');
+});
+
+await t("phase9-v2 R18(b): a Title Case line reads as the politician's only when it is the page's main headline, and is marked a headline", () => {
+  const line = 'Cornyn, Blumenthal, Grassley, Durbin Bill to Lower Drug Costs Passes Senate Unanimously';
+  const asBody = one('john_cornyn', line, 'healthcare_costs');
+  assert.equal(asBody.kind, 'mention');
+  assert.equal(asBody.framing, 'headline_like');
+  const c = S.scoreRawRecord({ ...RAW, politician_id: 'john_cornyn', topic: 'healthcare_costs', body: `<h1>${line}</h1><p>The bill now goes to the House.</p>` });
+  const st = c.sources[0].statements[0];
+  assert.equal(st.kind, 'clear');
+  assert.equal(st.side, 'support');
+  assert.equal(st.headline, true);
+  assert.equal(c.sources[0].excerpt_kind, 'headline');
 });
 
 await t('a clear third-party attribution receives zero weight', () => {
@@ -333,7 +345,7 @@ await t('Phase 7: Talarico ground-truth match stays support 0.85 with no implica
   assert.equal(r.candidate.position, 'support');
   assert.equal(r.candidate.confidence, 0.85);
   assert.equal(r.comparison.delta, 0);
-  assert.equal(r.candidate.rules_version, 'phase9-v1');
+  assert.equal(r.candidate.rules_version, 'phase9-v2');
   assert.match(r.candidate.confidence_reason, /implication\(s\)/);
 });
 

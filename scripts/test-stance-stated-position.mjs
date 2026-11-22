@@ -153,9 +153,12 @@ await t("phase8-v2: a non-official release must name a bill or outcome; quotes f
   // Another member quoted in the release is not the candidate speaking.
   const quoted = S.scoreRawRecord(rawFor("news release",
     "<p>“This bill will lower drug costs for every family,” said Rep. Jane Doe, lead sponsor of the Affordable Insulin Now Act.</p>"));
-  assert.equal(quoted.confidence, 0.7);
+  // phase9-v2 R18(c): another speaker's quote is theirs — zero weight, not only "not R8".
+  assert.equal(quoted.position, "no clear position");
   assert.ok(!quoted.stated_position);
-  assert.equal(quoted.sources[0].statements.find((x) => x.kind === "clear").quoted_speaker, "other");
+  const q = quoted.sources[0].statements.find((x) => x.quoted_speaker === "other");
+  assert.equal(q.kind, "mention");
+  assert.equal(q.framing, "quoted_other");
   const multi = S.scoreRawRecord(rawFor("cosponsor announcement",
     "<p>“We have to act. This bill will lower insulin costs at last,” Senator Doe said.</p>"));
   assert.ok(!multi.stated_position, "a multi-sentence quote takes the speaker named where it closes");

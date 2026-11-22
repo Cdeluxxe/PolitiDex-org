@@ -1838,6 +1838,9 @@ export const pdxStatedPositions = pgTable(
     evidence: jsonb().$type<string[]>().default([]),
     // Steady / Mixed / Thin (stanceConsistency) — null until the next recompute.
     consistency: jsonb().$type<Record<string, unknown> | null>(),
+    // What the quoted text is: 'headline' when it is the page's own headline
+    // (shown as a headline, not "They said"); null for the politician's words.
+    textKind: text("text_kind"),
     promotedAt: timestamp("promoted_at", { withTimezone: true }).defaultNow().notNull(),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),

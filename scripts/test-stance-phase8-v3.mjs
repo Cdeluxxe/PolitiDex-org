@@ -30,7 +30,7 @@ const page = (politician_id, topic, source_type, url, sentences) => ({
 const byTopic = (raw) => Object.fromEntries(S.scoreAllTopics(raw).map((c) => [c.topic, c]));
 const directional = (c) => !!c && (c.position === "support" || c.position === "oppose");
 
-t("rules version is phase9-v1 (R15 implied stance and phase8-v3 rules kept; R17 framing added)", () => assert.equal(S.RULES_VERSION, "phase9-v1"));
+t("rules version is phase9-v2 (R15 implied stance and phase8-v3 rules kept; R17 framing added)", () => assert.equal(S.RULES_VERSION, "phase9-v2"));
 
 // ── The five wrong-direction reads ───────────────────────────────────────────
 t("Casar: hearing to investigate ICE shootings is not support for deportations", () => {

@@ -1,0 +1,13 @@
+-- ─────────────────────────────────────────────────────────────────────────────
+-- Promoted stances — what the quoted text is (phase9-v2)
+-- ─────────────────────────────────────────────────────────────────────────────
+-- A promoted stance whose quoted text is the page's own headline (the title of
+-- the politician's release) carries text_kind = 'headline', so the card labels
+-- it as a headline instead of "They said". NULL means the politician's own
+-- words. Nullable and additive: existing rows keep NULL until their next
+-- recompute; no existing column or row changes.
+--
+-- WHY THE VERSION WAS HAND-SET. One version after the applied tail
+-- (20261212000000_pdx_stated_positions_consistency); the drizzle-generated
+-- stamp (20261122031647) sorted behind it.
+ALTER TABLE "pdx_stated_positions" ADD COLUMN "text_kind" text;
