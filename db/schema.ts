@@ -802,7 +802,10 @@ export const vrMeasureIssues = pgTable(
     confidence: integer(),
   },
   (t) => ({
-    uniq: uniqueIndex("vr_measure_issues_unique").on(t.measureId, t.issueKey),
+    // One row per DIRECTION of a key, not per key: a bill whose text advances a
+    // key in some sections and cuts against it in others carries both rows
+    // (S. 5653; widened by 20261214000000_vr_seed_baaja_s5653.sql).
+    uniq: uniqueIndex("vr_measure_issues_unique").on(t.measureId, t.issueKey, t.supportMeaning),
     reviewStatusIdx: index("vr_measure_issues_review_status_idx").on(t.reviewStatus),
     issueIdx: index("vr_measure_issues_issue_idx").on(t.issueKey),
     measureIdx: index("vr_measure_issues_measure_idx").on(t.measureId),

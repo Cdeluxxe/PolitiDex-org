@@ -40,10 +40,11 @@ const ok = (cond, msg) => { if (cond) passed++; else failures.push(msg); };
 const eq = (a, b, msg) => ok(a === b, `${msg} — expected ${JSON.stringify(b)}, got ${JSON.stringify(a)}`);
 const section = (t) => console.log(`\n   ── ${t}`);
 
-// A bill file published from its ground-truth ledger (db/bill-standard/, `ld`)
-// has no row in the migrations or db/bill-record.json to hold it to; the ledger
-// standard (test-bill-standard.mjs) and test-baaja-bill-file.mjs check it.
-const DOCS = Object.fromEntries(Object.entries(JSON.parse(read("db/bill-docs.json")).docs).filter(([, d]) => !d.ld));
+// A bill file published from its ground-truth ledger alone (db/bill-standard/,
+// `ld` without `ld.vr`) has no row in the migrations to hold it to; the ledger
+// standard (test-bill-standard.mjs) and test-baaja-bill-file.mjs check it. One
+// the Voting Record also holds (S. 5653) is held to everything here.
+const DOCS = Object.fromEntries(Object.entries(JSON.parse(read("db/bill-docs.json")).docs).filter(([, d]) => !d.ld || d.ld.vr));
 const TABLE = JSON.parse(read("person-bills.json"));
 const ISSUE_KEYS = new Set(JSON.parse(read("db/issue-keys.json")).keys);
 const LABELS = issueLabels(read("issue-map.js"));

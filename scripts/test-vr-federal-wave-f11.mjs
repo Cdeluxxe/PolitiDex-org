@@ -880,8 +880,15 @@ if (!process.env.NETLIFY_DB_URL) {
   for (const f of behind) {
     const sql = R(`netlify/database/migrations/${f}`);
     const stmts = sql.split("\n").filter((l) => !/^\s*--/.test(l)).join("\n");
+    // An INSERT that is ON CONFLICT ... DO NOTHING adds rows and cannot reach one
+    // F11 wrote (S. 5653's six vehicle rolls, 20261214000000_vr_seed_baaja_s5653):
+    // it is not a write to F11's rows. UPDATE, DELETE, or an INSERT that upserts
+    // over a conflict still is.
+    const inserts = (t) => [...stmts.matchAll(new RegExp(`insert\\s+into\\s+${t}\\b[\\s\\S]*?;`, "gi"))].map((m) => m[0]);
     for (const t of ["vr_member_votes", "vr_rollcalls"]) {
-      ok(!new RegExp(`(insert\\s+into|update|delete\\s+from)\\s+${t}`, "i").test(stmts),
+      const rewrites = new RegExp(`(update|delete\\s+from)\\s+${t}\\b`, "i").test(stmts) ||
+        inserts(t).some((x) => !/on\s+conflict\s*\([^)]*\)\s*do\s+nothing\s*;$/i.test(x));
+      ok(!rewrites,
         `${f} landed behind F11 and writes ${t} — a later wave touching the rows F11 wrote ` +
         "silently reorders this one's effect, which is what the lane order used to stand for");
     }

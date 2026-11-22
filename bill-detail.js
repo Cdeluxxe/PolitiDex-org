@@ -2089,12 +2089,35 @@
     renderLoading();
     resolveId(ref, bills, sitting).then(function (id) {
       var card = inlineCard || findByNumber((bills.listSync ? bills.listSync().items : []), ref);
-      if (id == null) { if (!showLite(card)) renderError(card); return; }
+      if (id == null) { if (!showLite(card) && !openDocument(ref, sitting)) renderError(card); return; }
       bills.get(id).then(function (data) {
         if (data && data.measure) { show(bodyHtml(data)); syncPath(); }
         else if (!showLite(card)) renderError(null);
       }).catch(function () { if (!showLite(card)) renderError(card); });
     }).catch(function () { if (!showLite(inlineCard)) renderError(inlineCard); });
+    return true;
+  }
+
+  // A BILL WITH A FILE BUT NO MEASURE ROW. The eye also searches the bill-page
+  // index (PDX_BILL_SEARCH), which holds files the Voting Record has no row for —
+  // a file published from a ground-truth ledger (S. 5653) is exactly that. The
+  // live lookup resolves nothing and the light index has no card, so this panel
+  // used to print "Could not load this bill right now." The bill's own document
+  // at /b/<sitting>/<number> holds its whole record, so the reader goes there.
+  // Never to the address already in the bar: that would only reload this page.
+  function openDocument(ref, sitting) {
+    if (/^\d+$/.test(String(ref || ''))) return false;
+    var rows = G('PDX_BILL_SEARCH');
+    if (!Array.isArray(rows)) return false;
+    var want = String(ref || ''), sit = String(sitting || ''), row = null;
+    for (var i = 0; i < rows.length; i++) {
+      var r = rows[i];
+      if (r && r[1] === want && (!sit || String(r[0] || '').toUpperCase() === sit.toUpperCase())) { row = r; break; }
+    }
+    if (!row) return false;
+    var to = billPathOf(String(row[0] || ''), want);
+    if (to === String(location.pathname || '')) return false;
+    location.assign(to);
     return true;
   }
 

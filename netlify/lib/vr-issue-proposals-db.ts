@@ -45,7 +45,7 @@ export const dbProposalRepo: ProposalRepo = {
     const res = await db
       .insert(vrMeasureIssues)
       .values(row)
-      .onConflictDoNothing({ target: [vrMeasureIssues.measureId, vrMeasureIssues.issueKey] })
+      .onConflictDoNothing({ target: [vrMeasureIssues.measureId, vrMeasureIssues.issueKey, vrMeasureIssues.supportMeaning] })
       .returning({ id: vrMeasureIssues.id });
     return res.length ? res[0].id : null;
   },

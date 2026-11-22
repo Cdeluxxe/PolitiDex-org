@@ -294,7 +294,7 @@ export interface ProposalRepo {
   loadMeasures(ids: number[]): Promise<MeasureLite[]>;
   // Measure ids (of those given) that already have ANY vr_measure_issues row.
   mappedMeasureIds(ids: number[]): Promise<Set<number>>;
-  // ON CONFLICT (measure_id, issue_key) DO NOTHING. The new row's id, or null
+  // ON CONFLICT (measure_id, issue_key, support_meaning) DO NOTHING. The new row's id, or null
   // when nothing was written.
   insertProposal(row: ProposalInsert): Promise<number | null>;
   getMapping(id: number): Promise<MappingRow | null>;

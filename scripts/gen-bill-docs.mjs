@@ -244,7 +244,15 @@ export function billDocs(root, opts = {}) {
     docs[key] = doc;
   }
   if (!opts.noLedgers) {
-    for (const [key, doc] of Object.entries(ledgerDocs(root || ROOT))) if (!docs[key]) docs[key] = doc;
+    // A ledger-published file whose measure the migrations now also hold (S. 5653,
+    // 20261214000000_vr_seed_baaja_s5653.sql): the ledger still writes the page.
+    // Its fields win over the record-derived ones, its mapping table stays, and
+    // `ld.vr` says the Voting Record holds the measure, so the file is also listed
+    // on its sponsors' person files.
+    for (const [key, doc] of Object.entries(ledgerDocs(root || ROOT))) {
+      if (!docs[key]) { docs[key] = doc; continue; }
+      docs[key] = { ...docs[key], ...doc, ld: { ...doc.ld, vr: true } };
+    }
   }
   return docs;
 }
@@ -255,8 +263,9 @@ export function billDocs(root, opts = {}) {
 // bill-gt-v1) to the publish bar: the ledger validates with --strict (no
 // "missing" completeness mark, every key in the register, every row with a
 // direction, sections, a quote and a rationale, the standard's equality note).
-// A ledger below the bar publishes nothing. A ledger never overrides a
-// document the migrations already hold.
+// A ledger below the bar publishes nothing. Where the migrations also hold the
+// measure, the ledger's fields are laid over the record-derived document (see
+// billDocs), so the page keeps the ledger's mapping table.
 //
 // The entry is the same shape as every other document, plus `ld` — the
 // ledger's mapping table as it stands, one row per ledger row, in ledger
@@ -350,9 +359,9 @@ export function ledgerDocs(root) {
 // sponsor, "c" co-sponsor), newest sitting first.
 export function personBills(docs) {
   const rows = Object.values(docs)
-    // A ledger-published file is not added to person files: those pages are
-    // left as they are until the measure reaches them through the record.
-    .filter((d) => d.sp && !d.ld)
+    // A ledger-published file is not added to person files until the measure
+    // reaches them through the record (ld.vr: the Voting Record holds it).
+    .filter((d) => d.sp && (!d.ld || d.ld.vr))
     .sort((x, y) => y.s.localeCompare(x.s, undefined, { numeric: true }) || x.n.localeCompare(y.n, undefined, { numeric: true }));
   const bills = rows.map((d) => [d.s, d.n, d.t || "", d.st, groupOf(d.st), d.sl, (d.m || []).map((x) => x.k).filter(Boolean)]);
   const out = {};
