@@ -84,7 +84,7 @@ const locker = () => { const d = new Map(); return { d, writes: 0,
 // A pre-existing strong Locker item on the same issue, so the check reads more than this run's write.
 const seed = (lk) => {
   const it = { politician_id: PID, topic: "cost_living", position: "support", confidence: 0.92, source_type: "campaign issues page",
-    link: "https://seed.example/old", excerpt: "I will lower costs for families.", date: "2026-10-01", attribution: "Source: campaign page",
+    link: "https://jamestalarico.com/old", excerpt: "I will lower costs for families.", date: "2026-10-01", attribution: "Source: campaign page",
     strength: "strong", rules_version: "phase8-v3", layer: "stated", formal_record: false };
   lk.d.set(EL.lockerKey(it), it);
 };
@@ -142,7 +142,7 @@ section("3 · read-only");
   const dump = (lk) => JSON.stringify([...lk.d.entries()].sort(([a], [b]) => a.localeCompare(b)));
   eq(dump(withCheck.lk), dump(without.lk), "the Locker is byte-identical with and without the check (seeded item untouched)");
   eq(withCheck.lk.writes, without.lk.writes, "the check makes no Locker write calls");
-  const seeded = [...withCheck.lk.d.values()].find((v) => v.link === "https://seed.example/old");
+  const seeded = [...withCheck.lk.d.values()].find((v) => v.link === "https://jamestalarico.com/old");
   eq([seeded.position, seeded.strength, seeded.confidence], ["support", "strong", 0.92], "the pre-existing Locker item is unchanged");
   eq(JSON.stringify(OPPOSED), curatedBefore, "the curated stance is unchanged (frozen, and still the same)");
   const dumpRows = (db) => JSON.stringify([...db.m.entries()].sort(([a], [b]) => a.localeCompare(b)));

@@ -36,7 +36,9 @@
 //     the majority side (phase9-v1).
 // The items read are exactly the ones the Locker endpoint serves: hidden items
 // dropped, older items regraded, one claim restated under several keys served
-// once (listLockerEntries in evidence-locker-items.mts).
+// once, pages that are not the politician's own and site-menu text dropped, and
+// one sentence quoted from several pages counted once (ownEvidenceRows,
+// locker-own-v1; listLockerEntries in evidence-locker-items.mts).
 //
 // CURATED ALWAYS WINS — and is never written. This module writes only the
 // pdx_stated_positions table. It cannot see the curated cards (they are
@@ -56,7 +58,7 @@
 // database is reached only through the injected `db` adapter (dbAdapter below
 // builds the production one).
 
-import { toSpotlightEntry, reviewFor, regradeStatedPosition, collapseRestatedItems } from "./evidence-locker-core.mjs";
+import { toSpotlightEntry, reviewFor, regradeStatedPosition, collapseRestatedItems, ownEvidenceRows } from "./evidence-locker-core.mjs";
 import { readLockerDocs } from "./locker-read.mjs";
 
 export const PROMOTE_WEAK_N = 3;
@@ -231,7 +233,8 @@ export async function lockerEntriesFor(store, pid, flags = null) {
     if (review?.status === "hidden") continue;
     rows.push({ key, doc: regradeStatedPosition(doc), review });
   }
-  return collapseRestatedItems(rows).map(({ key, doc, review }) => toSpotlightEntry(doc, { key, review }));
+  // Own pages only, site menus dropped, one sentence counted once (locker-own-v1).
+  return ownEvidenceRows(collapseRestatedItems(rows)).kept.map(({ key, doc, review }) => toSpotlightEntry(doc, { key, review }));
 }
 
 /** Every qualifying issue for one politician: { [issueKey]: promotion }. */

@@ -22,7 +22,7 @@
 // caller persists `state` (done politicians + running tallies) and calls again
 // until `complete`.
 
-import { reviewFor, regradeStatedPosition, collapseRestatedItems, toSpotlightEntry } from "./evidence-locker-core.mjs";
+import { reviewFor, regradeStatedPosition, collapseRestatedItems, toSpotlightEntry, ownEvidenceRows } from "./evidence-locker-core.mjs";
 import { promoteEntries, planSync, strengthOf, reviewedKeysOf } from "./stated-positions-core.mjs";
 
 export const BACKFILL_VERSION = "stated-positions-backfill-v1";
@@ -31,6 +31,9 @@ export const SKIP_REASONS = {
   unreadable: "not readable as a Locker item (missing politician, link or JSON)",
   hidden: "hidden by a review flag",
   restated: "restates a claim already kept under another issue key",
+  not_own_page: "from a page that is not the politician's own (committee, Clerk, White House, agency or another member's site)",
+  site_menu: "site menu or repeated heading (the same text on many pages of one site)",
+  repeated: "the same sentence already counted from another page",
   no_issue: "no issue key",
   no_link: "no source link",
   mention: "a mention, not a clear support/oppose read",
@@ -87,10 +90,11 @@ export async function readLocker(store, flags = null, { concurrency = 25 } = {})
   const out = {};
   for (const pid of Object.keys(byPid).sort()) {
     const g = byPid[pid];
-    const kept = collapseRestatedItems(g.rows);
+    const collapsed = collapseRestatedItems(g.rows);
+    const { kept, dropped } = ownEvidenceRows(collapsed);
     out[pid] = {
       entries: kept.map(({ key, doc, review }) => toSpotlightEntry(doc, { key, review })),
-      skipped: { hidden: g.hidden, restated: g.rows.length - kept.length },
+      skipped: { hidden: g.hidden, restated: g.rows.length - collapsed.length, not_own_page: dropped.foreign, site_menu: dropped.menu, repeated: dropped.repeated },
     };
   }
   return { scanned: keys.length, unreadable, byPid: out };
@@ -146,6 +150,7 @@ export async function runBackfill({ store, db, flags = null, state = null, budge
       const wasActive = new Set(before.filter((r) => r.status === "active").map((r) => r.issueKey));
       T.items_skipped.hidden += g.skipped.hidden;
       T.items_skipped.restated += g.skipped.restated;
+      for (const k of ["not_own_page", "site_menu", "repeated"]) T.items_skipped[k] = (T.items_skipped[k] || 0) + (g.skipped[k] || 0);
       for (const outcome of classifyEntries(g.entries, promotions)) {
         if (outcome === "promoted") T.items_promoted++;
         else T.items_skipped[outcome]++;

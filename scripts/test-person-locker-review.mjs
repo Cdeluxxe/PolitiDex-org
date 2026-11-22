@@ -65,7 +65,8 @@ const views = (win) => {
 
 const item = (n, topic) => ({
   politician_id: PID, topic, position: "support", confidence: 0.91, strength: "strong",
-  source_type: "campaign issue page", link: `https://example.org/review/${n}`,
+  // The politician's own campaign site (locker-own-v1 serves own pages only).
+  source_type: "campaign issue page", link: `https://${PID.split("_").pop()}forcongress.com/review/${n}`,
   excerpt: `Review fixture excerpt ${n}`, attribution: "Source: campaign page", date: "2026-11-01", rules_version: "test",
 });
 const HIDDEN = item("hidden", "public_schools");

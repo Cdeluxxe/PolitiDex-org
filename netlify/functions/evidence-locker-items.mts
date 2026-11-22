@@ -26,7 +26,7 @@
 
 import type { Config } from "@netlify/functions";
 import { getStore } from "@netlify/blobs";
-import { LOCKER_STORE_NAME, toSpotlightEntry, loadReviewFlags, reviewFor, regradeStatedPosition, collapseRestatedItems, readableWeakerItem } from "../lib/evidence-locker-core.mjs";
+import { LOCKER_STORE_NAME, toSpotlightEntry, loadReviewFlags, reviewFor, regradeStatedPosition, collapseRestatedItems, readableWeakerItem, ownEvidenceRows } from "../lib/evidence-locker-core.mjs";
 import { readLockerDocs } from "../lib/locker-read.mjs";
 import reviewFile from "../../db/evidence-locker-review.json" with { type: "json" };
 import { recordFlag, FLAG_STORE_NAME } from "../lib/dirkey-flag-core.mjs";
@@ -79,13 +79,18 @@ export async function listLockerEntries(store: any, flagsDoc: any = reviewFile, 
     if (!served) { unreadable++; continue; }
     rows.push({ key, doc: served, review });
   }
-  const kept = collapseRestatedItems(rows);
-  const restated = rows.length - kept.length;
+  const collapsed = collapseRestatedItems(rows);
+  const restated = rows.length - collapsed.length;
+  // Own pages only, site menus dropped, one sentence counted once (locker-own-v1).
+  const { kept, dropped } = ownEvidenceRows(collapsed);
   for (const { key, doc, review } of kept) {
     (items[doc.politician_id] ||= []).push(toSpotlightEntry(doc, { key, review }));
     count++;
   }
-  return { items, count, hidden, ...(restated ? { restated } : {}), ...(unreadable ? { unreadable } : {}) };
+  return {
+    items, count, hidden, ...(restated ? { restated } : {}), ...(unreadable ? { unreadable } : {}),
+    ...(dropped.foreign ? { not_own_page: dropped.foreign } : {}), ...(dropped.menu ? { site_menu: dropped.menu } : {}), ...(dropped.repeated ? { repeated: dropped.repeated } : {}),
+  };
 }
 
 async function flag(req: Request): Promise<Response> {
