@@ -30,7 +30,7 @@ const clearOf = (c) => c.sources[0].statements.filter((s) => s.kind === "clear")
 
 console.log("phase9-v1: framing, re-score, consistency");
 
-await t("rules version is phase9-v1", () => assert.equal(S.RULES_VERSION, "phase9-v1"));
+await t("rules version is phase9-v2", () => assert.equal(S.RULES_VERSION, "phase9-v2"));
 
 // ── Attribution ──
 await t("attribution: 'Donald Trump claimed he would not cut Social Security' is not the speaker's position (Waters)", () => {
@@ -166,7 +166,7 @@ await t("W4: a strong item under OLDER rules is replaced by today's read, and ke
   assert.equal(w.written, true);
   const now = await store.get(key);
   assert.equal(now.position, "support");
-  assert.equal(now.rules_version, "phase9-v1");
+  assert.equal(now.rules_version, "phase9-v2");
   assert.equal(now.rescored.from.position, "oppose");
   // Under the SAME rules a strong item is still never overwritten.
   const again = await L.maybeWriteLockerItem(cand({ confidence: 0.9 }), rawRec, { store, log: () => {} });

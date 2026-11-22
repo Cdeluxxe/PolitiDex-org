@@ -1,6 +1,6 @@
 {
   "_note": "Offline re-score of the six ground-truth records under the paragraph span scope (before) and the document span scope (after). Diagnostic only: no ground-truth label, rule or site file changes. The pooled read is the record-level read (typed \"statement\", so it reads at document scope).",
-  "rules_version": "phase9-v1",
+  "rules_version": "phase9-v2",
   "vocab_version": "issue-vocab-v2-directional",
   "document_gap_paragraphs": 3,
   "summary": {

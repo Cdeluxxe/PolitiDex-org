@@ -209,6 +209,8 @@ export function promoteIssue(entries) {
     weakCount: s.weak,
     consistency: cons,
     text: String(best.pipeline.excerpt || "").trim(),
+    // phase9-v2: the quoted text is the page's headline (shown as a headline, not "They said").
+    textKind: best.pipeline.excerpt_kind === "headline" ? "headline" : null,
     sourceUrl: String(best.source.url),
     sourceLabel: String(best.source.label || best.pipeline.attribution || "Source"),
     confidence: confs.length ? Math.max(...confs) : null,
@@ -259,7 +261,8 @@ const sameRow = (row, p) =>
   && (num(Number(row.confidence)) ?? null) === (p.confidence ?? null)
   && (row.rulesVersion || null) === (p.rulesVersion || null)
   && JSON.stringify(row.evidence || []) === JSON.stringify(p.evidence)
-  && JSON.stringify(row.consistency ?? null) === JSON.stringify(p.consistency ?? null);
+  && JSON.stringify(row.consistency ?? null) === JSON.stringify(p.consistency ?? null)
+  && (row.textKind ?? null) === (p.textKind ?? null);
 
 /**
  * A row the promoter must leave exactly as it is: a curated (non-pipeline)
@@ -361,6 +364,8 @@ export function toCard(row, labels = {}) {
     issueStance: row.stance,
     // The politician's own words, quoted: the excerpt the Locker item holds.
     text: text ? `“${text.replace(/^[“"]+|[”"]+$/g, "")}”` : "",
+    // phase9-v2: a page headline is labelled as one ("Headline"), not "They said".
+    ...(row.textKind === "headline" ? { textKind: "headline", saidLabel: "Headline" } : {}),
     source: { label: row.sourceLabel || "Source", url: row.sourceUrl },
     provenance: PROVENANCE,
     pipeline: {
@@ -428,7 +433,7 @@ export function dbAdapter(db, table, { eq, and, inArray }) {
         sourceUrl: rec.sourceUrl, sourceLabel: rec.sourceLabel, confidence: rec.confidence,
         strength: rec.strength, strongCount: rec.strongCount, weakCount: rec.weakCount,
         rulesVersion: rec.rulesVersion, status: "active", provenance: PROVENANCE,
-        evidence: rec.evidence, consistency: rec.consistency ?? null, updatedAt: at,
+        evidence: rec.evidence, consistency: rec.consistency ?? null, textKind: rec.textKind ?? null, updatedAt: at,
       };
       const { politicianId, issueKey, ...set } = values;
       // A curated (non-pipeline) row on the same key is never overwritten.

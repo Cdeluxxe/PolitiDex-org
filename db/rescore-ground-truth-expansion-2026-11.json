@@ -1,6 +1,6 @@
 {
   "_note": "Offline score of the expansion ground-truth records with the current stance scorer, compared with each human label. Diagnostic only: no ground-truth label, rule or site file changes, and a disagreement is left as it is.",
-  "rules_version": "phase8-v4",
+  "rules_version": "phase9-v2",
   "vocab_version": "issue-vocab-v2-directional",
   "confidence_tolerance": 0.1,
   "summary": {
@@ -19,7 +19,7 @@
       "bennie_thompson|healthcare|gt-016": "support → support (agrees)",
       "cruz|school_choice|gt-017": "support → no clear position (disagrees)",
       "aoc|healthcare|gt-018": "support → no clear position (disagrees)",
-      "kclark|healthcare|gt-019": "support → mixed (disagrees)",
+      "kclark|healthcare|gt-019": "support → oppose (disagrees)",
       "murkowski|energy_production|gt-020": "support → no clear position (disagrees)",
       "khanna|cut_spending|gt-021": "mixed → support (disagrees)",
       "jayapal|healthcare|gt-022": "support → support (agrees)",
@@ -478,28 +478,26 @@
         "confidence": 0.8
       },
       "scorer": {
-        "position": "mixed",
-        "confidence": 0.5,
-        "reason": "equal weight of directional signals on both sides (1 vs 1; 0 implication(s))",
+        "position": "oppose",
+        "confidence": 0.8,
+        "reason": "1 clear high-weight statement(s) for oppose; 0 implication(s) for oppose at medium weight (R6); 1 mention(s) recorded at zero weight (R3)",
         "statements": [
-          "oppose (clear): Republicans eliminated the ACA tax credits and slashed $1 trillion from Medicaid, $500 billion from Medicare, and billions from medical research.",
-          "support (clear): Democrats have called on Republicans to work with us to protect health care and lower costs since March."
+          "oppose (clear): Republicans eliminated the ACA tax credits and slashed $1 trillion from Medicaid, $500 billion from Medicare, and billions from medical research."
         ]
       },
       "verdict": "disagrees",
       "scorer_agrees": false,
-      "note": "stance-score: kclark|healthcare position MISMATCH (candidate mixed, ground truth support); confidence 0.5 vs 0.8, Δ=-0.30 OUTSIDE 0.1",
+      "note": "stance-score: kclark|healthcare position MISMATCH (candidate oppose, ground truth support); confidence 0.8 vs 0.8, Δ=+0.00 within 0.1",
       "per_source": [
         {
           "type": "official statement",
           "date": "2025-11-09",
           "link": "https://katherineclark.house.gov/2025/11/whip-clark-statement-on-the-senate-budget-vote",
-          "position": "mixed",
-          "confidence": 0.5,
-          "reason": "equal weight of directional signals on both sides (1 vs 1; 0 implication(s))",
+          "position": "oppose",
+          "confidence": 0.8,
+          "reason": "1 clear high-weight statement(s) for oppose; 0 implication(s) for oppose at medium weight (R6); 1 mention(s) recorded at zero weight (R3)",
           "statements": [
-            "oppose (clear): Republicans eliminated the ACA tax credits and slashed $1 trillion from Medicaid, $500 billion from Medicare, and billions from medical research.",
-            "support (clear): Democrats have called on Republicans to work with us to protect health care and lower costs since March."
+            "oppose (clear): Republicans eliminated the ACA tax credits and slashed $1 trillion from Medicaid, $500 billion from Medicare, and billions from medical research."
           ]
         }
       ]
@@ -931,10 +929,9 @@
       "scorer": {
         "position": "support",
         "confidence": 0.8,
-        "reason": "2 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 1 mention(s) recorded at zero weight (R3)",
+        "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 2 mention(s) recorded at zero weight (R3)",
         "statements": [
-          "support (clear): Washington, D.C. – Today Representative Dina Titus of Nevada’s First Congressional District voted to pass H.R. 3755, the Women’s Health Protection Act, legislation she cosponsored to defend women’s constitutional right to reproductive health care.",
-          "support (clear): “Today Democrats in the House passed the Women’s Health Protection Act, legislation I cosponsored which codifies the constitutional right to an abortion found in Roe v."
+          "support (clear): Washington, D.C. – Today Representative Dina Titus of Nevada’s First Congressional District voted to pass H.R. 3755, the Women’s Health Protection Act, legislation she cosponsored to defend women’s constitutional right to reproductive health care."
         ]
       },
       "verdict": "agrees",
@@ -947,10 +944,9 @@
           "link": "https://titus.house.gov/news/documentsingle.aspx?DocumentID=3138",
           "position": "support",
           "confidence": 0.8,
-          "reason": "2 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 1 mention(s) recorded at zero weight (R3)",
+          "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 2 mention(s) recorded at zero weight (R3)",
           "statements": [
-            "support (clear): Washington, D.C. – Today Representative Dina Titus of Nevada’s First Congressional District voted to pass H.R. 3755, the Women’s Health Protection Act, legislation she cosponsored to defend women’s constitutional right to reproductive health care.",
-            "support (clear): “Today Democrats in the House passed the Women’s Health Protection Act, legislation I cosponsored which codifies the constitutional right to an abortion found in Roe v."
+            "support (clear): Washington, D.C. – Today Representative Dina Titus of Nevada’s First Congressional District voted to pass H.R. 3755, the Women’s Health Protection Act, legislation she cosponsored to defend women’s constitutional right to reproductive health care."
           ]
         }
       ]
@@ -1183,9 +1179,9 @@
       "scorer": {
         "position": "support",
         "confidence": 0.8,
-        "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6)",
+        "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); stance verb in the opening sentences acts on a named bill reads as a clear support (R14); 1 mention(s) recorded at zero weight (R3)",
         "statements": [
-          "support (clear): “I am hopeful that The For The People Act will revitalize our democracy by combatting the dominant influence of big money in politics, expanding voting rights, and strengthening ethics laws to combat the culture of corruption in Washington,” said Congresswoman Haley Stevens."
+          "support (clear): WASHINGTON - Tonight, Rep. Haley Stevens voted for HR 1, the For the People Act, a top priority of House Democrats in the 117th Congress which passed in the House and will soon be sent to the Senate. “I am hopeful that The For The People Act will revitalize our democracy by combatting the dominan…"
         ]
       },
       "verdict": "agrees",
@@ -1198,9 +1194,9 @@
           "link": "https://stevens.house.gov/media/press-releases/rep-stevens-votes-hr-1-people-act",
           "position": "support",
           "confidence": 0.8,
-          "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6)",
+          "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); stance verb in the opening sentences acts on a named bill reads as a clear support (R14); 1 mention(s) recorded at zero weight (R3)",
           "statements": [
-            "support (clear): “I am hopeful that The For The People Act will revitalize our democracy by combatting the dominant influence of big money in politics, expanding voting rights, and strengthening ethics laws to combat the culture of corruption in Washington,” said Congresswoman Haley Stevens."
+            "support (clear): WASHINGTON - Tonight, Rep. Haley Stevens voted for HR 1, the For the People Act, a top priority of House Democrats in the 117th Congress which passed in the House and will soon be sent to the Senate. “I am hopeful that The For The People Act will revitalize our democracy by combatting the dominan…"
           ]
         }
       ]
@@ -1278,9 +1274,8 @@
       "scorer": {
         "position": "support",
         "confidence": 0.8,
-        "reason": "2 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6)",
+        "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 1 mention(s) recorded at zero weight (R3)",
         "statements": [
-          "support (clear): In her questioning of witnesses , Congresswoman Pressley discussed the need to confront the policies that helped create the housing crisis in America—like exclusionary zoning, redlining, restrictive covenants, and land-use restrictions—which have made it difficult to build affordable housing and …",
           "support (clear): Congresswoman Pressley also called for the passage of her Innovation Fund Act , which was included in the landmark ROAD to Housing Act and would reward communities that are taking innovative steps to increase housing supply."
         ]
       },
@@ -1294,9 +1289,8 @@
           "link": "https://pressley.house.gov/2026/01/14/video-pressley-co-chairs-hearing-on-housing-affordability-demands-congress-affirm-housing-as-a-human-right/",
           "position": "support",
           "confidence": 0.8,
-          "reason": "2 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6)",
+          "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 1 mention(s) recorded at zero weight (R3)",
           "statements": [
-            "support (clear): In her questioning of witnesses , Congresswoman Pressley discussed the need to confront the policies that helped create the housing crisis in America—like exclusionary zoning, redlining, restrictive covenants, and land-use restrictions—which have made it difficult to build affordable housing and …",
             "support (clear): Congresswoman Pressley also called for the passage of her Innovation Fund Act , which was included in the landmark ROAD to Housing Act and would reward communities that are taking innovative steps to increase housing supply."
           ]
         }
@@ -2238,9 +2232,8 @@
       "scorer": {
         "position": "support",
         "confidence": 0.8,
-        "reason": "2 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 2 mention(s) recorded at zero weight (R3)",
+        "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 3 mention(s) recorded at zero weight (R3)",
         "statements": [
-          "support (clear): They deserve our full support, not just during National Police Week, but year-round.”",
           "support (clear): As part of National Police Week, Congressman Mackenzie is co-sponsoring multiple pieces of bipartisan legislation focused on strengthening law enforcement, improving officer safety, supporting first responders, and combating violent crime and fentanyl trafficking, including:"
         ]
       },
@@ -2254,9 +2247,8 @@
           "link": "https://mackenzie.house.gov/media/press-releases/congressman-ryan-mackenzie-highlights-public-safety-legislation-during",
           "position": "support",
           "confidence": 0.8,
-          "reason": "2 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 2 mention(s) recorded at zero weight (R3)",
+          "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 3 mention(s) recorded at zero weight (R3)",
           "statements": [
-            "support (clear): They deserve our full support, not just during National Police Week, but year-round.”",
             "support (clear): As part of National Police Week, Congressman Mackenzie is co-sponsoring multiple pieces of bipartisan legislation focused on strengthening law enforcement, improving officer safety, supporting first responders, and combating violent crime and fentanyl trafficking, including:"
           ]
         }

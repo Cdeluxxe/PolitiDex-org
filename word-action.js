@@ -7436,7 +7436,7 @@
           (d.item && d.item.provenance === 'pipeline' ? pipelineTagHtml() : '') +
         '</div>' +
         '<div class="pdxwa-dot-step pdxwa-dot-word">' +
-          '<span class="pdxwa-dot-k">They said</span>' +
+          '<span class="pdxwa-dot-k">' + esc((quote && d.item && d.item.saidLabel) || 'They said') + '</span>' +
           '<span class="pdxwa-dot-v">' + (quote ? esc(quote) : esc('They campaign on ' + d.title + '.')) +
             (src && src.url ? ' <a class="pdxwa-dot-src" href="' + esc(src.url) + '" target="_blank" rel="noopener noreferrer">' + esc(src.label || 'source') + '</a>'
                             : (src && src.label ? ' <span class="pdxwa-dot-src">' + esc(src.label) + '</span>' : '')) +

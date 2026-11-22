@@ -172,6 +172,48 @@
 //             CROSS_TOPIC_MIN_SENTENCES sentences naming the topic or as many
 //             own directional statements on it (crossTopicAddressed), on top of
 //             R13's explicit anchor. One passing line is not a finding.
+//   R18 Reading (phase9-v2) — who said a sentence and what it actually commits
+//       to, checked before any read can promote (see READING below):
+//         (a) polarity: a cut / attack / privatization named as a NOUN ("the
+//             Administration’s continual cuts to Social Security") is a
+//             description, not a call to cut. A counter verb anywhere earlier in
+//             the clause ("We write to denounce … cuts to Social Security",
+//             "sounding the alarm about … the practice of using taxpayer dollars
+//             to fund abortions") turns it into the politician defending the
+//             program; a verb of support right before it ("I support cuts to …")
+//             keeps it; anything else is a mention. "never stop fighting to
+//             protect" is not a negation. A verb whose object only sits after
+//             "about / regarding / over / following" ("delivered remarks …
+//             about … abortion", "Fights over climate policy"), after a modal
+//             that starts a new predicate ("banning the pipeline would increase
+//             emissions"), after "rather than / like" ("keeping Americans safe …
+//             rather than murder us like ICE"), "stop X from <verb>ing", a noun
+//             use ("the use of federal funds for … military force") and an
+//             object inside a bill's name are not the politician acting on it.
+//         (b) headlines: a Title Case or ALL CAPS line, or a gerund-led line with
+//             no sentence end ("Supporting Idaho Agriculture", "Maintaining
+//             Peace through Strength"), is not a clear statement unless it is the
+//             page's own main headline (title / h1). A headline that does read a
+//             side is marked `headline` and shown as a headline, not "They said".
+//         (c) other voices: a sentence inside someone else's quote is that
+//             person's (zero weight, not only "not R8"); on a joint or committee
+//             release whose dateline / headline names other members and not the
+//             page's politician ("WASHINGTON – U.S. Senator Jeanne Shaheen …"),
+//             the page voice, first person and he / she are theirs — only a
+//             sentence that names the page's politician, or their own quote,
+//             counts for them.
+//         (d) long lists: a line from a list of LIST_MIN_ITEMS or more items (a
+//             bulleted list of bills or achievements, a dated timeline) sets a
+//             side only when the page's main claim (title / h1 / first sentence)
+//             is about the topic, or LIST_AGREE_MIN items of the same list agree.
+//         (e) third parties: an outside group's "What They Are Saying" section,
+//             "according to …", "the Obama Administration determined …", and a
+//             paraphrase of what the politician told an outlet ("Cassidy spoke to
+//             the Washington Examiner on …") are not the politician's own words.
+//       R14 lead cues read the purpose of a bill with the topic's own vocabulary
+//       ("a bill to ban artificial superintelligence" is not support for light
+//       AI rules; "a bill to end taxpayer-funded abortion" is pro-life support),
+//       and a named-bill cue needs the page to address the topic at all.
 //
 
 // Calibration: the ground truth (0.85) rests on first-party campaign pages
@@ -181,8 +223,11 @@
 
 import { buildTopicRules, buildDirectionalTopicRules, ISSUE_TOPIC_VOCAB, ISSUE_TOPIC_LABELS, DIRECTIONAL_TOPIC_VOCAB, DIRECTIONAL_ISSUE_KEYS } from "./stance-topic-vocab.mjs";
 import { PERSON_SURNAMES, PLACE_SURNAMES, PLACE_SURNAME_FULL_NAMES } from "./stance-person-names.mjs";
+// Roster names and host kinds (R18c). page-ownership imports this module too;
+// both only call each other inside functions, so the cycle is safe.
+import { pageOwnership, nameTokens } from "./page-ownership.mjs";
 
-export const RULES_VERSION = "phase9-v1";
+export const RULES_VERSION = "phase9-v2";
 // Vocabulary version for the issue keys scored from stance-topic-vocab.mjs
 // (every register key except the two hand-calibrated core topics).
 export const VOCAB_VERSION = "issue-vocab-v1";
@@ -406,7 +451,7 @@ const SECOND_PERSON_ACTOR = /\byour\s+(?:[\w'’$,.-]+\s+){0,3}?(?:polic(?:y|ies
 // "states that banned …", "the ruling, which eliminated …". The candidate's own
 // instruments (bill / act / legislation / resolution / amendment) are not in
 // the list, and "my / our <noun>" stays the candidate's own.
-const OTHER_INSTRUMENT = /\b(?:(my|our)\s+(?:[\w'’-]+\s+){0,2})?(polic(?:y|ies)|rules?|regulations?|orders?|bans?|rulings?|decisions?|opinions?|courts?|justices|majority|administration|states|proposals?|schemes?|mission|agenda|memo(?:randum)?|directives?|guidance)(?:\s*,)?\s+(?:that|which|to|would|will|banning|ending|cutting|eliminating|gutting|slashing|restricting|limiting|stripping|blocking|denying|repealing|dismantling|privatizing|prohibiting|reinstating|rolling)\b/gi;
+const OTHER_INSTRUMENT = /\b(?:(my|our)\s+(?:[\w'’-]+\s+){0,2})?(polic(?:y|ies)|rules?|regulations?|orders?|bans?|rulings?|decisions?|opinions?|courts?|justices|majority|administration|states|proposals?|schemes?|mission|agenda|memo(?:randum)?|directives?|guidance|practices?)(?:\s*,)?\s+(?:of\s+\w+ing|that|which|to|would|will|banning|ending|cutting|eliminating|gutting|slashing|restricting|limiting|stripping|blocking|denying|repealing|dismantling|privatizing|prohibiting|reinstating|rolling)\b/gi;
 const OPPONENT_FRAMING = /\b(?:my|our|his|her|their)\s+(?:\w+\s+)?opponents?\b|\b(?:politicians?|people|folks) like\b|\bpromised to\b/gi;
 // Third-party PRONOUNS are always the actor of their clause. Third-party GROUPS
 // only count when they are the subject — followed by a verb — so "Big retailers
@@ -414,9 +459,10 @@ const OPPONENT_FRAMING = /\b(?:my|our|his|her|their)\s+(?:\w+\s+)?opponents?\b|\
 // subsidies and use the savings to cut property taxes" stays the speaker's own.
 const THIRD_PARTY_PRONOUN = /\b(they|they're|they’re|they've|they’ve|they'll|they’ll)\b/gi;
 const THIRD_PARTY_GROUP = /\b(corporations?|corporate (?:landlords|interests|executives|giants|America)|companies|retailers?|billionaires?|millionaires?|the (?:wealthy|rich)|lobbyists?|special interests|donors?|insurers?|insurance companies|landlords?|banks?|Wall Street|big (?:pharma|food|oil|tech|retailers?|banks?|insurance)|(?:drug|oil|tech|credit card) (?:companies|makers|giants)|monopolies|middlemen|PBMs?)(?=\s+(?:\w+ly\s+)?(?:are|is|was|were|have|has|had|will|would|can|could|keep|keeps|kept|use|uses|used|lobby|lobbies|lobbied|charge|charges|raise|raises|raised|jack|jacks|hike|hikes|hiked|set|sets|want|wants|get|gets|pay|pays|paid|make|makes|made|buy|buys|bought|refuse|refuses|try|tries|tried|continue|continues|rip|rips|profit|profits|gouge|gouges|squeeze|squeezes)\b)/gi;
+const ACCORDING_TO = /\baccording to\b(?!\s+(?:me|my|our|us)\b)/gi;
 // phase9-v1: reporting and decision verbs ("Donald Trump claimed …", "the
 // Supreme Court overturned …", "Elon Musk dismantles …") name an actor too.
-const ACTION_VERB = "(?:has|have|had|is|are|was|were|will|would|wants?|voted|votes|promised|promises|refused|refuses|refuse|tried|tries|blocked|blocks|keeps?|kept|used|uses|took|takes|plans?|planned|pushed|pushes|passed|signed|lowered|cut|raised|raises|raise|claim(?:s|ed)?|said|says|insist(?:s|ed)?|argu(?:es|ed)|announc(?:es|ed)|overturn(?:s|ed)|ruled|rules|eliminat(?:es|ed)|bann?(?:s|ed)|dismantl(?:es|ed)|slash(?:es|ed)|gutt?(?:s|ed)|threaten(?:s|ed)|propos(?:es|ed)|reinstat(?:es|ed)|order(?:s|ed)|decid(?:es|ed)|issu(?:es|ed)|moved?|moves|end(?:s|ed))";
+const ACTION_VERB = "(?:has|have|had|is|are|was|were|will|would|wants?|voted|votes|promised|promises|refused|refuses|refuse|tried|tries|blocked|blocks|keeps?|kept|used|uses|took|takes|plans?|planned|pushed|pushes|passed|signed|lowered|cut|raised|raises|raise|claim(?:s|ed)?|said|says|insist(?:s|ed)?|argu(?:es|ed)|announc(?:es|ed)|overturn(?:s|ed)|ruled|rules|eliminat(?:es|ed)|bann?(?:s|ed)|dismantl(?:es|ed)|slash(?:es|ed)|gutt?(?:s|ed)|threaten(?:s|ed)|propos(?:es|ed)|reinstat(?:es|ed)|order(?:s|ed)|decid(?:es|ed)|issu(?:es|ed)|moved?|moves|end(?:s|ed)|determin(?:es|ed)|found|finds|conclud(?:es|ed)|estimat(?:es|ed)|warn(?:s|ed)|report(?:s|ed)|releas(?:es|ed)|expand(?:s|ed)|finaliz(?:es|ed)|mandat(?:es|ed))";
 const NAMED_ACTOR = new RegExp(`\\b((?:[A-Z][\\w'’.-]+)(?:\\s+(?:[A-Z][\\w'’.-]+|of|the|for))*?)\\s+${ACTION_VERB}\\b`, "g");
 // Capitalised words that start a sentence or clause without naming anyone.
 const NOT_A_NAME = new Set(["I", "We", "The", "This", "That", "These", "Those", "Now", "If", "In", "As", "And", "But", "So", "It", "He", "She", "They", "Our", "My", "His", "Her", "Their", "Who", "What", "When", "Why", "How", "Today", "Tonight", "Here", "There", "Everyone", "Nobody", "Americans", "Texans", "Families", "Workers"]);
@@ -536,6 +582,9 @@ export function actorFor(prefix, politicianId) {
   while ((m = THIRD_PARTY_PRONOUN.exec(prefix))) push("third", m);
   THIRD_PARTY_GROUP.lastIndex = 0;
   while ((m = THIRD_PARTY_GROUP.exec(prefix))) push("third", m);
+  // R18(e): "According to a third-party study, …" — the source speaks, not the page.
+  ACCORDING_TO.lastIndex = 0;
+  while ((m = ACCORDING_TO.exec(prefix))) push("third", m);
   NAMED_ACTOR.lastIndex = 0;
   while ((m = NAMED_ACTOR.exec(prefix))) {
     const name = m[1];
@@ -569,13 +618,35 @@ const TRAIL_SAY_X = new RegExp(`[”"]\\s*,?\\s*${SAY_VERB}\\s+(${HONORIFIC}?[^,
 const TRAIL_X_SAY = new RegExp(`[”"]\\s*,?\\s*(${HONORIFIC}?[A-Za-z][^,.;:”"]{0,60}?)\\s+${SAY_VERB}\\b`);
 const LEAD_X_SAY = new RegExp(`^\\s*(${HONORIFIC}?[A-Za-z][^,.;:”"]{0,60}?)\\s+${SAY_VERB}\\s*[,:]?\\s*[“"]`);
 
+/**
+ * Does `text` name the politician of `politicianId` (phase9-v2)? Full name,
+ * surname or first name (selfNamePattern), or a capitalised word of 4+ letters
+ * the id ends with — ids such as "bmoore" or "aoc_ny" carry no separate surname.
+ */
+export function namesSelf(text, politicianId) {
+  const t = String(text || "");
+  const self = selfNamePattern(politicianId);
+  if (self && (self.lastIndex = 0, self.test(t))) return true;
+  const id = String(politicianId || "").toLowerCase().replace(/[^a-z_]/g, "");
+  const tails = id.split("_").filter((x) => x.length >= 4);
+  let roster = null;
+  try { roster = nameTokens(politicianId); } catch { roster = null; }
+  const surnames = new Set((roster?.known ? roster.surnames : []).filter((x) => x.length >= 3));
+  for (const w of t.match(/\b[A-Z][\p{L}'’-]{2,}\b/gu) || []) {
+    const lw = w.toLowerCase().replace(/[^a-z]/g, "");
+    if (lw.length >= 4 && tails.some((x) => x.endsWith(lw) && x.length - lw.length <= 2)) return true;
+    // The roster name: "Ocasio-Cortez" for "aoc", "Moore" for "bmoore".
+    if (surnames.has(lw) || w.split(/[-’']/).some((p) => surnames.has(p.toLowerCase()) && p.length >= 4)) return true;
+  }
+  return false;
+}
+
 /** "self" | "other" | null for a speaker phrase ("Rep. Jane Doe", "she", "Crockett"). */
 function speakerKind(phrase, politicianId) {
   const p = String(phrase || "").trim();
   if (!p) return null;
   if (/^(?:I|we|he|she)$/i.test(p)) return "self";
-  const self = selfNamePattern(politicianId);
-  if (self && (self.lastIndex = 0, self.test(p))) return "self";
+  if (namesSelf(p, politicianId)) return "self";
   // A named person or group (a capitalised word, after any honorific).
   if (/[A-Z]/.test(p.replace(new RegExp(`^${HONORIFIC}`), ""))) return "other";
   return null;
@@ -719,8 +790,8 @@ const OPPONENT_FRAMING_TEST = new RegExp(OPPONENT_FRAMING.source, "i");
  */
 function classifyImplication(sentence, r, politicianId) {
   if (!r.implySupport) return null;
-  const ps = r.implySupport.exec(sentence);
-  const po = r.implyOppose ? r.implyOppose.exec(sentence) : null;
+  const ps = guardedMatch(r.implySupport, sentence).m;
+  const po = r.implyOppose ? guardedMatch(r.implyOppose, sentence).m : null;
   if ((ps || po) && !(ps && po)) {
     const m = ps || po;
     const prefix = sentence.slice(0, m.index);
@@ -784,8 +855,8 @@ function participleSubject(prefix, match, politicianId) {
 //     paraphrase, not the politician's own words: zero weight.
 const NEG_STRIP = /(?:\b(?:not|never|no longer|cannot|nor)\b|\b\w+n['’]t\b)/gi;
 const NEG_TAIL = /(?:\b(?:not|never|no longer|cannot|nor|refus(?:e|es|ed|ing) to|declin(?:e|es|ed|ing) to)\b|n['’]t\b)(?:\s+[\w'’-]+){0,3}\s*$/i;
-const COUNTER_OP = String.raw`(?:oppos(?:e|es|ed|ing)|block(?:s|ed|ing)?|stop(?:s|ped|ping)?|fight(?:s|ing)? (?:back )?against|fought (?:back )?against|reject(?:s|ed|ing)?|rescind(?:s|ed|ing)?|overturn(?:s|ed|ing)?|revers(?:e|es|ed|ing)|undo(?:es|ing)?|undid|prevent(?:s|ed|ing)?|condemn(?:s|ed|ing)?|slam(?:s|med|ming)?|blast(?:s|ed|ing)?|denounc(?:e|es|ed|ing)|challeng(?:e|es|ed|ing)|resist(?:s|ed|ing)?|push(?:es|ed|ing)? back (?:on|against)|stand(?:s|ing)? against|stood against|vot(?:e|es|ed|ing) against|disturbed by|alarmed by|outraged by|withdraw(?:s|n|ing)?|repeal(?:s|ed|ing)?|end(?:s|ed|ing)?|protect\w{0,3} [\w'’ -]{1,40}? (?:from|against))`;
-const BRIDGE = String.raw`(?:efforts?|attempts?|plans?|push(?:es)?|bids?|schemes?|mission|moves?|decisions?|proposals?|polic(?:y|ies)|rules?|regulations?|orders?|bans?|agenda|threats?|actions?|directives?|memo(?:randum)?|guidance|rulings?|legislation|bills?|measures?)`;
+const COUNTER_OP = String.raw`(?:oppos(?:e|es|ed|ing)|block(?:s|ed|ing)?|stop(?:s|ped|ping)?|fight(?:s|ing)? (?:back )?against|fought (?:back )?against|reject(?:s|ed|ing)?|rescind(?:s|ed|ing)?|overturn(?:s|ed|ing)?|revers(?:e|es|ed|ing)|undo(?:es|ing)?|undid|prevent(?:s|ed|ing)?|condemn(?:s|ed|ing)?|slam(?:s|med|ming)?|blast(?:s|ed|ing)?|denounc(?:e|es|ed|ing)|challeng(?:e|es|ed|ing)|resist(?:s|ed|ing)?|push(?:es|ed|ing)? back (?:on|against)|stand(?:s|ing)? against|stood against|vot(?:e|es|ed|ing) against|disturbed by|alarmed by|outraged by|withdraw(?:s|n|ing)?|repeal(?:s|ed|ing)?|end(?:s|ed|ing)?|protect\w{0,3} [\w'’ -]{1,40}? (?:from|against)|sound(?:s|ed|ing)? the alarm (?:on|about|over)|rais(?:e|es|ed|ing) (?:serious |grave )?(?:concerns?|alarm) (?:about|over|with)|warn(?:s|ed|ing)? against|speak(?:s|ing)? out against|spoke out against|criticiz(?:e|es|ed|ing)|decr(?:y|ies|ied|ying))`;
+const BRIDGE = String.raw`(?:efforts?|attempts?|practices?|plans?|push(?:es)?|bids?|schemes?|mission|moves?|decisions?|proposals?|polic(?:y|ies)|rules?|regulations?|orders?|bans?|agenda|threats?|actions?|directives?|memo(?:randum)?|guidance|rulings?|legislation|bills?|measures?)`;
 // Between the counter verb and the bridge noun: no clause break and no verb of
 // support ("oppose X and support efforts to protect …" is not a counter-frame).
 const FRAME_WORD = String.raw`(?!(?:and|but|or|while|so|then|instead|yet|because|support\w*|back\w*|protect\w*|defend\w*|champion\w*|expand\w*|welcom\w*|applaud\w*|prais\w*|endors\w*)\b)[\w'’$.,()&-]+`;
@@ -812,18 +883,112 @@ export const burdenObject = (match) => { const words = String(match).split(/\s+/
 const IN_TITLE = /\b[A-Z][\w'’-]*(?:\s+[A-Z][\w'’-]*)*\s+Act\b/;
 // "prevent terrorism BY requiring …": a means clause, not the countered action.
 const MEANS_BEFORE = /\b(?:by|through|while|with|via)\s*$/i;
+// "never stop fighting to …" (phase9-v2): a negated stop is a promise, not a counter.
+const NEGATED_OP = /(?:\b(?:not|never|no longer)\b|n['’]t\b)\s+(?:ever\s+)?$/i;
 export function counterFrame(prefix, match) {
   const b = COUNTER_BRIDGE.exec(prefix);
-  if (b && !IN_TITLE.test(prefix.slice(b.index))) return { opStart: b.index, via: b[1] };
+  if (b && !IN_TITLE.test(prefix.slice(b.index)) && !NEGATED_OP.test(prefix.slice(0, b.index))) return { opStart: b.index, via: b[1] };
   if (NOMINAL_MATCH.test(match) && !MEANS_BEFORE.test(prefix)) {
     const d = COUNTER_DIRECT.exec(prefix);
-    if (d && !IN_TITLE.test(prefix.slice(d.index))) return { opStart: d.index, via: d[1] };
+    if (d && !IN_TITLE.test(prefix.slice(d.index)) && !NEGATED_OP.test(prefix.slice(0, d.index))) return { opStart: d.index, via: d[1] };
   }
   return null;
 }
+// R18(a): "will never stop fighting to protect …", "won't back down from defending …"
+// is a promise to keep doing it, not a negation.
+const NEVER_STOP = /(?:\b(?:not|never|no longer)\b|n['’]t\b)\s+(?:ever\s+)?(?:stop(?:ped)?|quit|cease|give up|back down|let up|relent|rest|waver)\b(?:\s+[\w'’-]+){0,3}\s*$/i;
 /** Is the match a negated verb (NEG_TAIL) or a reported figure (STAT)? */
-export const negatedMatch = (prefix) => NEG_TAIL.test(prefix);
+export const negatedMatch = (prefix) => NEG_TAIL.test(prefix) && !NEVER_STOP.test(prefix);
 export const statisticMatch = (prefix, match) => STAT_TAIL.test(prefix) || STAT_MATCH.test(match);
+
+// ── READING (phase9-v2, R18) ────────────────────────────────────────────────
+// Per-match guards: the verb of a directional match must really act on the
+// object it matched. Each returns a reason string, or null when the match stands.
+// Topic of talk: the object only follows "about / regarding / over …".
+const TALK_GAP = /\b(?:about|regarding|concerning|over|amid|in response to|in light of|in the wake of)\b|\b(?:remarks|hearings?|statements?|letters?|speech(?:es)?|reports?|briefings?|testimony|op-?eds?|roundtables?|discussions?|questions?|concerns?|interviews?)\s+(?:on|about|regarding|over|at)\b/i;
+// A modal opens a new predicate: "banning the pipeline WOULD increase emissions".
+const MODAL_GAP = /\b(?:would|will|could|might|may)\b/i;
+// "keeping Americans safe … rather than murder us like ICE did".
+const CONTRAST_GAP = /\b(?:rather than|instead of|unlike)\b/i;
+// "the use of federal funds for … military force": a noun, not a verb.
+// "Bethany supports full and equal funding for …": the noun is what they support.
+const SUPPORT_NOUN = /\b(?:support\w*|back\w*|champion\w*|fight\w* for|fought for|call\w* for|push\w* for|secur\w+|deliver\w*|increas\w+|protect\w*|restor\w+|guarantee\w*|ensur\w+|provid\w+|expand\w*|boost\w*|pass\w*|propos\w+|want\w*|need\w*)\s+(?:[\w'’$-]+\s+){0,4}$/i;
+const NOUN_USE_HEAD = /^(?:fund(?:s|ing)?|help|hold|boost|increase|keep|pass|build|delivery|investments?|protections?)$/i;
+const NOUN_USE_BEFORE = /(?:\b(?:the|a|an|of|any|federal|state|these|those|such|its|their|his|her|our|my|your|new|more|less|additional|continued|bipartisan|increased|annual|emergency)\s+|['’]s\s+(?:[\w-]+\s+){0,2}|\w-)$/i;
+// "stop the Bureau of …, Firearms … FROM arbitrarily blocking imports": the object
+// is who is stopped; the act is the gerund after "from".
+const STOP_HEAD = /^(?:stop(?:s|ped|ping)?|block\w{0,3}|prevent\w{0,3}|prohibit\w{0,3}|bar(?:s|red|ring)?|ban(?:s|ned|ning)?)$/i;
+const FROM_GERUND = /^[^.;!?]{0,60}?\bfrom\s+(?:\w+ly\s+)?\w+ing\b/i;
+const DOWN_HEAD = /^(?:stop\w*|block\w*|prevent\w*|prohibit\w*|bar|bars|barred|ban\w*|end|ends|ended|ending|cut\w*|repeal\w*|oppos\w+|reject\w*|eliminat\w+|restrict\w*|limit\w*|halt\w*|defund\w*)$/i;
+// A bill's name: a capitalised run ending in "Act".
+const ACT_TITLE_G = /\b(?:[A-Z][\w'’-]*,?\s+(?:(?:of|for|and|the|to|in|on|from|&|a|an)\s+)*){1,12}Act\b/g;
+export function matchGuard(sentence, m) {
+  const text = m[0];
+  const head = (/^\S+/.exec(text) || [""])[0];
+  const gap = text.slice(head.length);
+  if (TALK_GAP.test(gap)) return "topic_of_talk";
+  // …unless the modal sits in a relative clause describing the object ("a bill that will advance …").
+  if (MODAL_GAP.test(gap) && !/\b(?:that|which|who)\s+(?:\w+\s+)?(?:would|will|could|might|may)\b/i.test(gap)) return "new_predicate";
+  if (CONTRAST_GAP.test(gap)) return "contrast";
+  if (NOUN_USE_HEAD.test(head) && (NOUN_USE_BEFORE.test(sentence.slice(0, m.index)) || /^\s+(?:of|for)\b/i.test(gap))
+      && !SUPPORT_NOUN.test(sentence.slice(0, m.index))) return "noun_use";
+  if (STOP_HEAD.test(head) && FROM_GERUND.test(sentence.slice(m.index + text.length))) return "stop_from";
+  ACT_TITLE_G.lastIndex = 0;
+  let t;
+  const end = m.index + text.length;
+  while ((t = ACT_TITLE_G.exec(sentence))) {
+    // The verb outside a bill's name, the object inside it.
+    // (A match that ends on "Act" has the bill itself as its object, and stands.)
+    if (DOWN_HEAD.test(head) && m.index < t.index && end > t.index && end < t.index + t[0].length - 3) return "inside_bill_name";
+  }
+  return null;
+}
+const GLOBAL_RES = new WeakMap();
+const asGlobal = (re) => { let g = GLOBAL_RES.get(re); if (!g) GLOBAL_RES.set(re, g = new RegExp(re.source, re.flags.includes("g") ? re.flags : re.flags + "g")); return g; };
+/** First match of `re` in `sentence` that passes matchGuard → { m, guard } (m null when every match was guarded). */
+export function guardedMatch(re, sentence) {
+  if (!re) return { m: null, guard: null };
+  const g = asGlobal(re);
+  g.lastIndex = 0;
+  let m, guard = null;
+  while ((m = g.exec(sentence))) {
+    if (m[0] === "") { g.lastIndex++; continue; }
+    const why = matchGuard(sentence, m);
+    if (!why) return { m, guard: null };
+    guard ||= why;
+    g.lastIndex = m.index + 1;
+  }
+  return { m: null, guard };
+}
+
+// Nominal harm (R18a): the match OPENS on a noun naming someone's action against
+// a program or right ("cuts to Social Security", "the Administration’s continual
+// cuts …", "attacks on Medicare", "privatization of …").
+const HARM_NOUN = /^(?:cuts|cutbacks?|attacks?|assaults?|privatization|elimination|threats?|raids?)\b/i;
+const HARM_CUT = /^(?:cut|repeal|gutting|slashing)\b/i;
+const HARM_DETERMINER = /(?:\b(?:the|any|a|these|those|his|her|their|its|proposed|planned|deep|devastating|continual|continued|massive|harmful|drastic|cruel|reckless|dangerous|draconian|sweeping|recent|latest|new|further|more|such|partisan|administration|federal)|['’]s)\s+(?:[\w-]+\s+){0,2}$/i;
+const COUNTER_ANY = new RegExp(String.raw`\b(${COUNTER_OP})\b`, "gi");
+const SUPPORT_GOVERNS = /\b(?:support\w*|back(?:s|ed|ing)?|propos\w+|call(?:s|ed|ing)? for|push(?:es|ed|ing)? for|favor\w*|want\w*|need\w*|mak(?:e|es|ing)|made|enact\w*|pass(?:es|ed|ing)?|vot(?:e|es|ed|ing) for|endors\w+|implement\w*|deliver\w*)\s+(?:[\w'’$-]+\s+){0,3}$/i;
+/** Is the match a nominal harm ("cuts to …")? */
+export function nominalHarm(prefix, match) {
+  if (HARM_NOUN.test(match)) return true;
+  return HARM_CUT.test(match) && HARM_DETERMINER.test(prefix);
+}
+/**
+ * What a nominal harm means (R18a) → { flip: true, opStart, via } (the speaker
+ * counters it: defends the program), { keep: true } (the speaker calls for it),
+ * or null (a description of someone else's action: a mention).
+ */
+export function nominalReading(prefix) {
+  const clause = prefix.slice(Math.max(prefix.lastIndexOf(";"), prefix.lastIndexOf(" but ")) + 1);
+  const off = prefix.length - clause.length;
+  let m, last = null;
+  COUNTER_ANY.lastIndex = 0;
+  while ((m = COUNTER_ANY.exec(clause))) last = m;
+  if (last && !IN_TITLE.test(clause.slice(last.index))) return { flip: true, opStart: off + last.index, via: last[1] };
+  if (SUPPORT_GOVERNS.test(clause)) return { keep: true };
+  return null;
+}
 
 const NEWS_REPOST_URL = /\/(?:in-the-news|news-coverage|in-the-media|press-coverage|media-coverage|news-clips|clips|coverage)(?:\/|$)/i;
 const NEWS_REPOST_TYPE = /\b(?:in the news|news coverage|media coverage|press clips?)\b/i;
@@ -859,8 +1024,11 @@ export function classify(sentence, topic, politicianId = null, { claims = false,
   // Subject spans: a sentence inside a span on this topic's subject is ABOUT
   // the subject even when it does not name it again (see subjectSpans).
   const inContext = !r.context || inSpan || r.context.test(sentence);
-  let sm = inContext ? r.support.exec(sentence) : null;
-  let om = inContext ? r.oppose.exec(sentence) : null;
+  // R18(a): the first match whose verb really acts on its object (matchGuard).
+  const gs = inContext ? guardedMatch(r.support, sentence) : { m: null, guard: null };
+  const go = inContext ? guardedMatch(r.oppose, sentence) : { m: null, guard: null };
+  let sm = gs.m, om = go.m;
+  const guard = gs.guard || go.guard;
   let via;
   if (!sm && !om && claims) {
     const cm = claimMatch(sentence, topic);
@@ -888,6 +1056,13 @@ export function classify(sentence, topic, politicianId = null, { claims = false,
     // "voted against every bill that does NOT uphold …" — a double negative: the
     // counter verb and the negation cancel out, the side stands as written.
     if (cf && negatedMatch(prefix)) cf = null;
+    // R18(a): "cuts to Social Security" named as a noun — whose action is it?
+    // Only on the oppose side: that is the read that turns a defender into an opponent.
+    if (!cf && !reversal && om && !sm && nominalHarm(prefix, m[0])) {
+      const nr = nominalReading(prefix);
+      if (nr?.flip && !negatedMatch(sentence.slice(0, nr.opStart))) cf = { opStart: nr.opStart, via: nr.via };
+      else if (!nr?.keep) return { kind: "mention", side: null, reversal: false, actor: null, framing: "nominal" };
+    }
     if (cf) side = side === "support" ? "oppose" : "support";
     if (om && !sm && burdenObject(m[0])) side = side === "support" ? "oppose" : "support";
     const actorPrefix = cf ? prefix.slice(0, cf.opStart) : prefix;
@@ -895,7 +1070,23 @@ export function classify(sentence, topic, politicianId = null, { claims = false,
     // On the support side only a decision noun ("policy banning …") names the
     // actor; a capitalised word before a gerund is usually a Title Case heading.
     const ps = !cf ? participleSubject(prefix, m[0], politicianId) : null;
-    const actor = (ps && (om || ps.kind === "third") ? ps : null) || actorFor(actorPrefix, politicianId);
+    let actor = (ps && (om || ps.kind === "third") ? ps : null) || actorFor(actorPrefix, politicianId);
+    // R18(a): the politician countering someone else's action — "sounding the
+    // alarm about the Pentagon’s practice of using taxpayer dollars to fund
+    // abortions", "we oppose Trump’s plan, which would cut …": the other party
+    // acts, the politician is against it, so the side turns around.
+    if (actor.kind !== "self" && !cf && !reversal) {
+      const clause = prefix.slice(Math.max(prefix.lastIndexOf(";"), prefix.lastIndexOf(" but ")) + 1);
+      const off = prefix.length - clause.length;
+      const at = actor.via ? prefix.lastIndexOf(actor.via) : -1;
+      let k, op = null;
+      COUNTER_ANY.lastIndex = 0;
+      while ((k = COUNTER_ANY.exec(clause))) if (off + k.index < at) op = k;
+      if (op && !IN_TITLE.test(clause.slice(op.index)) && !NEGATED_OP.test(clause.slice(0, op.index))) {
+        const by = actorFor(prefix.slice(0, off + op.index), politicianId);
+        if (by.kind === "self") { cf = { opStart: off + op.index, via: op[1] }; side = side === "support" ? "oppose" : "support"; actor = by; }
+      }
+    }
     // Someone else acting stays someone else's (zero weight), negated or not.
     if (actor.kind !== "self" && !reversal) return { kind: "mention", side: null, reversal: false, actor };
     // The politician's own negated verb or a reported figure is not a call to act.
@@ -908,6 +1099,7 @@ export function classify(sentence, topic, politicianId = null, { claims = false,
   }
   const imp = !(sm || om) && inContext && !reportedVoice ? classifyImplication(sentence, r, politicianId) : null;
   if (imp) return imp;
+  if (!(sm || om) && guard) return { kind: "mention", side: null, reversal: false, actor: null, framing: guard };
   if (sm || om || r.mention.test(sentence)) return { kind: "mention", side: null, reversal: false, actor: null };
   return { kind: null, side: null, reversal: false, actor: null };
 }
@@ -1058,6 +1250,7 @@ const LEAD_HARM = /\b(?:(?:harmful |deep |devastating |massive )?cuts? to|cut(?:
 // "cuts" there is the issue's goal, not a harm, so the flip never applies.
 const REDUCTION_POLE = /^(?:Cut|Lower|Reduce|Slash|Ban|End|Bring down|Cap|Shield|Tighten|Crack|Limit|Stop|Audit|Balance|Require adults)/;
 const reductionPole = (topic) => CORE_TOPICS.includes(topic) || REDUCTION_POLE.test(ISSUE_TOPIC_VOCAB[topic]?.pos || "");
+const RESTRICTIVE_ANY = /\b(?:ban|pause|halt|restrict|prohibit|regulate|limit|block|stop|end|prevent|bar|curb|freeze|suspend|outlaw|criminalize|cap|rein in|check|constrain|overturn|repeal|rescind|nullify|reverse|disapprove)\b/i;
 const LEAD_VEHICLE = /\bintroduc(?:e|es|ed|ing)\b[^.!?]{0,80}?\b(?:bill|legislation|resolution|act|amendment|measure)s?\b|\bco-?sponsor(?:s|ed|ing)?\b/i;
 // Words that turn a vote / vehicle cue around ("did not vote for", "never cosponsored").
 const LEAD_NEGATED = /\b(?:not|never|no|n['’]t|refus(?:e|es|ed|ing) to|declin(?:e|es|ed|ing) to)\s+(?:\w+\s+){0,2}$/i;
@@ -1164,7 +1357,7 @@ function leadCue(text, politicianId, alias = null) {
  * null. → { side, units: [{ text, i, title }], via } when the cues agree and
  * the lead is about the topic (or the verb acts on a named bill).
  */
-export function leadStance(raw, list, topic, speakers = []) {
+export function leadStance(raw, list, topic, speakers = [], ctx = null) {
   const r = TOPIC_RULES[topic];
   if (!r || NO_POLE_TOPICS.has(topic)) return null;
   const units = leadUnits(raw, list);
@@ -1172,8 +1365,44 @@ export function leadStance(raw, list, topic, speakers = []) {
   const cues = [];
   for (const u of units) {
     if (u.i != null && speakers[u.i] === "other") continue; // someone else's quote
+    // R18(c): on another member's release, a lead line counts only when it names the page's politician.
+    if (ctx?.otherVoice && !namesSelf(u.text, raw.politician_id)) continue;
     const c = leadCue(u.text, raw.politician_id, alias);
     if (c) cues.push({ ...c, u });
+  }
+  // R18 (phase9-v2): a bill's purpose is read with the topic's own vocabulary —
+  // "a bill to ban artificial superintelligence" is not support for light AI
+  // rules, "a bill to end taxpayer-funded abortion" is support on pro_life. A
+  // restrictive purpose the vocabulary cannot read gives no side.
+  for (let k = cues.length - 1; k >= 0; k--) {
+    const c = cues[k];
+    if (c.kind !== "vehicle" && c.kind !== "purpose") continue;
+    const after = c.u.text.slice(c.kind === "vehicle" ? c.m.index + c.m[0].length : c.m.index);
+    const pm = c.kind === "vehicle" ? /^[^.!?]*?\b(?:to|that would|which would)\s+([^.!?|»]{3,160})/i.exec(after) : /\b((?:block|stop|end|prevent|halt|bar|prohibit|overturn|repeal|rescind|nullify|reverse|disapprove|ban|pause)\b[^.!?|»]{3,160})/i.exec(after);
+    if (!pm) continue;
+    let purpose = pm[1];
+    // "a bill to stop X from garnishing Social Security checks": the act being
+    // stopped is the gerund after "from" — stopping it is the side opposite to it.
+    const sf = /^(?:stop|block|prevent|prohibit|bar|ban)\w*\b[^.!?;]{0,80}?\bfrom\s+((?:\w+ly\s+)?\w+ing\b[^.!?|»]{0,140})/i.exec(purpose);
+    if (sf) {
+      const g = classify(sf[1], topic, raw.politician_id);
+      if (g.kind === "clear" && !g.framing) { c.side = g.side === "support" ? "oppose" : "support"; c.firm = true; c.purposeRead = true; }
+      else cues.splice(k, 1);
+      continue;
+    }
+    // A restrictive verb anywhere in the purpose ("to create a new agency to BAN
+    // artificial superintelligence", "effort to REIN IN … military force") is the
+    // purpose: read from that verb on, and give no side when the vocabulary
+    // cannot read it.
+    const rv = RESTRICTIVE_ANY.exec(purpose);
+    if (rv) {
+      const sub = classify(purpose.slice(rv.index), topic, raw.politician_id);
+      if (sub.kind === "clear" && !sub.framing) { c.side = sub.side; c.firm = true; c.purposeRead = true; }
+      else if (c.kind === "vehicle" || reductionPole(topic) || rv.index > 0) cues.splice(k, 1);
+      continue;
+    }
+    const read = classify(purpose, topic, raw.politician_id);
+    if (read.kind === "clear" && !read.framing) { c.side = read.side; c.firm = true; c.purposeRead = true; continue; }
   }
   if (!cues.length) return null;
   const readable = units.filter((u) => !(u.i != null && speakers[u.i] === "other"));
@@ -1194,7 +1423,10 @@ export function leadStance(raw, list, topic, speakers = []) {
   const topicUnits = units.filter((u) => !(u.i != null && speakers[u.i] === "other") && about(u.text));
   const onSide = cues.filter((c) => c.side === side);
   const billCue = onSide.find((c) => c.bill);
-  if (!topicUnits.length && !billCue) return null;
+  // A named bill on a page filed under the topic counts only when the page
+  // addresses the topic at all (a street-design bill filed under deportations does not).
+  const addressed = list.some((x) => r.mention.test(x) || r.context?.test(x));
+  if (!topicUnits.length && !(billCue && addressed)) return null;
   const cue = onSide.find((c) => about(c.u.text)) || billCue || onSide[0];
   const extra = about(cue.u.text) ? null : topicUnits.find((u) => u !== cue.u) || null;
   return { side, cue: cue.u, topicUnit: extra, via: cue.u.title ? "title" : "lead", bill: !!cue.bill, ...(cue.harm ? { harm: true } : {}) };
@@ -1487,6 +1719,179 @@ export function subjectSpans(sentences, body = "", { scope: mode = "paragraph" }
   return out;
 }
 
+// ── PAGE CONTEXT (phase9-v2, R18 b–e) ──────────────────────────────────────
+// Title Case / ALL CAPS: most significant words capitalised.
+const SMALL_WORDS = new Set(["a", "an", "and", "as", "at", "but", "by", "for", "from", "in", "into", "nor", "of", "on", "or", "over", "per", "the", "to", "up", "via", "with", "vs", "&"]);
+/**
+ * R18(b): is this line a heading rather than a sentence? Title Case or ALL CAPS
+ * (at least 3 significant words, at most one of them in lower case, no sentence
+ * end), or a short gerund-led line with no sentence end ("Supporting our
+ * veterans"). An imperative platform plank ("Cut Taxes for Families", "INVEST
+ * IN CLEAN ENERGY", "5) Fast-Track Permits …") states a commitment in the
+ * politician's own voice and is NOT a heading.
+ */
+export function isHeadlineLike(text) {
+  const t = String(text || "").replace(/[“”"‘’'«»]/g, "").replace(/^\s*(?:[•·▪●◦*–—-]|\d{1,2}[.)])\s*/, "").trim();
+  if (PLANK.test(t)) return false;
+  const words = t.split(/\s+/).filter((w) => /^[\p{L}]/u.test(w));
+  const sig = words.filter((w) => !SMALL_WORDS.has(w.toLowerCase()) && w.replace(/[^\p{L}]/gu, "").length >= 3);
+  if (sig.length >= 3) {
+    // Real Title Case leaves at most one significant word in lower case; a
+    // sentence full of proper nouns ("As part of National Police Week,
+    // Congressman Mackenzie is co-sponsoring …") does not.
+    const lower = sig.filter((w) => !/^\p{Lu}/u.test(w)).length;
+    if (lower <= 1 && (sig.length - lower) / sig.length >= 0.8 && !/[.!?]["”’)]?$/.test(t)) return true;
+    // ALL CAPS is a heading whatever its punctuation.
+    if (sig.every((w) => w === w.toUpperCase()) && sig.some((w) => w.length >= 4)) return true;
+  }
+  return words.length <= 8 && /^[\p{Lu}][\p{Ll}]+ing\b/u.test(t) && !/[.!?]["”’)]?$/.test(t);
+}
+// An imperative plank: the line opens on a base-form verb of commitment.
+const PLANK = /^(?:Cut|Lower|Reduce|Invest|Defend|Protect|Expand|Secure|End|Stop|Ban|Fund|Fully Fund|Support|Fight|Build|Make|Keep|Restore|Repeal|Increase|Raise|Create|Strengthen|Fix|Bring|Hold|Ensure|Guarantee|Give|Back|Pass|Abolish|Eliminate|Reform|Modernize|Improve|Close|Fast-Track|Unleash|Empower|Champion|Preserve|Save|Codify|Legalize|Require|Deport|Finish|Lock|Crack|Rein|Cap|Freeze|Slash|Balance|Audit|Drain|Stand|Uphold|Honor|Deliver|Grow|Boost|Bring Down|Take|Put|Let|Tackle|Combat|Prevent|Block|Oppose|Reject|Overturn|Rescind|Reverse|Limit|Restrict|Halt|Simplify|Streamline|Unlock|Rebuild|Repair|Revitalize|Prioritize|Enforce|Hire|Train|Pay|Allow|Permit|Treat|Provide)\b(?!\s+(?:of|to|is|are|was|were)\b)/i;
+const titleCore = (t) => String(t || "").split(/\s+[|»]\s+|\s+[–—-]\s+(?=[^–—-]*$)/)[0].trim();
+/** R18(b): is `text` the page's own main headline (title / og:title / h1)? */
+export function isMainHeadline(text, titles) {
+  const s = String(text || "").trim();
+  if (!s) return false;
+  return titles.some((t) => { const c = titleCore(t); return t === s || c === s || (c.length >= 12 && (s.startsWith(c) || c.startsWith(s))); });
+}
+
+const OWN_SITE_KINDS = new Set(["member_site", "campaign_site", "office_site", "legislature_member_page", "video"]);
+// R18(c): the dateline sentence of a release names who acts.
+const DATELINE = /^\s*(?:[A-Z][A-Z.,' ]{1,40}?(?:,\s*[A-Z][A-Za-z.]+\.?)?)\s*(?:\([^)]{0,20}\)\s*)?[–—-]{1,2}\s*/;
+const DATELINE_VERB = /\b(?:announced|introduced|reintroduced|sent|issued|released|led|lead|joined|urged|wrote|called|said|unveiled|applauded|welcomed|celebrated|praised|condemned|slammed|pressed|demanded|delivered|voted|secured|hosted|spoke|met|marked|filed|pushed|questioned|blasted|criticized|requested|submitted)\b/i;
+const MEMBER_TITLE = /\b(?:Senators?|Sens?\.|Representatives?|Reps?\.|Congress(?:wo)?m[ae]n|Congressmembers?|Ranking Members?|Chairm[ae]n|Chairwom[ae]n|Chairs?|Governors?|Gov\.|Leader|Whip|Speaker|Delegates?|Commissioner)\s+(?:[A-Z]\.\s+)?[A-Z][\p{L}'’-]+/u;
+/**
+ * R18(c): on a joint or committee release, is the page's voice someone else's?
+ * → the other member phrase, or null. Yes when the dateline sentence (or, with
+ * no dateline, the headline's subject) names a member and does not name the
+ * page's politician (full name, surname, first name or own-site alias).
+ */
+export function otherPageVoice(raw, list) {
+  // The politician's own office or campaign site speaks for them.
+  let kind = null;
+  try { kind = pageOwnership({ link: raw?.final_url || raw?.url, politicianId: raw?.politician_id, sourceType: raw?.source_type }).kind; } catch { kind = null; }
+  if (OWN_SITE_KINDS.has(kind)) return null;
+  // The site's own name counts only when it is the politician's (a committee
+  // site such as foreign.senate.gov is not anyone's name).
+  const idParts = String(raw?.politician_id || "").toLowerCase().split("_").map(lettersOnly).filter((x) => x.length >= 4);
+  const hostA = hostAlias(raw?.final_url || raw?.url);
+  const alias = hostA && idParts.some((x) => hostA.includes(x) || x.includes(hostA)) ? hostA : null;
+  const isSelf = (x) => namesSelf(x, raw?.politician_id) || (alias && lettersOnly(x).includes(alias));
+  const titles = leadTitles(raw);
+  const head = titleCore(titles[0] || "");
+  for (const s of list.slice(0, 6)) {
+    const d = DATELINE.exec(s);
+    if (!d) continue;
+    const rest = s.slice(d[0].length);
+    const v = DATELINE_VERB.exec(rest);
+    const who = v ? rest.slice(0, v.index) : rest.slice(0, 160);
+    if (isSelf(who)) return null;
+    const m = MEMBER_TITLE.exec(who);
+    // A dateline naming another member as the actor, and a headline that does not name the page's politician.
+    if (m && !isSelf(head)) return m[0];
+    return null;
+  }
+  // No dateline: the headline's own subject.
+  if (!head || isSelf(head)) return null;
+  const v = /\s(?:Introduces?|Reintroduces?|Leads?|Urges?|Press(?:es)?|Welcomes?|Sends?|Announces?|Applauds?|Calls?|Demands?|Slams?|Joins?|Unveils?|Statement|Issues?|Releases?|Questions?|Raises?|Writes?|Says|Votes?)\b/.exec(head);
+  const m = MEMBER_TITLE.exec(v ? head.slice(0, v.index) : "");
+  return m ? m[0] : null;
+}
+
+// R18(d): long lists — a bulleted list of LIST_MIN_ITEMS or more items, or a dated timeline.
+export const LIST_MIN_ITEMS = 5;
+// A provision or achievement line: opens on a third-person or past-tense verb.
+const RECORD_ITEM = /^(?:[•·▪●-]\s*)?(?:(?:Increases|Provides|Requires|Establishes|Expands|Creates|Delivers|Extends|Ensures|Directs|Authorizes|Allows|Prohibits|Protects|Reduces|Eliminates|Invests|Funds|Strengthens|Improves|Supports|Bans|Repeals|Restores|Makes|Gives|Lowers|Cuts|Caps|Blocks|Ends|Prevents|Codifies|Reauthorizes|Modernizes|Streamlines|Includes|Secures|Boosts|Raises|Adds|Sets|Updates|Amends|Permits|Limits|Restricts|Halts|Stops|Removes|Clarifies|Promotes|Encourages|Helps|Expedites|Preserves|Maintains|Enhances|Addresses|Combats|Targets|Builds|Invests|Rescinds|Delays|Exempts|Doubles|Triples|Freezes)|(?!(?:United|Need|Speed|Seed|Feed|Red|Shed|Ted|Fred|Ned|Ed|Bed)\b)[A-Z][a-z]+ed|Passed|Won|Led|Brought|Fought|Built|Cut|Signed|Sponsored)\b/;
+export const LIST_AGREE_MIN = 2;
+const DATED_ITEM = /^(?:(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec)[a-z]*\.?\s+\d{1,2},?\s+\d{4}|\d{1,2}\/\d{1,2}\/\d{2,4})\s*[:–—-]/;
+/** Sentence text → list id ("ul3", "dated") for lines of a long list. */
+export function longListItems(body, list) {
+  const out = new Map();
+  const html = String(body || "").replace(/<(script|style|noscript|svg|head)\b[^>]*>[\s\S]*?<\/\1>/gi, " ");
+  let n = 0, m;
+  const LISTS = /<(ul|ol)\b[^>]*>([\s\S]*?)<\/\1>/gi;
+  while ((m = LISTS.exec(html))) {
+    n++;
+    const items = m[2].split(/<li\b[^>]*>/i).slice(1).map((x) => extractSentences(`<p>${x}</p>`)).filter((x) => x.length);
+    if (items.length < LIST_MIN_ITEMS) continue;
+    for (const it of items) for (const t of it) if (!out.has(t)) out.set(t, `list${n}`);
+  }
+  const dated = list.filter((t) => DATED_ITEM.test(t));
+  if (dated.length >= 3) for (const t of dated) out.set(t, "dated");
+  return out;
+}
+
+// R18(e): an outside voices section ("What They Are Saying") runs to the next heading.
+const THIRD_SECTION = /^(?:[^\w]*)(?:what (?:they['’]re|they are|people are|others are|leaders are|stakeholders are|advocates are|experts are|groups are|supporters are|[\w ]{2,40}? (?:are|is)) saying|here['’]s what\b[^.]{0,60}\bsaying|(?:statements?|quotes?|voices) (?:of|in) support|(?:outside |stakeholder |industry )?support for the (?:bill|legislation|act|resolution)\s*:?$|(?:organizations|groups) (?:supporting|endorsing) (?:the|this) (?:bill|legislation)\s*:?$)/i;
+/** Indexes of sentences inside an outside-voices section. */
+export function thirdPartySection(list, body) {
+  const heads = headingSentences(body);
+  const out = new Set();
+  let on = false;
+  for (let i = 0; i < list.length; i++) {
+    const s = list[i];
+    // The section opens on a short heading line ("What They Are Saying:").
+    if (THIRD_SECTION.test(s) && s.length < 90) { on = true; continue; }
+    if (on && heads.has(s)) on = false;
+    if (on) out.add(i);
+  }
+  return out;
+}
+// R18(e): the politician's words as an outlet reported them.
+const OUTLET_REPORT = /\b(?:told|spoke (?:to|with)|said (?:in an interview with|to|on)|in an interview (?:with|on)|wrote in|appeared on|joined)\s+(?:the\s+)?(?:[A-Z][\w'’&.-]*\s*){1,5}(?:on|about|that|regarding|,|\.|$)/;
+export const isOutletParaphrase = (s) => OUTLET_REPORT.test(String(s || "")) && !HAS_QUOTE.test(String(s || ""));
+
+/** Does a headline / lead text name the topic (its anchor, mention or context vocabulary)? */
+function namesTopic(text, topic) {
+  const r = TOPIC_RULES[topic];
+  if (!r) return false;
+  return crossTopicAnchorIn(text, topic) || !!r.context?.test(text);
+}
+
+/** R18 context for one page, computed once per page (scoreAllTopics shares it). */
+export function pageContext(raw, list) {
+  // A video transcript (R16) has no headlines, lists or sections, and its
+  // pipeline is out of scope: none of the page-structure checks apply to it.
+  if (isVideoTranscript(raw)) return { titles: [], mainClaim: [], otherVoice: null, lists: new Map(), thirdParty: new Set(), video: true };
+  const titles = leadTitles(raw);
+  const units = leadUnits(raw, list);
+  const lists = longListItems(raw?.body, list);
+  return {
+    titles,
+    // The page's main claim: its title lines and first body sentence (never a list line).
+    mainClaim: [...titles.map(titleCore), ...units.filter((u) => !u.title && !lists.has(u.text)).slice(0, 1).map((u) => u.text)],
+    otherVoice: otherPageVoice(raw, list),
+    lists,
+    thirdParty: thirdPartySection(list, raw?.body),
+  };
+}
+
+const zeroRead = (c, framing, actor = null) => ({ kind: "mention", side: null, reversal: false, actor: actor || c.actor || null, framing });
+/**
+ * R18 b, c, e: does a clear / implied read of sentence `i` stand on this page?
+ * Returns the read (marked `headline` when it is the page's main headline) or a
+ * zero-weight mention with the reason in `framing`.
+ */
+export function readInContext(c, text, i, speakers, ctx, politicianId) {
+  if (c.reversal || ctx.video) return c;
+  // (c) someone else's quote is theirs.
+  if (speakers[i] === "other") return zeroRead(c, "quoted_other", { kind: "other", via: "quoted speaker" });
+  // (e) an outside-voices section, an outlet's report of what they said.
+  if (ctx.thirdParty.has(i) && speakers[i] !== "self") return zeroRead(c, "third_party_section", { kind: "third", via: "what they are saying" });
+  if (isOutletParaphrase(text)) return zeroRead(c, "reported", { kind: "third", via: "outlet report" });
+  // (c) another member's release: only the page's politician by name, or their own quote, counts.
+  if (ctx.otherVoice && speakers[i] !== "self" && !namesSelf(c.actor?.via, politicianId) && !namesSelf(text, politicianId)) {
+    return zeroRead(c, "other_voice", { kind: "other", via: ctx.otherVoice });
+  }
+  // (b) a heading line counts only as the page's own main headline.
+  if (isHeadlineLike(text)) {
+    if (!isMainHeadline(text, ctx.titles)) return zeroRead(c, "headline_like");
+    return { ...c, headline: true };
+  }
+  return c;
+}
+
 /**
  * Score one raw ingest record → candidate stance. Pure: never mutates `raw`.
  * `topic` defaults to the record's own topic; the cron also scores the same
@@ -1510,13 +1915,16 @@ export function scoreRawRecord(raw, topic = raw?.topic, sentences = null, opts =
   // Scope follows the source type (spanScopeFor); `opts.spanScope` overrides it for diagnostics.
   const spanScope = opts.spanScope || spanScopeFor(raw.source_type);
   const spans = subject ? subjectSpans(list, raw.body, { scope: spanScope }) : null;
+  // R18 page context: the main headline, another member's voice, long lists, outside voices.
+  const ctx = opts.context || pageContext(raw, list);
   for (let i = 0; i < list.length; i++) {
     const text = list[i];
     const sp = spans && spans[i].subject === subject ? spans[i] : null;
     // Israel split keys: a sentence another facet claims is not read here.
     if (sp && facetExcludes(topic, sp.facet)) continue;
-    const c = classify(text, topic, raw.politician_id, { claims, inSpan: !!sp, reportedVoice: newsRepost && !HAS_QUOTE.test(text) && !FIRST_PERSON_VOICE.test(text) });
+    let c = classify(text, topic, raw.politician_id, { claims, inSpan: !!sp, reportedVoice: newsRepost && !HAS_QUOTE.test(text) && !FIRST_PERSON_VOICE.test(text) });
     if (!c.kind) continue;
+    if (c.kind !== "mention") c = readInContext(c, text, i, speakers, ctx, raw.politician_id);
     at.set(i, statements.length);
     statements.push({
       _i: i,
@@ -1527,6 +1935,8 @@ export function scoreRawRecord(raw, topic = raw?.topic, sentences = null, opts =
       ...(speakers[i] === "other" ? { quoted_speaker: "other" } : {}),
       ...(c.kind === "implication" ? { implication: c.via } : {}),
       ...(c.kind === "clear" && c.via === "claim" ? { claim_pattern: true } : {}),
+      ...(c.headline ? { headline: true } : {}),
+      ...(ctx.lists.has(text) ? { list_item: ctx.lists.get(text) } : {}),
       ...(c.framing ? { framing: c.framing } : {}),
       ...(c.actor && c.actor.kind !== "self" ? { attributed_to: c.actor.kind, attributed_via: c.actor.via } : {}),
       ...(sp ? { subject_span: sp.span, ...(sp.named ? {} : { span_carried: true }), ...(sp.backward ? { span_backward: true } : {}), ...(sp.facet ? { facet: sp.facet } : {}) } : {}),
@@ -1556,15 +1966,37 @@ export function scoreRawRecord(raw, topic = raw?.topic, sentences = null, opts =
     }
   }
   statements = statements.filter((s) => !(s.kind === "mention" && folded.has(s._i)));
+  // R18(d): long lists. A bill's provisions or a record of achievements
+  // ("Increases funding for …", "Lowered …", a dated timeline) sets a side only
+  // when the page's main claim is about the topic, or LIST_AGREE_MIN lines of
+  // the same list agree. A commitment line of a platform list ("Guarantee access
+  // to …", "I'll push to …") is read on its own: it counts only for a topic it
+  // names itself.
+  const mainAbout = ctx.video || ctx.mainClaim.some((t) => namesTopic(t, topic));
+  const campaignPage = primarySourceKind(raw.source_type, raw.final_url || raw.url) === "campaign_page";
+  const agree = new Map();
+  for (const s of statements) if (s.list_item && (s.kind === "clear" || s.kind === "implication")) agree.set(`${s.list_item}|${s.side}`, (agree.get(`${s.list_item}|${s.side}`) || 0) + 1);
+  for (const s of statements) {
+    if (!s.list_item || (s.kind !== "clear" && s.kind !== "implication") || s.reversal) continue;
+    const full = list[s._i] || s.text;
+    // On a campaign page a list line is the candidate's own plank ("Supports rent
+    // stabilization …"); elsewhere a third-person or past-tense line is a bill's
+    // provision or a record of achievements.
+    const record = s.list_item === "dated" || (!campaignPage && RECORD_ITEM.test(full));
+    const keep = record ? (mainAbout || (agree.get(`${s.list_item}|${s.side}`) || 0) >= LIST_AGREE_MIN) : namesTopic(full, topic) || TOPIC_RULES[topic].mention.test(full);
+    if (keep) continue;
+    s.kind = "mention"; s.side = null; s.weight = WEIGHTS.zero; s.framing = "list_item";
+    delete s.implication; delete s.claim_pattern;
+  }
   // R14: no directional signal anywhere on the page → read the title and the
   // lead sentences for a stance verb. Own topic (and linked directional keys)
   // only; a page that already reads a side or mixed is never touched.
   const leadOk = opts.leadSignals !== false && (topic === raw.topic || (raw.topic && linkedKeys(topic, raw.topic)));
   const lead = leadOk && !statements.some((s) => s.kind === "clear" || s.kind === "implication")
-    ? leadStance(raw, list, topic, speakers) : null;
+    ? leadStance(raw, list, topic, speakers, ctx) : null;
   if (lead) {
     const text = trunc(lead.topicUnit ? `${lead.cue.text} ${lead.topicUnit.text}` : lead.cue.text);
-    const st = { kind: "clear", side: lead.side, reversal: false, lead_signal: lead.via, ...(lead.bill ? { lead_bill: true } : {}), weight: WEIGHTS[tier] };
+    const st = { kind: "clear", side: lead.side, reversal: false, lead_signal: lead.via, ...(lead.bill ? { lead_bill: true } : {}), ...(lead.via === "title" || isHeadlineLike(lead.cue.text) ? { headline: true } : {}), weight: WEIGHTS[tier] };
     const existing = lead.cue.i != null ? statements.find((s) => s._i === lead.cue.i) : null;
     // The cue sentence's zero-weight mention becomes the clear statement (never counted twice).
     if (existing) {
@@ -1687,6 +2119,7 @@ export function scoreRawRecord(raw, topic = raw?.topic, sentences = null, opts =
       date: String(raw.fetched_at).slice(0, 10),
       link: raw.url,
       excerpt: firstClear ? firstClear.text : (statements[0]?.text ?? null),
+      ...(firstClear?.headline ? { excerpt_kind: "headline" } : {}),
       note: `${clear.length} clear statement(s) (${n.support} support, ${n.oppose} oppose), ${implied.length} implication(s) (${ni.support} support, ${ni.oppose} oppose), ${mentions} mention(s) at zero weight`,
       weight_tier: tier,
       takes_clear_position: clear.length > 0,
@@ -1738,7 +2171,8 @@ export const CROSS_TOPIC_MAX_SENTENCES = 1200;
 export function scoreAllTopics(raw, { topics = SCORED_TOPICS, maxCrossSentences = CROSS_TOPIC_MAX_SENTENCES } = {}) {
   const out = [];
   const sentences = extractSentences(raw?.body);
-  if (hasRulesFor(raw?.topic)) out.push(scoreRawRecord(raw, raw.topic, sentences));
+  const context = pageContext(raw, sentences);
+  if (hasRulesFor(raw?.topic)) out.push(scoreRawRecord(raw, raw.topic, sentences, { context }));
   // The page's own topic reads every sentence, as before; the other topics read
   // the first CROSS_TOPIC_MAX_SENTENCES so a runaway page cannot stretch a run.
   const cross = sentences.length > maxCrossSentences ? sentences.slice(0, maxCrossSentences) : sentences;
@@ -1747,7 +2181,7 @@ export function scoreAllTopics(raw, { topics = SCORED_TOPICS, maxCrossSentences 
   const extra = [];
   for (const t of topics) {
     if (t === raw?.topic || !hasRulesFor(t) || NO_POLE_TOPICS.has(t)) continue;
-    const c = scoreRawRecord(raw, t, cross);
+    const c = scoreRawRecord(raw, t, cross, { context });
     if (directionalSignals(c) > 0 && crossTopicAnchored(c, raw?.topic, full) && crossTopicAddressed(c, raw?.topic, full, sentences.length)) extra.push(c);
   }
   return [...out, ...collapseRestatements(out, extra)];
@@ -1758,6 +2192,8 @@ export function scoreAllTopics(raw, { topics = SCORED_TOPICS, maxCrossSentences 
 // another topic, only the key's own name anchors it.
 export const CROSS_TOPIC_ANCHORS = {
   social_security: /\bsocial security\b|\bretirement age\b|\bearned (?:retirement )?benefits\b/i,
+  // phase9-v2: "secure borders" on an immigration page is border security, not mass deportation.
+  deportations: /\bdeport\w*|\bremovals?\b|\billegal aliens\b|\bcriminal aliens\b/i,
 };
 // Uses of a topic's words that are not about the topic itself.
 const CROSS_TOPIC_NOISE = {

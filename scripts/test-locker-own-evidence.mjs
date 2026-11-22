@@ -178,7 +178,7 @@ await t("the re-score pass retires foreign-page items to the retired store (any 
 await t("ground-truth file is untouched and the scorer rules version is unchanged", () => {
   const gt = readFileSync(path.join(root, "db/stance-ground-truth-talarico-cost-of-living.json"));
   assert.ok(createHash("sha256").update(gt).digest("hex").length === 64);
-  assert.equal(S.RULES_VERSION, "phase9-v1");
+  assert.equal(S.RULES_VERSION, "phase9-v2");
 });
 
 console.log(fails.length ? `\n✗ locker-own-v1: ${pass} passed, ${fails.length} failed` : `\n✓ locker-own-v1: ${pass} passed, 0 failed`);
