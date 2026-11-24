@@ -35,6 +35,21 @@
 // Resumable: politicians in sorted order, pages inside a politician in sorted
 // order, inside a time budget; `state` (cursor + tallies) is persisted by the
 // caller and passed back. A new RULES_VERSION starts a fresh pass.
+//
+// The cursor inside a politician is the KEY of the last page group handled
+// (`page_after`), not a position. A group that was just re-scored is at the
+// current rules and drops out of the list on the next run, so a stored
+// position would skip groups nobody had handled yet (the phase9-v2 gap).
+//
+// CATCH-UP (CATCH_UP below). The first phase9-v2 pass resumed by position and
+// marked itself complete with old-rule items left in high-volume politicians.
+// A cursor at those rules without the catch-up mark is not trusted: a fresh
+// pass runs over every politician (only items still at older rules are
+// re-scored — the same eligibility as always), and every politician visited,
+// plus every politician holding a live pipeline card, has their promotion
+// recomputed, so cards that no longer qualify are withdrawn and drifted cards
+// resynced. Once that pass completes the mark is stored and later passes —
+// including the next RULES_VERSION bump — behave exactly as before.
 
 import { RULES_VERSION, scoreAllTopics } from "./stance-score-core.mjs";
 import { lockerDecision, buildLockerItem, storedStrength, reviewFor, withRescore, ownEvidenceRows, collapseRestatedItems, regradeStatedPosition } from "./evidence-locker-core.mjs";
@@ -49,6 +64,9 @@ export const RESCORE_VERSION = "locker-rescore-v2";
 export const RESCORE_STATE_KEY = "locker-rescore-state.json";
 export const RETIRED_STORE_NAME = "evidence-locker-retired";
 const RAW_READ_CONCURRENCY = 6;
+/** The one-time catch-up pass for the phase9-v2 gap (see header). */
+export const CATCH_UP = Object.freeze({ id: "phase9-v2-gap-1", rules_version: "phase9-v2" });
+const catchUpApplies = (rulesVersion = RULES_VERSION) => rulesVersion === CATCH_UP.rules_version;
 
 const isVideoItem = (doc) => /(?:youtube\.com|youtu\.be)\//i.test(String(doc?.link || "")) || /\b(?:youtube|video)\b/i.test(String(doc?.source_type || ""));
 
@@ -103,7 +121,9 @@ export function changeKind(r) {
 
 export function freshState(rulesVersion = RULES_VERSION) {
   return {
-    version: RESCORE_VERSION, rules_version: rulesVersion, pid_index: 0, page_index: 0, complete: false, started_at: null, updated_at: null,
+    version: RESCORE_VERSION, rules_version: rulesVersion, pid_index: 0, page_index: 0, page_after: null, complete: false, started_at: null, updated_at: null,
+    // A pass under the catch-up rules version carries the catch-up mark and recomputes every politician.
+    catch_up: catchUpApplies(rulesVersion) ? { id: CATCH_UP.id, recompute_all: true, live_queued: false, recomputed: 0 } : null,
     tallies: { examined: 0, eligible: { strong: 0, weak: 0 }, skipped: {}, no_raw: 0, outcomes: { strong: {}, weak: {} },
       ownership: { version: OWNERSHIP_VERSION, retired: { strong: 0, weak: 0, mention: 0 }, by_kind: {}, site_menu: 0, repeated: 0, politicians_recomputed: 0 } },
     pending_sync: [],
@@ -138,17 +158,37 @@ export async function rescoreStep(state, deps) {
   const t0 = Date.now();
   const budget = deps.budgetMs ?? 20_000;
   const over = () => Date.now() - t0 > budget;
-  let st = state && state.rules_version === RULES_VERSION && state.version === RESCORE_VERSION ? state : freshState();
-  if (st !== state && state) log(`locker-rescore: rules ${state.rules_version || "?"} → ${RULES_VERSION} — starting a fresh pass`);
+  const sameRules = state && state.rules_version === RULES_VERSION && state.version === RESCORE_VERSION;
+  // A cursor under the catch-up rules that never ran the catch-up is not trusted (see header).
+  const needsCatchUp = sameRules && catchUpApplies() && state.catch_up?.id !== CATCH_UP.id;
+  let st = sameRules && !needsCatchUp ? state : freshState();
+  if (needsCatchUp) log(`locker-rescore: ${CATCH_UP.id} — the stored ${RULES_VERSION} cursor is not trusted; starting a full re-score and recomputing every politician`);
+  else if (st !== state && state) log(`locker-rescore: rules ${state.rules_version || "?"} → ${RULES_VERSION} — starting a fresh pass`);
   if (st.complete) return st;
   st = { ...st, started_at: st.started_at || now().toISOString() };
+  // A cursor written before page_after existed resumes at the start of its politician (nothing is skipped).
+  if (st.page_after === undefined) st.page_after = null;
   const T = st.tallies;
+  const CU = st.catch_up && st.catch_up.recompute_all ? (st.catch_up = { ...st.catch_up }) : null;
+
+  // Catch-up: politicians holding a live pipeline card but no Locker items are recomputed too.
+  if (CU && !CU.live_queued && sync && !dry && deps.livePids) {
+    try {
+      const { directories: dirs = [] } = (await lockerStore.list({ directories: true })) || {};
+      const inLocker = new Set(dirs.map((d) => String(d).replace(/\/$/, "")));
+      const extra = [...new Set(await deps.livePids())].filter((p) => p && !inLocker.has(p) && !st.pending_sync.includes(p)).sort();
+      st.pending_sync = [...st.pending_sync, ...extra];
+      CU.live_queued = true;
+      if (extra.length) log(`locker-rescore: ${CATCH_UP.id} — ${extra.length} politician(s) with live cards and no Locker items queued for recompute`);
+    } catch (e) { log(`locker-rescore: ${CATCH_UP.id} — live cards not listed yet (${e?.message || e})`); }
+  }
 
   // Politicians whose recompute was deferred by the budget go first.
   while (st.pending_sync.length && !over() && sync && !dry) {
     const pid = st.pending_sync[0];
     try { await sync(pid); } catch (e) { log(`locker-rescore: recompute for ${pid} deferred — ${e?.message || e}`); break; }
     st.pending_sync = st.pending_sync.slice(1);
+    if (CU) CU.recomputed++;
   }
 
   const { directories = [] } = (await lockerStore.list({ directories: true })) || {};
@@ -158,6 +198,8 @@ export async function rescoreStep(state, deps) {
     const { blobs = [] } = (await lockerStore.list({ prefix: `${pid}/` })) || {};
     const allDocs = await readLockerDocs(lockerStore, blobs.map((b) => b.key).sort());
     let touched = false;
+    // First visit to this politician in the pass (tallies are counted once).
+    const firstVisit = st.page_after == null;
     // locker-own-v1: an item from a page that is not the politician's own is
     // retired (kept in the retired store with the reason), whatever its rules
     // version or strength. Editor-flagged items are left to the editor.
@@ -185,7 +227,7 @@ export async function rescoreStep(state, deps) {
     // Site menus and repeated sentences are not stored differently — they are
     // dropped when served (ownEvidenceRows) — but the politician's stances must
     // be recomputed for the drop to reach the live cards.
-    if (st.page_index === 0) {
+    if (firstVisit) {
       const served = docs.filter(({ key, doc }) => doc && doc.politician_id === pid && doc.link && reviewFor(doc, key, flags)?.status !== "hidden")
         .map(({ key, doc }) => ({ key, doc: regradeStatedPosition(doc), review: reviewFor(doc, key, flags) }));
       const { dropped } = ownEvidenceRows(collapseRestatedItems(served));
@@ -196,18 +238,22 @@ export async function rescoreStep(state, deps) {
     // Group eligible items by the page they came from.
     const groups = new Map();
     for (const { key, doc } of docs) {
-      if (st.page_index === 0) T.examined++;
+      if (firstVisit) T.examined++;
       const why = skipReason(doc, key, { flags });
-      if (why) { if (st.page_index === 0) bump(T.skipped, why); continue; }
+      if (why) { if (firstVisit) bump(T.skipped, why); continue; }
       const gk = doc.source_id ? `sid:${doc.source_id}` : `url:${doc.link}`;
       if (!groups.has(gk)) groups.set(gk, []);
       groups.get(gk).push({ key, doc });
     }
     const order = [...groups.keys()].sort();
-    if (st.page_index === 0) for (const g of order) for (const { doc } of groups.get(g)) T.eligible[storedStrength(doc)]++;
-    let idx = null;
-    while (st.page_index < order.length && !over()) {
-      const group = groups.get(order[st.page_index]);
+    if (firstVisit) for (const g of order) for (const { doc } of groups.get(g)) T.eligible[storedStrength(doc)]++;
+    // Resume after the last group handled, by key: groups re-scored on an earlier
+    // run have dropped out of `order`, so a position would skip unhandled ones.
+    const todo = st.page_after == null ? order : order.filter((g) => g > st.page_after);
+    let idx = null, gi = 0;
+    while (gi < todo.length && !over()) {
+      const gk = todo[gi];
+      const group = groups.get(gk);
       idx = idx || (await rawIndexFor(rawStore, pid));
       const first = group[0].doc;
       let raw = null;
@@ -223,7 +269,7 @@ export async function rescoreStep(state, deps) {
       if (!raw || typeof raw.body !== "string") {
         T.no_raw += group.length;
         log(`locker-rescore: NO PAGE ${pid} ${first.link} — ${group.length} item(s) left as they are (no stored capture)`);
-        st.page_index++;
+        st.page_index++; st.page_after = gk; gi++;
         continue;
       }
       const scored = new Map();
@@ -243,25 +289,29 @@ export async function rescoreStep(state, deps) {
         }
         touched = true;
       }
-      st.page_index++;
+      st.page_index++; st.page_after = gk; gi++;
     }
     // A politician whose pass is split across runs keeps the "touched" mark.
     if (touched) st.touched_pid = pid;
-    if (st.page_index < order.length) break; // budget ran out inside this politician
+    if (gi < todo.length) break; // budget ran out inside this politician
     if (st.touched_pid === pid) { touched = true; st.touched_pid = null; }
-    if (touched && sync && !dry) {
+    // Catch-up: every politician visited is recomputed, touched or not.
+    if ((touched || CU) && sync && !dry) {
       let synced = false;
       if (!over()) {
         try { await sync(pid); synced = true; }
         catch (e) { log(`locker-rescore: recompute for ${pid} deferred — ${e?.message || e}`); }
       }
       if (!synced) st.pending_sync = [...st.pending_sync, pid];
-      else OW.politicians_recomputed++;
+      else { OW.politicians_recomputed++; if (CU) CU.recomputed++; }
     }
     st.pid_index++;
     st.page_index = 0;
+    st.page_after = null;
   }
-  st.complete = st.pid_index >= pids.length && !st.pending_sync.length;
+  st.complete = st.pid_index >= pids.length && !st.pending_sync.length && !(CU && !CU.live_queued && sync && !dry && deps.livePids);
+  // The catch-up is done once its pass completes: later passes recompute only touched politicians again.
+  if (st.complete && CU && !dry) st.catch_up = { ...CU, recompute_all: false, completed_at: now().toISOString() };
   st.updated_at = now().toISOString();
   return st;
 }
@@ -275,5 +325,6 @@ export function rescoreSummaryLine(st) {
     ` · strong: ${o("strong")} · weak: ${o("weak")} · no stored page ${T.no_raw}` +
     ` · skipped ${Object.entries(T.skipped).map(([k, n]) => `${k} ${n}`).join(", ") || "none"}` +
     (T.ownership ? ` · not own page retired: strong ${T.ownership.retired.strong}, weak ${T.ownership.retired.weak}, mention ${T.ownership.retired.mention}` +
-      ` · site menu ${T.ownership.site_menu} · repeated ${T.ownership.repeated} · recomputed ${T.ownership.politicians_recomputed}` : "");
+      ` · site menu ${T.ownership.site_menu} · repeated ${T.ownership.repeated} · recomputed ${T.ownership.politicians_recomputed}` : "") +
+    (st.catch_up ? ` · ${st.catch_up.id}: ${st.catch_up.recompute_all ? "in progress" : "done"}, ${st.catch_up.recomputed || 0} politician(s) recomputed` : "");
 }
