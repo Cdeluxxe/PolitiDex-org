@@ -1496,7 +1496,7 @@
               "kind": "short_title",
               "origin": "text",
               "match": "Women’s Health Protection Act",
-              "span": "“Today Democrats in the House passed the Women’s Health Protection Act, legislation I cosponsored which codifies the constitutional right to an abortion found in Roe v."
+              "span": "“Today Democrats in the House passed the Women’s Health Protection Act, legislation I cosponsored which codifies the constitutional right to an abortion found in Roe v. Wade."
             }
           ]
         }
@@ -1510,7 +1510,7 @@
           "confidence_score": 0.9,
           "basis": "bill number + subject words in the text",
           "matched": "H.R. 3755",
-          "span": "Washington, D.C. – Today Representative Dina Titus of Nevada’s First Congressional District voted to pass H.R. 3755, the Women’s Health Protection Act, legislation she cosponsored to defend women’s constitutional right to reproductive health care. … “Today Democrats in the House passed the Women’s Health Protection Act, legislation I cosponsored which codifies the constitutional right to an abortion found in Roe v. … I'll continue to fight attacks on reproductive health care.”"
+          "span": "Washington, D.C. – Today Representative Dina Titus of Nevada’s First Congressional District voted to pass H.R. 3755, the Women’s Health Protection Act, legislation she cosponsored to defend women’s constitutional right to reproductive health care. … “Today Democrats in the House passed the Women’s Health Protection Act, legislation I cosponsored which codifies the constitutional right to an abortion found in Roe v. Wade. … I'll continue to fight attacks on reproductive health care.”"
         }
       ],
       "unmapped": []
@@ -1547,7 +1547,7 @@
           "confidence_score": 0.6,
           "basis": "short title + subject words in the text",
           "matched": "Women's Health Protection Act",
-          "span": "The Women's Health Protection Act would – for the first time – establish a federal statutory right for all health care providers throughout the country to provide abortion services, and a federal statutory right for all Americans to receive such care, regardless of where they live. … It would codify the protections currently guaranteed to most Americans by the Supreme Court's decision in the landmark case of Roe v."
+          "span": "The Women's Health Protection Act would – for the first time – establish a federal statutory right for all health care providers throughout the country to provide abortion services, and a federal statutory right for all Americans to receive such care, regardless of where they live. … It would codify the protections currently guaranteed to most Americans by the Supreme Court's decision in the landmark case of Roe v. Wade."
         }
       ],
       "unmapped": []
