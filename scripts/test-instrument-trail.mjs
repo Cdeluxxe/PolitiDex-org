@@ -428,11 +428,19 @@ for (const { s, t } of trails) {
 }
 // The other caller of the same block — the gap sheet's evidence column — never asked
 // for a trail and must still get exactly what it always got.
+// Which vote the gap sheet cites is no longer decided by curated mapping weight
+// (test-mapping-weights-inert.mjs), so the check looks for a chip-list caller on
+// any issue a multi-issue instrument above reaches, not on lower_taxes alone.
 let chipCallers = 0;
+const CHIP_KEYS = [...new Set(multis.map((s) => s.key))];
 for (const pid of Object.keys(win.CMP_DATA)) {
-  let html = "";
-  try { html = CS.gapViewHtml(pid, "lower_taxes") || ""; } catch (e) { continue; }
-  if (html.indexOf("pdxgap-om-chips") !== -1) chipCallers++;
+  if (!chipCallers) {
+    for (const key of CHIP_KEYS) {
+      let html = "";
+      try { html = CS.gapViewHtml(pid, key) || ""; } catch (e) { continue; }
+      if (html.indexOf("pdxgap-om-chips") !== -1) { chipCallers++; break; }
+    }
+  }
   // And the L2 list a reader sees first must not have gained the trail: this pass
   // adds one control to a sentence, not a panel to a list.
   const l2 = CS.dossierRecordsHtml(pid, "lower_taxes") || "";

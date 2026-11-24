@@ -12573,7 +12573,14 @@
 //   now opens the bill's own /b/ document instead. Precached file changed
 //   (bill-detail.js), so the shell moves; the precache list is unchanged.
 //   MIGRATION COST: none.
-const CACHE_VERSION = 'v606';
+// v607 - CURATED MAPPING WEIGHTS CARRY NO SIGNAL. Every curated bill -> issue
+//   mapping now counts as one equal unit in stance scoring and receipt-card
+//   ranking, and a bill mapped to both sides of one issue moves that issue in
+//   neither direction. Precached files changed (stance-helpers.js,
+//   receipt-cards.js, voting-record.js), so the shell moves; the precache list
+//   is unchanged.
+//   MIGRATION COST: none.
+const CACHE_VERSION = 'v607';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

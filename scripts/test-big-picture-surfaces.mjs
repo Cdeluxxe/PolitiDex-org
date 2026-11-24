@@ -224,14 +224,13 @@ section("4 · the surfaces that are pinned in their source");
   const sort = (rc.match(/function rdStrongest[\s\S]*?\n    \}\);/) || [""])[0];
   ok(sort.length > 100, "rdStrongest's ranking could not be read out of receipt-cards.js");
   const iProc = sort.indexOf("isProcedural");
-  const iWeight = sort.indexOf("wa !== wb");
   const iAxis = sort.indexOf("onAxis(a, issueKey)");
-  ok(iProc > -1 && iWeight > -1 && iAxis > -1,
-    "rdStrongest no longer ranks on all three of procedural, weight and the axis");
+  ok(iProc > -1 && iAxis > -1,
+    "rdStrongest no longer ranks on both procedural and the axis");
   ok(iProc < iAxis,
     "rdStrongest ranks on the axis before it rules out procedural votes — the badge is beating the evidence");
-  ok(iWeight < iAxis,
-    "rdStrongest ranks on the axis before curated weight — the badge is beating the evidence");
+  // Curated mapping weights are not a ranking signal (test-mapping-weights-inert.mjs).
+  ok(!/\.weight\b/.test(sort.replace(/\/\/[^\n]*/g, "")), "rdStrongest ranks on a curated mapping weight again");
   ok(!/isPrimary/.test(sort), "rdStrongest reads the retired isPrimary flag again");
 }
 

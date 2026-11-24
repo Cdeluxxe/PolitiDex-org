@@ -2400,21 +2400,39 @@
   // sourced from the new voting record when it's warm in cache, else falling back
   // verbatim to the old PROFILES[].sections voting_record so behaviour is unchanged
   // until the richer data arrives. Synchronous by design (see _records note above).
-  //   alignment mapping (per the record's primary issue's effective support):
-  //     supports the issue → 'kept'   (+1.0 in the tool)
-  //     opposes  the issue → 'broken' (+0.15)
-  //     no clear position  → 'partial'(+0.6)
+  //   alignment mapping (effective support across EVERY mapped issue, all equal):
+  //     supports the issue(s) → 'kept'   (+1.0 in the tool)
+  //     opposes  the issue(s) → 'broken' (+0.15)
+  //     no clear / split read → 'partial'(+0.6)
+  //   Every curated mapping counts the same. This used to read only issues[0] —
+  //   the first row in curated-weight order — which let a mapping's weight decide
+  //   the vote's alignment. Now each mapped key is read through the engine's own
+  //   lookup (a key mapped to both sides of the bill gives no direction), and the
+  //   vote is 'kept' / 'broken' only when every key that has a direction agrees.
+  function _alignmentOfRecord(it) {
+    var keys = [], seen = {};
+    (it.issues || []).forEach(function (m) {
+      if (m && m.issueKey && !seen[m.issueKey]) { seen[m.issueKey] = 1; keys.push(m.issueKey); }
+    });
+    if (!keys.length || !window._voteEffectiveSupport) return 'partial';
+    var find = (typeof window._pdxIssueMapping === 'function') ? window._pdxIssueMapping : null;
+    var adv = 0, opp = 0;
+    keys.forEach(function (k) {
+      var m = find ? find(it, k) : null;
+      if (!m) { (it.issues || []).forEach(function (g) { if (!m && g && g.issueKey === k) m = g; }); }
+      var eff = m ? window._voteEffectiveSupport(it, m.supportMeaning) : null;
+      if (eff === true) adv++; else if (eff === false) opp++;
+    });
+    if (adv && !opp) return 'kept';
+    if (opp && !adv) return 'broken';
+    return 'partial';
+  }
   window._alignmentVotesAdapter = function (pid) {
     var recs = PDXVotingRecord.memberRecords(pid);
     if (recs && recs.length) {
       var out = [];
       recs.forEach(function (it) {
-        var primary = (it.issues && it.issues[0]) || null;
-        var alignment = 'partial';
-        if (primary && window._voteEffectiveSupport) {
-          var eff = window._voteEffectiveSupport(it, primary.supportMeaning);
-          alignment = eff === true ? 'kept' : eff === false ? 'broken' : 'partial';
-        }
+        var alignment = _alignmentOfRecord(it);
         // Fold issue labels into `matter` so the tool's keyword matcher still lights
         // up the right issue, exactly as it did with the curated matter text.
         var labels = (it.issues || []).map(function (m) { return issueLabel(m.issueKey); }).join(' ');

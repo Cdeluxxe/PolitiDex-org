@@ -121,6 +121,18 @@ ctx.PROFILES = ctx.window.PROFILES = {
 
 // The record. Shapes match voting-record.js's hydrateIssueRecords output.
 const RECORDS = [
+  // Guard 1 — a confirmation vote carrying a policy key.
+  // Listed FIRST on purpose: curated mapping weights no longer decide which vote
+  // an issue's receipt cites (test-mapping-weights-inert.mjs), so between two
+  // equally-mapped contradicting votes the first listed is cited. This keeps the
+  // healthcare candidate resting on the nomination, which guard 1 must refuse.
+  {
+    kind: "vote", measureId: 2, congress: 119, session: 1, rollNumber: 61, measureType: "nomination", number: "PN 100",
+    title: "Nomination of a Secretary of Health and Human Services", chamber: "senate",
+    result: "Confirmed", date: "2025-02-13", action: "On the Nomination", position: "yea",
+    isProcedural: false, source: SRC("https://www.congress.gov/nomination/119th-congress/100"),
+    issues: [{ issueKey: "healthcare", weight: 100, isPrimary: true, supportMeaning: "yea_opposes" }],
+  },
   // The workhorse: a real omnibus, five mapped issues, both directions.
   {
     kind: "vote", measureId: 1, congress: 119, session: 1, rollNumber: 190, measureType: "bill", number: "H.R. 1",
@@ -137,14 +149,6 @@ const RECORDS = [
       { issueKey: "climate_action", weight: 55, isPrimary: false, supportMeaning: "yea_opposes" },
       { issueKey: "border_security", weight: 55, isPrimary: false, supportMeaning: "yea_supports" },
     ],
-  },
-  // Guard 1 — a confirmation vote carrying a policy key at full weight.
-  {
-    kind: "vote", measureId: 2, congress: 119, session: 1, rollNumber: 61, measureType: "nomination", number: "PN 100",
-    title: "Nomination of a Secretary of Health and Human Services", chamber: "senate",
-    result: "Confirmed", date: "2025-02-13", action: "On the Nomination", position: "yea",
-    isProcedural: false, source: SRC("https://www.congress.gov/nomination/119th-congress/100"),
-    issues: [{ issueKey: "healthcare", weight: 100, isPrimary: true, supportMeaning: "yea_opposes" }],
   },
   // Guard 3 — the incoherent key.
   {
@@ -590,6 +594,7 @@ if (noStanceRow) has(noStanceRow.reason, "no stated position",
 // card's record line can be checked against the string the app already prints.
 const P0 = ctx.window.PDXConsistency && ctx.window.PDXConsistency.proof;
 const RECORD_BY_NUM = {};
+const OMNIBUS_RECORD = RECORDS.find((r) => r.number === "H.R. 1");
 for (const r of RECORDS) if (!RECORD_BY_NUM[r.number]) RECORD_BY_NUM[r.number] = r;
 
 const contra = RC.contradiction("testrep");
@@ -629,7 +634,7 @@ if (contra) {
   // one claim per card
   eq(contra.measureNumber, "H.R. 1", "cards: exactly one measure is cited");
   // Nothing invented: every claim on the card traces to the input.
-  const inputText = JSON.stringify(RECORDS[0]) + JSON.stringify(ctx.ISSUE_STANCE_DATA.testrep);
+  const inputText = JSON.stringify(OMNIBUS_RECORD) + JSON.stringify(ctx.ISSUE_STANCE_DATA.testrep);
   ok(inputText.includes(contra.said.text), "honesty: the said line is quoted, not paraphrased");
   lacks(contra.headline, "H.R. 22", "honesty: no other bill leaks into the record line");
   lacks(JSON.stringify(contra), "PN 100", "honesty: the excluded nomination appears nowhere on the card");
@@ -682,7 +687,7 @@ eq(RC.find("nobody_here"), null, "cards: an unknown member yields no card rather
 // The proof line is the SAME string the profile's Official Record row prints, so
 // the card and the page can never disagree about what the record says.
 if (P0 && contra) {
-  eq(contra.headline, P0.proofText(RECORDS[0]),
+  eq(contra.headline, P0.proofText(OMNIBUS_RECORD),
     "cards: the card's record line is the profile's own proof text, not a second phrasing");
 }
 // The one documented divergence: a question that repeats its own measure number
@@ -716,7 +721,7 @@ if (omni) {
   eq(omni.headline, "H.R. 1 · On Passage · Voted Yea", "omnibus: still cites exactly one vote");
   has(omni.method, "#methodology", "omnibus: method stays visible");
   // Nothing invented: every label in the split is an issue this bill is mapped to.
-  const mapped = RECORDS[0].issues.map((i) => ctx.window.ISSUE_MAP[i.issueKey].label.replace(/^\S+\s/, ""));
+  const mapped = OMNIBUS_RECORD.issues.map((i) => ctx.window.ISSUE_MAP[i.issueKey].label.replace(/^\S+\s/, ""));
   for (const label of omni.split.advances.concat(omni.split.opposes)) {
     ok(mapped.includes(label), `honesty: split label '${label}' comes from this bill's own mapping`);
   }
