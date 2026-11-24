@@ -44,6 +44,110 @@ const GAP = String.raw`(?:(?!\b(?:and|but|while|or|so|because|yet|then|instead)\
 
 const COST_OUTCOME = String.raw`(?:too (?:high|expensive|much)|so expensive|sky-?high|skyrocket\w*|soar(?:ing|ed)|through the roof|out of reach|unaffordable|can(?:no|'|’)?t afford|cannot afford|struggl\w* to (?:pay|afford)|priced out|crushing)`;
 
+// ── POLARITY FRAMES (polarity-v1: deportations, birthright citizenship,
+// pro_life / pro_choice, gun_safety / gun_rights) ──────────────────────────────
+// For these keys the side a sentence takes depends on WHAT the verb is aimed at,
+// not on which topic words appear: "condemn the mass deportation agenda" is
+// against mass deportation, "defeat the attempt to dismantle birthright
+// citizenship" defends it, "voted to pass the Born-Alive Act" is pro-life and
+// "requiring gun owners to store their firearms" is a gun-safety measure. Two
+// optional spec fields carry this (compileTopicRules → TOPIC_RULES):
+//   frameSupport / frameOppose  whole fragments that state the side outright.
+//       Read before the generic up / down rules and never flipped by a
+//       counter-frame (the fragment already says which way it points). The
+//       own-voice, quote, negation and question checks still apply.
+//   vetoSupport / vetoOppose    a sentence that only describes the topic —
+//       criticism of the policy, someone else's action, an event — never
+//       reads that side from the generic rules (zero weight).
+// Inside a frame the verb→object gap may not cross a clause break, a contrast
+// ("from / against / not / without / by …") or someone else's attack on the
+// object ("attacks on ICE").
+const FGAP = String.raw`(?:(?!\b(?:and|but|while|or|so|because|yet|then|instead|from|against|not|never|no|without|by|through|via|unlike|rather|attacks?|smears?|war on|remov\w*|repeal\w*|elimination|rollback|defeat\w*|failure|overturn\w*|anti-[\w-]+|stop\w*|block\w*|kill\w*|oppos\w*|reject\w*|halt\w*|prevent\w*|prohibit\w*|that|which|who|say|says|said)\b)[^.!?;:]){0,80}?`;
+// Verbs that put the speaker against what follows.
+const AGAINST_V = String.raw`(?:condemn\w{0,3}|repeal\w{0,3}|rescind\w{0,3}|overturn\w{0,3}|scrap(?:s|ped|ping)?|roll(?:s|ed|ing)? back|litigat\w{0,3} against|fight(?:s|ing)?(?= (?:any|all|every|these|those|this|the) )|fought(?= (?:any|all|every|these|those|this|the) )|denounc\w{0,3}|decr(?:y|ies|ied|ying)|oppos(?:e|es|ed|ing)|reject\w{0,3}|fight(?:s|ing)? (?:back )?against|fought (?:back )?against|stand(?:s|ing)? (?:up )?against|stood (?:up )?against|speak(?:s|ing)? out against|spoke out against|vot(?:e|es|ed|ing) against|block\w{0,3}|stop(?:s|ped|ping)?|halt\w{0,3}|cancel\w{0,3}|resist\w{0,3}|defeat\w{0,3}|challeng\w{0,3}|su(?:e|es|ed|ing)|criticiz\w{0,3}|slam(?:s|med|ming)?|blast\w{0,3}|push(?:es|ed|ing)? back (?:on|against)|(?:have|has|had|raise\w?|express\w{0,2}) (?:serious |grave |deep )?concerns? (?:with|about|over)|concerned (?:with|about|that|by)|alarmed by|outraged by|disturbed by)`;
+// Verbs that put the speaker behind what follows.
+const BEHIND_V = String.raw`(?:support\w{0,3}|back(?:s|ed|ing)?|champion\w{0,3}|applaud\w{0,3}|commend\w{0,3}|prais\w{0,3}|endors\w{0,3}|cosponsor\w{0,3}|co-sponsor\w{0,3}|sponsor\w{0,3}|introduc\w{0,3}|reintroduc\w{0,3}|vot(?:e|es|ed|ing) (?:for|yes on|in favor of|to pass)|pass(?:es|ed|ing)?|led|lead(?:s|ing)?|fight(?:s|ing)? for|fought for|push(?:es|ed|ing)? for|call(?:s|ed|ing)? for|urg(?:e|es|ed|ing))`;
+// An effort or measure someone else is pursuing.
+const EFFORT_N = String.raw`(?:attempts?|efforts?|executive orders?|orders?|plans?|push(?:es)?|schemes?|bids?|moves?|bills?|legislation|laws?|measures?|polic(?:y|ies)|proposals?|agenda|crusade|campaign|lawsuits?|suits?|cases?|rulings?)`;
+// "efforts BY the Trump Administration to undermine …": who is making the effort.
+const BY_ACTOR = String.raw`(?: by (?:the )?(?:[\w'’.-]+ ){1,4}?(?=to\b|that\b))?`;
+// "legislation THAT ATTEMPTS to limit …": a relative clause naming what the measure does.
+const REL_CLAUSE = String.raw`(?: (?:that|which|who) (?:[\w'’-]+ ){0,3}?)?`;
+const RESTRICT_V = String.raw`(?:restrict\w{0,3}|limit\w{0,3}|ban(?:s|ned|ning)?|criminaliz\w{0,3}|outlaw\w{0,3}|undermin\w{0,3}|attack\w{0,3}|strip\w{0,4}|eliminat\w{0,3}|end(?:s|ed|ing)?|dismantl\w{0,3}|abolish\w{0,3}|overturn\w{0,3}|rewrit\w{0,3}|reinterpret\w{0,3}|revok\w{0,3}|den(?:y|ies|ied|ying)|repeal\w{0,3}|take away|roll(?:s|ed|ing)? back|curtail\w{0,3}|erod\w{0,3}|gut(?:s|ted|ting)?|resurrect\w{0,3}|reinstat\w{0,3}|reviv\w{0,3})`;
+const EXPAND_V = String.raw`(?:expand\w{0,3}|legaliz\w{0,3}|allow\w{0,3}|permit\w{0,3}|increas\w{0,3}|promot\w{0,3}|codif\w{0,3}|protect\w{0,3}|fund\w{0,3}|guarantee\w{0,2}|enshrin\w{0,3}|push\w{0,2})`;
+
+// Deportations: what the policy is called, and how critics describe it.
+const DEPORT_POLICY = String.raw`(?:(?:the )?(?:largest |mass[- ])deportations?(?: operations?| efforts?| programs?| agenda| campaign| machine| flights?)?|deportation (?:agenda|machine|campaign|flights?|quotas?|pipeline|operations?|raids?|efforts?|programs?)|ICE raids|(?:the )?ICE(?: agents?| officers?| enforcement)?\b)`;
+const DEPORT_CRITIC = String.raw`\b(?:cruel\w*|inhumane|terroriz\w*|chaos|chaotic|disaster\w*|dehumaniz\w*|un-?american|lawless\w*|jeopardiz\w*|destabiliz\w*|abuses?|arbitrary|quotas?|tear(?:s|ing)? (?:\w+ )?(?:apart )?families|families (?:torn|ripped) apart|in fear|sow\w* (?:\w+ )?fear|weaponiz\w*|turbocharg\w*|internment|rooted in|crusade|not (?:a |the )?(?:practical|real|serious|right|answer)|does not transcend|spending billions on|summary deportations?|due process|loopholes?|unconscionable|persecution)\b`;
+
+// Birthright citizenship.
+const BIRTHRIGHT = String.raw`(?:birthright citizenship|(?:the )?(?:fourteenth|14th) amendment['’]?s? citizenship (?:clause|guarantee)|(?:the )?citizenship clause)`;
+
+// Abortion: objects that are not abortion itself (the provider, the industry,
+// the drug, a survivor, a data search) and the pro-life bills by name.
+const ABORTION_NOT_ACT = String.raw`(?!s? (?:providers?|industry|clinics?|drugs?|pills?|survivors?|attempts?|services act|survivors protection act)\b)`;
+const ABORTION_DRUG = String.raw`(?:(?:the )?(?:chemical abortion|abortion (?:pills?|drugs?))(?: drug)?(?: mifepristone)?|mifepristone)`;
+const PRO_LIFE_BILLS = String.raw`(?:(?:the )?Born[- ]Alive\b[\w\s'’-]{0,60}?Act|(?:the )?Born[- ]Alive\b|(?:the )?Hyde Amendment|(?:the )?No Taxpayer Funding for Abortion\b[\w\s'’-]{0,30}?Act|(?:the )?Women['’]s Public Health and Safety Act|(?:the )?Pain[- ]Capable Unborn Child Protection Act|(?:the )?Heartbeat Protection Act)`;
+const ABORTION_RIGHT = String.raw`(?:abortion|abortions|reproductive (?:rights|freedom|health ?care|care)|(?:the |a |her |a person['’]s |a woman['’]s )?right to (?:choose|(?:have |get |obtain )?(?:an? )?abortion)|roe(?: v\.? wade)?|contracepti\w+|birth control|IVF|mifepristone|medication abortion|abortion (?:pills?|drugs?))`;
+
+// Guns: restrictions on firearms, and the rights language critics use.
+const GUN_RESTRICT = String.raw`(?:(?:universal |expanded |enhanced |federal )?background checks?|red[- ]flag laws?|(?:an? )?(?:assault weapons?|gun) bans?|(?:a |the )?(?:prospective |federal )?ban on assault weapons|safe(?:ly)? (?:and securely )?stor\w+|secure storage|waiting periods?|(?:common[- ]sense |comprehensive |stronger )?gun (?:safety|violence prevention) (?:laws?|legislation|bills?|measures?|reforms?|package)|gun (?:control|reform) (?:laws?|legislation|bills?|measures?)|(?:the )?gun show loophole|(?:the )?charleston loophole|Ethan['’]s Law|(?:the )?Bipartisan Safer Communities Act)`;
+const GUN_RIGHTS_HARM = String.raw`(?<!\b(?:without|not|never|no|avoid|avoiding|while not)\s+)\b(?:strip\w{0,4} away|infring\w{0,3}|trampl\w{0,3}|violat\w{0,3}|attack\w{0,3} on|assault on|unconstitutional gun grab)\b[^.!?;]{0,60}?\b(?:(?:second|2nd) amendment|right to (?:keep and )?bear arms|gun rights|gun owners|(?:the )?rights of (?:law-abiding|millions|gun owners|americans)|rights of millions)`;
+// A restriction stated as a requirement on gun owners or a closed path to a gun.
+const GUN_REQUIRE = String.raw`(?:\brequir\w{0,3} (?:all )?(?:gun owners|firearm owners|gun dealers|licensed dealers) to\b|\bclos\w{0,3}\b${FGAP}\bloopholes?\b[^.!?;]{0,60}?\b(?:firearms?|guns?|weapons)\b|\b(?:alert\w{0,3}|notif\w{0,3})\b[^.!?;]{0,100}?\b(?:attempts? to|tr(?:y|ies|ying) to) (?:buy|purchase|obtain|acquire) (?:a )?(?:gun|firearm)s?\b|\bmandat\w{0,3} (?:the )?reporting of lost (?:and|or) stolen (?:firearms|guns)\b)`;
+// Someone buying a gun or passing a check: an event, not a policy.
+const GUN_EVENT = String.raw`\b(?:(?:legally |illegally )?(?:purchased|bought|obtained|acquired)\b[^.!?;]{0,40}?\b(?:guns?|firearms?|rifles?|weapons?|handguns?)\b|pass(?:es|ed|ing)? (?:(?:a|the|his|her|their|all|federal|multiple|several|each) )*background checks?(?: each time| every time)?\b|(?:the |a )?(?:shooter|gunman|suspect|attacker|killer)\b[^.!?;]{0,80}?\b(?:purchased|bought|used|obtained|opened fire|killed|shot|fired)\b)`;
+// "doing nothing to reduce gun violence", "the failure of this legislation to prevent mass shootings": criticism of a bill.
+const GUN_BILL_FAILS = String.raw`\b(?:do(?:es|ing)?|did|will do|would do) (?:absolutely )?(?:nothing|little)(?: at all)? to (?:reduce|prevent|stop|curb|address|end)\b|\bfailure of (?:this|the) (?:bill|legislation|law|package|measure)s? to (?:reduce|prevent|stop|curb|address|end)\b`;
+
+// Pro-life side (support on pro_life, oppose on pro_choice).
+const ABORTION_LIFE_FRAMES = [
+  String.raw`\b(?:${BEHIND_V}|protect\w{0,3}|defend\w{0,3})\b${FGAP}${PRO_LIFE_BILLS}`,
+  String.raw`\bhold\w{0,3}\b[^.!?;]{0,60}?\babortion (?:industry|providers?|clinics?|pharmacies|drugs?|drug (?:makers|manufacturers|companies))\b[^.!?;]{0,40}?\baccountable\b`,
+  String.raw`\b(?:exclud\w{0,3}|defund\w{0,3}|separat\w{0,3})\b[^.!?;]{0,30}?\b(?:abortion providers?|planned parenthood|the abortion industry)\b`,
+  String.raw`\b(?:ban\w{0,4}|prohibit\w{0,3}|outlaw\w{0,3}|pull\w{0,3})\b (?:the )?(?:(?!(?:restrictions?|limits?|bans?)\b)\w+ ){0,3}?${ABORTION_DRUG}`,
+  String.raw`\b(?:barbaric|extreme|radical|horrific|gruesome)\b[^.!?;]{0,80}?\b(?:efforts?|attempts?|laws?|polic(?:y|ies)|push)\b[^.!?;]{0,60}?\bto ${EXPAND_V}\b[^.!?;]{0,20}?\babortion`,
+  String.raw`\b(?:restor\w{0,3}|reinstat\w{0,3}|strengthen\w{0,3}|enforc\w{0,3}|requir\w{0,3})\b[^.!?;]{0,40}?\b(?:oversight|safeguards|safety (?:protocols|standards|requirements)|in-person dispensing|REMS)\b[^.!?;]{0,30}?\b${ABORTION_DRUG}`,
+  String.raw`\b${AGAINST_V}\b${FGAP}\b${EFFORT_N}\b${BY_ACTOR}${REL_CLAUSE}${FGAP}\b${EXPAND_V}\b${FGAP}${ABORTION_RIGHT}`,
+  String.raw`\b(?:concern\w{0,3}|worr\w{0,4}|alarm\w{0,3}|troubl\w{0,3}|oppos\w{0,3}|condemn\w{0,3}|criticiz\w{0,3})\b[^.!?;]{0,140}?\b(?:their|the administration['’]s|democrats['’]|biden['’]s|the left['’]s) (?:\w+ )?(?:crusade|push|rush|scheme|agenda|quest|campaign|efforts?|attempts?) to ${EXPAND_V}\b[^.!?;]{0,30}?${ABORTION_RIGHT}`,
+];
+// Pro-choice side (support on pro_choice, oppose on pro_life).
+const ABORTION_CHOICE_FRAMES = [
+  String.raw`\b${AGAINST_V}\b${FGAP}\b${EFFORT_N}\b${BY_ACTOR}${REL_CLAUSE}${FGAP}\b${RESTRICT_V}\b${FGAP}${ABORTION_RIGHT}`,
+  String.raw`\b(?:overturn\w{0,3}|repeal\w{0,3}|loss of|fall of|reversal of)\b[^.!?;]{0,30}?\broe(?: v\.? wade)?\b[^.!?;]{0,80}?\b(?:devastat\w*|harm\w*|dangerous|chaos|crisis|catastroph\w*|tragic|cruel|consequences|disaster\w*)`,
+  String.raw`\b${AGAINST_V}\b${FGAP}${PRO_LIFE_BILLS}`,
+  String.raw`\b(?:protect\w{0,3}|shield\w{0,3}|prevent\w{0,3}|block\w{0,3}|stop\w{0,4}|bar(?:s|red|ring)?|prohibit\w{0,3})\b[^.!?;]{0,60}?\b(?:searches|surveillance|prosecut\w+|investigat\w+|tracking|data|information|records)\b[^.!?;]{0,30}?\b(?:related to|relating to|involving|for|of|about) (?:seeking |obtaining |providing |an? )?abortions?\b`,
+];
+// Someone else's view or an incidental reference: never a side on either abortion key.
+const ABORTION_VETO = [
+  String.raw`\b(?:conservatives|republicans|democrats|progressives|liberals|those|people|groups|activists|advocates|opponents|supporters|critics|voters|anyone|others|many|lawmakers|politicians|extremists|americans)\s+who\s+(?:\w+\s+)?(?:oppose|support|favor|want|back)\w*\b`,
+  String.raw`\b(?:related to|relating to|connected to|in connection with|involving)\s+(?:an? )?abortions?\b`,
+  // "To that end, medication abortion now accounts for …": the idiom, not a call to end it.
+  String.raw`\bto (?:that|this) end\b,?(?![^.!?;]{0,80}?\b(?:protect|defend|ban|restrict|oppos|support|codif|fight|champion)\w*\b)`,
+  // "a job in a state that restricts access to abortion": the state acting, described.
+  String.raw`\b(?:a|the) state that (?:\w+ )?(?:restricts?|bans?|limits?|criminaliz\w+|protects?|allows?)\b`,
+  String.raw`\b(?:their|the administration['’]s|democrats['’]|biden['’]s|the left['’]s) (?:\w+ )?(?:crusade|push|rush|scheme|agenda|quest|campaign) to\b`,
+];
+
+// Gun-safety side (support on gun_safety, oppose on gun_rights). The gap may
+// not run through a "with / using / passing …" means clause.
+const GGAP = String.raw`(?:(?!\b(?:and|but|while|or|so|because|yet|then|instead|from|against|not|never|no|without|by|through|via|unlike|rather|with|using|requir\w*|pass\w*|expand\w*|support\w*|enact\w*|strengthen\w*|remov\w*|repeal\w*|elimination|rollback|defeat\w*|failure|overturn\w*|stop\w*|block\w*|kill\w*|oppos\w*|reject\w*|halt\w*)\b)[^.!?;:]){0,80}?`;
+const GUN_CRITICIZED = String.raw`(?:${GUN_RESTRICT}|gun control|gun registr(?:y|ies|ation)|gun grabs?)`;
+const GUN_SAFETY_FRAMES = [
+  // "infringed upon by Democrats by passing … background check bills": someone else passing it.
+  String.raw`(?<!\bby\s+(?:[\w'’-]+\s+){0,3})\b(?:${BEHIND_V}|requir\w{0,3}|expand\w{0,3}|strengthen\w{0,3}|reinstat\w{0,3}|enact\w{0,3})\b${FGAP}${GUN_RESTRICT}`,
+  GUN_REQUIRE,
+];
+// Gun-rights side (oppose on gun_safety, support on gun_rights).
+const GUN_RIGHTS_FRAMES = [
+  String.raw`\b${AGAINST_V}\b${GGAP}${GUN_CRITICIZED}`,
+  GUN_RIGHTS_HARM,
+  String.raw`\b(?:right|rights)\b[^.!?;]{0,60}?\b(?:was|were|is|are|been) (?:again |being )?(?:infringed|trampled|violated|stripped)\b`,
+  String.raw`\b(?:defund\w{0,3}|end\w{0,3}|eliminat\w{0,3}|stop\w{0,4}|block\w{0,3})\b[^.!?;]{0,40}?\b(?:programs?|polic(?:y|ies)|efforts?|rules?)\b (?:that|which) (?:discourag\w*|restrict\w*|burden\w*|infring\w*|limit\w*)\b[^.!?;]{0,60}?\b(?:second amendment|gun owners|right to (?:keep and )?bear arms|firearms?)`,
+];
+// Rhetoric about the other side, or gun violence put down to mental health: not a gun-safety stance.
+const GUN_RHETORIC = String.raw`\b(?:no|little|insufficient) (?:statistically significant |credible |real |clear )?evidence\b|\bgun control (?:advocates|activists|lobby|groups|crowd|zealots|extremists)\b|\b(?:driving factors?|root causes?|real causes?)\b[^.!?;]{0,140}?\bmental health\b`;
+
 const alt = (xs) => (xs && xs.length ? `(?:${xs.join("|")})` : null);
 const act = (verbs, objs) => (objs && objs.length ? String.raw`\b${verbs}\b${GAP}\b${alt(objs)}` : null);
 
@@ -175,11 +279,34 @@ export const ISSUE_TOPIC_VOCAB = {
     outcome: String.raw`fentanyl (?:is )?(?:killing|poisoning|pouring|flooding)|(?:killed|poisoned) by fentanyl|overdose deaths` },
   deportations: { label: "Mass Deportations & Border Security", pos: "Carry out large-scale deportations of people here illegally and lock down the border",
     terms: String.raw`deport\w*|removals?|illegal aliens|criminal aliens|ICE`,
-    pro: [String.raw`\b(?:deport\w{0,3}|remov\w{0,3})\b${GAP}\b(?:illegal (?:aliens|immigrants)|criminal aliens|(?:those|people|everyone) (?:here|who came) illegally)`, String.raw`\b(?:largest|mass) deportation`],
+    // polarity-v1: "mass deportation" on its own is the name of the policy, not
+    // support for it — critics say it far more often than backers. Support needs
+    // a verb behind it (frameSupport); condemning it is oppose (frameOppose).
+    pro: [String.raw`\b(?:deport\w{0,3}|remov\w{0,3})\b${GAP}\b(?:illegal (?:aliens|immigrants)|criminal aliens|(?:those|people|everyone) (?:here|who came) illegally)`],
     // phase8-v3: ICE as the object of harm ("investigate ICE shootings") is not support for ICE.
     up: [String.raw`(?:mass )?deportations?`, String.raw`ICE(?! (?:shootings?|shot|raids?|detentions?|abuses?|violence|killings?|(?:agents?|officers?) (?:shot|killed))\b)(?: agents| enforcement)?`, String.raw`(?:the |our )?border`],
     downCon: [String.raw`(?:mass )?deportations?`, String.raw`ICE raids`],
     con: [String.raw`\babolish ICE\b`],
+    frameSupport: [
+      String.raw`\b(?:${BEHIND_V}|thank\w{0,3}|grateful (?:to|for)|defend\w{0,3}|stand(?:s|ing)? with|stood with|fully fund\w{0,3}|fund(?:s|ed|ing)?|expand\w{0,3}|carry(?:ing)? out|carried out|deliver\w{0,3})\b${FGAP}\b(?:(?:the )?(?:largest|mass[- ]) deportations?|deportation (?:operations?|efforts?|programs?)|ICE\b(?!['’]s)(?! (?:raids|abuses|detentions?|accountable|pay|out)\b))`,
+    ],
+    frameOppose: [
+      String.raw`\b(?:${AGAINST_V}|end(?:s|ed|ing)?|abolish\w{0,3}|call(?:s|ed|ing)? for (?:an |the )?end (?:to|of)|demand\w{0,3}\b[^.!?;]{0,60}?\bhalt)\b${FGAP}\b${DEPORT_POLICY}`,
+      String.raw`\b(?:protect\w{0,3}|defend\w{0,3}|shield\w{0,3}|safeguard\w{0,3}|keep\w{0,3})\b[^.!?;]{0,60}?\b(?:from|against)\b[^.!?;]{0,40}?\b${DEPORT_POLICY}`,
+      String.raw`\b(?:hold\w{0,3} ICE (?:\w+ )?accountable|keep\w{0,3} ICE out|make ICE pay)\b`,
+      // Counsel for people facing deportation: the opposite of a mass-removal program.
+      String.raw`\b(?:bolster\w{0,3}|expand\w{0,3}|increas\w{0,3}|provid\w{0,3}|fund\w{0,3}|guarantee\w{0,2}|improv\w{0,3})\b[^.!?;]{0,40}?\b(?:immigration legal (?:aid|services)|legal (?:aid|representation|counsel) for (?:immigrants|individuals facing deportation|people facing deportation)|right to counsel)\b`,
+    ],
+    // Criticism of the policy, protection from it, or a description of it never reads as support.
+    vetoSupport: [
+      String.raw`${DEPORT_CRITIC}`,
+      String.raw`\b(?:from|against|facing|fear of|risk of|threat of|without due process)\b[^.!?;]{0,30}?\b(?:mass |summary )?deportations?\b`,
+      String.raw`\b(?:from|against|not|than) ICE\b|\bICE (?:accountable|pay|out)\b|\bICE['’]s (?:lawlessness|abuses|violence|thugs)\b`,
+      String.raw`\bICE\b[^.!?;]{0,10}?\b(?:should|must|shall|will|can)(?:n['’]t| not| never)\b|\bICE\b[^.!?;]{0,10}?\b(?:should|must) (?:stop|leave|get out)\b`,
+      String.raw`\b(?:prevent\w{0,3}|prohibit\w{0,3}|bar(?:s|red|ring)?|restrict\w{0,3}|limit\w{0,3}) ICE\b`,
+      String.raw`\bnot (?:associated|involved|connected) with\b|\b(?:their|its) (?:\w+ )?(?:mass )?deportation (?:agenda|machine|campaign|plans?|operations?|efforts?)\b`,
+      String.raw`\b(?:evidence|grounds|basis|justification)\b[^.!?;]{0,20}?\bsupporting\b|\bpreparations? for deportation\b|\b(?:ordered|forced|scheduled|slated|placed) (?:\w+ ){0,5}?(?:for |into |in )?(?:removal|deportation)(?: proceedings)?\b`,
+    ],
     problems: [String.raw`criminal (?:illegal )?aliens`, String.raw`illegal aliens`] },
   gun_rights: { label: "Protect Gun Rights", pos: "Protect the Second Amendment and the right to bear arms",
     terms: String.raw`second amendment|2nd amendment|gun rights|right to bear arms|gun owners|firearms?`,
@@ -187,6 +314,9 @@ export const ISSUE_TOPIC_VOCAB = {
     down: [String.raw`gun (?:control|grabs?|registr\w+|confiscation)`, String.raw`(?:assault weapons?|gun) bans?`, String.raw`red[- ]flag laws?`],
     upCon: [String.raw`(?:assault weapons?|gun) bans?`, String.raw`red[- ]flag laws?`, String.raw`(?:universal )?background checks`, String.raw`gun control`],
     downCon: [String.raw`assault weapons(?! bans?)`, String.raw`weapons of war`, String.raw`ghost guns`],
+    // polarity-v1: backing a gun-safety measure is oppose here; criticising one is support.
+    frameSupport: GUN_RIGHTS_FRAMES, frameOppose: GUN_SAFETY_FRAMES,
+    vetoSupport: [GUN_EVENT], vetoOppose: [GUN_EVENT, GUN_BILL_FAILS, GUN_RHETORIC],
     protects: [String.raw`(?:the )?(?:second|2nd) amendment`, String.raw`(?:the )?right to bear arms`] },
   gun_balance: { label: "Rights + Common-Sense Safety", pos: "Keep legal gun ownership but require universal background checks and red-flag laws",
     terms: String.raw`common[- ]sense gun|background checks|red[- ]flag|responsible gun owners`,
@@ -197,6 +327,10 @@ export const ISSUE_TOPIC_VOCAB = {
     down: [String.raw`gun violence`, String.raw`assault weapons(?! bans?)`, String.raw`weapons of war`, String.raw`ghost guns`, String.raw`(?:the )?gun show loophole`],
     upCon: [String.raw`constitutional carry`],
     downCon: [String.raw`(?:assault weapons?|gun) bans?`, String.raw`gun (?:control|safety) laws`, String.raw`red[- ]flag laws?`],
+    // polarity-v1: criticising a gun-safety measure is oppose, never support; an
+    // event (a purchase, a shooter, someone passing a check) is no side at all.
+    frameSupport: GUN_SAFETY_FRAMES, frameOppose: GUN_RIGHTS_FRAMES,
+    vetoSupport: [GUN_EVENT, GUN_BILL_FAILS, GUN_RHETORIC], vetoOppose: [GUN_EVENT],
     problems: [String.raw`gun violence`, String.raw`mass shootings?`, String.raw`school shootings?`],
     outcome: String.raw`(?:another|epidemic of|scourge of) (?:mass |school )?(?:shootings?|gun violence)|leading cause of death for (?:children|kids)` },
 
@@ -517,9 +651,11 @@ export const ISSUE_TOPIC_VOCAB = {
   pro_life: { label: "Pro-Life Protections", pos: "Protect the unborn and limit abortion",
     terms: String.raw`abortion|unborn|pro-life|right to life|heartbeat`,
     up: [String.raw`(?:the )?(?:unborn|preborn)(?: children| babies| life)?`, String.raw`(?:the )?(?:sanctity|right to) (?:of )?life`, String.raw`(?:the )?heartbeat (?:bill|act|law)`, String.raw`pro-life (?:laws|protections|values|causes?)`, String.raw`pregnancy (?:resource|care) centers`],
-    down: [String.raw`(?:late-term |taxpayer-funded |elective )?abortions?(?! (?:rights|access|care|bans?))`],
-    upCon: [String.raw`abortion (?:rights|access|care)`, String.raw`reproductive (?:rights|freedom)`, String.raw`(?:the right to )?(?:an )?abortion`, String.raw`roe(?: v\.? wade)?`],
+    // polarity-v1: the provider, the industry, the drug or a Born-Alive bill is not "abortion" itself.
+    down: [String.raw`(?:late-term |taxpayer-funded |elective )?abortions?(?! (?:rights|access|care|bans?))${ABORTION_NOT_ACT}`],
+    upCon: [String.raw`abortion (?:rights|access|care)`, String.raw`reproductive (?:rights|freedom)`, String.raw`(?:the right to )?(?:an )?(?<!attempted |survived an |survive an |surviving an )abortion${ABORTION_NOT_ACT}`, String.raw`roe(?: v\.? wade)?`],
     downCon: [String.raw`abortion bans?`],
+    frameSupport: ABORTION_LIFE_FRAMES, frameOppose: ABORTION_CHOICE_FRAMES, vetoSupport: ABORTION_VETO, vetoOppose: ABORTION_VETO,
     protects: [String.raw`(?:the )?hyde amendment`, String.raw`pro-life protections`] },
   repro_balance: { label: "Limits With Exceptions", pos: "Allow early-term access with limits and clear exceptions",
     terms: String.raw`exceptions|rape (?:and|or) incest|life of the mother|first trimester|15 weeks`,
@@ -530,7 +666,8 @@ export const ISSUE_TOPIC_VOCAB = {
     pro: [String.raw`\bcodif\w{0,3}\b${GAP}\broe\b`],
     down: [String.raw`(?:extreme |total |near-total |six-week )?abortion bans?`, String.raw`(?:government |politicians'?) (?:interference|control over women'?s bodies)`],
     upCon: [String.raw`(?:the )?(?:unborn|preborn)`, String.raw`(?:the )?heartbeat (?:bill|act|law)`, String.raw`abortion bans?`],
-    downCon: [String.raw`(?:late-term |taxpayer-funded |elective )?abortions?(?! (?:rights|access|care|bans?))`],
+    downCon: [String.raw`(?:late-term |taxpayer-funded |elective )?abortions?(?! (?:rights|access|care|bans?))${ABORTION_NOT_ACT}`],
+    frameSupport: ABORTION_CHOICE_FRAMES, frameOppose: ABORTION_LIFE_FRAMES, vetoSupport: ABORTION_VETO, vetoOppose: ABORTION_VETO,
     problems: [String.raw`(?:extreme )?abortion bans?`],
     protects: [String.raw`abortion (?:rights|access)`, String.raw`roe`, String.raw`(?:access to )?(?:IVF|contraception)`] },
   religious_liberty: { label: "Religious Liberty Focus", pos: "Protect religious freedom and conscience rights",
@@ -779,7 +916,22 @@ export const ISSUE_TOPIC_VOCAB = {
   birthright_citizenship: { label: "Birthright Citizenship", pos: "Keep automatic citizenship for every child born on U.S. soil, as the Fourteenth Amendment has long been read",
     terms: String.raw`birthright citizenship|citizenship clause`,
     up: [String.raw`(?:the )?birthright citizenship`, String.raw`(?:the )?(?:fourteenth amendment'?s? )?citizenship clause`],
-    downCon: [String.raw`(?:the )?birthright citizenship`] },
+    downCon: [String.raw`(?:the )?birthright citizenship`],
+    // polarity-v1: defeating / rejecting an effort to end it defends it; backing
+    // the order or "birthright citizenship reform" is for ending it.
+    frameSupport: [
+      String.raw`\b${AGAINST_V}\b${FGAP}\b${EFFORT_N}\b${BY_ACTOR}${REL_CLAUSE}${FGAP}\b${RESTRICT_V}\b${FGAP}${BIRTHRIGHT}`,
+      String.raw`\bunconstitutional\b[^.!?;]{0,60}?\b(?:orders?|attempts?|efforts?|attacks?|plans?)\b[^.!?;]{0,40}?${BIRTHRIGHT}`,
+      String.raw`${BIRTHRIGHT}\b[^.!?;]{0,40}?\b(?:is|remains) (?:the law of the land|settled law|guaranteed|enshrined|a constitutional right)`,
+    ],
+    frameOppose: [
+      String.raw`\b(?:${BEHIND_V}|defend\w{0,3}|fil(?:e|es|ed|ing)\b[^.!?;]{0,40}?\bin support of)\b${FGAP}\b(?:(?:president |president trump['’]s |trump['’]s )?birthright citizenship (?:executive )?order|executive order (?:on|ending|to end|restricting|limiting) birthright citizenship|(?:the )?birthright citizenship act)`,
+      String.raw`\b${BEHIND_V}\b${FGAP}\b${RESTRICT_V}\b${FGAP}${BIRTHRIGHT}`,
+      String.raw`\bbirthright citizenship reform\b`,
+      String.raw`${BIRTHRIGHT}\b[^.!?;]{0,20}?\bonly (?:to|for)\b`,
+      String.raw`\b(?:restor\w{0,3}|limit\w{0,3}|narrow\w{0,3})\b[^.!?;]{0,20}?\bthe scope of birthright citizenship\b`,
+      String.raw`\brestor\w{0,3}\b[^.!?;]{0,40}?\b(?:fourteenth|14th) amendment\b[^.!?;]{0,30}?\boriginal (?:intent|meaning|understanding)`,
+    ] },
   safety_net_work_requirements: { label: "Medicaid & SNAP Work Requirements", pos: "Require adults who are able to work to work, train or volunteer to keep Medicaid or SNAP benefits",
     terms: String.raw`(?:medicaid|snap|food stamp) work requirements?|work requirements? (?:for|on|in) (?:medicaid|snap|food stamps)|community engagement requirements?`,
     up: [String.raw`(?:medicaid|snap|food stamp) work requirements?`, String.raw`work requirements? (?:for|on|in) (?:medicaid|snap|food stamps)`],
@@ -993,6 +1145,11 @@ export function compileTopicRules(spec) {
     implySupport: re(act(REMEDY, spec.problems)) || /(?!)/,
     implyOppose: re(act(REPEAL, spec.protects)) || /(?!)/,
     outcome: re(spec.outcome ? String.raw`\b(?:${spec.outcome})` : null),
+    // polarity-v1 (see POLARITY FRAMES): present only on the keys that define them.
+    ...(spec.frameSupport ? { frameSupport: re(anyOf(spec.frameSupport)) } : {}),
+    ...(spec.frameOppose ? { frameOppose: re(anyOf(spec.frameOppose)) } : {}),
+    ...(spec.vetoSupport ? { vetoSupport: re(anyOf(spec.vetoSupport)) } : {}),
+    ...(spec.vetoOppose ? { vetoOppose: re(anyOf(spec.vetoOppose)) } : {}),
   };
 }
 

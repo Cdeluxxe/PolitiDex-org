@@ -2031,7 +2031,7 @@
               "origin": "text",
               "match": "H.R. 20",
               "congress_from": "date",
-              "span": "WASHINGTON – Congressman Jared Golden (ME-02) last night reintroduced H.R. 20, the Richard L."
+              "span": "WASHINGTON – Congressman Jared Golden (ME-02) last night reintroduced H.R. 20, the Richard L. Trumka Protecting the Right to Organize (PRO) Act , a comprehensive proposal to protect workers’ right to bargain collectively for higher wages, better benefits and safer workplaces."
             }
           ]
         }
@@ -2045,7 +2045,7 @@
           "confidence_score": 0.9,
           "basis": "bill number + subject words in the text",
           "matched": "H.R. 20",
-          "span": "Trumka Protecting the Right to Organize (PRO) Act , a comprehensive proposal to protect workers’ right to bargain collectively for higher wages, better benefits and safer workplaces. … “Strong unions make for a strong middle class,” Golden said. … “When workers come together in a union to collectively bargain, they get a voice on the job to fight for fair wages and benefits and safer working conditions. … The PRO Act restores democracy on the job by strengthening workers’ rights and clamping down on union-busting tactics so that those who want to form a union can do so and get to the business of securing better conditions in the workplace.”"
+          "span": "WASHINGTON – Congressman Jared Golden (ME-02) last night reintroduced H.R. 20, the Richard L. Trumka Protecting the Right to Organize (PRO) Act , a comprehensive proposal to protect workers’ right to bargain collectively for higher wages, better benefits and safer workplaces. … “Strong unions make for a strong middle class,” Golden said. … “When workers come together in a union to collectively bargain, they get a voice on the job to fight for fair wages and benefits and safer working conditions. … The PRO Act restores democracy on the job by strengthening workers’ rights and clamping down on union-busting tactics so that those who want to form a union can do so and get to the business of securing better conditions in the workplace.”"
         }
       ],
       "unmapped": []
@@ -2068,7 +2068,7 @@
               "kind": "short_title",
               "origin": "text",
               "match": "Protecting the Right to Organize Act",
-              "span": "Boyle (PA-02) released the following statement regarding U.S. House passage today of the Protecting the Right to Organize Act (PRO Act), legislation that he co-led to passage in the House, and legislation that is the most significant upgrade to U.S. labor law in 80 years."
+              "span": "WASHINGTON, DC - Congressman Brendan F. Boyle (PA-02) released the following statement regarding U.S. House passage today of the Protecting the Right to Organize Act (PRO Act), legislation that he co-led to passage in the House, and legislation that is the most significant upgrade to U.S. labor law in 80 years."
             }
           ]
         }
@@ -2082,7 +2082,7 @@
           "confidence_score": 0.6,
           "basis": "short title + subject words in the text",
           "matched": "Protecting the Right to Organize Act",
-          "span": "Boyle (PA-02) released the following statement regarding U.S. House passage today of the Protecting the Right to Organize Act (PRO Act), legislation that he co-led to passage in the House, and legislation that is the most significant upgrade to U.S. labor law in 80 years. … \"When unions are strong, our economy is strong,\" said Congressman Boyle. … \"Unions are essential to rebuilding the American middle class, and in Philadelphia, they are the backbone of our city. … Our unions ensure workers have high wages, strong benefits, and safe working conditions. … The PRO Act guarantees workers have the power to stand together, and it prevents employers from engaging in union busting tactics."
+          "span": "WASHINGTON, DC - Congressman Brendan F. Boyle (PA-02) released the following statement regarding U.S. House passage today of the Protecting the Right to Organize Act (PRO Act), legislation that he co-led to passage in the House, and legislation that is the most significant upgrade to U.S. labor law in 80 years. … \"When unions are strong, our economy is strong,\" said Congressman Boyle. … \"Unions are essential to rebuilding the American middle class, and in Philadelphia, they are the backbone of our city. … Our unions ensure workers have high wages, strong benefits, and safe working conditions. … The PRO Act guarantees workers have the power to stand together, and it prevents employers from engaging in union busting tactics."
         }
       ],
       "unmapped": []
@@ -2106,13 +2106,13 @@
               "origin": "text",
               "match": "H.R. 20",
               "congress_from": "date",
-              "span": "Trumka Protecting the Right to Organize Act (PRO Act), H.R. 20 ."
+              "span": "WASHINGTON – On Tuesday, Congressman Greg Casar (D-Texas) joined Democrats in introducing the Richard L. Trumka Protecting the Right to Organize Act (PRO Act), H.R. 20 ."
             },
             {
               "kind": "short_title",
               "origin": "text",
               "match": "Trumka Protecting the Right to Organize Act",
-              "span": "Trumka Protecting the Right to Organize Act (PRO Act), H.R. 20 ."
+              "span": "WASHINGTON – On Tuesday, Congressman Greg Casar (D-Texas) joined Democrats in introducing the Richard L. Trumka Protecting the Right to Organize Act (PRO Act), H.R. 20 ."
             }
           ]
         }
@@ -2126,7 +2126,7 @@
           "confidence_score": 0.9,
           "basis": "bill number + subject words in the text",
           "matched": "H.R. 20",
-          "span": "Trumka Protecting the Right to Organize Act (PRO Act), H.R. 20 . … Especially in a right-to-work-for-less state like Texas, workers deserve a union to protect their rights, create safer workplaces, and hold exploitative employers accountable. … If we restore union rights for the American people, we’ll restore an economy that works for all.”"
+          "span": "WASHINGTON – On Tuesday, Congressman Greg Casar (D-Texas) joined Democrats in introducing the Richard L. Trumka Protecting the Right to Organize Act (PRO Act), H.R. 20 . … Especially in a right-to-work-for-less state like Texas, workers deserve a union to protect their rights, create safer workplaces, and hold exploitative employers accountable. … If we restore union rights for the American people, we’ll restore an economy that works for all.”"
         }
       ],
       "unmapped": []
@@ -2310,7 +2310,7 @@
               "origin": "text",
               "match": "H.R. 5430",
               "congress_from": "date",
-              "span": "Neal (D-MA) released the following statement after the U.S. House of Representatives passed H.R. 5430, Legislation to implement the Agreement between the United States of America, the United Mexican States, and Canada attached as an Annex to the Protocol Replacing the North American Free Trade Agreement:"
+              "span": "Today, Ways and Means Committee Chairman Richard E. Neal (D-MA) released the following statement after the U.S. House of Representatives passed H.R. 5430, Legislation to implement the Agreement between the United States of America, the United Mexican States, and Canada attached as an Annex to the Protocol Replacing the North American Free Trade Agreement:"
             }
           ]
         }
@@ -2324,7 +2324,7 @@
           "confidence_score": 0.9,
           "basis": "bill number + subject words in the text",
           "matched": "H.R. 5430",
-          "span": "Neal (D-MA) released the following statement after the U.S. House of Representatives passed H.R. 5430, Legislation to implement the Agreement between the United States of America, the United Mexican States, and Canada attached as an Annex to the Protocol Replacing the North American Free Trade Agreement: … With the House’s passage of implementing legislation for the vastly improved, enforceable version of the USMCA, we replace a deeply flawed trade deal and set enhanced standards for all future U.S. trade agreements to build upon."
+          "span": "Today, Ways and Means Committee Chairman Richard E. Neal (D-MA) released the following statement after the U.S. House of Representatives passed H.R. 5430, Legislation to implement the Agreement between the United States of America, the United Mexican States, and Canada attached as an Annex to the Protocol Replacing the North American Free Trade Agreement: … With the House’s passage of implementing legislation for the vastly improved, enforceable version of the USMCA, we replace a deeply flawed trade deal and set enhanced standards for all future U.S. trade agreements to build upon."
         }
       ],
       "unmapped": []
@@ -2829,7 +2829,7 @@
               "kind": "short_title",
               "origin": "text",
               "match": "Banning Surveillance Advertising Act",
-              "span": "Eshoo (D-CA) and Senator Cory Booker (D-NJ) introduced the Banning Surveillance Advertising Act , legislation that prohibits advertising networks and facilitators from using personal data to target advertisements"
+              "span": "WASHINGTON – Today, Congresswomen Jan Schakowsky (D-IL) and Anna G. Eshoo (D-CA) and Senator Cory Booker (D-NJ) introduced the Banning Surveillance Advertising Act , legislation that prohibits advertising networks and facilitators from using personal data to target advertisements"
             }
           ]
         }
@@ -2843,7 +2843,7 @@
           "confidence_score": 0.6,
           "basis": "short title + subject words in the text",
           "matched": "Banning Surveillance Advertising Act",
-          "span": "Eshoo (D-CA) and Senator Cory Booker (D-NJ) introduced the Banning Surveillance Advertising Act , legislation that prohibits advertising networks and facilitators from using personal data to target advertisements … \"Surveillance advertising is at the heart of every exploitative online business model that exacerbates manipulation, discrimination, misinformation, extremism, and fundamentally violates people's privacy in ways they would never choose if given a true choice."
+          "span": "WASHINGTON – Today, Congresswomen Jan Schakowsky (D-IL) and Anna G. Eshoo (D-CA) and Senator Cory Booker (D-NJ) introduced the Banning Surveillance Advertising Act , legislation that prohibits advertising networks and facilitators from using personal data to target advertisements … \"Surveillance advertising is at the heart of every exploitative online business model that exacerbates manipulation, discrimination, misinformation, extremism, and fundamentally violates people's privacy in ways they would never choose if given a true choice."
         }
       ],
       "unmapped": []

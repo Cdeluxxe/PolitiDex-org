@@ -70,7 +70,7 @@ t('the table is current with the finder and scorer, and names only the twenty-fi
   execFileSync(process.execPath, [path.join(root, 'scripts/gen-person-directional-keys.mjs'), '--check'], { stdio: 'pipe' });
   assert.deepEqual(Object.keys(data.keys), KEYS);
   for (const p of Object.values(data.people)) for (const x of [...p.mappings, ...p.stances]) assert.ok(KEYS.includes(x.key), x.key);
-  assert.equal(data.rules_version, 'phase9-v2');
+  assert.equal(data.rules_version, 'phase9-v3');
   assert.equal(data.vocab_version, 'issue-vocab-v2-directional');
 });
 t('Massie: Ukraine bills on ukraine_aid, H.Con.Res. 38 on iran_hostilities; scorer reads oppose / support', () => {
@@ -185,7 +185,8 @@ t('third-pass people: each on their v7 record key, bills where the source names 
               "S. 2938→gun_safety"
           ],
           [
-              "gun_safety:support"
+              // phase9-v3 (polarity): "the so-called ‘Bipartisan Safer Communities Act’ tramples on the constitutional rights …" is oppose.
+              "gun_safety:oppose"
           ]
       ],
       "scalise": [
@@ -385,8 +386,9 @@ t('third-pass people: each on their v7 record key, bills where the source names 
     assert.ok(KEYS.slice(9).includes(r.topic), r.stance_id);
     assert.equal(st.position, r.scorer.position, r.stance_id);
   }
-  // Agreement is recorded as it is; nothing was tuned to raise it.
-  assert.deepEqual(third.filter((r) => r.scorer_agrees).map((r) => r.stance_id), ["heinrich|climate_action|gt-025", "lujan|climate_action|gt-026", "robert_garcia|climate_action|gt-028", "fitzpatrick|gun_safety|gt-031", "dina_titus|pro_choice|gt-033", "mike_simpson|pro_choice|gt-036", "tom_cole|voting_access|gt-039", "adam_smith|voting_access|gt-040", "haley_stevens|voting_access|gt-041", "aguilar|housing|gt-043", "ayanna_pressley|housing|gt-044", "jared_golden|econ_workers|gt-046", "brendan_boyle|econ_workers|gt-047", "bobby_scott|justice_reform|gt-049", "nadler|justice_reform|gt-050", "walberg|econ_trade|gt-051"]);
+  // Agreement is recorded as it is; nothing was tuned to raise it. (phase9-v3: the
+  // polarity fix for gun-safety criticism brings boebert|gun_safety|gt-029 into agreement.)
+  assert.deepEqual(third.filter((r) => r.scorer_agrees).map((r) => r.stance_id), ["heinrich|climate_action|gt-025", "lujan|climate_action|gt-026", "robert_garcia|climate_action|gt-028", "boebert|gun_safety|gt-029", "fitzpatrick|gun_safety|gt-031", "dina_titus|pro_choice|gt-033", "mike_simpson|pro_choice|gt-036", "tom_cole|voting_access|gt-039", "adam_smith|voting_access|gt-040", "haley_stevens|voting_access|gt-041", "aguilar|housing|gt-043", "ayanna_pressley|housing|gt-044", "jared_golden|econ_workers|gt-046", "brendan_boyle|econ_workers|gt-047", "bobby_scott|justice_reform|gt-049", "nadler|justice_reform|gt-050", "walberg|econ_trade|gt-051"]);
 });
 t('fourth-pass people: each on their v8 record key, bills where the source names one, the scorer read as it is (agree or not)', () => {
   const P = data.people;
@@ -631,7 +633,7 @@ t('the scorer reads in the table match a fresh scorer read; ground-truth labels 
     ['james_talarico|cost_living|gt-001', gt.position, gt.confidence], ['massie|ukraine_aid|gt-002', 'oppose', 0.85], ['sanders|healthcare|gt-003', 'support', 0.9],
     ['james_talarico|school_choice|gt-004', 'oppose', 0.9], ['massie|iran_hostilities|gt-005', 'support', 0.85], ['sanders|israel_military_aid|gt-006', 'mixed', 0.75]]);
   assert.equal(gt.position, 'support');
-  assert.equal(S.RULES_VERSION, 'phase9-v2');
+  assert.equal(S.RULES_VERSION, 'phase9-v3');
   assert.equal(S.DIRECTIONAL_VOCAB_VERSION, 'issue-vocab-v2-directional');
 });
 

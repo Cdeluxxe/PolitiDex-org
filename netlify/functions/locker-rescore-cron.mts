@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// Locker re-score — scheduled cron (re-runs on every RULES_VERSION bump; now phase9-v2)
+// Locker re-score — scheduled cron (re-runs on every RULES_VERSION bump; now phase9-v3)
 // ─────────────────────────────────────────────────────────────────────────────
 // Re-reads Evidence Locker items written under an older stance-scorer rules
 // version against the page they came from, keeps the new read when it differs
@@ -8,9 +8,9 @@
 // netlify/lib/locker-rescore.mjs; this file wires the production stores, the
 // stated-positions database adapter and the persisted cursor.
 //
-// The stored phase9-v2 cursor is not trusted (it resumed by position and
-// skipped page groups); a one-time catch-up pass re-scores every remaining
-// old-rule item and recomputes every politician — see CATCH_UP in the library.
+// The phase9-v2 catch-up (a stored phase9-v2 cursor that resumed by position was
+// not trusted) applies to phase9-v2 only — see CATCH_UP in the library. Under
+// phase9-v3 (polarity, R19) a fresh ordinary pass re-scores every older-rule item.
 //
 // Every minute, ~20 s of work per run, resumable. When the pass is complete the
 // run is a no-op until the next RULES_VERSION bump starts a fresh pass. Each run

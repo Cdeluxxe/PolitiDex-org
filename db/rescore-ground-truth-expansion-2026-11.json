@@ -1,11 +1,11 @@
 {
   "_note": "Offline score of the expansion ground-truth records with the current stance scorer, compared with each human label. Diagnostic only: no ground-truth label, rule or site file changes, and a disagreement is left as it is.",
-  "rules_version": "phase9-v2",
+  "rules_version": "phase9-v3",
   "vocab_version": "issue-vocab-v2-directional",
   "confidence_tolerance": 0.1,
   "summary": {
     "records": 77,
-    "scorer_agrees_on_position": 41,
+    "scorer_agrees_on_position": 42,
     "verdicts": {
       "owens|ukraine_aid|gt-007": "support → no clear position (disagrees)",
       "rick_crawford|ukraine_aid|gt-008": "mixed → support (disagrees)",
@@ -29,7 +29,7 @@
       "lujan|climate_action|gt-026": "support → support (agrees)",
       "hickenlooper|climate_action|gt-027": "support → no clear position (disagrees)",
       "robert_garcia|climate_action|gt-028": "support → support (agrees on position, confidence outside tolerance)",
-      "boebert|gun_safety|gt-029": "oppose → support (disagrees)",
+      "boebert|gun_safety|gt-029": "oppose → oppose (agrees)",
       "scalise|gun_safety|gt-030": "oppose → no clear position (disagrees)",
       "fitzpatrick|gun_safety|gt-031": "support → support (agrees)",
       "steve_womack|gun_safety|gt-032": "oppose → no clear position (disagrees)",
@@ -803,26 +803,26 @@
         "confidence": 0.85
       },
       "scorer": {
-        "position": "support",
-        "confidence": 0.7,
-        "reason": "1 implication(s) for support at medium weight (R6); 1 mention(s) recorded at zero weight (R3)",
+        "position": "oppose",
+        "confidence": 0.8,
+        "reason": "1 clear high-weight statement(s) for oppose; 0 implication(s) for oppose at medium weight (R6); 1 mention(s) recorded at zero weight (R3)",
         "statements": [
-          "support (implication): Rep. Lauren Boebert stated, “The so-called ‘Bipartisan Safer Communities Act’ tramples on the constitutional rights of law-abiding citizens and will have no significant impact in stopping mass shootings and deterring gun violence."
+          "oppose (clear): Rep. Lauren Boebert stated, “The so-called ‘Bipartisan Safer Communities Act’ tramples on the constitutional rights of law-abiding citizens and will have no significant impact in stopping mass shootings and deterring gun violence."
         ]
       },
-      "verdict": "disagrees",
-      "scorer_agrees": false,
-      "note": "stance-score: boebert|gun_safety position MISMATCH (candidate support, ground truth oppose); confidence 0.7 vs 0.85, Δ=-0.15 OUTSIDE 0.1",
+      "verdict": "agrees",
+      "scorer_agrees": true,
+      "note": "stance-score: boebert|gun_safety position MATCH (candidate oppose, ground truth oppose); confidence 0.8 vs 0.85, Δ=-0.05 within 0.1",
       "per_source": [
         {
           "type": "official press release",
           "date": "2022-07-14",
           "link": "https://boebert.house.gov/media/press-releases/rep-boebert-introduces-bill-repeal-rino-gun-grab",
-          "position": "support",
-          "confidence": 0.7,
-          "reason": "1 implication(s) for support at medium weight (R6); 1 mention(s) recorded at zero weight (R3)",
+          "position": "oppose",
+          "confidence": 0.8,
+          "reason": "1 clear high-weight statement(s) for oppose; 0 implication(s) for oppose at medium weight (R6); 1 mention(s) recorded at zero weight (R3)",
           "statements": [
-            "support (implication): Rep. Lauren Boebert stated, “The so-called ‘Bipartisan Safer Communities Act’ tramples on the constitutional rights of law-abiding citizens and will have no significant impact in stopping mass shootings and deterring gun violence."
+            "oppose (clear): Rep. Lauren Boebert stated, “The so-called ‘Bipartisan Safer Communities Act’ tramples on the constitutional rights of law-abiding citizens and will have no significant impact in stopping mass shootings and deterring gun violence."
           ]
         }
       ]
@@ -867,9 +867,10 @@
       "scorer": {
         "position": "support",
         "confidence": 0.8,
-        "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 1 mention(s) recorded at zero weight (R3)",
+        "reason": "2 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 1 mention(s) recorded at zero weight (R3)",
         "statements": [
-          "support (clear): “All options must be on the table, including comprehensive background checks, a bump stock ban, prohibiting the sale of military assault weapons and full funding for gun violence research in a comprehensive manner that could have prevented tragedies like this."
+          "support (clear): “All options must be on the table, including comprehensive background checks, a bump stock ban, prohibiting the sale of military assault weapons and full funding for gun violence research in a comprehensive manner that could have prevented tragedies like this.",
+          "support (clear): Expands the existing background check system to cover all commercial firearm sales, including those at gun shows, over the internet or in classified ads while providing reasonable exceptions for family and friend transfers."
         ]
       },
       "verdict": "agrees",
@@ -882,9 +883,10 @@
           "link": "https://fitzpatrick.house.gov/media-center/press-releases/fitzpatrick-takes-leadership-role-addressing-gun-violence-community",
           "position": "support",
           "confidence": 0.8,
-          "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 1 mention(s) recorded at zero weight (R3)",
+          "reason": "2 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 1 mention(s) recorded at zero weight (R3)",
           "statements": [
-            "support (clear): “All options must be on the table, including comprehensive background checks, a bump stock ban, prohibiting the sale of military assault weapons and full funding for gun violence research in a comprehensive manner that could have prevented tragedies like this."
+            "support (clear): “All options must be on the table, including comprehensive background checks, a bump stock ban, prohibiting the sale of military assault weapons and full funding for gun violence research in a comprehensive manner that could have prevented tragedies like this.",
+            "support (clear): Expands the existing background check system to cover all commercial firearm sales, including those at gun shows, over the internet or in classified ads while providing reasonable exceptions for family and friend transfers."
           ]
         }
       ]
@@ -1338,7 +1340,7 @@
         "confidence": 0.8,
         "reason": "2 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 2 mention(s) recorded at zero weight (R3)",
         "statements": [
-          "support (clear): Trumka Protecting the Right to Organize (PRO) Act , a comprehensive proposal to protect workers’ right to bargain collectively for higher wages, better benefits and safer workplaces.",
+          "support (clear): WASHINGTON – Congressman Jared Golden (ME-02) last night reintroduced H.R. 20, the Richard L. Trumka Protecting the Right to Organize (PRO) Act , a comprehensive proposal to protect workers’ right to bargain collectively for higher wages, better benefits and safer workplaces.",
           "support (clear): The PRO Act restores democracy on the job by strengthening workers’ rights and clamping down on union-busting tactics so that those who want to form a union can do so and get to the business of securing better conditions in the workplace.”"
         ]
       },
@@ -1354,7 +1356,7 @@
           "confidence": 0.8,
           "reason": "2 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 2 mention(s) recorded at zero weight (R3)",
           "statements": [
-            "support (clear): Trumka Protecting the Right to Organize (PRO) Act , a comprehensive proposal to protect workers’ right to bargain collectively for higher wages, better benefits and safer workplaces.",
+            "support (clear): WASHINGTON – Congressman Jared Golden (ME-02) last night reintroduced H.R. 20, the Richard L. Trumka Protecting the Right to Organize (PRO) Act , a comprehensive proposal to protect workers’ right to bargain collectively for higher wages, better benefits and safer workplaces.",
             "support (clear): The PRO Act restores democracy on the job by strengthening workers’ rights and clamping down on union-busting tactics so that those who want to form a union can do so and get to the business of securing better conditions in the workplace.”"
           ]
         }
@@ -1373,7 +1375,7 @@
         "confidence": 0.8,
         "reason": "2 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 3 mention(s) recorded at zero weight (R3)",
         "statements": [
-          "support (clear): Boyle (PA-02) released the following statement regarding U.S. House passage today of the Protecting the Right to Organize Act (PRO Act), legislation that he co-led to passage in the House, and legislation that is the most significant upgrade to U.S. labor law in 80 years.",
+          "support (clear): WASHINGTON, DC - Congressman Brendan F. Boyle (PA-02) released the following statement regarding U.S. House passage today of the Protecting the Right to Organize Act (PRO Act), legislation that he co-led to passage in the House, and legislation that is the most significant upgrade to U.S. labor l…",
           "support (clear): The PRO Act guarantees workers have the power to stand together, and it prevents employers from engaging in union busting tactics."
         ]
       },
@@ -1389,7 +1391,7 @@
           "confidence": 0.8,
           "reason": "2 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 3 mention(s) recorded at zero weight (R3)",
           "statements": [
-            "support (clear): Boyle (PA-02) released the following statement regarding U.S. House passage today of the Protecting the Right to Organize Act (PRO Act), legislation that he co-led to passage in the House, and legislation that is the most significant upgrade to U.S. labor law in 80 years.",
+            "support (clear): WASHINGTON, DC - Congressman Brendan F. Boyle (PA-02) released the following statement regarding U.S. House passage today of the Protecting the Right to Organize Act (PRO Act), legislation that he co-led to passage in the House, and legislation that is the most significant upgrade to U.S. labor l…",
             "support (clear): The PRO Act guarantees workers have the power to stand together, and it prevents employers from engaging in union busting tactics."
           ]
         }
@@ -1408,7 +1410,7 @@
         "confidence": 0.5,
         "reason": "equal weight of directional signals on both sides (1 vs 1; 0 implication(s))",
         "statements": [
-          "support (clear): Trumka Protecting the Right to Organize Act (PRO Act), H.R. 20 .",
+          "support (clear): WASHINGTON – On Tuesday, Congressman Greg Casar (D-Texas) joined Democrats in introducing the Richard L. Trumka Protecting the Right to Organize Act (PRO Act), H.R. 20 .",
           "oppose (clear): Especially in a right-to-work-for-less state like Texas, workers deserve a union to protect their rights, create safer workplaces, and hold exploitative employers accountable."
         ]
       },
@@ -1424,7 +1426,7 @@
           "confidence": 0.5,
           "reason": "equal weight of directional signals on both sides (1 vs 1; 0 implication(s))",
           "statements": [
-            "support (clear): Trumka Protecting the Right to Organize Act (PRO Act), H.R. 20 .",
+            "support (clear): WASHINGTON – On Tuesday, Congressman Greg Casar (D-Texas) joined Democrats in introducing the Richard L. Trumka Protecting the Right to Organize Act (PRO Act), H.R. 20 .",
             "oppose (clear): Especially in a right-to-work-for-less state like Texas, workers deserve a union to protect their rights, create safer workplaces, and hold exploitative employers accountable."
           ]
         }
@@ -1957,7 +1959,7 @@
         "confidence": 0.8,
         "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 1 mention(s) recorded at zero weight (R3)",
         "statements": [
-          "support (clear): Eshoo (D-CA) and Senator Cory Booker (D-NJ) introduced the Banning Surveillance Advertising Act , legislation that prohibits advertising networks and facilitators from using personal data to target advertisements"
+          "support (clear): WASHINGTON – Today, Congresswomen Jan Schakowsky (D-IL) and Anna G. Eshoo (D-CA) and Senator Cory Booker (D-NJ) introduced the Banning Surveillance Advertising Act , legislation that prohibits advertising networks and facilitators from using personal data to target advertisements"
         ]
       },
       "verdict": "agrees",
@@ -1972,7 +1974,7 @@
           "confidence": 0.8,
           "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 1 mention(s) recorded at zero weight (R3)",
           "statements": [
-            "support (clear): Eshoo (D-CA) and Senator Cory Booker (D-NJ) introduced the Banning Surveillance Advertising Act , legislation that prohibits advertising networks and facilitators from using personal data to target advertisements"
+            "support (clear): WASHINGTON – Today, Congresswomen Jan Schakowsky (D-IL) and Anna G. Eshoo (D-CA) and Senator Cory Booker (D-NJ) introduced the Banning Surveillance Advertising Act , legislation that prohibits advertising networks and facilitators from using personal data to target advertisements"
           ]
         }
       ]

@@ -50,7 +50,7 @@ const UKR_OPPOSE = [
   "More aid to Ukraine should be stopped.",
 ];
 
-t("rules version is phase9-v2 (R15 kept)", () => assert.equal(S.RULES_VERSION, "phase9-v2"));
+t("rules version is phase9-v3 (R15 kept)", () => assert.equal(S.RULES_VERSION, "phase9-v3"));
 
 // ── R15 fires ───────────────────────────────────────────────────────────────
 t("3 aligned support mentions, nothing contradicting → implied support at 0.5", () => {
