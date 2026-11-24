@@ -8,6 +8,10 @@
 // netlify/lib/locker-rescore.mjs; this file wires the production stores, the
 // stated-positions database adapter and the persisted cursor.
 //
+// The stored phase9-v2 cursor is not trusted (it resumed by position and
+// skipped page groups); a one-time catch-up pass re-scores every remaining
+// old-rule item and recomputes every politician — see CATCH_UP in the library.
+//
 // Every minute, ~20 s of work per run, resumable. When the pass is complete the
 // run is a no-op until the next RULES_VERSION bump starts a fresh pass. Each run
 // logs "locker-rescore: …" lines (one per changed item) and a closing summary;
@@ -51,6 +55,8 @@ export default async (): Promise<Response> => {
     lockerStore, rawStore, retiredStore, flags, gt: groundTruth, budgetMs: RUN_BUDGET_MS, log,
     // Without the database, politicians are queued so their stances recompute later.
     sync: sync ?? (async () => { throw new Error("database unavailable"); }),
+    // Catch-up pass only: politicians with a live card but no Locker items are recomputed too.
+    livePids: db ? () => db.activePoliticians() : undefined,
   }).catch((e: any) => { log(`locker-rescore: ERROR — ${e?.message || e}`); return state; });
   const line = rescoreSummaryLine(next);
   log(line);

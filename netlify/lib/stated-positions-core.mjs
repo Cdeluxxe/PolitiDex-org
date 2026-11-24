@@ -440,6 +440,12 @@ export function dbAdapter(db, table, { eq, and, inArray }) {
       await db.insert(table).values({ ...values, promotedAt: at, createdAt: at })
         .onConflictDoUpdate({ target: [table.politicianId, table.issueKey], set, setWhere: eq(table.provenance, PROVENANCE) });
     },
+    /** Politicians holding at least one active pipeline row (the re-score catch-up recomputes them all). */
+    async activePoliticians() {
+      const rows = await db.selectDistinct({ pid: table.politicianId }).from(table)
+        .where(and(eq(table.status, "active"), eq(table.provenance, PROVENANCE)));
+      return rows.map((r) => r.pid);
+    },
     async withdraw(pid, issueKeys, at) {
       await db.update(table).set({ status: "withdrawn", updatedAt: at })
         .where(and(eq(table.politicianId, pid), inArray(table.issueKey, issueKeys), eq(table.provenance, PROVENANCE)));
