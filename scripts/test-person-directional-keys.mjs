@@ -70,7 +70,7 @@ t('the table is current with the finder and scorer, and names only the twenty-fi
   execFileSync(process.execPath, [path.join(root, 'scripts/gen-person-directional-keys.mjs'), '--check'], { stdio: 'pipe' });
   assert.deepEqual(Object.keys(data.keys), KEYS);
   for (const p of Object.values(data.people)) for (const x of [...p.mappings, ...p.stances]) assert.ok(KEYS.includes(x.key), x.key);
-  assert.equal(data.rules_version, 'phase8-v4');
+  assert.equal(data.rules_version, 'phase9-v2');
   assert.equal(data.vocab_version, 'issue-vocab-v2-directional');
 });
 t('Massie: Ukraine bills on ukraine_aid, H.Con.Res. 38 on iran_hostilities; scorer reads oppose / support', () => {
@@ -114,7 +114,11 @@ t('second-pass people: each on their record key, bills where the source names on
     bennie_thompson: [['H.R. 1→healthcare', 'Affordable Care Act→healthcare'], ['healthcare:support']],
     cruz: [['Educational Choice for Children Act→school_choice', 'Tax Cuts and Jobs Act→school_choice'], ['school_choice:no clear position']],
     aoc: [['Affordable Care Act→healthcare'], ['healthcare:no clear position']],
-    kclark: [[], ['healthcare:mixed']],
+    // Under phase9 the "Democrats have called on … to protect health care" sentence is
+    // attributed to another voice (zero weight), so the read moved from mixed to oppose. The
+    // human label stays support; db/rescore-ground-truth-expansion-2026-11.json records
+    // the disagreement (scorer_agrees: false).
+    kclark: [[], ['healthcare:oppose']],
     murkowski: [[], ['energy_production:no clear position']],
     khanna: [[], ['cut_spending:support']],
     jayapal: [[], ['healthcare:support']],
@@ -627,7 +631,7 @@ t('the scorer reads in the table match a fresh scorer read; ground-truth labels 
     ['james_talarico|cost_living|gt-001', gt.position, gt.confidence], ['massie|ukraine_aid|gt-002', 'oppose', 0.85], ['sanders|healthcare|gt-003', 'support', 0.9],
     ['james_talarico|school_choice|gt-004', 'oppose', 0.9], ['massie|iran_hostilities|gt-005', 'support', 0.85], ['sanders|israel_military_aid|gt-006', 'mixed', 0.75]]);
   assert.equal(gt.position, 'support');
-  assert.equal(S.RULES_VERSION, 'phase8-v4');
+  assert.equal(S.RULES_VERSION, 'phase9-v2');
   assert.equal(S.DIRECTIONAL_VOCAB_VERSION, 'issue-vocab-v2-directional');
 });
 

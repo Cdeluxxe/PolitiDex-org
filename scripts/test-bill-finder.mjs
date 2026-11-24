@@ -605,7 +605,7 @@ t('ground-truth labels and scorer versions are unchanged', () => {
     'james_talarico|school_choice|gt-004': ['oppose', 0.9], 'massie|iran_hostilities|gt-005': ['support', 0.85],
     'sanders|israel_military_aid|gt-006': ['mixed', 0.75],
   });
-  assert.equal(S.RULES_VERSION, 'phase8-v4');
+  assert.equal(S.RULES_VERSION, 'phase9-v2');
   assert.equal(S.DIRECTIONAL_VOCAB_VERSION, 'issue-vocab-v2-directional');
 });
 t('the committed report ground-truth section is current', () => {

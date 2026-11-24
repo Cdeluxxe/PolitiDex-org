@@ -261,12 +261,19 @@ t('the register sweep and every existing key\'s rules are unchanged', () => {
   assert.deepEqual([...S.SCORED_TOPICS].sort(), [...issueKeys].sort());
   for (const k of KEYS) assert.ok(!S.SCORED_TOPICS.includes(k) && !(k in V.ISSUE_TOPIC_VOCAB), k);
   // The accountability stances pass's three register keys and the family & economic
-  // fairness keys pass's two (v103-chrome-seams.mjs) are new, not existing.
-  const existing = Object.keys(S.TOPIC_RULES).filter((k) => !KEYS.includes(k) && !ACCOUNTABILITY_KEYS.includes(k) && !FAMILY_FAIRNESS_KEYS.includes(k) && !CIVIC_KEYS.includes(k)).sort();
+  // fairness keys pass's two (v103-chrome-seams.mjs) are new, not existing; so are
+  // the two register keys the S. 5653 ledger passes added (tribal_consultation, mine_cleanup).
+  const LATER_KEYS = ['tribal_consultation', 'mine_cleanup'];
+  for (const k of LATER_KEYS) assert.ok(k in S.TOPIC_RULES, k);
+  const existing = Object.keys(S.TOPIC_RULES).filter((k) => !KEYS.includes(k) && !ACCOUNTABILITY_KEYS.includes(k) && !FAMILY_FAIRNESS_KEYS.includes(k) && !CIVIC_KEYS.includes(k) && !LATER_KEYS.includes(k)).sort();
   assert.equal(existing.length, 125);
-  // Fingerprint of the 125 existing keys' compiled rules at the start of this pass.
-  assert.equal(fingerprint(S.TOPIC_RULES, existing), 'f3ca8a77ce70f58fbef03e2097d2ae260d423189bc20f78a9998c616e03e5bb1');
-  assert.equal(S.RULES_VERSION, 'phase8-v4');
+  // Fingerprint of the 125 existing keys' compiled rules. It was
+  // f3ca8a77ce70f58fbef03e2097d2ae260d423189bc20f78a9998c616e03e5bb1 at the start of
+  // this pass; phase9-v1 changed two keys' patterns on purpose (pro_choice: "right to
+  // an abortion"; israel_support: a place-phrase "Israel" is not the object), and no
+  // existing key has moved since.
+  assert.equal(fingerprint(S.TOPIC_RULES, existing), '04a68162df0610950a351214d794404d60edb2ef391773c7af95cad039294f29');
+  assert.equal(S.RULES_VERSION, 'phase9-v2');
   assert.equal(S.VOCAB_VERSION, 'issue-vocab-v1');
   assert.equal(S.WEIGHTS.statedPositionConfidence, 0.8);
   // The register sweep never yields a directional-key candidate unless asked.
