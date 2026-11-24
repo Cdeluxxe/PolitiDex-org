@@ -29,7 +29,7 @@ const sided = (c) => (c.kind === "clear" || c.kind === "implication" ? c.side : 
 
 console.log("phase9-v2: reading rules (R18)");
 
-await t("rules version is phase9-v2", () => assert.equal(S.RULES_VERSION, "phase9-v2"));
+await t("rules version is phase9-v3", () => assert.equal(S.RULES_VERSION, "phase9-v3"));
 
 // ── (a) Polarity ──
 await t("polarity: 'We write to denounce … cuts to Social Security' is support, not oppose (Gillibrand)", () => {

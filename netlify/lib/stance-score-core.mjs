@@ -214,6 +214,20 @@
 //       ("a bill to ban artificial superintelligence" is not support for light
 //       AI rules; "a bill to end taxpayer-funded abortion" is pro-life support),
 //       and a named-bill cue needs the page to address the topic at all.
+//   R19 Polarity (phase9-v3) on deportations, birthright_citizenship, pro_life /
+//       pro_choice and gun_safety / gun_rights — see POLARITY FRAMES in
+//       stance-topic-vocab.mjs. A topic's polarity frame states the side from
+//       what the verb is aimed at ("condemn the mass deportation agenda" is
+//       oppose; "defeat the attempt to dismantle birthright citizenship" and
+//       "voted to pass the Born-Alive Act" on pro_life are support; "requiring
+//       gun owners to store firearms" is gun safety) and is never flipped by a
+//       counter-frame. A topic veto keeps criticism of a policy, someone
+//       else's view and neutral event descriptions (a shooter, a purchase) at
+//       zero weight on the side they would wrongly read. "mass deportation" is
+//       the policy's name, not a support signal; lower-case "ice" is not the
+//       agency. Own-voice, quote, negation and question checks are unchanged.
+//       Splitter: a middle initial in a name ("Mark R. Warner", "Mazie K.
+//       Hirono") is not a sentence end.
 //
 
 // Calibration: the ground truth (0.85) rests on first-party campaign pages
@@ -227,7 +241,7 @@ import { PERSON_SURNAMES, PLACE_SURNAMES, PLACE_SURNAME_FULL_NAMES } from "./sta
 // both only call each other inside functions, so the cycle is safe.
 import { pageOwnership, nameTokens } from "./page-ownership.mjs";
 
-export const RULES_VERSION = "phase9-v2";
+export const RULES_VERSION = "phase9-v3";
 // Vocabulary version for the issue keys scored from stance-topic-vocab.mjs
 // (every register key except the two hand-calibrated core topics).
 export const VOCAB_VERSION = "issue-vocab-v1";
@@ -753,7 +767,13 @@ const SENTENCE_START = /^["“'‘(]?(?:The|A|An|We|I|It|It['’]s|This|That|The
 // "Loper Bright v. Raimondo") is one name: a capitalised word, then "v.", then a
 // capitalised word. Never a sentence end (phase9-v1).
 const CASE_V_END = /(?:^|\s)[A-Z][\p{L}'’.-]*\s+v\.$/u;
+// A middle initial in a name ("Mark R. Warner", "Mazie K. Hirono", "Edward J.
+// Markey") is not a sentence end either: a capitalised name, one capital letter
+// and a period, followed by a capitalised word that does not open a sentence
+// (polarity-v1).
+const MIDDLE_INITIAL_END = /(?:^|[\s(“"])[A-Z][\p{Ll}'’-]+\s+[A-Z]\.$/u;
 const joinsAbbreviation = (prev, next) =>
+  (MIDDLE_INITIAL_END.test(prev) && /^[A-Z][\p{L}'’-]+(?:[\s,(]|$)/u.test(next) && !SENTENCE_START.test(next)) ||
   (INITIALISM_END.test(prev) && (/^[a-z\d]/.test(next) || !SENTENCE_START.test(next))) ||
   (SHORT_ABBR_END.test(prev) && /^[a-z\d]/.test(next)) ||
   (CASE_V_END.test(prev) && /^[A-Z]/.test(next));
@@ -922,8 +942,12 @@ const FROM_GERUND = /^[^.;!?]{0,60}?\bfrom\s+(?:\w+ly\s+)?\w+ing\b/i;
 const DOWN_HEAD = /^(?:stop\w*|block\w*|prevent\w*|prohibit\w*|bar|bars|barred|ban\w*|end|ends|ended|ending|cut\w*|repeal\w*|oppos\w+|reject\w*|eliminat\w+|restrict\w*|limit\w*|halt\w*|defund\w*)$/i;
 // A bill's name: a capitalised run ending in "Act".
 const ACT_TITLE_G = /\b(?:[A-Z][\w'’-]*,?\s+(?:(?:of|for|and|the|to|in|on|from|&|a|an)\s+)*){1,12}Act\b/g;
+// polarity-v1: "ice" in lower case is frozen water ("ice jams", "trucking in ice"),
+// not the agency. The rules are case-insensitive, so the agency is checked here.
+const LOWER_ICE = /\bice\b/i;
 export function matchGuard(sentence, m) {
   const text = m[0];
+  if (LOWER_ICE.test(text) && !/\bICE\b/.test(text)) return "not_the_agency";
   const head = (/^\S+/.exec(text) || [""])[0];
   const gap = text.slice(head.length);
   if (TALK_GAP.test(gap)) return "topic_of_talk";
@@ -1011,6 +1035,10 @@ function claimMatch(sentence, topic) {
   return null;
 }
 
+const FRAME_SUBJECT = /(?:^|[.;:,—–"“]\s*)(?:The|An?)\s+((?:[A-Z][\w'’&-]*\s+){1,4})$/;
+/** polarity-v1: does the topic's veto for `side` (vetoSupport / vetoOppose) cover this sentence? */
+const polarityVeto = (r, side, sentence) => !!(side === "support" ? r.vetoSupport : side === "oppose" ? r.vetoOppose : null)?.test(sentence);
+
 /**
  * Classify one sentence → { kind: 'clear'|'implication'|'mention'|null, side, reversal, actor, via? }.
  * `politicianId` is the page's own politician (raw.politician_id). `claims`
@@ -1030,6 +1058,17 @@ export function classify(sentence, topic, politicianId = null, { claims = false,
   let sm = gs.m, om = go.m;
   const guard = gs.guard || go.guard;
   let via;
+  // polarity-v1: a topic's polarity frame states the side outright ("condemn the
+  // mass deportation agenda", "voted to pass the Born-Alive Act"). One side only:
+  // it replaces the generic reads and is never flipped by a counter-frame.
+  let framed = false;
+  if (inContext && (r.frameSupport || r.frameOppose)) {
+    let fsm = guardedMatch(r.frameSupport, sentence).m, fom = guardedMatch(r.frameOppose, sentence).m;
+    // Both sides: the frame that starts first holds the governing verb ("opposing
+    // a lawsuit seeking to ban access to mifepristone" is against the ban).
+    if (fsm && fom && fsm.index !== fom.index) { if (fsm.index < fom.index) fom = null; else fsm = null; }
+    if ((fsm || fom) && !(fsm && fom)) { sm = fsm; om = fom; framed = true; }
+  }
   if (!sm && !om && claims) {
     const cm = claimMatch(sentence, topic);
     if (cm) { if (cm.side === "support") sm = cm.m; else om = cm.m; via = "claim"; }
@@ -1037,7 +1076,7 @@ export function classify(sentence, topic, politicianId = null, { claims = false,
   // phase9-v1: both sides match, but a counter-frame turns one of them around
   // ("keep opposing efforts to cut Social Security": keep → support, opposing
   // efforts to cut → support) — when both now say the same side, it is one read.
-  if (sm && om && !reversal) {
+  if (sm && om && !reversal && !framed) {
     const cfo = counterFrame(sentence.slice(0, om.index), om[0]);
     const cfs = counterFrame(sentence.slice(0, sm.index), sm[0]);
     if ((cfo ? "support" : "oppose") === (cfs ? "oppose" : "support")) { if (cfo) sm = null; else om = null; }
@@ -1052,30 +1091,36 @@ export function classify(sentence, topic, politicianId = null, { claims = false,
     // actor is whoever does the countering.
     // A question ("What more will it take for the VA to stop …?") states no side.
     if (!reversal && /\?\s*["”’]?\s*$/.test(sentence)) return { kind: "mention", side: null, reversal: false, actor: null, framing: "question" };
-    let cf = reversal ? null : counterFrame(prefix, m[0]);
+    let cf = reversal || framed ? null : counterFrame(prefix, m[0]);
     // "voted against every bill that does NOT uphold …" — a double negative: the
     // counter verb and the negation cancel out, the side stands as written.
     if (cf && negatedMatch(prefix)) cf = null;
     // R18(a): "cuts to Social Security" named as a noun — whose action is it?
     // Only on the oppose side: that is the read that turns a defender into an opponent.
-    if (!cf && !reversal && om && !sm && nominalHarm(prefix, m[0])) {
+    if (!cf && !reversal && !framed && om && !sm && nominalHarm(prefix, m[0])) {
       const nr = nominalReading(prefix);
       if (nr?.flip && !negatedMatch(sentence.slice(0, nr.opStart))) cf = { opStart: nr.opStart, via: nr.via };
       else if (!nr?.keep) return { kind: "mention", side: null, reversal: false, actor: null, framing: "nominal" };
     }
     if (cf) side = side === "support" ? "oppose" : "support";
-    if (om && !sm && burdenObject(m[0])) side = side === "support" ? "oppose" : "support";
+    if (!framed && om && !sm && burdenObject(m[0])) side = side === "support" ? "oppose" : "support";
     const actorPrefix = cf ? prefix.slice(0, cf.opStart) : prefix;
     // phase9-v1: "<subject> banning / cutting …" names who acts on either side.
     // On the support side only a decision noun ("policy banning …") names the
     // actor; a capitalised word before a gerund is usually a Title Case heading.
     const ps = !cf ? participleSubject(prefix, m[0], politicianId) : null;
     let actor = (ps && (om || ps.kind === "third") ? ps : null) || actorFor(actorPrefix, politicianId);
+    // polarity-v1: a frame opens on its verb, so a named body right before it is
+    // the subject ("The Association opposes any law that …").
+    if (framed && actor.kind === "self") {
+      const subj = FRAME_SUBJECT.exec(prefix);
+      if (subj && !namesSelf(subj[1], politicianId)) actor = { kind: "third", via: subj[1].trim() };
+    }
     // R18(a): the politician countering someone else's action — "sounding the
     // alarm about the Pentagon’s practice of using taxpayer dollars to fund
     // abortions", "we oppose Trump’s plan, which would cut …": the other party
     // acts, the politician is against it, so the side turns around.
-    if (actor.kind !== "self" && !cf && !reversal) {
+    if (actor.kind !== "self" && !cf && !reversal && !framed) {
       const clause = prefix.slice(Math.max(prefix.lastIndexOf(";"), prefix.lastIndexOf(" but ")) + 1);
       const off = prefix.length - clause.length;
       const at = actor.via ? prefix.lastIndexOf(actor.via) : -1;
@@ -1092,12 +1137,15 @@ export function classify(sentence, topic, politicianId = null, { claims = false,
     // The politician's own negated verb or a reported figure is not a call to act.
     if (!reversal && !cf && negatedMatch(prefix) && !counterFrame(prefix.replace(NEG_STRIP, " "), m[0])) return { kind: "mention", side: null, reversal: false, actor: null, framing: "negated" };
     if (!reversal && statisticMatch(prefix, m[0])) return { kind: "mention", side: null, reversal: false, actor: null, framing: "statistic" };
+    // polarity-v1: criticism of the policy or a description of an event never reads this side.
+    if (!reversal && polarityVeto(r, side, sentence)) return { kind: "mention", side: null, reversal: false, actor: null, framing: "polarity_veto" };
     if (actor.kind === "self" || reversal) {
-      return { kind: "clear", side, reversal, actor, ...(via ? { via } : {}), ...(cf ? { framing: "counter", counter_via: cf.via } : {}) };
+      return { kind: "clear", side, reversal, actor, ...(via ? { via } : {}), ...(cf ? { framing: "counter", counter_via: cf.via } : {}), ...(framed ? { polarity: "frame" } : {}) };
     }
     return { kind: "mention", side: null, reversal: false, actor };
   }
   const imp = !(sm || om) && inContext && !reportedVoice ? classifyImplication(sentence, r, politicianId) : null;
+  if (imp && imp.kind === "implication" && polarityVeto(r, imp.side, sentence)) return { kind: "mention", side: null, reversal: false, actor: null, framing: "polarity_veto" };
   if (imp) return imp;
   if (!(sm || om) && guard) return { kind: "mention", side: null, reversal: false, actor: null, framing: guard };
   if (sm || om || r.mention.test(sentence)) return { kind: "mention", side: null, reversal: false, actor: null };

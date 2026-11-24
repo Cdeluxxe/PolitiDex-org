@@ -11,6 +11,10 @@
 //     that still qualify are left alone;
 //   · own-channel videos stay out of the re-score;
 //   · once the catch-up completes, later passes behave as before.
+// The scorer has since moved to phase9-v3 (polarity, R19). The catch-up stays
+// pinned to phase9-v2, so a stored phase9-v2 cursor — complete or still in the
+// catch-up — gives way to an ordinary fresh phase9-v3 pass that re-scores every
+// older-rule item and recomputes the politicians it touches.
 import assert from "node:assert/strict";
 import * as S from "../netlify/lib/stance-score-core.mjs";
 import * as SP from "../netlify/lib/stated-positions-core.mjs";
@@ -69,7 +73,7 @@ const lockerDoc = (pid, sid, over = {}) => ({
 });
 // The cursor the first phase9-v2 pass left behind: complete, no catch-up mark.
 const legacyCompleteState = () => {
-  const s = RS.freshState(S.RULES_VERSION);
+  const s = RS.freshState("phase9-v2");
   delete s.catch_up; delete s.page_after;
   return { ...s, pid_index: 99, page_index: 0, complete: true, summary: "locker-rescore: COMPLETE" };
 };
@@ -82,13 +86,15 @@ const runToCompletion = async (state, deps, max = 200) => {
 
 console.log("locker re-score catch-up (phase9-v2-gap-1)");
 
-await t("the scorer rules version is still phase9-v2 and the re-score version is unchanged", () => {
-  assert.equal(S.RULES_VERSION, "phase9-v2");
+await t("the scorer is at phase9-v3; the re-score version is unchanged and the catch-up stays pinned to phase9-v2", () => {
+  assert.equal(S.RULES_VERSION, "phase9-v3");
   assert.equal(RS.RESCORE_VERSION, "locker-rescore-v2");
   assert.equal(RS.CATCH_UP.rules_version, "phase9-v2");
+  assert.ok(RS.freshState("phase9-v2").catch_up, "the catch-up still applies to a phase9-v2 pass");
+  assert.equal(RS.freshState().catch_up, null, "a phase9-v3 pass is an ordinary pass");
 });
 
-await t("a complete phase9-v2 cursor without the catch-up mark is not trusted: every old-rule item is re-scored", async () => {
+await t("a stored phase9-v2 cursor (complete, no catch-up mark) gives way to a fresh phase9-v3 pass: every old-rule item is re-scored", async () => {
   const locker = memStore(), raws = memStore(), retired = memStore();
   // One high-volume politician: 8 page groups, half already re-scored by the first pass.
   for (let i = 0; i < 8; i++) {
@@ -103,7 +109,8 @@ await t("a complete phase9-v2 cursor without the catch-up mark is not trusted: e
   // Under the old cursor the pass is a no-op …
   const legacy = legacyCompleteState();
   const { st } = await runToCompletion(legacy, { lockerStore: locker, rawStore: raws, retiredStore: retired, log: () => {}, budgetMs: 5000 });
-  assert.equal(st.catch_up.id, RS.CATCH_UP.id);
+  assert.equal(st.rules_version, S.RULES_VERSION);
+  assert.equal(st.catch_up, null);
   for (const [k, v] of locker.m) {
     const doc = JSON.parse(v);
     if (k.endsWith("video.json")) { assert.equal(doc.rules_version, OLD, "own-channel video is not re-scored"); continue; }
@@ -143,7 +150,7 @@ await t("an older cursor stored mid-politician by position resumes at the start 
   assert.equal([...locker.m.values()].map((v) => JSON.parse(v)).filter((d) => d.rules_version !== S.RULES_VERSION).length, 0);
 });
 
-await t("after the re-score every touched politician's cards are recomputed: withdrawn, resynced, or left alone", async () => {
+await t("after the re-score every touched politician's cards are recomputed: withdrawn, resynced, or left alone (untouched politicians are not)", async () => {
   const locker = memStore(), raws = memStore(), retired = memStore();
   const db = memDb();
   const at = new Date("2026-11-01T00:00:00Z");
@@ -170,7 +177,7 @@ await t("after the re-score every touched politician's cards are recomputed: wit
   db.calls.upsert.length = 0; db.calls.withdraw.length = 0;
 
   const { st } = await runToCompletion(legacyCompleteState(), { lockerStore: locker, rawStore: raws, retiredStore: retired, log: () => {}, budgetMs: 5000, sync: syncer(locker, db), livePids: () => db.activePoliticians() });
-  assert.equal(st.catch_up.recompute_all, false);
+  assert.equal(st.rules_version, S.RULES_VERSION);
 
   const gh = db.rows.get("gh|social_security");
   const ghItem = await locker.get("gh/social_security/s1.json");
@@ -184,8 +191,10 @@ await t("after the re-score every touched politician's cards are recomputed: wit
 
   assert.equal(await locker.get("ij/social_security/s1.json"), null);
   assert.equal(db.rows.get("ij|social_security").status, "withdrawn");
-  assert.equal(db.rows.get("mn|housing").status, "withdrawn");
-  assert.equal(db.rows.get("op|housing").status, "withdrawn");
+  // mn and op were not touched by this ordinary pass (no older-rule items), so —
+  // unlike the phase9-v2 catch-up — they are not recomputed and keep their rows.
+  assert.equal(db.rows.get("mn|housing").status, "active");
+  assert.equal(db.rows.get("op|housing").status, "active");
   assert.equal(db.rows.get("op|gun_safety").status, "active", "curated rows are never written");
 
   assert.equal(db.rows.get("kl|social_security").status, "active");
@@ -194,7 +203,7 @@ await t("after the re-score every touched politician's cards are recomputed: wit
   assert.deepEqual(db.rows.get("kl|social_security"), before.kl);
 
   // No live card remains that a fresh recompute from today's Locker would not produce.
-  for (const pid of ["gh", "ij", "kl", "mn", "op"]) {
+  for (const pid of ["gh", "ij", "kl"]) {
     const promo = SP.promoteEntries(await SP.lockerEntriesFor(locker, pid));
     for (const r of await db.rowsFor(pid)) {
       if (r.status !== "active" || r.provenance !== SP.PROVENANCE) continue;

@@ -181,7 +181,7 @@ t("no-pole topics never read R14", () => {
     h1: "Ocasio-Cortez Votes Against Iran Sanctions Bill", paras: ["Iran is a threat.", "Diplomacy matters."] }));
   assert.equal(c.position, "no clear position");
 });
-t("rules version is phase9-v2 (R15 implied stance kept; phase9-v1 adds R17 framing)", () => assert.equal(S.RULES_VERSION, "phase9-v2"));
+t("rules version is phase9-v3 (R15 implied stance kept; phase9-v1 adds R17 framing)", () => assert.equal(S.RULES_VERSION, "phase9-v3"));
 
 if (failures) { console.error(`\n${failures} failure(s)`); process.exit(1); }
 console.log("\nall lead-signal checks passed");

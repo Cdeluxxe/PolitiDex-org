@@ -1,6 +1,6 @@
 {
   "_note": "Offline re-score of the three ground-truth records remapped onto directional keys, read from the reviewer's verbatim excerpts. Diagnostic only: nothing here changes a ground-truth record, a stance, a Locker item or a scoring rule. `scorer` is the pooled record-level read; `per_source` scores each excerpt on its own.",
-  "rules_version": "phase9-v2",
+  "rules_version": "phase9-v3",
   "vocab_version": "issue-vocab-v2-directional",
   "confidence_tolerance": 0.1,
   "input": "ground-truth source excerpts (db/stance-ground-truth-talarico-cost-of-living.json)",

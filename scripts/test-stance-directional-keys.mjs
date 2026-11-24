@@ -254,6 +254,8 @@ t('spans: only directional keys read spans; register topics read exactly as befo
 });
 
 // ── Nothing existing moves ──────────────────────────────────────────────────
+// The 119 existing keys outside the phase9-v3 polarity pass (identical before and after it).
+const UNTOUCHED_FINGERPRINT = 'b42ae14419535a7eb0e4a6b0445bb674fd0757efb3cd992782795f4e3ee9b673';
 const fingerprint = (rules, keys) => createHash('sha256').update(JSON.stringify(keys.map((k) =>
   [k, Object.fromEntries(Object.entries(rules[k]).map(([f, r]) => [f, r ? String(r) : null]))]))).digest('hex');
 t('the register sweep and every existing key\'s rules are unchanged', () => {
@@ -270,10 +272,15 @@ t('the register sweep and every existing key\'s rules are unchanged', () => {
   // Fingerprint of the 125 existing keys' compiled rules. It was
   // f3ca8a77ce70f58fbef03e2097d2ae260d423189bc20f78a9998c616e03e5bb1 at the start of
   // this pass; phase9-v1 changed two keys' patterns on purpose (pro_choice: "right to
-  // an abortion"; israel_support: a place-phrase "Israel" is not the object), and no
-  // existing key has moved since.
-  assert.equal(fingerprint(S.TOPIC_RULES, existing), '04a68162df0610950a351214d794404d60edb2ef391773c7af95cad039294f29');
-  assert.equal(S.RULES_VERSION, 'phase9-v2');
+  // an abortion"; israel_support: a place-phrase "Israel" is not the object).
+  // phase9-v3 (polarity, R19) changed six keys on purpose — deportations,
+  // birthright_citizenship, pro_life, pro_choice, gun_safety, gun_rights (polarity
+  // frames and vetoes); every other existing key is unchanged (checked below).
+  assert.equal(fingerprint(S.TOPIC_RULES, existing), 'e57d681af5f83e096941ba099b26211e000cb636ef1503d4cc18bd7c5ac03bae');
+  const POLARITY_KEYS = ['deportations', 'birthright_citizenship', 'pro_life', 'pro_choice', 'gun_safety', 'gun_rights'];
+  const untouched = existing.filter((k) => !POLARITY_KEYS.includes(k));
+  assert.equal(fingerprint(S.TOPIC_RULES, untouched), UNTOUCHED_FINGERPRINT);
+  assert.equal(S.RULES_VERSION, 'phase9-v3');
   assert.equal(S.VOCAB_VERSION, 'issue-vocab-v1');
   assert.equal(S.WEIGHTS.statedPositionConfidence, 0.8);
   // The register sweep never yields a directional-key candidate unless asked.
