@@ -1805,14 +1805,14 @@
       }
     });
 
-    // Strongest first: decisiveness of the issue verdict, then the weight of the
-    // cited vote, then recency. Contradictions and consistencies are ranked in
-    // the same units so neither is structurally favoured. A split candidate that
+    // Strongest first: decisiveness of the issue verdict, then recency.
+    // Contradictions and consistencies are ranked in the same units so neither is
+    // structurally favoured. Every curated mapping counts the same: the cited
+    // vote's mapping `weight` is not read, so it cannot promote a card. A split candidate that
     // could not find a citable vote on either side is already blocked and only
     // reaches this loop so audit() can report it, so `item` may be null here.
     out.forEach(function (c) {
-      var mapping = c.item ? mappingOn(c.item, c.issueKey) : null;
-      var w = (mapping && typeof mapping.weight === 'number') ? mapping.weight : 100;
+      var w = 100; // one equal unit per mapping — never the curated weight
       var margin = Math.abs(c.summary.contradictScore - c.summary.consistentScore);
       var recency = c.item ? Math.max(0, yearOf(c.item.date) - 2000) : 0;
       c.strength = w + margin + recency + (c.summary.total > 1 ? 25 : 0);
@@ -2077,7 +2077,10 @@
   // item carries no direction (present / not voting), which is exactly what the
   // index skips.
   function rdSide(item, issueKey) {
-    var m = mappingOn(item, issueKey);
+    // The engine's own lookup, so a bill mapped to both sides of this key reads
+    // as no side here exactly as it does in the index (see _pdxIssueMapping).
+    var m = (typeof window._pdxIssueMapping === 'function')
+      ? window._pdxIssueMapping(item, issueKey) : mappingOn(item, issueKey);
     if (!m || typeof window._voteEffectiveSupport !== 'function') return null;
     var eff = window._voteEffectiveSupport(item, m.supportMeaning);
     if (eff === null || typeof eff === 'undefined') return null;
@@ -2098,8 +2101,8 @@
   //        thing in the pool.
   //     2. not an amendment. A vote on the measure itself is a plainer illustration
   //        of a direction than a vote on one of its amendments.
-  //     3. curated weight, descending — the explicit statement of how much this
-  //        mapping bears on the issue.
+  //     3. (retired) curated weight. Mapping weights are no longer read by any
+  //        ranking: every curated mapping is equal.
   //     4. on-axis first, as a tiebreak between items that are otherwise equally
   //        good evidence: an issue inside the measure's dominant category does
   //        illustrate a direction better than a rider. (This was the leaf
@@ -2122,12 +2125,9 @@
   function rdStrongest(pid, issueKey, items, records, want) {
     var pool = items.filter(function (it) { return rdSide(it, issueKey) === want; });
     pool.sort(function (a, b) {
-      var ma = mappingOn(a, issueKey) || {}, mb = mappingOn(b, issueKey) || {};
       if (!!a.isProcedural !== !!b.isProcedural) return a.isProcedural ? 1 : -1;
       if (!!a.isAmendment !== !!b.isAmendment) return a.isAmendment ? 1 : -1;
-      var wa = (typeof ma.weight === 'number') ? ma.weight : 100;
-      var wb = (typeof mb.weight === 'number') ? mb.weight : 100;
-      if (wa !== wb) return wb - wa;
+      // No curated-weight step: every mapping is equal (see stance-helpers.js).
       var oa = onAxis(a, issueKey), ob = onAxis(b, issueKey);
       if (oa !== ob) return oa ? -1 : 1;
       return String(b.date || '') < String(a.date || '') ? -1

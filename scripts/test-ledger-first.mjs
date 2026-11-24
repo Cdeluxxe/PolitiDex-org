@@ -370,8 +370,12 @@ section("4 · the pattern is counted, not weighed");
   eq(uneven.opposes, even.opposes, "…and the same count on the other");
   eq(uneven.token, even.token, "…so the record reads the same way");
   eq(uneven.clause, even.clause, "…in the same words");
-  ok(uneven.advanceScore !== even.advanceScore,
-    "…while the curator-weight sums really did differ, so the comparison is not vacuous");
+  // Curated mapping weights are no longer read anywhere in the scoring path
+  // (test-mapping-weights-inert.mjs), so even the disclosed sums are equal now.
+  eq(uneven.advanceScore, even.advanceScore,
+    "…and the sums themselves do not read the curated weight");
+  eq(uneven.opposeScore, even.opposeScore,
+    "…on either side");
 
   // Structural: the two functions that DECIDE no longer compare the sums. The
   // sums are still computed and still carried — they are a disclosure — so the

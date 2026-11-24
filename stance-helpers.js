@@ -393,16 +393,49 @@
       no_record:   'No voting record yet'
     };
 
+    // ── EVERY CURATED MAPPING IS EQUAL ─────────────────────────────────────────
+    // A curated measure→issue mapping says THAT a bill touches an issue and WHICH
+    // WAY a yea cuts on it (supportMeaning). It carries no strength. The `weight`
+    // column still exists in the data and still ships on the API, but no scoring,
+    // gating or promotion path reads it: every mapping that reaches a vote counts
+    // as exactly one unit, _MAPPING_UNIT, before the separate procedural discount
+    // (which is about the KIND OF VOTE, not about the mapping). The `isPrimary`
+    // flag is a display/filter label for the bill's main topic and is not a score
+    // modifier either. Changing either field on a row moves no stance verdict.
+    var _MAPPING_UNIT = 100;
+
+    // A bill mapped to BOTH sides of one key — a yea_supports row and a
+    // yea_opposes row on the same issueKey, as S. 5653 files for tribal
+    // consultation and mine cleanup — has said, in its own curation, that a yea
+    // advances the issue and cuts against it at once. Neither row may win by
+    // being listed first, so the vote moves that key in NEITHER direction.
+    var _BOTH_SIDES = 'both_sides';
+
     // Find the issue mapping on a record item that matches `issueKey` (a record can
-    // map to several issues; we want THIS issue's mapping to read its supportMeaning
-    // and weight). Returns null when the record doesn't pertain to the issue.
+    // map to several issues; we want THIS issue's supportMeaning). Returns null when
+    // the record doesn't pertain to the issue. When the record maps the key to both
+    // sides, returns a copy of the first row whose supportMeaning is _BOTH_SIDES
+    // (and `bothSides: true`), which _voteEffectiveSupport reads as no direction.
     function _findIssueMapping(item, issueKey) {
       if (!item || !item.issues || !item.issues.length) return null;
+      var first = null, sup = false, opp = false;
       for (var i = 0; i < item.issues.length; i++) {
-        if (item.issues[i] && item.issues[i].issueKey === issueKey) return item.issues[i];
+        var m = item.issues[i];
+        if (!m || m.issueKey !== issueKey) continue;
+        if (!first) first = m;
+        if (m.supportMeaning === 'yea_opposes') opp = true; else sup = true;
       }
-      return null;
+      if (!first) return null;
+      if (!(sup && opp)) return first;
+      var both = {};
+      for (var k in first) if (Object.prototype.hasOwnProperty.call(first, k)) both[k] = first[k];
+      both.supportMeaning = _BOTH_SIDES;
+      both.bothSides = true;
+      return both;
     }
+    window._pdxIssueMapping = _findIssueMapping;
+    window._PDX_BOTH_SIDES = _BOTH_SIDES;
+    window._PDX_MAPPING_UNIT = _MAPPING_UNIT;
 
     // yea → advances the measure; nay → opposes it; present/not-voting → no position.
     function _positionAdvances(position) {
@@ -433,6 +466,8 @@
         return null;
       }
       if (advances === null) return null;
+      // Both sides of one key on one bill: no direction on that key (see _BOTH_SIDES).
+      if (supportMeaning === _BOTH_SIDES) return null;
       // PROCEDURAL INVERSION: on a motion to recommit or to table, a yea BLOCKS the
       // measure, so `advances` above is backwards. The Function marks those roll calls
       // (item.advanceInverted, from yeaBlocksMeasure() in vr-pack.ts / voting-record.mts)
@@ -546,10 +581,12 @@
     window._PDX_MIXED_MIN_ITEMS = _MIXED_MIN_ITEMS;
 
     // Aggregate every record that pertains to ONE issue against the member's stance
-    // on that issue. Weighted so high-weight, substantive contradictions outrank
-    // peripheral or procedural ones. Returns counts + a single net verdict + a
-    // human label, plus the highest-weight consistent / contradicting record so the
-    // UI can cite a concrete receipt. Pure — never mutates `records`.
+    // on that issue. Every mapping counts as one equal unit; only a procedural vote
+    // is discounted, so a messaging motion cannot outweigh a passage vote. A bill
+    // mapped to both sides of the key is no position on it. Returns counts + a
+    // single net verdict + a human label, plus the first substantive consistent /
+    // contradicting record so the UI can cite a concrete receipt. Pure — never
+    // mutates `records`.
     function _issueRecordSummary(issueKey, stance, records) {
       records = Array.isArray(records) ? records : [];
       var counts = { consistent: 0, contradicts: 0, mixed: 0, noPosition: 0 };
@@ -562,7 +599,9 @@
         total++;
         var eff = _voteEffectiveSupport(item, mapping.supportMeaning);
         var verdict = _stanceVoteVerdict(stance, eff);
-        var w = (typeof mapping.weight === 'number') ? mapping.weight : 100;
+        // Every mapping is one unit; the curated `weight` is not read (see
+        // EVERY CURATED MAPPING IS EQUAL). Only the vote's kind discounts it.
+        var w = _MAPPING_UNIT;
         if (item && item.isProcedural) w *= _RECORD_PROCEDURAL_FACTOR;
         if (verdict === 'consistent') {
           counts.consistent++; consistentScore += w;
@@ -1245,7 +1284,8 @@
         // computed — a surface that wants to say "the curation calls this a narrow
         // link" can, and the exec index publishes the same two fields — but no gate
         // below reads them any more. See LEDGER-FIRST directly beneath this loop.
-        var w = (typeof mapping.weight === 'number') ? mapping.weight : 100;
+        // One unit per mapping — the curated `weight` is not read here either.
+        var w = _MAPPING_UNIT;
         if (item && item.isProcedural) w *= _RECORD_PROCEDURAL_FACTOR;
         out.judged++;
         // THE ACT'S DEPTH, AND ONLY ITS DEPTH. `actStrength` is summed here and
