@@ -1,0 +1,85 @@
+{
+  "stance_id": "massie|rural_ag|gt-099",
+  "politician_id": "massie",
+  "topic": "rural_ag",
+  "position": "support",
+  "position_on": "food freedom for family farmers and their customers: the right to sell and consume raw milk, ending federal interference with raw milk moving between states where it is legal (the Interstate Milk Freedom Act), and letting farmers sell locally processed beef directly to consumers (the PRIME Act)",
+  "confidence": 0.85,
+  "confidence_reason": "Three House press releases spanning 2014 to 2026 introduce or push his raw milk bills in his own words, two House newsletters promote the Interstate Milk Freedom Act and the PRIME Act, and three posts on his own X account defend raw milk and direct farm-to-consumer sales; held at 0.85 because no existing key has food freedom or raw milk as its pole, so this sits on the closest agriculture key (family farms with fair access), and his campaign site and House farming page state nothing on the subject.",
+  "sources": [
+    {
+      "type": "official press release",
+      "date": "2026-03-10",
+      "link": "https://massie.house.gov/news/documentsingle.aspx?DocumentID=395807",
+      "excerpt": "\"Executive branch agencies, such as the Food and Drug Administration (FDA), do not and should not have the power to shut down trade between peaceful farmers and willing consumers,\" said Rep. Massie. \"It is Congress's job to legislate. The Interstate Milk Freedom Act would make it easier for families to buy the milk of their choice by reversing the criminalization of specific dairy farmers.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25. First-party release from his House office introducing H.R. 7880, the Interstate Milk Freedom Act. His quoted words take a clear position for raw milk sales between farmers and willing consumers and against FDA power to block them. His 2024 release on H.R. 8374 (DocumentID=395642) carries the same quote and is not listed separately.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "official press release",
+      "date": "2014-03-27",
+      "link": "https://massie.house.gov/news/documentsingle.aspx?DocumentID=395190",
+      "excerpt": "\"Our bills would make it easier for families to buy wholesome milk directly from farmers by reversing the criminalization of dairy farmers who offer raw milk,\" said Rep. Massie. \"The federal government should not punish farmers for providing customers the foods they want, and states should be free to set their own laws regulating food safety.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25. First-party release from his House office introducing the Milk Freedom Act (H.R. 4307) and the Interstate Milk Freedom Act (H.R. 4308), which the release calls the first of a series of \"food freedom\" bills. A clear position for raw milk and food freedom.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "official press release",
+      "date": "2018-05-18",
+      "link": "https://massie.house.gov/news/documentsingle.aspx?DocumentID=395236",
+      "excerpt": "\"It's legal to drink raw milk in 50 states. It is legal to sell raw milk in 28 states. The Feds need to quit arresting farmers for taking raw milk from one raw milk state to another raw milk state,\" said Rep. Massie.",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25. First-party release from his House office on his raw milk amendment to the Farm Bill. His quoted words take a clear position against federal enforcement on interstate raw milk. The release's amendment and any vote on it are not used as sources.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "official House e-newsletter (monthly update)",
+      "date": "2026-04-07",
+      "link": "https://massie.house.gov/news/email/show.aspx?ID=S4GTPSKFBP6BTGZ7UIHRM5F2OA",
+      "excerpt": "\"The second bill is the Interstate Milk Freedom Act. The bill prevents the federal government from interfering with the interstate traffic of raw milk products between states where distribution or sale of such products is already legal.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25. First-party newsletter from his House office, signed \"In Liberty, Thomas Massie\", listing the bill among two he \"Introduced ... to Make America Healthy Again\". This is the House-language source supporting raw milk.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "official House e-newsletter (monthly update)",
+      "date": "2025-11-11",
+      "link": "https://massie.house.gov/news/email/show.aspx?ID=S4GTPSKFBP6BT7UWUOI5AUC6GU",
+      "excerpt": "\"The America First solution to rising beef prices is my bill, the PRIME Act. It would empower American farmers to sell beef directly to consumers without global corporate middlemen.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25. First-party newsletter from his House office, in the first person. A clear food-freedom position for direct farm-to-consumer sales of locally processed meat.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "social media post (own X account, @RepThomasMassie)",
+      "date": "2024-09-01",
+      "link": "https://x.com/RepThomasMassie/status/1830385750631661688",
+      "excerpt": "\"@MattWalshBlog Bad take. I've consumed raw milk almost everyday for over two years. It's done wonders for my health, and it's delicious.\" ... \"In any case, it's everyone's right to consume it.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (full post text and timestamp, 2024-09-01T23:22Z, via X's public embed data). His own reply stating that consuming raw milk is everyone's right. The omitted middle sentence is his view on pasteurization.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "social media post (own X account, @RepThomasMassie)",
+      "date": "2022-11-23",
+      "link": "https://x.com/RepThomasMassie/status/1595446331182661632",
+      "excerpt": "\"When I introduced the bipartisan Interstate Milk Freedom Act a decade ago, I was motivated to protect freedom, and didn't have an opinion on whether raw milk was beneficial.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (full post text and timestamp, 2022-11-23T15:57Z, via X's public embed data). His own words framing the Interstate Milk Freedom Act as protecting freedom. The post opens by saying he has drunk raw milk almost every day for a year.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    }
+  ],
+  "last_updated": "2026-11-25",
+  "status": "active",
+  "locked": true,
+  "locked_on": "2026-11-25"
+}

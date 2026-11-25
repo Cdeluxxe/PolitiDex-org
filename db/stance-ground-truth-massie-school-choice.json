@@ -1,0 +1,65 @@
+{
+  "stance_id": "massie|school_choice|gt-095",
+  "politician_id": "massie",
+  "topic": "school_choice",
+  "position": "support",
+  "position_on": "parents' right to choose their children's schooling, including home school, public school or private school, and keeping control of curriculum with states, local communities and parents instead of the federal government",
+  "confidence": 0.85,
+  "confidence_reason": "Two House press releases and a House newsletter say in his own words that parents have the right to choose home, public or private school and that Washington has no authority to dictate what children learn, and two posts on his own X account back parents and homeschool families; held at 0.85 because none of his own pages mentions vouchers, charters or education savings accounts (the key's funding mechanism), his campaign site and House education page state nothing on schooling, and the strongest statements come from releases on his bill to abolish the Department of Education.",
+  "sources": [
+    {
+      "type": "official press release",
+      "date": "2021-02-08",
+      "link": "https://massie.house.gov/news/documentsingle.aspx?DocumentID=395319",
+      "excerpt": "\"Unelected bureaucrats in Washington, D.C. should not be in charge of our children’s intellectual and moral development,\" said Massie. \"States and local communities are best positioned to shape curricula that meet the needs of their students. Schools should be accountable. Parents have the right to choose the most appropriate educational opportunity for their children, including home school, public school, or private school.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25. First-party release from his House office on the 117th Congress reintroduction of H.R. 899. His quoted words take a clear position for parental choice among home, public and private school and against federal control of curriculum. His 2023 release (DocumentID=395519) repeats the same quote, so it is not listed separately.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "official press release",
+      "date": "2017-02-07",
+      "link": "https://massie.house.gov/news/documentsingle.aspx?DocumentID=395229",
+      "excerpt": "\"Neither Congress nor the President, through his appointees, has the constitutional authority to dictate how and what our children must learn.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25. First-party release from his House office, tagged Education, introducing H.R. 899. His quoted words take a clear position against federal control of curriculum. On the page the quote opens with a curly mark and closes with a straight one. The release's Common Core sentence is Rep. Andy Biggs speaking, not Massie, and is not used. The existing abolish-the-Department record also cites this release.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "official House e-newsletter (District Update)",
+      "date": "2021-02-26",
+      "link": "https://massie.house.gov/news/email/show.aspx?ID=Z5MPA3CVK5FYYHU6F3T3MXGTDU",
+      "excerpt": "\"Unelected bureaucrats in Washington, D.C. should not be in charge of our children’s intellectual and moral development. States and local communities are best positioned to shape curricula that meet the needs of their students. Schools should be accountable. Parents have the right to choose the most appropriate educational opportunity for their children, including home school, public school, or private school.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25. First-party constituent newsletter from his House office, signed \"In liberty, Thomas Massie\", written in the first person (the newsletter prints the passage without quotation marks; they are added here to mark the verbatim text). This is the House-language source for parental control of education.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "social media post (own X account, @RepThomasMassie)",
+      "date": "2025-01-31",
+      "link": "https://x.com/RepThomasMassie/status/1885344942622425292",
+      "excerpt": "\"I just reintroduced H.R. 899, a one sentence bill to TERMINATE the federal department of education and return power back to teachers and parents.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (full post text and timestamp, 2025-01-31T15:10Z, via X's public embed data). His own words for returning power over education to teachers and parents. The post goes on to link the bill text. The existing abolish-the-Department record also cites this post.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "social media post (own X account, @RepThomasMassie)",
+      "date": "2020-11-22",
+      "link": "https://x.com/RepThomasMassie/status/1330645381324140548",
+      "excerpt": "\"I know many needy children will benefit from this, and that’s a good thing, but what does it say about the efficiency of our government that a congressman’s child is sent food stamps? And what about the #homeschool families who pay taxes but aren’t eligible for this?\"",
+      "weight": "weak",
+      "note": "Read directly on 2026-11-25 (full post text and timestamp, 2020-11-22T22:52Z, via X's public embed data). His own words speaking up for taxpaying homeschool families left out of a school-linked federal benefit. It backs home-school families' equal footing but is about a benefit, not school choice as such, so it is weighted weak.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    }
+  ],
+  "last_updated": "2026-11-25",
+  "status": "active",
+  "locked": true,
+  "locked_on": "2026-11-25"
+}

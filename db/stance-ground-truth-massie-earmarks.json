@@ -1,0 +1,65 @@
+{
+  "stance_id": "massie|gov_waste|gt-097",
+  "politician_id": "massie",
+  "topic": "gov_waste",
+  "position": "support",
+  "position_on": "opposing earmarks and pet projects loaded into omnibus and minibus spending bills, which he calls looting of the federal treasury and a way of buying votes; this does not extend to opposing every form of congressionally directed spending",
+  "confidence": 0.6,
+  "confidence_reason": "Three posts on his own X account condemn the earmarks in the 2024 omnibus as looting of the treasury and a way to buy votes, and a 2024 House newsletter objects to earmarks the omnibus funded; held at 0.6, below the 0.85 ceiling, because no press release or campaign page of his takes a clear position against earmarks, his own April 2021 newsletter questions whether the earmark ban worked or simply empowered unelected bureaucrats, and no existing key has banning earmarks as its pole, so this sits on the closest spending key (cut wasteful spending).",
+  "sources": [
+    {
+      "type": "social media post (own X account, @RepThomasMassie)",
+      "date": "2024-03-06",
+      "link": "https://x.com/RepThomasMassie/status/1765402880071049556",
+      "excerpt": "\"One Republican Senator gets 8 earmarks in the omnibus today. No one voted to add these and no one gets to vote to take these out. We have gone backwards 14 years, to before the 2010 Tea Party wave. The swamp is back to buying Republican votes for the omnibus with earmarks.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (full post text and timestamp, 2024-03-06T15:43Z, via X's public embed data; line breaks between sentences are collapsed here). His own words condemning omnibus earmarks as vote-buying and a step back from the 2010-era ban.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "social media post (own X account, @RepThomasMassie)",
+      "date": "2024-03-06",
+      "link": "https://x.com/RepThomasMassie/status/1765449667016261856",
+      "excerpt": "\"Looting of the federal treasury and fleecing of taxpayers are out of control in this omnibus. Chuck Schumer managed to secure 170 earmarks in 6 combined bills:\" ... \"Most have no federal nexus or constitutional basis.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (full post text and timestamp, 2024-03-06T18:49Z, via X's public embed data). His own words calling omnibus earmarks looting of the treasury and saying most lack a constitutional basis. The omitted middle is a per-bill tally of earmark counts.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "social media post (own X account, @RepThomasMassie)",
+      "date": "2024-03-05",
+      "link": "https://x.com/RepThomasMassie/status/1765136348233519161",
+      "excerpt": "\"This inexcusable misuse of taxpayer dollars is what happens when bills like this week’s mini-omnibus are written behind closed doors with pet projects inserted to buy the votes of Senators and Representatives.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (full post text and timestamp, 2024-03-05T22:04Z, via X's public embed data). His own words against pet projects (pork) used to buy votes. It is a quote-post; the quoted content is not relied on.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "official House e-newsletter (monthly update)",
+      "date": "2024-10-04",
+      "link": "https://massie.house.gov/news/email/show.aspx?ID=LJCWZJNIK2RRGHKYQ6UQIC43KE",
+      "excerpt": "\"Not only did the last omnibus increase government spending, it did so by funding––with your taxpayer dollars––absurd and controversial measures, such as earmarks for abortion providers and LGBT advocacy groups.\"",
+      "weight": "weak",
+      "note": "Read directly on 2026-11-25. First-party newsletter from his House office, in the first person, criticizing the omnibus and a continuing resolution. It objects to particular earmarks the omnibus funded rather than to earmarks as a practice, so it is weighted weak. This is the only House-page language found that speaks against earmarks.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "official House e-newsletter (monthly update)",
+      "date": "2021-04-05",
+      "link": "https://massie.house.gov/news/email/show.aspx?ID=Z5MPA3CVK5FYZSES6MH3IAOY3I",
+      "excerpt": "\"Since before I came to Congress, there's been an experimental ban on earmarks that was supposed to decrease spending and discourage politicians from selling out. But in that time, the national debt has skyrocketed from 14 trillion to 30 trillion, and politicians have found other excuses to sell out. Did the so-called earmark ban achieve the intended outcomes or did it simply empower unelected bureaucrats?\"",
+      "weight": "weak",
+      "note": "Read directly on 2026-11-25. First-party newsletter from his House office. Included as contrary evidence: it questions the earmark ban rather than opposing earmarks, so it is not counted as a clear position for this record's pole and is the main reason confidence is held at 0.6.",
+      "takes_clear_position": false,
+      "page_fully_readable": true
+    }
+  ],
+  "last_updated": "2026-11-25",
+  "status": "active",
+  "locked": true,
+  "locked_on": "2026-11-25"
+}
