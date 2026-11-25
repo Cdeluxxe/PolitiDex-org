@@ -163,9 +163,10 @@ for (const [f, want] of Object.entries(EARLIER)) {
     assert.equal(h, want);
   });
 }
-t('no other ground-truth file was added alongside this one', () => {
-  const all = readdirSync(path.join(root, 'db')).filter((n) => /^stance-ground-truth-.*\.json$/.test(n)).sort();
-  assert.deepEqual(all, [...Object.keys(EARLIER), FILE_NAME].sort());
+t('every earlier ground-truth file is still present alongside this one', () => {
+  // Later records may be added; earlier ones must not be removed or renamed.
+  const all = readdirSync(path.join(root, 'db')).filter((n) => /^stance-ground-truth-.*\.json$/.test(n));
+  for (const f of [...Object.keys(EARLIER), FILE_NAME]) assert.ok(all.includes(f), 'missing ' + f);
 });
 t('the service worker is untouched by this record', () => {
   const p = path.join(root, 'sw.js');
