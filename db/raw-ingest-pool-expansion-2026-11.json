@@ -6,8 +6,8 @@
   "newly_elected": 88,
   "new_pages": 1337,
   "new_issue_pairs": 2781,
-  "existing_pages_with_extra_pairs": 141,
-  "existing_extra_pairs": 507,
+  "existing_pages_with_extra_pairs": 142,
+  "existing_extra_pairs": 510,
   "newly_elected_federal_with_pairs": 13,
   "tier2_pages": 32,
   "tier2_by_class": {
@@ -20117,6 +20117,13 @@
     "immigration_reform",
     "war_powers",
     "israel_support"
+   ]
+  },
+  "james_talarico": {
+   "https://jamestalarico.com/issue/health-care": [
+    "health_drug_prices",
+    "healthcare",
+    "pro_choice"
    ]
   },
   "casar": {

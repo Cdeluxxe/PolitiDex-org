@@ -403,9 +403,12 @@ await t('R7: an isolated mention stays zero weight; no pair across too wide a ga
 const issueKeys = JSON.parse(readFileSync(path.join(root, 'db/issue-keys.json'), 'utf8')).keys;
 const pageOn = (body, extra = {}) => deepFreeze({ ...RAW, body, ...extra });
 
-await t('all topics: the scorer has rules for every issue key in the register, and only those', () => {
+await t('all topics: the scorer has rules for every issue key in the register, and only those', async () => {
   for (const k of issueKeys) assert.ok(S.hasRulesFor(k), `no rules for ${k}`);
-  assert.deepEqual([...S.SCORED_TOPICS].sort(), [...issueKeys].sort());
+  // The three registered directional leaves are read on request, never swept.
+  const { GROUND_TRUTH_LEAF_KEYS } = await import(pathToFileURL(path.join(root, 'scripts/v103-chrome-seams.mjs')).href);
+  for (const k of GROUND_TRUTH_LEAF_KEYS) assert.ok(!S.SCORED_TOPICS.includes(k), `${k} is swept`);
+  assert.deepEqual([...S.SCORED_TOPICS].sort(), issueKeys.filter((k) => !GROUND_TRUTH_LEAF_KEYS.includes(k)).sort());
   assert.deepEqual(S.SCORED_TOPICS.slice(0, 2), ['cost_living', 'healthcare_costs'], 'core topics first');
 });
 

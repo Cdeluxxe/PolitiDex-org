@@ -285,9 +285,12 @@ for (const [page, vocab] of [["index.html", "alignment-tool.js"], ["person.html"
     }
   }
   // Every other Talarico card is untouched: no `sources` array, no status field.
+  // The ground-truth stated positions (each tagged `groundTruth`, pinned by
+  // scripts/test-stance-ground-truth-live-store.mjs) are filed in the same
+  // locked schema on purpose and are set aside here.
   const win = boot();
   for (const c of win.ISSUE_STANCE_DATA.james_talarico || []) {
-    if (c.issueKey === "cost_living") continue;
+    if (c.issueKey === "cost_living" || c.groundTruth) continue;
     ok(!c.sources && !c.status && !c.position, `Talarico ${c.issueKey}: an untouched card gained record fields`);
   }
 }

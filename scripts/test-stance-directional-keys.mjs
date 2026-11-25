@@ -17,6 +17,7 @@ import assert from 'node:assert/strict';
 import * as S from '../netlify/lib/stance-score-core.mjs';
 import * as V from '../netlify/lib/stance-topic-vocab.mjs';
 import { ACCOUNTABILITY_KEYS, FAMILY_FAIRNESS_KEYS, CIVIC_KEYS } from "./v103-chrome-seams.mjs";
+import { GROUND_TRUTH_LEAF_KEYS } from './v103-chrome-seams.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 let failures = 0;
@@ -260,7 +261,9 @@ const fingerprint = (rules, keys) => createHash('sha256').update(JSON.stringify(
   [k, Object.fromEntries(Object.entries(rules[k]).map(([f, r]) => [f, r ? String(r) : null]))]))).digest('hex');
 t('the register sweep and every existing key\'s rules are unchanged', () => {
   const issueKeys = JSON.parse(readFileSync(path.join(root, 'db/issue-keys.json'), 'utf8')).keys;
-  assert.deepEqual([...S.SCORED_TOPICS].sort(), [...issueKeys].sort());
+  // The ground-truth leaves are registered but read on request, never swept.
+  for (const k of GROUND_TRUTH_LEAF_KEYS) assert.ok(S.hasRulesFor(k) && !S.SCORED_TOPICS.includes(k), k);
+  assert.deepEqual([...S.SCORED_TOPICS].sort(), issueKeys.filter((k) => !GROUND_TRUTH_LEAF_KEYS.includes(k)).sort());
   for (const k of KEYS) assert.ok(!S.SCORED_TOPICS.includes(k) && !(k in V.ISSUE_TOPIC_VOCAB), k);
   // The accountability stances pass's three register keys and the family & economic
   // fairness keys pass's two (v103-chrome-seams.mjs) are new, not existing; so are

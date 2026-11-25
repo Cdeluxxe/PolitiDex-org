@@ -17,6 +17,12 @@ export const ACCOUNTABILITY_RECORD = _ACC_REC;
 // every accountability helper) sets this block aside first.
 export const CIVIC_KEYS_PASS = "civic_rules_safety_net_keys_nov2026";
 export const CIVIC_KEYS = ["redistricting_gerrymandering", "birthright_citizenship", "safety_net_work_requirements", "fed_independence", "senate_filibuster"];
+// The ground-truth stated positions pass (Nov 2026): three directional leaves the
+// stance scorer already reads on request (DIRECTIONAL_ISSUE_KEYS, never in
+// SCORED_TOPICS), registered so the locked ground-truth records filed on them can
+// be published. Register checks that compare SCORED_TOPICS with the register set
+// these aside and assert the scorer still has rules for each.
+export const GROUND_TRUTH_LEAF_KEYS = ["ukraine_aid", "iran_hostilities", "israel_military_aid"];
 const _CIV_ALT = CIVIC_KEYS.join("|");
 export function withoutCivicKeysRegisterBlock(src) {
   if (src == null) return src;

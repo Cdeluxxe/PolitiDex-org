@@ -613,7 +613,10 @@ section("9 · twin boot — the six showcase cards say what HEAD said");
 // is proved against the person file's own strip in section 8 rather than against a
 // HEAD that never printed it. Nothing else on the card is exempt.
 {
-  const SHOWCASE = ["trump", "bennie_thompson", "lee", "jayapal", "scalise", "khanna"];
+  // The rotation's first six, as scripts/gen-hero-showcase.mjs writes them. The
+  // ground-truth stated positions pass (Nov 2026) gave Talarico and Massie enough
+  // stated positions to move up the rotation, so they now open it after Trump.
+  const SHOWCASE = ["trump", "james_talarico", "massie", "bennie_thompson", "lee", "jayapal"];
   let headSrc = null;
   try {
     headSrc = FILES.map((f) => [f, execFileSync("git", ["show", `HEAD:${f}`],
