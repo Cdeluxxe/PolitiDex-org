@@ -1,0 +1,35 @@
+{
+  "stance_id": "sanders|paid_leave|gt-112",
+  "politician_id": "sanders",
+  "topic": "paid_leave",
+  "position": "support",
+  "position_on": "the key's own pole: guaranteeing paid time off when workers or their family members are sick, through guaranteed paid sick days",
+  "confidence": 0.75,
+  "confidence_reason": "Two of his own Senate releases, from 2023 and 2026, back his bill to guarantee paid sick leave and say workers should not have to choose between their job and caring for a sick family member or newborn child; held at 0.75 because the sources are about paid sick days, not the longer paid family and medical leave the key also covers.",
+  "sources": [
+    {
+      "type": "press release (own Senate office, sanders.senate.gov)",
+      "date": "2026-02-12",
+      "link": "https://www.sanders.senate.gov/press-releases/news-sanders-delauro-167-colleagues-introduce-legislation-to-guarantee-paid-sick-leave-to-american-workers/",
+      "excerpt": "\"It is an international embarrassment that the United States of America remains the only major country on Earth not to guarantee paid sick days to workers. Working together, we must end that embarrassment,\" ... \"What’s radical is that we have corporations in America making billions in profits, denying paid leave to working moms and dads when their kids get sick.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (the release's full text, as published on his Senate site). Release on the 2026 Healthy Families Act he introduced with Rep. DeLauro. Only the quote attributed to Sanders is used.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "press release (own Senate office, sanders.senate.gov)",
+      "date": "2023-05-17",
+      "link": "https://www.sanders.senate.gov/press-releases/news-sanders-delauro-121-colleagues-in-the-house-and-senate-introduce-legislation-that-would-finally-guarantee-paid-sick-leave-to-workers-in-america/",
+      "excerpt": "\"It is time for the United States to join nearly every other major country in the world and finally guarantee paid sick leave.\" ... \"it is a total disgrace that millions of workers are having to choose between their job and caring for their family, their newborn child, or themselves when they are sick and in need of care.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (the release's full text, as published on his Senate site). Release on the 2023 version of the same bill. Only the quote attributed to Sanders is used. The two releases are about the same bill, so they are not independent statements.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    }
+  ],
+  "last_updated": "2026-11-25",
+  "status": "active",
+  "locked": true,
+  "locked_on": "2026-11-25"
+}

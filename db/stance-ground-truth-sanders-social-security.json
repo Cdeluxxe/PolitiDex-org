@@ -1,0 +1,45 @@
+{
+  "stance_id": "sanders|social_security|gt-108",
+  "politician_id": "sanders",
+  "topic": "social_security",
+  "position": "support",
+  "position_on": "the key's own pole: protecting Social Security benefits from cuts, and going further by expanding them",
+  "confidence": 0.85,
+  "confidence_reason": "Three of his own Senate releases from 2025 say the job is not to cut Social Security but to expand it, back his bill to expand benefits by $2,400 a year, and urge the administration to drop a plan that would cut disability benefits; held at 0.85, the ceiling, because the sources are first-party statements and none is a vote; the record covers Social Security only, not his Medicare positions, which sit under the healthcare record.",
+  "sources": [
+    {
+      "type": "press release (own Senate office, sanders.senate.gov)",
+      "date": "2025-02-27",
+      "link": "https://www.sanders.senate.gov/press-releases/news-as-republicans-attempt-to-undermine-social-security-sanders-warren-schakowsky-hoyle-introduce-legislation-to-expand-social-security/",
+      "excerpt": "\"our job is not to cut Social Security as many of our Republican colleagues want to do,\" ... \"Our job is to expand Social Security so that every senior in America can retire with the dignity that they deserve and every person with a disability can live with the security they need.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (the release's full text, as published on his Senate site). Release on the bill to expand Social Security he introduced with Sen. Warren and others. Only the quote attributed to Sanders is used.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "press release (own Senate office, sanders.senate.gov)",
+      "date": "2025-09-10",
+      "link": "https://www.sanders.senate.gov/press-releases/news-sanders-introduces-bill-to-save-social-security-from-trump-musk-cuts/",
+      "excerpt": "\"On the 90th anniversary of Social Security, our job must be to reverse these disastrous cuts, expand Social Security and make it easier, not harder, for Americans to receive the benefits they have earned and deserve.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (the release's full text, as published on his Senate site). Release on his bill to reverse staffing and service cuts at the Social Security Administration.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "press release (own Senate office, sanders.senate.gov)",
+      "date": "2025-10-09",
+      "link": "https://www.sanders.senate.gov/press-releases/news-sanders-to-trump-administration-do-not-make-the-largest-social-security-cut-in-history/",
+      "excerpt": "\"Taking away Social Security disability benefits from older Americans would be a massive cut to Social Security.\" ... \"our job must not be to cut Social Security.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (the release's full text, as published on his Senate site). Release quoting his own letter to the Social Security Commissioner. The letter is his own writing, not a vote.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    }
+  ],
+  "last_updated": "2026-11-25",
+  "status": "active",
+  "locked": true,
+  "locked_on": "2026-11-25"
+}

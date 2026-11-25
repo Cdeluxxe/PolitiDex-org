@@ -1,0 +1,45 @@
+{
+  "stance_id": "sanders|econ_workers|gt-106",
+  "politician_id": "sanders",
+  "topic": "econ_workers",
+  "position": "support",
+  "position_on": "the key's own pole: raising the minimum wage and protecting workers, including a $17 minimum wage, expanded overtime pay and a shorter workweek with no loss in pay",
+  "confidence": 0.85,
+  "confidence_reason": "Three of his own Senate releases from 2025 and 2026 call the $7.25 minimum wage a starvation wage that must rise to at least $17, push to expand overtime pay and back a 32-hour workweek with no loss in pay; held at 0.85, the ceiling, because the sources are first-party statements and none is a vote.",
+  "sources": [
+    {
+      "type": "press release (own Senate office, sanders.senate.gov)",
+      "date": "2025-04-08",
+      "link": "https://www.sanders.senate.gov/press-releases/news-sanders-scott-174-colleagues-introduce-bill-to-raise-minimum-wage-to-17-by-2030-benefitting-nearly-22-million-americans/",
+      "excerpt": "\"The $7.25 an hour minimum wage is a starvation wage. It must be raised to a living wage – at least $17 an hour,\" ... \"In the year 2025, a job should lift you out of poverty, not keep you in it.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (the release's full text, as published on his Senate site). Release on the Raise the Wage Act he introduced with Rep. Scott. Only the quote attributed to Sanders is used.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "press release (own Senate office, sanders.senate.gov)",
+      "date": "2026-05-18",
+      "link": "https://www.sanders.senate.gov/press-releases/news-sanders-takano-introduce-legislation-to-expand-overtime-pay-to-nearly-30-million-workers/",
+      "excerpt": "\"We should be making it easier, not harder, for Americans who work more than 40 hours a week to get the time-and-a-half pay that they have earned and deserve. That’s precisely what this bill would do.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (the release's full text, as published on his Senate site). Release on the Restoring Overtime Pay Act. Only the quote attributed to Sanders is used, not Takano's.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "press release (own Senate office, sanders.senate.gov)",
+      "date": "2026-09-08",
+      "link": "https://www.sanders.senate.gov/press-releases/news-sanders-takano-reintroduce-bill-to-move-toward-32-hour-workweek-ensure-americas-workers-benefit-from-ai-and-automation/",
+      "excerpt": "\"One important way to do that is through a 32-hour workweek with no loss in pay or benefits,\" ... \"A 32-hour workweek is not a radical idea.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (the release's full text, as published on his Senate site). Release on reintroducing his 32-hour workweek bill. Only the quote attributed to Sanders is used.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    }
+  ],
+  "last_updated": "2026-11-25",
+  "status": "active",
+  "locked": true,
+  "locked_on": "2026-11-25"
+}

@@ -1,0 +1,45 @@
+{
+  "stance_id": "sanders|econ_corp_account|gt-113",
+  "politician_id": "sanders",
+  "topic": "econ_corp_account",
+  "position": "support",
+  "position_on": "the key's own pole: using antitrust and anti-price-gouging action to check large corporations, including blocking mergers and taxing windfall profits from price gouging",
+  "confidence": 0.75,
+  "confidence_reason": "Three of his own Senate releases say large corporations must not be allowed to price gouge Americans and urge the Justice Department to block two mergers and reopen a monopoly investigation; held at 0.75 because the two antitrust sources are from 2016 and the price-gouging remedy he names is a windfall profits tax rather than enforcement.",
+  "sources": [
+    {
+      "type": "press release (own Senate office, sanders.senate.gov)",
+      "date": "2024-06-21",
+      "link": "https://www.sanders.senate.gov/press-releases/news-sanders-bowman-markey-introduce-legislation-to-combat-corporate-greed-and-windfall-profits/",
+      "excerpt": "\"We cannot continue to allow large corporations to make obscene profits by price gouging Americans in virtually every sector of our economy.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (the release's full text, as published on his Senate site). Release on the 2024 windfall profits tax bill he introduced with Rep. Bowman and Sen. Markey. Only the quote attributed to Sanders is used.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "press release (own Senate office, sanders.senate.gov)",
+      "date": "2016-10-26",
+      "link": "https://www.sanders.senate.gov/press-releases/sanders-urges-justice-department-to-block-att-time-warner-merger/",
+      "excerpt": "\"This merger represents a gross concentration of power that runs counter to the public good and should be blocked.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (the release's full text, as published on his Senate site). Release quoting his own letter to the head of the Justice Department's antitrust division. Older, from 2016.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "press release (own Senate office, statement, sanders.senate.gov)",
+      "date": "2016-09-14",
+      "link": "https://www.sanders.senate.gov/press-releases/sanders-statement-on-monsanto-bayer-deal/",
+      "excerpt": "\"Not only should this merger be blocked, but the Department of Justice should reopen its investigation of Monsanto’s monopoly over the seed and chemical market.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (the release's full text, as published on his Senate site). His 2016 statement, issued by his office, on the Bayer offer for Monsanto.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    }
+  ],
+  "last_updated": "2026-11-25",
+  "status": "active",
+  "locked": true,
+  "locked_on": "2026-11-25"
+}

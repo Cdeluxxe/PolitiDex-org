@@ -1,0 +1,55 @@
+{
+  "stance_id": "sanders|health_drug_prices|gt-107",
+  "politician_id": "sanders",
+  "topic": "health_drug_prices",
+  "position": "support",
+  "position_on": "the key's own pole: capping and negotiating prescription drug prices, so Americans pay no more than people in other major countries",
+  "confidence": 0.85,
+  "confidence_reason": "Four of his own Senate releases from 2024 to 2025 call the prices Americans pay for prescription drugs an outrage, pledge legislation so Americans pay no more than people in other major countries, welcome Medicare negotiating drug prices and press a drug maker to lower its list price; held at 0.85, the ceiling, because every source is a first-party statement and none is a vote.",
+  "sources": [
+    {
+      "type": "press release (own Senate office, statement, sanders.senate.gov)",
+      "date": "2025-05-12",
+      "link": "https://www.sanders.senate.gov/press-releases/news-sanders-statement-on-trumps-executive-order-on-prescription-drugs/",
+      "excerpt": "\"I agree with President Trump: It is an outrage that the American people pay, by far, the highest prices in the world for prescription drugs.\" ... \"he will support legislation I will soon be introducing to make sure we pay no more for prescription drugs than people in other major countries.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (the release's full text, as published on his Senate site). His full statement, issued by his office, on the 2025 executive order on drug prices.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "press release (own Senate office, sanders.senate.gov)",
+      "date": "2025-09-29",
+      "link": "https://www.sanders.senate.gov/press-releases/news-sanders-report-finds-nearly-700-prescription-drugs-have-increased-in-price-under-trump/",
+      "excerpt": "\"We need real action to take on the greed of the pharmaceutical industry and substantially reduce the cost of prescription drugs for all Americans,\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (the release's full text, as published on his Senate site). Release on a report from his HELP Committee minority staff. Only the quote attributed to Sanders is used, not the report's findings.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "press release (own Senate office, statement, sanders.senate.gov)",
+      "date": "2025-01-17",
+      "link": "https://www.sanders.senate.gov/press-releases/news-sanders-statement-on-biden-administrations-announcement-that-medicare-will-negotiate-the-price-of-diabetes-and-weight-loss-drugs/",
+      "excerpt": "\"I welcome the Biden administration’s announcement that Medicare will finally begin to negotiate the price of Ozempic and Wegovy.\" ... \"The American people are sick and tired of paying, by far, the highest prescription drug prices in the world.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (the release's full text, as published on his Senate site). His statement backing Medicare price negotiation, which speaks directly to the key's negotiate pole.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "press release (own Senate office, statement, sanders.senate.gov)",
+      "date": "2024-03-27",
+      "link": "https://www.sanders.senate.gov/press-releases/news-sanders-statement-on-outrageous-cost-of-ozempic/",
+      "excerpt": "\"I am calling on Novo Nordisk to lower the list price of Ozempic – and the related drug Wegovy – in America to no more than what they charge for this drug in Canada.\"",
+      "weight": "weak",
+      "note": "Read directly on 2026-11-25 (the release's full text, as published on his Senate site). His 2024 statement as HELP chairman. Weighted weak because it is about one company's price rather than a general price rule.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    }
+  ],
+  "last_updated": "2026-11-25",
+  "status": "active",
+  "locked": true,
+  "locked_on": "2026-11-25"
+}

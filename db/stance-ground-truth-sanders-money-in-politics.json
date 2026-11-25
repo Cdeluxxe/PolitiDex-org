@@ -1,0 +1,45 @@
+{
+  "stance_id": "sanders|campaign_finance|gt-109",
+  "politician_id": "sanders",
+  "topic": "campaign_finance",
+  "position": "support",
+  "position_on": "the key's own pole: limiting big money and super-PAC influence over elections, by ending Citizens United, abolishing super PACs and moving to public financing",
+  "confidence": 0.85,
+  "confidence_reason": "Three of his own Senate releases, from 2015 to 2026, say Citizens United must be ended, back a bill to abolish super PACs and move to public financing, and describe a constitutional amendment he filed to overturn the ruling; held at 0.85, the ceiling, because every source is a first-party statement and none is a vote.",
+  "sources": [
+    {
+      "type": "press release (own Senate office, sanders.senate.gov)",
+      "date": "2026-05-20",
+      "link": "https://www.sanders.senate.gov/press-releases/news-sanders-lee-to-introduce-bill-to-abolish-super-pacs-stop-billionaires-from-buying-candidates/",
+      "excerpt": "\"You, as a citizen, get one vote. They, as oligarchs, get to buy the candidates. That’s not democracy.\" ... \"we have to end Citizens United, get super PACs out of elections, and move to public financing of elections.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (the release's full text, as published on his Senate site). Release on the 2026 bill to abolish super PACs. Only the quote attributed to Sanders is used.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "press release (own Senate office, sanders.senate.gov)",
+      "date": "2015-01-21",
+      "link": "https://www.sanders.senate.gov/press-releases/sanders-files-constitutional-amendment-to-overturn-supreme-courts-citizens-united-decision/",
+      "excerpt": "\"Five years ago today, the Supreme Court issued what I think is one of the most disastrous decisions in its history, Citizens United v. FEC, which led to the rise of super PACs and unlimited, supposedly independent, spending.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (the release's full text, as published on his Senate site). His 2015 release on filing a constitutional amendment to overturn Citizens United. Older, but it shows the same position held over a decade.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "press release (own Senate office, prepared floor remarks, sanders.senate.gov)",
+      "date": "2025-06-29",
+      "link": "https://www.sanders.senate.gov/press-releases/prepared-remarks-sanders-on-the-worst-bill-in-modern-u-s-history/",
+      "excerpt": "\"This bill is an absolute reflection of a corrupt campaign finance system that allows billionaires to buy elections.\"",
+      "weight": "weak",
+      "note": "Read directly on 2026-11-25 (the release's full text, as published on his Senate site). Prepared floor remarks on the 2025 reconciliation bill. Weighted weak because campaign finance is a side point in a speech about another bill; no vote is used.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    }
+  ],
+  "last_updated": "2026-11-25",
+  "status": "active",
+  "locked": true,
+  "locked_on": "2026-11-25"
+}

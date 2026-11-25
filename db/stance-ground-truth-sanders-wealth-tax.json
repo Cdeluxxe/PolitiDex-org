@@ -1,0 +1,45 @@
+{
+  "stance_id": "sanders|wealth_inequality_tax_fairness|gt-105",
+  "politician_id": "sanders",
+  "topic": "wealth_inequality_tax_fairness",
+  "position": "support",
+  "position_on": "the key's own pole: making the wealthiest households and largest corporations pay a fairer share of taxes, including a wealth tax on billionaires",
+  "confidence": 0.85,
+  "confidence_reason": "Three of his own Senate releases from 2025 and 2026 call for a 5% annual wealth tax on billionaires, say billionaires must finally pay their fair share and reject tax breaks for them; held at 0.85, the ceiling, because every source is a first-party statement and none is a vote.",
+  "sources": [
+    {
+      "type": "press release (own Senate office, sanders.senate.gov)",
+      "date": "2026-03-02",
+      "link": "https://www.sanders.senate.gov/press-releases/news-sanders-and-khanna-introduce-legislation-to-tax-billionaire-wealth-and-invest-in-working-families/",
+      "excerpt": "\"At a time of unprecedented income and wealth inequality, this legislation demands that the billionaire class in America finally pay their fair share of taxes so that we can create an economy that works for all of us, not just the 1%,\" ... \"Enough is enough. Billionaires cannot have it all. It is time to enact a wealth tax on billionaires and use this revenue to address some of the major crises facing working families, the children, the elderly, the sick and the most vulnerable.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (the release's full text, as published on his Senate site). Release on the Make Billionaires Pay Their Fair Share Act, which he introduced with Rep. Khanna. Only the quote the release attributes to Sanders is used, not Khanna's.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "press release (own Senate office, prepared floor remarks, sanders.senate.gov)",
+      "date": "2025-03-04",
+      "link": "https://www.sanders.senate.gov/press-releases/prepared-remarks-sanders-delivers-livestreamed-response-to-president-trumps-congressional-address/",
+      "excerpt": "\"No. We should not be giving tax breaks to billionaires. We must demand that they pay their fair share of taxes.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (the release's full text, as published on his Senate site). His prepared remarks responding to the President's 2025 address to Congress, published by his office.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "press release (own Senate office, prepared floor remarks, sanders.senate.gov)",
+      "date": "2025-03-13",
+      "link": "https://www.sanders.senate.gov/press-releases/prepared-remarks-sanders-on-senate-floor-cr-would-cut-taxes-for-billionaires-and-slash-funding-for-the-working-class/",
+      "excerpt": "\"This legislation that the Republicans are working on, the reconciliation bill, will cut taxes for billionaires and the top 1% by $1.1 trillion over the next decade.\"",
+      "weight": "weak",
+      "note": "Read directly on 2026-11-25 (the release's full text, as published on his Senate site). Prepared floor remarks. Weighted weak because it criticizes a bill's tax cuts at the top rather than stating his own tax plan; no vote is used.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    }
+  ],
+  "last_updated": "2026-11-25",
+  "status": "active",
+  "locked": true,
+  "locked_on": "2026-11-25"
+}
