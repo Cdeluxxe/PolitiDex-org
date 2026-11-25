@@ -1,0 +1,55 @@
+{
+  "stance_id": "sanders|econ_trade|gt-115",
+  "politician_id": "sanders",
+  "topic": "econ_trade",
+  "position": "support",
+  "position_on": "the key's own pole: using trade rules and targeted tariffs to defend American manufacturing jobs, by rewriting trade deals that send jobs to low-wage countries",
+  "confidence": 0.75,
+  "confidence_reason": "Four of his own Senate releases from 2018 to 2025 say trade deals with low-wage countries must be fundamentally rewritten to stop outsourcing, that targeted tariffs can stop corporations sending jobs abroad, and that he strongly supports penalties on illegal steel dumping; held at 0.75 because the same releases oppose broad, across-the-board tariffs, so the record covers targeted tariffs and trade rules only, not blanket tariffs.",
+  "sources": [
+    {
+      "type": "press release (own Senate office, statement, sanders.senate.gov)",
+      "date": "2025-04-09",
+      "link": "https://www.sanders.senate.gov/press-releases/news-sanders-statement-on-trump-tariff-announcement/",
+      "excerpt": "\"Targeted tariffs can be a powerful tool to stop corporations from outsourcing American jobs.\" ... \"But Trump’s chaotic across-the-board tariffs are not the way to do it.\" ... \"We need a coherent trade policy that puts working people first.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (the release's full text, as published on his Senate site). His full statement, issued by his office, on the April 2025 tariff announcement. The second sentence is kept so the record shows he limits support to targeted tariffs.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "press release (own Senate office, prepared floor remarks, sanders.senate.gov)",
+      "date": "2020-01-15",
+      "link": "https://www.sanders.senate.gov/press-releases/sanders-opposes-trumps-usmca-full-statement/",
+      "excerpt": "\"There is no doubt in my mind that we need to fundamentally rewrite our disastrous trade agreements and create and protect good-paying American jobs, to improve the environment and combat climate change, and to stop the destructive race to the bottom.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (the release's full text, as published on his Senate site). His prepared floor remarks opposing the USMCA, published by his office. The lines in this speech recounting how he voted on earlier trade deals are left out and not used.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "press release (own Senate office, statement, sanders.senate.gov)",
+      "date": "2018-11-30",
+      "link": "https://www.sanders.senate.gov/press-releases/sanders-statement-on-nafta-replacement/",
+      "excerpt": "\"In my view, a re-negotiated NAFTA must stop the outsourcing of U.S. jobs, end the destructive race to the bottom, protect the environment, and lower the outrageously high price of prescription drugs.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (the release's full text, as published on his Senate site). His 2018 statement, issued by his office, on the NAFTA replacement. The opening clause about how he voted on NAFTA is left out and not used.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "press release (own Senate office, statement, sanders.senate.gov)",
+      "date": "2018-06-01",
+      "link": "https://www.sanders.senate.gov/press-releases/sanders-statement-on-trump-tariffs/",
+      "excerpt": "\"I strongly support imposing stiff penalties on countries like China, Russia, South Korea and Vietnam to prevent them from illegally dumping steel and aluminum into the U.S. and throughout the world.\"",
+      "weight": "weak",
+      "note": "Read directly on 2026-11-25 (the release's full text, as published on his Senate site). His 2018 statement, issued by his office, on steel and aluminum tariffs. Weighted weak because the same statement opposes the tariffs on Canada and the European Union.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    }
+  ],
+  "last_updated": "2026-11-25",
+  "status": "active",
+  "locked": true,
+  "locked_on": "2026-11-25"
+}

@@ -1,0 +1,55 @@
+{
+  "stance_id": "sanders|strong_defense|gt-117",
+  "politician_id": "sanders",
+  "topic": "strong_defense",
+  "position": "oppose",
+  "position_on": "against the key's pole as it applies to spending: he opposes ever-larger Pentagon budgets and calls for cutting the military budget",
+  "confidence": 0.75,
+  "confidence_reason": "Four of his own Senate releases from 2020 to 2026 call the Pentagon budget bloated and exploding, back his amendment to cut the military budget by $25 billion, and say governments should stop producing more weapons and meet human needs instead; held at 0.75 because the sources are about the size of the budget, not the full 'peace through strength' posture the key also covers.",
+  "sources": [
+    {
+      "type": "press release (own Senate office, prepared floor remarks, sanders.senate.gov)",
+      "date": "2021-11-17",
+      "link": "https://www.sanders.senate.gov/press-releases/prepared-remarks-sanders-senate-floor-speech-on-defense-spending-bill/",
+      "excerpt": "\"Congress comes together, Democrats and Republicans, with minimal debate to support an exploding Pentagon budget which is now higher than the next 13 nations combined, and represents more than half of our discretionary spending.\" ... \"that is why I have introduced an amendment with Senator Markey to reduce the military budget by $25 billion, down to what President Biden requested.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (the release's full text, as published on his Senate site). His prepared floor remarks ahead of the 2021 defense bill, published by his office. The amendment is used as his stated proposal; no vote on it is used.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "press release (own Senate office, prepared remarks, sanders.senate.gov)",
+      "date": "2026-09-21",
+      "link": "https://www.sanders.senate.gov/press-releases/prepared-remarks-sanders-ahead-of-un-general-assembly-oligarchy-is-ascending-and-democracy-is-in-retreat-working-together-that-must-change/",
+      "excerpt": "\"Instead of producing more bombs and weapons and seeing the military-industrial complex enjoy huge profits, governments throughout the world need to come together to feed the children, take care of the vulnerable and protect our planet from the ravages of climate change.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (the release's full text, as published on his Senate site). His prepared remarks ahead of the 2026 UN General Assembly, published by his office.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "press release (own Senate office, statement, sanders.senate.gov)",
+      "date": "2020-02-10",
+      "link": "https://www.sanders.senate.gov/press-releases/sanders-calls-on-congress-to-reject-trumps-budget-of-by-and-for-the-1-percent/",
+      "excerpt": "\"Now Trump’s budget uses that same deficit—which he ran up to cut taxes for the wealthy and inflate a bloated, wasteful Pentagon budget—as an excuse to cut programs for the most vulnerable people in America.\"",
+      "weight": "weak",
+      "note": "Read directly on 2026-11-25 (the release's full text, as published on his Senate site). His 2020 statement, issued by his office, on the President's budget. Weighted weak because the Pentagon is one point in a wider budget statement.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "press release (own Senate office, sanders.senate.gov)",
+      "date": "2026-07-30",
+      "link": "https://www.sanders.senate.gov/press-releases/news-sanders-grassley-reintroduce-bipartisan-bill-to-audit-the-pentagon-and-end-wasteful-spending/",
+      "excerpt": "\"Year after year, the Pentagon fails an audit, and year after year, Congress hands it another blank check.\"",
+      "weight": "weak",
+      "note": "Read directly on 2026-11-25 (the release's full text, as published on his Senate site). Release on his 2026 Pentagon audit bill with Sen. Grassley. Only the quote attributed to Sanders is used. Weighted weak because the bill is about auditing, not budget size.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    }
+  ],
+  "last_updated": "2026-11-25",
+  "status": "active",
+  "locked": true,
+  "locked_on": "2026-11-25"
+}

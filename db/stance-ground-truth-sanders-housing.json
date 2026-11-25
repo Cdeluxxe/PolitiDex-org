@@ -1,0 +1,45 @@
+{
+  "stance_id": "sanders|housing_support|gt-114",
+  "politician_id": "sanders",
+  "topic": "housing_support",
+  "position": "support",
+  "position_on": "the key's own pole: funding affordable and public housing for people who cannot afford market rents",
+  "confidence": 0.8,
+  "confidence_reason": "Three of his own Senate releases from 2023 to 2026 call a decent, affordable home a fundamental human right, call for building millions of units of low-income, affordable housing and back his bill to rebuild public housing; held at 0.8 because none of his sources found speaks to eviction limits or renter protections, which the key also covers.",
+  "sources": [
+    {
+      "type": "press release (own Senate office, sanders.senate.gov)",
+      "date": "2023-05-10",
+      "link": "https://www.sanders.senate.gov/press-releases/news-sanders-announces-more-than-3-million-in-federal-funds-for-affordable-housing-in-vermont/",
+      "excerpt": "\"Simply put, a decent, safe, and affordable place to live is a fundamental human right, not a privilege\" ... \"We must do more to make sure all Vermonters have a place to call home.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (the release's full text, as published on his Senate site). Release on National Housing Trust Fund money for Vermont. Only the quote attributed to Sanders is used.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "press release (own Senate office, prepared floor remarks, sanders.senate.gov)",
+      "date": "2025-04-04",
+      "link": "https://www.sanders.senate.gov/press-releases/prepared-remarks-sanders-speech-on-trumps-bad-backwards-budget/",
+      "excerpt": "\"And maybe instead of making it harder for working families to find affordable housing, maybe, just maybe, we should build millions of units of low income, affordable housing.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (the release's full text, as published on his Senate site). His prepared floor remarks on the 2025 budget, published by his office.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "press release (own Senate office, sanders.senate.gov)",
+      "date": "2026-08-06",
+      "link": "https://www.sanders.senate.gov/press-releases/news-sanders-ocasio-cortez-ramirez-reintroduce-the-green-new-deal-for-public-housing-act/",
+      "excerpt": "\"In the richest country in the history of the world, it is unacceptable that our nation’s public housing is in a state of chronic disrepair.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (the release's full text, as published on his Senate site). Release on reintroducing the Green New Deal for Public Housing Act. Only the quote attributed to Sanders is used, not those of Reps. Ocasio-Cortez or Ramirez. The climate record cites a different sentence from this release.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    }
+  ],
+  "last_updated": "2026-11-25",
+  "status": "active",
+  "locked": true,
+  "locked_on": "2026-11-25"
+}
