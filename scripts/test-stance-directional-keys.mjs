@@ -255,8 +255,13 @@ t('spans: only directional keys read spans; register topics read exactly as befo
 });
 
 // ── Nothing existing moves ──────────────────────────────────────────────────
-// The 119 existing keys outside the phase9-v3 polarity pass (identical before and after it).
-const UNTOUCHED_FINGERPRINT = 'b42ae14419535a7eb0e4a6b0445bb674fd0757efb3cd992782795f4e3ee9b673';
+// The existing keys outside the phase9-v3 polarity pass and the fixes A–N pass
+// (identical before and after both). It was b42ae144… over 119 keys before the
+// fixes A–N pass; the keys left after excluding its 13 keys are unchanged
+// by it (verified against the prior commit when the pin moved).
+const UNTOUCHED_FINGERPRINT = 'fb16b9185b7a74c24ae8a76f8e2478c88a4d02582ff7037a482a894a7e036bff';
+const FIX_AN_KEYS = ['term_limits', 'scotus_reform', 'wealth_inequality_tax_fairness', 'social_security', 'edu_parental', 'school_choice',
+  'medical_freedom', 'gov_transparency', 'tariffs_authority', 'checks_balances', 'econ_corp_account', 'econ_trade', 'gov_waste'];
 const fingerprint = (rules, keys) => createHash('sha256').update(JSON.stringify(keys.map((k) =>
   [k, Object.fromEntries(Object.entries(rules[k]).map(([f, r]) => [f, r ? String(r) : null]))]))).digest('hex');
 t('the register sweep and every existing key\'s rules are unchanged', () => {
@@ -277,12 +282,16 @@ t('the register sweep and every existing key\'s rules are unchanged', () => {
   // f3ca8a77ce70f58fbef03e2097d2ae260d423189bc20f78a9998c616e03e5bb1 at the start of
   // this pass; phase9-v1 changed two keys' patterns on purpose (pro_choice: "right to
   // an abortion"; israel_support: a place-phrase "Israel" is not the object).
+  // The fixes A–N pass then extended 13 keys on purpose (term_limits, scotus_reform,
+  // wealth_inequality_tax_fairness, social_security, edu_parental, school_choice,
+  // medical_freedom, gov_transparency, tariffs_authority, checks_balances,
+  // econ_corp_account, econ_trade, gov_waste).
   // phase9-v3 (polarity, R19) changed six keys on purpose — deportations,
   // birthright_citizenship, pro_life, pro_choice, gun_safety, gun_rights (polarity
   // frames and vetoes); every other existing key is unchanged (checked below).
-  assert.equal(fingerprint(S.TOPIC_RULES, existing), 'e57d681af5f83e096941ba099b26211e000cb636ef1503d4cc18bd7c5ac03bae');
+  assert.equal(fingerprint(S.TOPIC_RULES, existing), '7b716541408d42281e7bca17044b313c3a09a4281c50992cb1a56f80e0759637');
   const POLARITY_KEYS = ['deportations', 'birthright_citizenship', 'pro_life', 'pro_choice', 'gun_safety', 'gun_rights'];
-  const untouched = existing.filter((k) => !POLARITY_KEYS.includes(k));
+  const untouched = existing.filter((k) => !POLARITY_KEYS.includes(k) && !FIX_AN_KEYS.includes(k));
   assert.equal(fingerprint(S.TOPIC_RULES, untouched), UNTOUCHED_FINGERPRINT);
   assert.equal(S.RULES_VERSION, 'phase9-v3');
   assert.equal(S.VOCAB_VERSION, 'issue-vocab-v1');
@@ -304,7 +313,7 @@ t('the re-score report is current and records the comparison for all three remap
   assert.deepEqual(rep.records.map((r) => [r.stance_id, r.human.position, r.scorer.position, r.verdict]), [
     ['massie|ukraine_aid|gt-002', 'oppose', 'oppose', 'agrees'],
     ['massie|iran_hostilities|gt-005', 'support', 'support', 'agrees'],
-    ['sanders|israel_military_aid|gt-006', 'mixed', 'oppose', 'disagrees'],
+    ['sanders|israel_military_aid|gt-006', 'mixed', 'mixed', 'agrees'], // R20 split-facet carve-out
   ]);
 });
 

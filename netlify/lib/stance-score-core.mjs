@@ -124,6 +124,9 @@
 //       bill) in the lead, is one explicit statement for the side the verb
 //       gives. Own topic and linked directional keys only; never changes a page
 //       that already reads support, oppose or mixed. See leadStance.
+//   R20 Split-facet carve-out (israel_military_aid only): a side resting only
+//       on one facet's statements, beside an own-voice carve-out of the other
+//       facet, reads mixed at the computed confidence. See the R20 block.
 //   R15 Implied stance from aligned mentions (phase8-v4): when nothing else on
 //       the page reads a side (no explicit statement, no implication, no
 //       reversal, no R14 lead signal) and at least WEIGHTS.impliedMentionsMin
@@ -2138,6 +2141,20 @@ export function scoreRawRecord(raw, topic = raw?.topic, sentences = null, opts =
     if (lead) parts.push(`stance verb in the ${lead.via === "title" ? "title" : "opening sentences"}${lead.bill ? " acts on a named bill" : ""}${lead.harm ? " the page says harms the issue" : ""} reads as a clear ${lead.side} (R14)`);
     if (mentions) parts.push(`${mentions} mention(s) recorded at zero weight (R3)`);
     reason = parts.join("; ");
+  }
+  // R20: on the broad Israel military-aid key (children split by facet), a
+  // side carried only by statements about one facet (offensive), next to the
+  // politician's own carve-out of the other facet (defensive), does not cover
+  // the whole key → mixed, at the confidence already computed.
+  if (topic === "israel_military_aid" && (position === "support" || position === "oppose") && !reversal) {
+    const facets = new Set(clear.filter((s) => s.side === position).map((s) => s.facet).filter(Boolean));
+    const f = facets.size === 1 ? [...facets][0] : null;
+    const otherF = f === "offensive" ? "defensive" : f === "defensive" ? "offensive" : null;
+    const carve = otherF ? statements.filter((s) => s.kind === "mention" && s.facet === otherF && !s.attributed_to && s.quoted_speaker !== "other") : [];
+    if (carve.length && !clear.some((s) => s.facet === otherF || s.facet === "both")) {
+      position = "mixed";
+      reason += `; the clear statements name only the ${f} part, ${carve.length} own carve-out(s) on the ${otherF} part: the key reads mixed (R20)`;
+    }
   }
   // R16: a clear side in the politician's own words on their own video is the
   // strongest evidence of what they said — the scorer's maximum confidence.

@@ -593,23 +593,10 @@ const GT_FILES_SHA256 = {
   'stance-ground-truth-talarico-workers-wages.json': '11f8225468723eb9dd649542e24c20444c90ce84c107eeda7d7736650c67c391',
 };
 // stance_id → the scorer's current (wrong) read. Position differs from the human label.
-const KNOWN_GAPS = {
-  'massie|edu_parental|gt-088': { position: 'no clear position', confidence: 0.3 },
-  'massie|checks_balances|gt-103': { position: 'no clear position', confidence: 0 },
-  'massie|gov_transparency|gt-104': { position: 'no clear position', confidence: 0.3 },
-  'massie|gov_waste|gt-097': { position: 'no clear position', confidence: 0 },
-  'massie|medical_freedom|gt-094': { position: 'no clear position', confidence: 0.3 },
-  'massie|school_choice|gt-095': { position: 'no clear position', confidence: 0 },
-  'massie|tariffs_authority|gt-102': { position: 'no clear position', confidence: 0 },
-  'sanders|econ_corp_account|gt-113': { position: 'oppose', confidence: 0.8 },
-  'sanders|wealth_inequality_tax_fairness|gt-105': { position: 'no clear position', confidence: 0.3 },
-  'sanders|israel_military_aid|gt-006': { position: 'oppose', confidence: 0.8 },
-  'james_talarico|social_security|gt-128': { position: 'no clear position', confidence: 0.3 },
-  'james_talarico|scotus_reform|gt-131': { position: 'no clear position', confidence: 0.3 },
-  'james_talarico|term_limits|gt-130': { position: 'no clear position', confidence: 0.3 },
-};
+// Empty since the fixes A–N (phase9 vocabulary + R20): all 52 records match.
+const KNOWN_GAPS = {};
 // stance_id → exact Δ for a position match whose confidence is outside 0.10 (logged, pinned).
-const CONFIDENCE_OUTSIDE = { 'sanders|econ_trade|gt-115': 0.2 };
+const CONFIDENCE_OUTSIDE = {};
 
 const gtEsc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 const gtBody = (excerpt) => String(excerpt || '').split(/\s*\.\.\.\s*/).map((f) => f.trim()).filter(Boolean)
@@ -658,13 +645,13 @@ for (const { gt, cand, cmp } of gtResults) {
     }
   });
 }
-await t('ground-truth sweep: gap lists name only real records; tally is 39 match / 13 gap', () => {
+await t('ground-truth sweep: gap lists name only real records; tally is 52 match / 0 gap', () => {
   const ids = new Set(gtResults.map((r) => r.gt.stance_id));
   for (const id of [...Object.keys(KNOWN_GAPS), ...Object.keys(CONFIDENCE_OUTSIDE)]) assert.ok(ids.has(id), id);
   const matched = gtResults.filter((r) => r.cmp.positionMatch).length;
   console.log(`    ground-truth sweep: ${matched} position match, ${gtResults.length - matched} known gap, ` +
     `${gtResults.filter((r) => !r.cmp.confidenceWithin).length} outside confidence tolerance`);
-  assert.equal(matched, 39);
+  assert.equal(matched, 52);
   assert.equal(gtResults.length - matched, Object.keys(KNOWN_GAPS).length);
 });
 await t('ground-truth sweep: no ground-truth file was modified', () => {
