@@ -6,9 +6,9 @@
   "input": "ground-truth source excerpts (db/stance-ground-truth-talarico-cost-of-living.json)",
   "summary": {
     "records": 3,
-    "agree": 2,
+    "agree": 3,
     "agree_position_only": 0,
-    "disagree": 1
+    "disagree": 0
   },
   "records": [
     {
@@ -158,14 +158,14 @@
         "position_on": "U.S. military support for Israel: opposes certain offensive arms sales; leaves defensive systems alone and affirms Israel's right to self-defense"
       },
       "scorer": {
-        "position": "oppose",
+        "position": "mixed",
         "confidence": 0.8,
-        "confidence_reason": "2 clear high-weight statement(s) for oppose; 0 implication(s) for oppose at medium weight (R6); 2 mention(s) recorded at zero weight (R3)",
+        "confidence_reason": "2 clear high-weight statement(s) for oppose; 0 implication(s) for oppose at medium weight (R6); 2 mention(s) recorded at zero weight (R3); the clear statements name only the offensive part, 2 own carve-out(s) on the defensive part: the key reads mixed (R20)",
         "note": "2 clear statement(s) (0 support, 2 oppose), 0 implication(s) (0 support, 0 oppose), 2 mention(s) at zero weight"
       },
-      "verdict": "disagrees",
+      "verdict": "agrees",
       "confidence_delta": 0.05,
-      "comparison": "stance-score: sanders|israel_military_aid position MISMATCH (candidate oppose, ground truth mixed); confidence 0.8 vs 0.75, Δ=+0.05 within 0.1",
+      "comparison": "stance-score: sanders|israel_military_aid position MATCH (candidate mixed, ground truth mixed); confidence 0.8 vs 0.75, Δ=+0.05 within 0.1",
       "per_source": [
         {
           "type": "resolution text (sponsor)",
@@ -220,9 +220,9 @@
           "date": "2025-02-24",
           "link": "https://www.sanders.senate.gov/press-releases/news-sanders-files-joint-resolutions-of-disapproval-to-block-trump-arms-sales-to-israel/",
           "human_weight": "strong",
-          "position": "oppose",
+          "position": "mixed",
           "confidence": 0.8,
-          "confidence_reason": "1 clear high-weight statement(s) for oppose; 0 implication(s) for oppose at medium weight (R6); 1 mention(s) recorded at zero weight (R3)",
+          "confidence_reason": "1 clear high-weight statement(s) for oppose; 0 implication(s) for oppose at medium weight (R6); 1 mention(s) recorded at zero weight (R3); the clear statements name only the offensive part, 1 own carve-out(s) on the defensive part: the key reads mixed (R20)",
           "note": "1 clear statement(s) (0 support, 1 oppose), 0 implication(s) (0 support, 0 oppose), 1 mention(s) at zero weight",
           "statements": [
             {
@@ -237,8 +237,7 @@
               "weight": 1,
               "text": "block the sale of $8.56 billion in offensive U.S. weaponry to Israel"
             }
-          ],
-          "stated_position": true
+          ]
         }
       ],
       "also_read": {
