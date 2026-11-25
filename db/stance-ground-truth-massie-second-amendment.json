@@ -1,0 +1,75 @@
+{
+  "stance_id": "massie|gun_rights|gt-087",
+  "politician_id": "massie",
+  "topic": "gun_rights",
+  "position": "support",
+  "position_on": "protecting and expanding the right to keep and bear arms (opposes gun-free zones, weapons bans and federal limits on who may buy or carry a firearm)",
+  "confidence": 0.85,
+  "confidence_reason": "His campaign site calls weapons bans and gun-free zones unconstitutional, two 2025 House releases in his own words back bills that repeal federal gun restrictions, and his own 2025–2026 X posts call carrying a firearm a God-given right; held at 0.85 because his House issues page states no position and the releases repeat the same quotes across Congresses, so the evidence is less independent than it looks.",
+  "sources": [
+    {
+      "type": "campaign site (homepage issues section)",
+      "date": null,
+      "link": "https://www.thomasmassie.com/",
+      "excerpt": "\"Defend Your Second Amendment Rights\" ... \"Weapons bans and gun-free zones are unconstitutional. In speeches, legislation, and through my votes in Congress I continuously make the point that gun-free zones make law-abiding citizens less safe.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25. No date on page. First-party campaign platform. It states a clear position: weapons bans and gun-free zones are unconstitutional. The mention of his votes is his own description, not a vote record, and no vote is used as a source.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "official House issues page (section)",
+      "date": null,
+      "link": "https://massie.house.gov/issues/issue/?IssueID=112039",
+      "excerpt": "\"To learn more about my views on Second Amendment issues, please contact my office.\"",
+      "weight": "mention",
+      "note": "Read directly on 2026-11-25. The 2nd Amendment section of his House issues page, reached from https://massie.house.gov/issues. No date on page. Its only text is the quoted line plus a list of related releases and bill files, so it names the topic but states no position. Recorded as not taking a clear position and given no weight.",
+      "takes_clear_position": false,
+      "page_fully_readable": true
+    },
+    {
+      "type": "official press release",
+      "date": "2025-08-29",
+      "link": "https://massie.house.gov/news/documentsingle.aspx?DocumentID=395746",
+      "excerpt": "\"Gun-free zones are ineffective and make our schools less safe. Since 1950, 94 percent of mass public shootings have occurred in places where citizens are banned from having guns,\" ... \"Banks, churches, sports stadiums, and many of my colleagues in Congress are protected with firearms. Yet children inside the classroom are too frequently left vulnerable.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25. First-party release from his House office reintroducing the Safe Students Act (H.R. 5066), which repeals the federal Gun-Free School Zones Act of 1990. He explicitly opposes gun-free zones and an existing federal gun restriction. Only Massie's quoted words and the release's own description of the bill count, not the quotes from outside gun-rights groups. The same Massie quote appears in his 2019, 2022 and 2023 releases on this bill, so those are not counted as independent sources.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "official press release",
+      "date": "2025-02-27",
+      "link": "https://massie.house.gov/news/documentsingle.aspx?DocumentID=395699",
+      "excerpt": "\"Why should a 20-year-old single mom be denied the right to defend herself and her children?\" ... \"As adults, these Americans should not be deprived of basic constitutional rights.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25. First-party release, tagged 2nd Amendment, reintroducing the SAFER Voter Act (H.R. 1643), which would repeal the federal law barring 18- to 20-year-olds from buying a handgun from a licensed dealer. In his own words he treats buying a handgun as a constitutional right and opposes the existing federal restriction. Only Massie's quoted words count, not GOA's or NAGR's. The same quote appears in his 2021 and 2023 releases on this bill.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "social media post (own X account, @RepThomasMassie)",
+      "date": "2026-01-25",
+      "link": "https://x.com/RepThomasMassie/status/2015423469060517891",
+      "excerpt": "\"Carrying a firearm is not a death sentence, it’s a Constitutionally protected God-given right, and if you don’t understand this you have no business in law enforcement or government.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (full post text and timestamp, 2026-01-25T13:56Z, via X's public embed data). His own words, stating plainly that carrying a firearm is a constitutionally protected right. It quotes a post by another account (@USAttyEssayli) warning people not to approach law enforcement with a gun. Only Massie's text counts.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "social media post (own X account, @RepThomasMassie)",
+      "date": "2025-04-17",
+      "link": "https://x.com/RepThomasMassie/status/1912962943966478627",
+      "excerpt": "\"So called “gun free zones” only make law abiding citizens vulnerable.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (full post text and timestamp, 2025-04-17T20:14Z, via X's public embed data). His own words opposing gun-free zones, posted the day of the Florida State University shooting. It quotes a post by another account (@JohnRLottJr) about FSU's campus carry ban. Only Massie's text counts.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    }
+  ],
+  "last_updated": "2026-11-25",
+  "status": "active",
+  "locked": true,
+  "locked_on": "2026-11-25"
+}
