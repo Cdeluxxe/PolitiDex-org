@@ -1,0 +1,55 @@
+{
+  "stance_id": "sanders|climate_action|gt-110",
+  "politician_id": "sanders",
+  "topic": "climate_action",
+  "position": "support",
+  "position_on": "the key's own pole: acting on climate and investing in clean energy, including the Solar for All program he wrote and an end to fossil fuel subsidies",
+  "confidence": 0.85,
+  "confidence_reason": "Four of his own Senate releases from 2025 and 2026 call climate change an existential threat, defend the Solar for All program he wrote, back energy-efficient public housing on sustainable power and call for ending fossil fuel subsidies; held at 0.85, the ceiling, because every source is a first-party statement and none is a vote.",
+  "sources": [
+    {
+      "type": "press release (own Senate office, statement, sanders.senate.gov)",
+      "date": "2025-08-05",
+      "link": "https://www.sanders.senate.gov/press-releases/news-sanders-statement-on-trump-canceling-7-billion-for-solar-for-all/",
+      "excerpt": "\"Solar for All means lower utility bills, many thousands of good-paying jobs and real action to address the existential threat of climate change.\" ... \"We will fight back to preserve this enormously important program.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (the release's full text, as published on his Senate site). His full statement, issued by his office, on the 2025 move to cancel Solar for All, a program he wrote.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "press release (own Senate office, statement, sanders.senate.gov)",
+      "date": "2025-07-13",
+      "link": "https://www.sanders.senate.gov/press-releases/news-sanders-no-mr-president-climate-change-is-not-a-hoax/",
+      "excerpt": "\"In the midst of everything else going on, it’s easy to ignore the extraordinary planetary crisis we face from climate change. But we just can’t allow ourselves to do that.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (the release's full text, as published on his Senate site). His full statement, issued by his office, titled 'No, Mr. President. Climate Change is Not a Hoax'.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "press release (own Senate office, sanders.senate.gov)",
+      "date": "2025-07-25",
+      "link": "https://www.sanders.senate.gov/press-releases/news-sanders-omar-introduce-legislation-to-repeal-corporate-welfare-for-fossil-fuels-in-trumps-big-beautiful-bill-end-giveaways-that-destroy-the-planet/",
+      "excerpt": "\"No more polluter welfare for an industry that is making billions every year destroying the planet.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (the release's full text, as published on his Senate site). Release on his bill with Rep. Omar to repeal fossil fuel subsidies. Only the quote attributed to Sanders is used.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "press release (own Senate office, sanders.senate.gov)",
+      "date": "2026-08-06",
+      "link": "https://www.sanders.senate.gov/press-releases/news-sanders-ocasio-cortez-ramirez-reintroduce-the-green-new-deal-for-public-housing-act/",
+      "excerpt": "\"What the Green New Deal for Public Housing Act does is say that yes, we can create decent and affordable public housing for more than 1.5 million Americans that is based on energy efficiency and sustainable sources of power.\"",
+      "weight": "weak",
+      "note": "Read directly on 2026-11-25 (the release's full text, as published on his Senate site). Release on reintroducing the Green New Deal for Public Housing Act. Weighted weak because the bill is mainly about public housing. Only the quote attributed to Sanders is used.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    }
+  ],
+  "last_updated": "2026-11-25",
+  "status": "active",
+  "locked": true,
+  "locked_on": "2026-11-25"
+}

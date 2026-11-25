@@ -1,0 +1,45 @@
+{
+  "stance_id": "sanders|edu_college_cost|gt-111",
+  "politician_id": "sanders",
+  "topic": "edu_college_cost",
+  "position": "support",
+  "position_on": "the key's own pole: making college affordable and cutting student debt, by making public colleges and universities tuition free",
+  "confidence": 0.85,
+  "confidence_reason": "Three of his own Senate releases from 2023 to 2026 back his College for All bill to make public colleges and universities tuition free, say higher education should be a right and oppose garnishing seniors' Social Security over old student debt; held at 0.85, the ceiling, because every source is a first-party statement and none is a vote; the record says nothing on trade schools, which the key also covers.",
+  "sources": [
+    {
+      "type": "press release (own Senate office, sanders.senate.gov)",
+      "date": "2025-05-21",
+      "link": "https://www.sanders.senate.gov/press-releases/news-sanders-jayapal-colleagues-introduce-bill-to-make-public-colleges-and-universities-tuition-free/",
+      "excerpt": "\"We are going to make public colleges and universities tuition free so that working class students can succeed and are not burdened with a lifetime of debt.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (the release's full text, as published on his Senate site). Release on the 2025 College for All Act he introduced with Rep. Jayapal. Only the quote attributed to Sanders is used.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "press release (own Senate office, sanders.senate.gov)",
+      "date": "2023-06-14",
+      "link": "https://www.sanders.senate.gov/press-releases/news-sanders-jayapal-and-colleagues-introduce-legislation-to-make-college-tuition-and-debt-free-for-working-families/",
+      "excerpt": "\"Today, this country tells young people to get the best education they can, and then saddles them for decades with crushing student loan debt. To my mind, that does not make any sense whatsoever,\" ... \"In the wealthiest country in the history of the world, a higher education should be a right for all, not a privilege for the few.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (the release's full text, as published on his Senate site). Release on the 2023 College for All Act. Only the quote attributed to Sanders is used.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "press release (own Senate office, sanders.senate.gov)",
+      "date": "2026-08-17",
+      "link": "https://www.sanders.senate.gov/press-releases/news-sanders-to-introduce-bill-to-stop-trump-from-garnishing-social-security-checks-of-seniors-with-student-debt/",
+      "excerpt": "\"In the richest country in the history of the world, no senior should have their Social Security payments taken away from them to pay back student debt.\"",
+      "weight": "weak",
+      "note": "Read directly on 2026-11-25 (the release's full text, as published on his Senate site). Release on his 2026 bill to stop garnishing Social Security over student loans. Weighted weak because it covers one narrow form of debt relief.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    }
+  ],
+  "last_updated": "2026-11-25",
+  "status": "active",
+  "locked": true,
+  "locked_on": "2026-11-25"
+}

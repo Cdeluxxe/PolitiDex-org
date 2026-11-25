@@ -1,0 +1,45 @@
+{
+  "stance_id": "sanders|child_care|gt-116",
+  "politician_id": "sanders",
+  "topic": "child_care",
+  "position": "support",
+  "position_on": "the key's own pole: cutting child-care costs and expanding early learning, including fully funding Head Start and capping what families pay for child care",
+  "confidence": 0.8,
+  "confidence_reason": "Three of his own Senate releases from 2025 and 2026 say the country has a moral responsibility to provide early childhood education and child care, back his bill to expand and fully fund Head Start and back capping child care at 7% of family income; held at 0.8 because his sources speak to Head Start and cost caps rather than a universal pre-K program by name.",
+  "sources": [
+    {
+      "type": "press release (own Senate office, sanders.senate.gov)",
+      "date": "2025-09-16",
+      "link": "https://www.sanders.senate.gov/press-releases/news-sandes-introduces-bill-to-expand-early-learning-for-working-class-families/",
+      "excerpt": "\"In the richest country in the history of the world, we have a moral responsibility to provide high-quality early childhood education and child care for our children.\" ... \"Let’s expand and fully fund Head Start to make sure it reaches every eligible young child, extend the length of programs so working families don’t have to find additional child care and raise teacher pay so educators are not forced to leave the field or work a second job just to make ends meet.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (the release's full text, as published on his Senate site). Release on his 2025 bill to expand early learning. Only the quote attributed to Sanders is used.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "press release (own Senate office, prepared floor remarks, sanders.senate.gov)",
+      "date": "2025-04-04",
+      "link": "https://www.sanders.senate.gov/press-releases/prepared-remarks-sanders-speech-on-trumps-bad-backwards-budget/",
+      "excerpt": "\"Maybe, just maybe, instead of making it harder for families to access child care, we should make it easier and more affordable.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (the release's full text, as published on his Senate site). His prepared floor remarks on the 2025 budget, published by his office.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "press release (own Senate office, sanders.senate.gov)",
+      "date": "2026-03-02",
+      "link": "https://www.sanders.senate.gov/press-releases/news-sanders-and-khanna-introduce-legislation-to-tax-billionaire-wealth-and-invest-in-working-families/",
+      "excerpt": "\"Ensure no family pays more than 7% of their income on childcare\"",
+      "weight": "weak",
+      "note": "Read directly on 2026-11-25 (the release's full text, as published on his Senate site). His office's own description of what his 2026 wealth tax bill would fund; this is not a quote from Rep. Khanna. Weighted weak because it is a line in a list in a release about a tax bill.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    }
+  ],
+  "last_updated": "2026-11-25",
+  "status": "active",
+  "locked": true,
+  "locked_on": "2026-11-25"
+}

@@ -1,0 +1,45 @@
+{
+  "stance_id": "sanders|pro_choice|gt-118",
+  "politician_id": "sanders",
+  "topic": "pro_choice",
+  "position": "support",
+  "position_on": "the key's own pole: protecting abortion access and reproductive freedom, including codifying Roe v. Wade",
+  "confidence": 0.85,
+  "confidence_reason": "Three of his own Senate releases from 2018 and 2022 say women must be able to control their own bodies, call for codifying Roe v. Wade to make abortion legal and safe, and condemn barring abortion providers from family-planning funds; held at 0.85, the ceiling, because every source is a first-party statement and none is a vote.",
+  "sources": [
+    {
+      "type": "press release (own Senate office, statement, sanders.senate.gov)",
+      "date": "2022-06-24",
+      "link": "https://www.sanders.senate.gov/press-releases/news-sanders-calls-for-end-of-filibuster-to-codify-right-to-abortion/",
+      "excerpt": "\"In the year 2022 they have made the outrageous and reactionary assertion that women in our country should not be able to control their own bodies. This decision cannot be allowed to stand.\" ... \"Democrats can and must end the filibuster, codify Roe v. Wade, and make abortion legal and safe.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (the release's full text, as published on his Senate site). His full statement, issued by his office, on the day the Supreme Court overturned Roe v. Wade.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "press release (own Senate office, prepared floor remarks, sanders.senate.gov)",
+      "date": "2022-05-10",
+      "link": "https://www.sanders.senate.gov/press-releases/prepared-remarks-sanders-calls-for-ending-the-filibuster-to-protect-the-right-to-abortion/",
+      "excerpt": "\"We cannot go back to the days when women had to risk their lives to end an unwanted pregnancy. We cannot go back to the days of back alley abortions.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (the release's full text, as published on his Senate site). His prepared floor remarks after the leaked Dobbs draft opinion, published by his office.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "press release (own Senate office, statement, sanders.senate.gov)",
+      "date": "2018-05-18",
+      "link": "https://www.sanders.senate.gov/press-releases/sanders-statement-on-trump-plan-to-ban-federal-funds-for-clinics-that-refer-for-abortions/",
+      "excerpt": "\"Today’s announcement of the ‘domestic gag rule’ which will prevent abortion providers from receiving Title X funds is the latest disgraceful attack on women’s rights by the Trump administration.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (the release's full text, as published on his Senate site). His 2018 statement, issued by his office, on the Title X rule.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    }
+  ],
+  "last_updated": "2026-11-25",
+  "status": "active",
+  "locked": true,
+  "locked_on": "2026-11-25"
+}
