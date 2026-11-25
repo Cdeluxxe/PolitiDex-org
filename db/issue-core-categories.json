@@ -1,6 +1,6 @@
 {
   "_generatedBy": "scripts/gen-issue-core-categories.mjs (from CORE_NATIONAL_ISSUES in issue-map.js)",
-  "count": 137,
+  "count": 138,
   "categoryOf": {
     "america_first": "foreign_policy_defense",
     "america_first_fp": "foreign_policy_defense",
@@ -38,6 +38,7 @@
     "election_integrity": "election_integrity",
     "election_security": "election_integrity",
     "end_dei": "civil_rights_culture",
+    "end_fed": "spending_debt_waste",
     "energy_production": "climate_energy",
     "enviro_balance": "climate_energy",
     "enviro_energy": "climate_energy",

@@ -1,0 +1,65 @@
+{
+  "stance_id": "massie|edu_parental|gt-088",
+  "politician_id": "massie",
+  "topic": "edu_parental",
+  "position": "support",
+  "position_on": "abolishing the federal Department of Education and returning control of education to states, local communities, teachers and parents (H.R. 899)",
+  "confidence": 0.85,
+  "confidence_reason": "He is the author of a one-sentence bill to terminate the Department of Education, reintroduced in every Congress since 2017, and his own releases and X posts say control belongs with states, local communities, teachers and parents; held at 0.85 because no existing key has abolishing the Department as its pole, so this sits on the closest key (parental say over schooling), and his House issues page and campaign site state nothing on education.",
+  "sources": [
+    {
+      "type": "official press release",
+      "date": "2025-01-31",
+      "link": "https://massie.house.gov/news/documentsingle.aspx?DocumentID=395684",
+      "excerpt": "\"Representative Thomas Massie announces that he has reintroduced H.R. 899, a bill to abolish the federal Department of Education.\" ... \"Unelected bureaucrats in Washington, D.C. should not be in charge of our children’s intellectual and moral development,\" ... \"States and local communities are best positioned to shape curricula that meet the needs of their students. Schools should be accountable. Parents have the right to choose the most appropriate educational opportunity for their children, including home school, public school, or private school.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25. First-party release from his House office, tagged Education, on the most recent reintroduction of H.R. 899 (119th Congress). It quotes the whole bill: \"The Department of Education shall terminate on December 31, 2026.\" It states a clear position for abolishing the Department and for state, local and parental control. Only Massie's words and the release's own text count, not the quoted Reagan address. His 2021 and 2023 releases repeat the same quote, so they are not listed as independent sources.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "official press release",
+      "date": "2017-02-07",
+      "link": "https://massie.house.gov/news/documentsingle.aspx?DocumentID=395229",
+      "excerpt": "\"Today, Representative Thomas Massie introduced H.R. 899, a bill to abolish the federal Department of Education.\" ... \"Neither Congress nor the President, through his appointees, has the constitutional authority to dictate how and what our children must learn.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25. First-party release on the bill's first introduction (115th Congress). It adds a reason the 2025 release does not give: in his view the federal government has no constitutional authority over what children learn. It shows the position held since 2017. Only Massie's words count, not the quotes from his co-sponsors.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "official House issues page (section)",
+      "date": null,
+      "link": "https://massie.house.gov/issues/issue/?IssueID=59813",
+      "excerpt": "\"To learn more about my views on education issues, please contact my office.\"",
+      "weight": "mention",
+      "note": "Read directly on 2026-11-25. The Education section of his House issues page, reached from https://massie.house.gov/issues. No date on page. Its only text is the quoted line plus links to the H.R. 899 releases and bill file, so it states no position. Recorded as not taking a clear position and given no weight. His campaign site (https://www.thomasmassie.com/) has no education section and does not mention the Department of Education, so there is no campaign or issues-page language to record for this topic.",
+      "takes_clear_position": false,
+      "page_fully_readable": true
+    },
+    {
+      "type": "social media post (own X account, @RepThomasMassie)",
+      "date": "2025-01-31",
+      "link": "https://x.com/RepThomasMassie/status/1885344942622425292",
+      "excerpt": "\"I just reintroduced H.R. 899, a one sentence bill to TERMINATE the federal department of education and return power back to teachers and parents.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (full post text and timestamp, 2025-01-31T15:10Z, via X's public embed data). His own words on the same day as the 2025 release. It states a clear position for ending the Department and returning power to teachers and parents, which is the link to this key. The post goes on: \"This is it, the entire bill:\" followed by a link.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "social media post (own X account, @RepThomasMassie)",
+      "date": "2024-08-20",
+      "link": "https://x.com/RepThomasMassie/status/1825884767390167203",
+      "excerpt": "\"Damn right I want to terminate the Department of Education.  My bill HR 899 would do just that.  Public education in America has gone downhill ever since this bureaucracy was created.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (full post text and timestamp, 2024-08-20T13:17Z, via X's public embed data; the double spaces are in the original). His own words, quoting a post by another account (@DeAngelisCorey) about Biden's DNC remarks. It states a clear position for abolishing the Department. Only Massie's text counts.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    }
+  ],
+  "last_updated": "2026-11-25",
+  "status": "active",
+  "locked": true,
+  "locked_on": "2026-11-25"
+}

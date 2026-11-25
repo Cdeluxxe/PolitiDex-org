@@ -958,6 +958,16 @@ export const ISSUE_TOPIC_VOCAB = {
     terms: String.raw`abandoned (?:hardrock )?mines?|mine (?:cleanup|clean-up|reclamation)|abandoned mine (?:lands?|reclamation|fund)|mining waste|waste rock|(?:mine )?tailings|mill sites?|good samaritan (?:mine )?(?:cleanup|remediation)`,
     up: [String.raw`(?:abandoned )?mine (?:cleanup|clean-up|reclamation)`, String.raw`(?:cleaning up )?abandoned (?:hardrock )?mines?`, String.raw`(?:the )?abandoned (?:hardrock )?mine fund`],
     downCon: [String.raw`(?:abandoned )?mine (?:cleanup|reclamation)`, String.raw`(?:the )?abandoned (?:hardrock )?mine fund`] },
+  // The end-the-Fed key pass (Nov 2026): one key added to the register, beside
+  // audit_spending and fed_independence, no position seeded. Terms are kept to
+  // abolishing the Fed itself, so auditing it (audit_spending) or who controls it
+  // (fed_independence) does not read here, and "end the Fed's independence" is
+  // not a call to abolish it.
+  end_fed: { label: "End the Federal Reserve", pos: "Abolish the Federal Reserve",
+    terms: String.raw`end the fed\b|federal reserve board abolition act|abolish\w{0,3} the (?:fed|federal reserve)\b|(?:fed|federal reserve) (?:did|does|should) not exist`,
+    up: [String.raw`(?:the )?federal reserve board abolition act`],
+    downCon: [String.raw`(?:the )?federal reserve board abolition act`],
+    pro: [String.raw`\b(?:abolish\w{0,3}|end(?:s|ed|ing)?|eliminat\w{0,3}|dismantl\w{0,3})\b${GAP}\bthe (?:fed|federal reserve)\b(?!['’]s| (?:chair|governors?|board of governors|independence)\b)`, String.raw`\bbetter off if the (?:fed|federal reserve) did not exist\b`] },
   checks_balances: { label: "Congress as a Check on the Executive", pos: "Keep Congress and the courts as a real check on executive power, whoever is president",
     terms: String.raw`checks and balances|separation of powers|executive overreach|executive power|article I`,
     up: [String.raw`(?:our )?(?:system of )?checks and balances`, String.raw`(?:the )?separation of powers`, String.raw`(?:congress'?s? )?(?:article I|constitutional) (?:authority|powers?|role)`],
