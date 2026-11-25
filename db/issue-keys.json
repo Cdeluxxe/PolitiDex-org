@@ -1,6 +1,6 @@
 {
   "_generatedBy": "scripts/gen-issue-keys.mjs (from ISSUE_MAP in alignment-tool.js)",
-  "count": 137,
+  "count": 138,
   "keys": [
     "america_first",
     "america_first_fp",
@@ -38,6 +38,7 @@
     "election_integrity",
     "election_security",
     "end_dei",
+    "end_fed",
     "energy_production",
     "enviro_balance",
     "enviro_energy",
@@ -668,6 +669,11 @@
       "identity politics",
       "critical race theory",
       "crt"
+    ],
+    "end_fed": [
+      "end the fed",
+      "abolish the federal reserve",
+      "federal reserve board abolition act"
     ],
     "energy_production": [
       "energy production",

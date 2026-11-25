@@ -12580,7 +12580,13 @@
 //   receipt-cards.js, voting-record.js), so the shell moves; the precache list
 //   is unchanged.
 //   MIGRATION COST: none.
-const CACHE_VERSION = 'v607';
+// v608 - END THE FED KEY. A new issue key, end_fed ("End the Federal
+//   Reserve"), joins the issue register beside Audit Spending & the Fed and
+//   is paired both ways in the related-issues map. Precached files changed
+//   (alignment-tool.js, issue-map.js, related-issues.js), so the shell moves;
+//   the precache list is unchanged.
+//   MIGRATION COST: none.
+const CACHE_VERSION = 'v608';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

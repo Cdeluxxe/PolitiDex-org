@@ -264,8 +264,9 @@ t('the register sweep and every existing key\'s rules are unchanged', () => {
   for (const k of KEYS) assert.ok(!S.SCORED_TOPICS.includes(k) && !(k in V.ISSUE_TOPIC_VOCAB), k);
   // The accountability stances pass's three register keys and the family & economic
   // fairness keys pass's two (v103-chrome-seams.mjs) are new, not existing; so are
-  // the two register keys the S. 5653 ledger passes added (tribal_consultation, mine_cleanup).
-  const LATER_KEYS = ['tribal_consultation', 'mine_cleanup'];
+  // the two register keys the S. 5653 ledger passes added (tribal_consultation, mine_cleanup),
+  // and the end-the-Fed key pass's one key (end_fed).
+  const LATER_KEYS = ['tribal_consultation', 'mine_cleanup', 'end_fed'];
   for (const k of LATER_KEYS) assert.ok(k in S.TOPIC_RULES, k);
   const existing = Object.keys(S.TOPIC_RULES).filter((k) => !KEYS.includes(k) && !ACCOUNTABILITY_KEYS.includes(k) && !FAMILY_FAIRNESS_KEYS.includes(k) && !CIVIC_KEYS.includes(k) && !LATER_KEYS.includes(k)).sort();
   assert.equal(existing.length, 125);

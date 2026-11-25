@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 // test-stance-ground-truth-massie-federal-reserve.mjs — the hand-built
-// ground-truth stance record for Thomas Massie × the Federal Reserve (Audit the
-// Fed / End the Fed) exists in its own file, follows the locked ground-truth
-// schema, sits on an existing issue key and roster id, rests only on Massie's
+// ground-truth stance record for Thomas Massie × ending the Federal Reserve
+// exists in its own file, sits on the end_fed key (which is checked to be in the
+// issue register and the related-issues map), follows the locked ground-truth
+// schema, uses Massie's existing roster id, rests only on Massie's
 // own pages and posts (no votes, no secondary sources), and respects the
 // confidence rules. Also pins the four earlier ground-truth files so this
 // addition cannot touch them.
@@ -40,7 +41,7 @@ const PINNED = {
 const vocab = await import(path.join(root, 'netlify/lib/stance-topic-vocab.mjs'));
 const { RELATED_ISSUE_KEYS } = await import(path.join(root, 'netlify/lib/related-issue-keys.mjs'));
 
-console.log('stance ground truth: Massie × the Federal Reserve');
+console.log('stance ground truth: Massie × end the Federal Reserve');
 
 t('file exists in db/', () => assert.ok(existsSync(file), 'missing ' + file));
 const rec = existsSync(file) ? JSON.parse(readFileSync(file, 'utf8')) : {};
@@ -49,15 +50,42 @@ const sources = Array.isArray(rec.sources) ? rec.sources : [];
 t('every required field present', () => {
   for (const k of REQUIRED) assert.ok(k in rec, 'missing field ' + k);
 });
-t('topic is the existing audit_spending key, whose pole includes auditing the Federal Reserve', () => {
-  assert.equal(rec.topic, 'audit_spending');
-  const v = vocab.ISSUE_TOPIC_VOCAB.audit_spending;
-  assert.ok(v, 'audit_spending must be an existing scored key');
-  assert.ok(!v.noPole && !v.grouping, 'audit_spending must be directional');
-  assert.match(v.pos, /Federal Reserve/);
-  assert.ok(RELATED_ISSUE_KEYS.includes('audit_spending'), 'audit_spending must be in the related-issues map');
-  assert.match(rec.stance_id, /^massie\|audit_spending\|gt-\d{3}$/);
-  assert.match(rec.position_on, /Federal Reserve/);
+t('end_fed is in the issue register (both copies and the server allow-list) with its label and pole', () => {
+  const keys = JSON.parse(readFileSync(path.join(root, 'db/issue-keys.json'), 'utf8')).keys;
+  assert.ok(keys.includes('end_fed'), 'end_fed missing from db/issue-keys.json');
+  for (const f of ['alignment-tool.js', 'issue-map.js']) {
+    const line = readFileSync(path.join(root, f), 'utf8').split('\n').find((l) => /^\s*end_fed: \{/.test(l));
+    assert.ok(line, `end_fed missing from ISSUE_MAP in ${f}`);
+    assert.match(line, /label: '[^']*End the Federal Reserve'/, f);
+    assert.match(line, /chip: 'Abolish the Federal Reserve'/, f);
+  }
+});
+t('end_fed is in the related-issues map, paired both ways with the monetary and spending keys', () => {
+  assert.ok(RELATED_ISSUE_KEYS.includes('end_fed'), 'end_fed missing from the generated related-issue keys');
+  const src = readFileSync(path.join(root, 'related-issues.js'), 'utf8');
+  const map = {};
+  for (const m of src.match(/var MAP = \{([\s\S]*?)\n  \};/)[1].matchAll(/^\s*([a-z0-9_]+):\s*\[([^\]]*)\]/gm)) {
+    map[m[1]] = [...m[2].matchAll(/'([a-z0-9_]+)'/g)].map((x) => x[1]);
+  }
+  assert.ok(Array.isArray(map.end_fed) && map.end_fed.length > 0, 'end_fed has no related keys');
+  for (const k of ['audit_spending', 'cut_spending']) assert.ok(map.end_fed.includes(k), `end_fed -> ${k}`);
+  for (const k of map.end_fed) assert.ok((map[k] || []).includes('end_fed'), `${k} -> end_fed (not both ways)`);
+});
+t('topic is the new end_fed key; the old audit_spending record is gone', () => {
+  assert.equal(rec.topic, 'end_fed');
+  assert.match(rec.stance_id, /^massie\|end_fed\|gt-\d{3}$/);
+  assert.equal(rec.previous_topic, 'audit_spending');
+  assert.equal(rec.previous_stance_id, rec.stance_id.replace('|end_fed|', '|audit_spending|'));
+  assert.match(rec.position_on, /abolish/i);
+  assert.match(rec.position_on, /H\.R\. 1846/);
+  assert.match(rec.position_on, /not merely auditing/i);
+  // Only one Massie Fed record: no other ground-truth file files Massie on audit_spending or end_fed.
+  for (const f of readdirSync(path.join(root, 'db')).filter((n) => /^stance-ground-truth-.*\.json$/.test(n) && n !== FILE_NAME)) {
+    const j = JSON.parse(readFileSync(path.join(root, 'db', f), 'utf8'));
+    for (const r of [j, ...(j.additional_records || []), ...(j.records || [])]) {
+      if (r && r.politician_id === 'massie') assert.ok(!['audit_spending', 'end_fed'].includes(r.topic), `${f}: another Massie Fed record`);
+    }
+  }
 });
 t('politician_id is the roster id already used for Thomas Massie', () => {
   assert.equal(rec.politician_id, 'massie');
@@ -113,11 +141,25 @@ t('only Massie\'s own pages or posts; no secondary sources and no votes', () => 
     assert.ok(!/vote|roll.?call|clerk|journal/i.test(s.type), `vote-type source not allowed: ${s.type}`);
   }
 });
-t('the most recent Audit the Fed (H.R. 24) release is a clear-position source', () => {
-  const pr = sources.filter((s) => /press release/i.test(s.type) && new URL(s.link).hostname === 'massie.house.gov' && s.takes_clear_position);
-  const audit = pr.find((s) => /H\.R\. 24\b/.test(s.excerpt) && /Audit the Fed/.test(s.excerpt));
+t('the same four sources as before', () => {
+  assert.deepEqual(sources.map((s) => s.link), [
+    'https://massie.house.gov/news/documentsingle.aspx?DocumentID=395681',
+    'https://massie.house.gov/news/documentsingle.aspx?DocumentID=395707',
+    'https://massie.house.gov/issues/issue/?IssueID=112049',
+    'https://x.com/RepThomasMassie/status/1897400794946920547',
+  ]);
+});
+t('the Audit the Fed (H.R. 24) release is kept but does not count toward abolishing the Fed', () => {
+  const audit = sources.find((s) => /H\.R\. 24\b/.test(s.excerpt) && /Audit the Fed/.test(s.excerpt));
   assert.ok(audit, 'H.R. 24 release missing');
   assert.equal(audit.date, '2025-01-03');
+  assert.equal(audit.takes_clear_position, false);
+});
+t('the End the Fed (H.R. 1846) release is a clear-position source', () => {
+  const end = sources.find((s) => /H\.R\. 1846/.test(s.excerpt));
+  assert.ok(end, 'H.R. 1846 release missing');
+  assert.equal(end.takes_clear_position, true);
+  assert.match(end.excerpt, /end the Federal Reserve/);
 });
 t('House language supporting auditing or abolishing the Fed is a clear-position source', () => {
   const h = sources.filter((s) => new URL(s.link).hostname === 'massie.house.gov' && s.takes_clear_position);
@@ -132,7 +174,7 @@ t('the House Federal Reserve issues section, which only says "contact my office"
 t('a direct quote from his own X account states a clear position on the Fed', () => {
   const x = sources.filter((s) => OWN_X.test(s.link) && s.takes_clear_position);
   assert.ok(x.length >= 1, 'no clear-position X post');
-  assert.ok(x.some((s) => /Federal Reserve|the Fed\b/.test(s.excerpt)));
+  assert.ok(x.some((s) => /Federal Reserve did not exist/.test(s.excerpt)));
 });
 t('the stated position rests on at least one source that takes a clear position', () => {
   if (rec.position === 'no clear position') return;

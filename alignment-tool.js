@@ -1178,6 +1178,15 @@
       // POLARITY: 'support' = keep the Fed independent; 'oppose' = give the President
       // more control over it. No `lean`.
       fed_independence: { label: '💱 Federal Reserve Independence', chip: 'Keep the Federal Reserve independent, so presidents cannot fire its governors or dictate interest rates', cat: 'reform', stanceKeys: [], keywords: ['fed independence','federal reserve independence','independent fed'] },
+      // END THE FED KEY (Nov 2026; key only — no position is seeded).
+      // SCOPE (end_fed): whether the Federal Reserve should exist at all — bills
+      // and statements to abolish the Board of Governors and the reserve banks and
+      // repeal the Federal Reserve Act. Beside Audit Spending & the Fed, not
+      // replacing it: that key is about auditing the Fed's books; this one is
+      // about ending it. Not Federal Reserve Independence, which is about who
+      // controls the Fed. POLARITY: 'support' = abolish the Fed; 'oppose' = keep
+      // it. No `lean`.
+      end_fed: { label: '🏦 End the Federal Reserve', chip: 'Abolish the Federal Reserve', cat: 'reform', stanceKeys: [], keywords: ['end the fed','abolish the federal reserve','federal reserve board abolition act'] },
       // SCOPE (cut_spending): taking money back or holding it down, line by line. The
       // instruments on file are a rescission act cancelling unobligated balances already
       // appropriated, budget resolution instructions directing committees to find net
@@ -1385,7 +1394,7 @@
         keys: ['healthcare_market','health_drug_prices','health_balance','healthcare','health_mental','health_rural','medical_freedom','social_security','healthcare_costs','tobacco_nicotine','public_health_vs_chemical_liability','safety_net_work_requirements'] },
       { key: 'spending_debt_waste', label: '🧾 Government Spending, Debt & Waste',
         blurb: 'Federal spending, the national debt, balanced budgets, rooting out waste, and the case for funding public services instead.',
-        keys: ['lower_taxes','gov_waste','gov_balance','national_debt','audit_spending','gov_regulation','cut_spending','gov_services','wealth_inequality_tax_fairness'] },
+        keys: ['lower_taxes','gov_waste','gov_balance','national_debt','audit_spending','end_fed','gov_regulation','cut_spending','gov_services','wealth_inequality_tax_fairness'] },
       { key: 'abortion_repro', label: '🕊 Abortion / Reproductive Rights',
         blurb: 'Abortion access, limits and exceptions, and reproductive freedom.',
         keys: ['pro_life','repro_balance','pro_choice'] },
