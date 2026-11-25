@@ -1,0 +1,75 @@
+{
+  "stance_id": "massie|america_first_fp|gt-090",
+  "politician_id": "massie",
+  "topic": "america_first_fp",
+  "position": "support",
+  "position_on": "ending U.S. foreign aid and cutting off funding for foreign wars and open-ended commitments abroad (he opposes foreign aid and war-funding packages for Ukraine, Israel and Taiwan, and U.S. funding of NATO)",
+  "confidence": 0.85,
+  "confidence_reason": "Two House press releases say outright that all American foreign aid programs should be ended and that the U.S. should stop funding NATO, two official House newsletters oppose the April 2024 $100 billion foreign-wars package and any further money for Ukraine, and two posts on his own X account say \"End all foreign aid\" and oppose a $9 billion Ukraine package; held at 0.85 because no formal press release opposes a named aid package (that is done in his House newsletter), no first-party page uses the words \"blank check\", and his campaign site says nothing on foreign aid.",
+  "sources": [
+    {
+      "type": "official press release",
+      "date": "2025-09-11",
+      "link": "https://massie.house.gov/news/documentsingle.aspx?DocumentID=395756",
+      "excerpt": "\"All American foreign aid programs should be ended, and that money should remain in the United States. Stopping the flow of Americans' tax dollars to foreign countries that fund abortions is a good first step to achieving this goal.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25. First-party release from his House office introducing H.R. 5302, the No Funds for Foreign Abortions Act, tagged Foreign Affairs. The bill itself only conditions aid, but his quoted words call for ending all American foreign aid programs, which is the pole of this key. Only his quoted words count, not the description of the bill.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "official press release",
+      "date": "2025-12-09",
+      "link": "https://massie.house.gov/news/documentsingle.aspx?DocumentID=395782",
+      "excerpt": "\"NATO is a Cold War relic. We should withdraw from NATO and use that money to defend our own country, not socialist countries\" ... \"Since then, U.S. participation has cost taxpayers trillions of dollars and continues to risk U.S. involvement in foreign wars. Our Constitution did not authorize permanent foreign entanglements, something our Founding Fathers explicitly warned us against. America should not be the world’s security blanket—especially when wealthy countries refuse to pay for their own defense.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25. First-party release from his House office introducing H.R. 6508, the NATO Act, tagged Foreign Affairs. The bill bars U.S. taxpayer funds for NATO's common budgets. His words oppose paying for an open-ended commitment abroad and the risk of foreign wars, which is this key's pole. Only his quoted words count, not Sen. Lee's companion bill.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "official House e-newsletter (April 2024 update)",
+      "date": "2024-05-08",
+      "link": "https://massie.house.gov/news/email/show.aspx?ID=LJCWZJNIK2RRGG6NQWUN7XLMDU",
+      "excerpt": "\"Rep. Massie Votes Against Funding Foreign Wars\" ... \"Shamefully, they converted a veterans care bill into a vehicle for passing a $100 billion package funding foreign wars. I expressed opposition on the House floor to both the process and the likely results.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25. First-party newsletter from his House office, in his own words. It explicitly opposes a named war-funding package: the April 2024 foreign aid package for Ukraine, Israel and Taiwan. This is a House newsletter, not a formal press release: no press release on massie.house.gov opposes a named foreign aid package (his Foreign Affairs release list and his House RSS feed were checked). Only his stated opposition counts; the vote it reports is not used as a source.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "official House e-newsletter (November 2022 update)",
+      "date": "2022-12-02",
+      "link": "https://massie.house.gov/news/email/show.aspx?ID=LJCWZJNIK2RRH3EXWFZZV4PAKQ",
+      "excerpt": "\"Rep. Massie: \"We Shouldn't Be Sending Another Penny to Ukraine.\" I agree with Tucker Carlson. We shouldn’t send another penny to Ukraine, and we should audit the money Congress has already sent over there.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25. First-party newsletter from his House office. This is his own House language against further open-ended funding for a foreign war. It is the closest first-party wording to opposing a blank check: the phrase \"blank check\" itself appears in his words only in a secondary news interview, which is not used here.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "social media post (own X account, @RepThomasMassie)",
+      "date": "2026-04-09",
+      "link": "https://x.com/RepThomasMassie/status/2042195158481924304",
+      "excerpt": "\"End all foreign aid\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (full post text and timestamp, 2026-04-09T10:57Z, via X's public embed data). His own words, the entire post. This is the requested X quote on foreign aid.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "social media post (own X account, @RepThomasMassie)",
+      "date": "2026-06-05",
+      "link": "https://x.com/RepThomasMassie/status/2062690053701185662",
+      "excerpt": "\"I just voted against the Ukraine Support Act tonight. It sends over $9 billion of your dollars overseas, and includes $250 million for Radio Free Europe, a Cold War relic that benefits no American.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (full post text and timestamp, 2026-06-05T00:16Z, via X's public embed data). His own statement opposing a specific foreign aid package and saying why: it sends taxpayer money overseas. Only his stated reasons count; the vote is not used as a source.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    }
+  ],
+  "last_updated": "2026-11-25",
+  "status": "active",
+  "locked": true,
+  "locked_on": "2026-11-25"
+}

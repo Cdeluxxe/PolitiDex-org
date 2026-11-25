@@ -1,0 +1,65 @@
+{
+  "stance_id": "massie|border_security|gt-091",
+  "politician_id": "massie",
+  "topic": "border_security",
+  "position": "support",
+  "position_on": "securing the southern border, building the wall, and enforcing existing immigration law, including arresting and deporting people here illegally (he opposes amnesty and deportation deferrals for new arrivals)",
+  "confidence": 0.85,
+  "confidence_reason": "His campaign site says \"Secure our Border and Build the Wall\" and that he supports efforts to stop illegal immigration, a House press release faults the President's refusal to enforce immigration law and opposes amnesty for new arrivals, a House newsletter calls for action to secure the border now, and his own X post says to arrest and deport people here illegally; held at 0.85 because his only immigration press release is from 2014, his House Immigration page states no position, and no first-party page uses the words \"catch and release\".",
+  "sources": [
+    {
+      "type": "campaign site (homepage issues section)",
+      "date": null,
+      "link": "https://www.thomasmassie.com/",
+      "excerpt": "\"Secure our Border and Build the Wall\" ... \"I support President Trump’s efforts to stop illegal immigration\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25. No date on page. First-party campaign platform; the heading and his stated support for stopping illegal immigration are a clear position on securing the border and the wall. The same sentence goes on to describe a vote to fund the wall; that vote is not used as a source.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "official House issues page (section)",
+      "date": null,
+      "link": "https://massie.house.gov/issues/issue/?IssueID=112051",
+      "excerpt": "\"To learn more about my views on immigration issues, please contact my office.\"",
+      "weight": "mention",
+      "note": "Read directly on 2026-11-25. No date on page. The Immigration section of his House issues page. Its only text is the quoted line plus a link to one related release, so it names the topic but states no position. Recorded as not taking a clear position and given no weight.",
+      "takes_clear_position": false,
+      "page_fully_readable": true
+    },
+    {
+      "type": "official press release",
+      "date": "2014-08-02",
+      "link": "https://massie.house.gov/news/documentsingle.aspx?DocumentID=395193",
+      "excerpt": "\"President Obama’s lawless policies caused this crisis, and he refuses to take any action to correct it\" ... \"The President’s refusal to enforce the law has led Central American parents to believe that their children will be rewarded for breaking the law. Until the source of the crisis is addressed, no amount of money will solve the problem.\" ... \"Passage of this bill will cost the taxpayer nothing, yet it will send a clear message to Central American parents that amnesty will not be provided to new arrivals.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25. First-party release from his House office, tagged Immigration; it is the only release under that tag on massie.house.gov. His quoted words call for enforcing existing immigration law and oppose amnesty for new arrivals (H.R. 5272, barring new DACA deferrals). Only his quoted words count; the votes the release reports are not used as sources.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "official House e-newsletter (March 2024 update)",
+      "date": "2024-04-08",
+      "link": "https://massie.house.gov/news/email/show.aspx?ID=LJCWZJNIK2RRG3FOVIMVM2ON4M",
+      "excerpt": "\"Rep. Massie Lists Seven Things President Biden Can Do Now to Secure the Border\" ... \"The President needs to take these actions to secure the border now.\" ... \"By leaving our borders open, Joe Biden is facilitating an invasion of border states.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25. First-party newsletter from his House office, in his own words. A clear position on securing the border. The seven actions themselves are listed only in an embedded floor video, which is not quoted, so this record does not claim he named ending catch-and-release.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "social media post (own X account, @RepThomasMassie)",
+      "date": "2026-07-20",
+      "link": "https://x.com/RepThomasMassie/status/2079223562368331960",
+      "excerpt": "\"Good news, the CDL has an address and a picture, so just go arrest and deport the holder. Also, if these illegals are employed, the employer has an address. Easiest crackdown ever.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (full post text and timestamp, 2026-07-20T15:15Z, via X's public embed data). His own words calling for arresting and deporting people here illegally and for an enforcement crackdown. The post's last line doubts an administration official's claim and the administration's resolve; that line criticises the enforcement effort for not going far enough and does not soften the position.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    }
+  ],
+  "last_updated": "2026-11-25",
+  "status": "active",
+  "locked": true,
+  "locked_on": "2026-11-25"
+}

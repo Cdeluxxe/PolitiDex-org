@@ -1,0 +1,85 @@
+{
+  "stance_id": "massie|privacy_rights|gt-093",
+  "politician_id": "massie",
+  "topic": "privacy_rights",
+  "position": "support",
+  "position_on": "ending warrantless government surveillance of Americans and restoring the Fourth Amendment warrant requirement: no FISA Section 702 reauthorization without a warrant requirement for U.S. citizens, repeal of the PATRIOT Act and FISA Amendments Act, and warrants for data held by third parties",
+  "confidence": 0.85,
+  "confidence_reason": "Three House press releases (2015 and 2026) call for repealing the PATRIOT Act and FISA Amendments Act, defunding Section 702 backdoor searches and requiring warrants for all government searches, his campaign site says the government has no right to snoop through digital records without a warrant, a House newsletter says \"End warrantless spying now,\" and two of his own 2026 X posts refuse any FISA reauthorization without a warrant requirement; held at 0.85 because the two releases that oppose FISA authorities by name are from 2015, no first-party press release responds to the 2026 Section 702 reauthorization itself (that is done on X), and the key also covers Big Tech data questions on which these sources say nothing.",
+  "sources": [
+    {
+      "type": "campaign site (homepage issues section)",
+      "date": null,
+      "link": "https://www.thomasmassie.com/",
+      "excerpt": "\"Defend the Constitution The Government has no right to be snooping without a warrant through your digital records and communications any more than they do through your filing cabinet at home.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25. No date on page. First-party campaign platform. A clear Fourth Amendment position against warrantless government searches of digital records.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "official press release",
+      "date": "2015-03-24",
+      "link": "https://massie.house.gov/news/documentsingle.aspx?DocumentID=395203",
+      "excerpt": "\"The Patriot Act contains many provisions that violate the Fourth Amendment and have led to a dramatic expansion of our domestic surveillance state\" ... \"Our Founding Fathers fought and died to stop the kind of warrantless spying and searches that the Patriot Act and the FISA Amendments Act authorize. It is long past time to repeal the Patriot Act and reassert the constitutional rights of all Americans.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25. First-party release from his House office on the Surveillance State Repeal Act (H.R. 1466). His words call for repealing the PATRIOT Act and oppose the warrantless spying it and the FISA Amendments Act authorize. Only his quoted words count, not Rep. Pocan's.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "official press release",
+      "date": "2015-06-11",
+      "link": "https://massie.house.gov/news/documentsingle.aspx?DocumentID=395208",
+      "excerpt": "\"The USA Freedom Act is not the last word on surveillance reform\" ... \"Backdoor surveillance authorized under Section 702 of the FISA Amendments Act is arguably worse than the bulk collection of records illegally collected under Section 215 of the Patriot Act. This amendment is a much needed next step as Congress continues to rein in the surveillance state and reassert the Fourth Amendment.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25. First-party release from his House office on his amendment with Rep. Lofgren to defund two warrantless Section 702 \"backdoor\" searches. His words oppose warrantless Section 702 searches by name. The House tally the release reports is not used as a source; only his quoted words count, not Rep. Lofgren's.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "official press release",
+      "date": "2026-04-23",
+      "link": "https://massie.house.gov/news/documentsingle.aspx?DocumentID=395818",
+      "excerpt": "\"The Bill of Rights is not a suggestion, and Fourth Amendment protections against warrantless searches conducted by the government are not optional\" ... \"Warrantless searches are unconstitutional, and this does not change when the data the government seeks is in digital formats or held by a third party.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25. First-party release from his House office introducing H.R. 8470, the Surveillance Accountability Act, which requires a probable-cause warrant for government searches, including of data held by third parties. A clear, current position against warrantless surveillance. It does not name FISA. Only his quoted words count, not Rep. Boebert's.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "official House e-newsletter (February 2023 update)",
+      "date": "2023-03-01",
+      "link": "https://massie.house.gov/news/email/show.aspx?ID=LJCWZJNIK2RRGTSK4RHFARJ2RM",
+      "excerpt": "\"While surveilling foreign targets under the Foreign Intelligence Surveillance Act (FISA), the U.S. government collects exabytes of data pertaining to American citizens.\" ... \"The Constitution requires a warrant to query that vast database for Americans. End warrantless spying now.\" ... \"The FISA system is being abused as a means of investigating Americans without a warrant.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25. First-party newsletter from his House office, in his own words. A clear position against FISA abuses and warrantless queries of Americans' data.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "social media post (own X account, @RepThomasMassie)",
+      "date": "2026-03-24",
+      "link": "https://x.com/RepThomasMassie/status/2036466290752098320",
+      "excerpt": "\"I’ll continue to support the valid Constitutional position that Trump, Jordan, and Vance have all expressed strongly in the past: No FISA reauthorization without a warrant requirement for US citizens!\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (full post text and timestamp, 2026-03-24T15:32Z, via X's public embed data). His own words opposing FISA reauthorization without a warrant requirement. The attached image of other officials' past posts is not used.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "social media post (own X account, @RepThomasMassie)",
+      "date": "2026-04-10",
+      "link": "https://x.com/RepThomasMassie/status/2042596045343855041",
+      "excerpt": "\"I won’t vote to let feds spy on you without a warrant. FISA 702 allows the government to search for your information in vast databases compiled while targeting foreigners.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (full post text and timestamp, 2026-04-10T13:30Z, via X's public embed data). His own stated position on Section 702, posted before the reauthorization vote. It states what he will not support and why; no vote is used as a source. The attached White House email is not used.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    }
+  ],
+  "last_updated": "2026-11-25",
+  "status": "active",
+  "locked": true,
+  "locked_on": "2026-11-25"
+}

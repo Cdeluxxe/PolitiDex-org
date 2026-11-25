@@ -1,0 +1,65 @@
+{
+  "stance_id": "massie|pro_life|gt-092",
+  "politician_id": "massie",
+  "topic": "pro_life",
+  "position": "support",
+  "position_on": "protecting unborn life from conception and opposing abortion, including any taxpayer funding of abortion, Planned Parenthood, abortion pills and foreign abortion providers",
+  "confidence": 0.85,
+  "confidence_reason": "His campaign site says life begins at conception and that no public money should ever be spent on abortion, a 2017 House release calls Roe v. Wade one of the greatest judicial travesties of our time and pledges to always vote against taxpayer funding of abortion, a 2025 House release introduces a bill to cut off aid to foreign entities that fund abortions, and his own X post welcomed the end of Roe so states can defend the unborn; held at 0.85 because his House Right to Life page states no position, his recent statements focus on funding rather than on any specific limit on abortion itself, and his X post frames post-Roe protection as a matter for state legislatures.",
+  "sources": [
+    {
+      "type": "campaign site (homepage issues section)",
+      "date": null,
+      "link": "https://www.thomasmassie.com/",
+      "excerpt": "\"Pro-Life I believe that life begins at conception. I will vote against government funding of abortion services and will vote to defund Planned Parenthood. I believe no public money should ever be spent on abortion procedures, abortion pills, or embryonic stem cell research.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25. No date on page. First-party campaign platform, under the heading \"Pro-Life\". A clear position that life begins at conception and against public funding of abortion. The pledges about how he will vote are his stated position, not a vote record.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "official House issues page (section)",
+      "date": null,
+      "link": "https://massie.house.gov/issues/issue/?IssueID=112043",
+      "excerpt": "\"To learn more about my views on pro-life issues, please contact my office.\"",
+      "weight": "mention",
+      "note": "Read directly on 2026-11-25. No date on page. The Right to Life section of his House issues page. Its only text is the quoted line plus a list of related releases, so it names the topic but states no position. Recorded as not taking a clear position and given no weight.",
+      "takes_clear_position": false,
+      "page_fully_readable": true
+    },
+    {
+      "type": "official press release",
+      "date": "2017-01-27",
+      "link": "https://massie.house.gov/news/documentsingle.aspx?DocumentID=395227",
+      "excerpt": "\"I believe that life begins at conception. I will always vote against taxpayer funding of abortion, Planned Parenthood, abortion pills, and embryonic stem cell research. Just societies and cultures protect the most innocent and vulnerable among us.\" ... \"Together we will work toward the day when our nation's laws once again protect each and every human being, born and unborn.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25. First-party statement from his House office on the 2017 March for Life, tagged Right to Life. It also calls Roe v. Wade \"one of the greatest judicial travesties of our time\". A clear position for legal protection of unborn life and against taxpayer funding of abortion.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "official press release",
+      "date": "2025-09-11",
+      "link": "https://massie.house.gov/news/documentsingle.aspx?DocumentID=395756",
+      "excerpt": "\"The message of the 'No Funds for Foreign Abortions Act' is clear: foreign countries that spend money to kill unborn children will not receive aid from the United States of America\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25. First-party release from his House office introducing H.R. 5302, the No Funds for Foreign Abortions Act, tagged Right to Life and Foreign Affairs. His words take a clear position against U.S. money reaching those who fund abortions. The same release is cited in the foreign-aid record for a different sentence.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "social media post (own X account, @RepThomasMassie)",
+      "date": "2022-06-24",
+      "link": "https://x.com/RepThomasMassie/status/1540402110428336129",
+      "excerpt": "\"The Supreme Court has taken two great steps to save lives in the past 48 hours: it reaffirmed Heller's decision regarding self-defense rights and repealed Roe v. Wade to allow state legislatures to defend the unborn.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (full post text and timestamp, 2022-06-24T18:30Z, via X's public embed data). His own words welcoming the end of Roe v. Wade as a step to save lives and let states defend the unborn. The Heller half of the post is about gun rights and does not count here.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    }
+  ],
+  "last_updated": "2026-11-25",
+  "status": "active",
+  "locked": true,
+  "locked_on": "2026-11-25"
+}

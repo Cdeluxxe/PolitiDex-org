@@ -1,0 +1,75 @@
+{
+  "stance_id": "massie|medical_freedom|gt-094",
+  "politician_id": "massie",
+  "topic": "medical_freedom",
+  "position": "support",
+  "position_on": "personal choice over COVID-19 vaccines and opposition to government vaccine and mask mandates, including the CDC's vaccine mandate on international air travelers, its airline mask mandate, and the vaccine mandate on healthcare workers",
+  "confidence": 0.85,
+  "confidence_reason": "Two House press releases oppose the CDC's COVID-19 vaccine mandate for international travelers and its airline mask mandate in his own words, two House newsletters say nobody should be forced to take the vaccine and that mask mandates are unconstitutional, and two posts on his own X account oppose COVID vaccine mandates outright; held at 0.85 because every source is from 2021 to 2023, his campaign site says nothing on medical freedom, and none of the sources found speaks to lockdowns.",
+  "sources": [
+    {
+      "type": "official press release",
+      "date": "2023-01-12",
+      "link": "https://massie.house.gov/news/documentsingle.aspx?DocumentID=395511",
+      "excerpt": "\"So, why do we subject visitors who want to see their families to this COVID-19 double standard? The CDC's unscientific mandate is separating too many people from their families and has been doing so for far too long. It needs to end.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25. First-party release from his House office introducing H.R. 185 to end the CDC's COVID-19 vaccine mandate on international air travelers, tagged Health. His quoted words take a clear position against a COVID vaccine mandate.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "official press release",
+      "date": "2022-03-14",
+      "link": "https://massie.house.gov/news/documentsingle.aspx?DocumentID=395436",
+      "excerpt": "\"The Centers for Disease Control and Prevention does not have the legal authority to force people traveling on commercial airlines to wear masks\" ... \"This lawsuit targets the faceless bureaucrats who are behind the CDC's unscientific regulation so that this illegal mask mandate can be brought to a permanent end.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25. First-party release from his House office announcing Massie et al. v. CDC, a lawsuit he led to end the CDC's mask mandate on commercial flights. His quoted words take a clear position against a government mask mandate.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "official House e-newsletter (September 2021 update)",
+      "date": "2021-10-04",
+      "link": "https://massie.house.gov/news/email/show.aspx?ID=LJCWZJNIK2RRGJQ7PYZPQQ5E6A",
+      "excerpt": "\"It's not a free country if you can't travel freely within it.I don't promote vaccine hesitancy; I promote vaccine mandate hesitancy. I don't think anybody should be forced to take the vaccine, but vaccine mandates that ignore natural immunity are not scientific.\" ... \"But don't listen to politicians like me; talk to your doctor and make health decisions like these for yourself.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25. First-party newsletter from his House office, in his own words (the missing space after \"within it.\" is as published). A clear medical-freedom position: personal choice over the vaccine and opposition to mandates, including vaccine passports.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "official House e-newsletter",
+      "date": "2021-09-08",
+      "link": "https://massie.house.gov/news/email/show.aspx?ID=LJCWZJNIK2RRGBNW2XDSWLWBSA",
+      "excerpt": "\"The Constitution is for tough times, not for easy times. Mask mandates are unconstitutional, illegal, unscientific, illogical, and unsafe. Further, mask mandates lead to vaccine mandates.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25. First-party newsletter from his House office, in his own words. A clear position against mask and vaccine mandates. The same section describes his lawsuit over the House mask mandate; no vote is used.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "social media post (own X account, @RepThomasMassie)",
+      "date": "2023-01-31",
+      "link": "https://x.com/RepThomasMassie/status/1620510824820342784",
+      "excerpt": "\"The unscientific, unethical, unconstitutional COVID-19 vaccine mandate for healthcare workers was predicated on lies which I exposed on the House floor.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (full post text and timestamp, 2023-01-31T19:54Z, via X's public embed data). His own words against the COVID-19 vaccine mandate on healthcare workers. The post's next sentence announces a House vote; that vote is not used as a source.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "social media post (own X account, @RepThomasMassie)",
+      "date": "2022-02-05",
+      "link": "https://x.com/RepThomasMassie/status/1489780565129805824",
+      "excerpt": "\"NOTICE: I will not take a meeting with any executive or manager of any company that is subjecting its employees to a COVID vaccine mandate or discriminating against employees or customers based on COVID vaccination status.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (full post text and timestamp, 2022-02-05T01:59Z UTC, the evening of February 4 in Washington, via X's public embed data). His own words opposing private-employer COVID vaccine mandates and discrimination by vaccination status.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    }
+  ],
+  "last_updated": "2026-11-25",
+  "status": "active",
+  "locked": true,
+  "locked_on": "2026-11-25"
+}
