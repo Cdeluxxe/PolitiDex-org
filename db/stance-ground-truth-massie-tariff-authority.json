@@ -1,0 +1,65 @@
+{
+  "stance_id": "massie|tariffs_authority|gt-102",
+  "politician_id": "massie",
+  "topic": "tariffs_authority",
+  "position": "support",
+  "position_on": "the key's own pole: keeping Congress's constitutional role over tariffs, with House votes on the emergencies used to impose them, rather than unilateral executive tariff power",
+  "confidence": 0.7,
+  "confidence_reason": "Five of his own X posts from 2025 and 2026 say taxing authority is vested in the House and not the Executive, that the Constitution requires congressional approval of tariffs, that the law requires a House vote on the emergencies underpinning them, and that the tariffs were implemented illegally; held at 0.7 because no press release, newsletter or campaign page of his found takes this position, so it rests on X alone, and because elsewhere he speaks favorably of tariffs as a revenue source, so the record is limited to who holds the tariff power and says nothing on whether tariffs are good policy.",
+  "sources": [
+    {
+      "type": "social media post (own X account, @RepThomasMassie)",
+      "date": "2026-02-11",
+      "link": "https://x.com/RepThomasMassie/status/2021433692850356514",
+      "excerpt": "\"My goal is to defend the Constitution and to represent the people. Taxing authority is vested in the House of Representatives, not the Executive. The vote tonight was to subvert the Constitution and the 1976 National Emergencies Act by literally saying a day is not a day.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (full post text and timestamp, 2026-02-11T03:58Z, via X's public embed data; the leading @IngrahamAngle reply tag and trailing link are left out and line breaks are collapsed). The clearest statement of the pole in his own words. The rule vote he refers to is not used as a source.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "social media post (own X account, @RepThomasMassie)",
+      "date": "2026-02-11",
+      "link": "https://x.com/RepThomasMassie/status/2021586637130449315",
+      "excerpt": "\"And the Constitution requires it.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (full post text and timestamp, 2026-02-11T14:06Z, via X's public embed data). A quote-post of a poll post reading \"58% of voters say that Congressional approval should be required to raise tariffs.\" Read with the quoted post, he states that the Constitution requires congressional approval to raise tariffs. The poll is not used as evidence.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "social media post (own X account, @RepThomasMassie)",
+      "date": "2026-02-10",
+      "link": "https://x.com/RepThomasMassie/status/2021372127593587087",
+      "excerpt": "\"The law requires Congress to permit a vote on Presidential emergencies within 15 days of being declared. Today the Speaker is trying to pass a resolution that literally says a day is not a day, just to avoid voting on the emergencies that underpin the tariffs. Smoke & mirrors!\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (full post text and timestamp, 2026-02-10T23:54Z, via X's public embed data; \"&amp;\" is decoded, line breaks are collapsed and the trailing link is left out). Demands the House vote on the tariff emergencies.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "social media post (own X account, @RepThomasMassie)",
+      "date": "2025-04-09",
+      "link": "https://x.com/RepThomasMassie/status/1909999432583520337",
+      "excerpt": "\"Why haven’t we voted on tariffs in the House of Representatives? Because Speaker Johnson is using Rules Committee Resolutions, consummated by majority votes of the whole House, to declare that “a day is not a day” in order to AVOID THE U.S. LAW that requires Congress to vote.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (full post text and timestamp, 2025-04-09T15:58Z, via X's public embed data; the line break is collapsed and the trailing link is left out). Shows the same position a year earlier.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "social media post (own X account, @RepThomasMassie)",
+      "date": "2026-08-03",
+      "link": "https://x.com/RepThomasMassie/status/2084287414810349682",
+      "excerpt": "\"What a nightmare. By implementing the tariffs illegally, and now having to unwind them, the Trump administration created over $100 billion of profit for corporations selling foreign products, at the expense of American consumers.\"",
+      "weight": "weak",
+      "note": "Read directly on 2026-11-25 (full post text and timestamp, 2026-08-03T14:36Z, via X's public embed data; the closing lines and trailing link are left out). Calls the executive tariffs illegal. Weighted weak because it is mostly about the cost of unwinding them.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    }
+  ],
+  "last_updated": "2026-11-25",
+  "status": "active",
+  "locked": true,
+  "locked_on": "2026-11-25"
+}

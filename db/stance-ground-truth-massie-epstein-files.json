@@ -1,0 +1,65 @@
+{
+  "stance_id": "massie|epstein_files_transparency|gt-100",
+  "politician_id": "massie",
+  "topic": "epstein_files_transparency",
+  "position": "support",
+  "position_on": "the key's own pole: releasing the federal government's Epstein files in full, and forcing the Department of Justice to comply with the Epstein Files Transparency Act's disclosure requirements and deadline",
+  "confidence": 0.85,
+  "confidence_reason": "Three House press releases (July 2025, November 2025 and July 2026) state in his own words that Americans deserve the complete Epstein files, that the Senate should send the release bill to the President unamended, and that the Justice Department is unlawfully withholding over 3 million files and maintaining heavy redactions, and two of his own X posts restate the demand for the complete files and his push for a second enforcement law; held at the 0.85 ceiling because every source comes from the same campaign for one bill family and his own words, not any vote, petition or cosponsorship, carry the position.",
+  "sources": [
+    {
+      "type": "official press release",
+      "date": "2025-07-15",
+      "link": "https://massie.house.gov/news/documentsingle.aspx?DocumentID=395739",
+      "excerpt": "\"We all deserve to know what’s in the Epstein files, who’s implicated, and how deep this corruption goes,\" said Rep. Thomas Massie. \"Americans were promised justice and transparency. We’re introducing a discharge petition to force a vote in the U.S. House of Representatives on releasing the complete files.\"",
+      "weight": "strong",
+      "note": "Read on 2026-11-25 from an Internet Archive capture of this exact House page, because the House site refused direct requests from this environment that day; the title and date are taken from the captured page. Release titled \"Reps. Massie, Khanna Seek House Vote on Public Release of Jeffrey Epstein Files\". His own quoted words call for releasing the complete files. The discharge petition itself is not used as a source.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "official press release",
+      "date": "2025-11-18",
+      "link": "https://massie.house.gov/news/documentsingle.aspx?DocumentID=395780",
+      "excerpt": "\"Today's overwhelming vote in the House of Representatives to release the Epstein files is a major victory not only for the survivors of Jeffrey Epstein's abuse, but for victims of sexual abuse throughout the country,\" said Rep. Thomas Massie. ... \"The Senate should not add an amendment to EFTA to avoid disclosing those rich and powerful men who have evaded justice for so many years.\"",
+      "weight": "strong",
+      "note": "Read on 2026-11-25 from an Internet Archive capture of this exact House page, because the House site refused direct requests from this environment that day; the title and date are taken from the captured page. Release titled \"Massie-Khanna \\\"Epstein Files Transparency Act\\\" Passes House of Representatives\". Only his quoted statements are used; the release also reports a House vote tally, which is not used as a source.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "official press release",
+      "date": "2026-07-15",
+      "link": "https://massie.house.gov/news/documentsingle.aspx?DocumentID=395849",
+      "excerpt": "\"The Department of Justice continues to unlawfully withhold over 3 million Epstein files that should be released to the public,\" said Rep. Massie. \"In addition, the DOJ is unlawfully maintaining heavy redactions on the files it is releasing.\"",
+      "weight": "strong",
+      "note": "Read on 2026-11-25 from an Internet Archive capture of this exact House page, because the House site refused direct requests from this environment that day; the title and date are taken from the captured page. Release introducing the Epstein Files Transparency Act II. This is the source for the second half of the pole: that the files must be released in full and the law's requirements met. Quotes from co-leads in the same release are not used.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "social media post (own X account, @RepThomasMassie)",
+      "date": "2025-07-15",
+      "link": "https://x.com/RepThomasMassie/status/1945237281096229095",
+      "excerpt": "\"We all deserve to know what’s in the Epstein files, who’s implicated, and how deep this corruption goes. Americans were promised justice and transparency. We’re introducing a discharge petition to force a vote in the US House of Representatives on releasing the COMPLETE files.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (full post text and timestamp, 2025-07-15T21:41Z, via X's public embed data; line breaks are collapsed and the trailing link is left out). His own words demanding the complete files.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "social media post (own X account, @RepThomasMassie)",
+      "date": "2026-11-20",
+      "link": "https://x.com/RepThomasMassie/status/2123770161891049848",
+      "excerpt": "\"I’m focused on getting the Epstein Files Transparency Act II across the finish line and giving Members one more opportunity to vote to end the war in Iran.\"",
+      "weight": "weak",
+      "note": "Read directly on 2026-11-25 (full post text and timestamp, 2026-11-20T13:27Z, via X's public embed data; only the second paragraph is quoted and the trailing link is left out). Shows the position is current in his final weeks in office. Weighted weak because it names the bill and does not restate what it does.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    }
+  ],
+  "last_updated": "2026-11-25",
+  "status": "active",
+  "locked": true,
+  "locked_on": "2026-11-25"
+}
