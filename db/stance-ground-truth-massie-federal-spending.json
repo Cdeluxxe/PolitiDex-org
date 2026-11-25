@@ -1,0 +1,75 @@
+{
+  "stance_id": "massie|cut_spending|gt-086",
+  "politician_id": "massie",
+  "topic": "cut_spending",
+  "position": "support",
+  "position_on": "deep cuts to federal spending to reduce the debt and inflation (he opposes the current level of federal spending and omnibus-style funding bills)",
+  "confidence": 0.85,
+  "confidence_reason": "Two of his own 2025 posts say outright that spending must be cut to reverse inflation and that he voted No on the reconciliation bill because its deficits mean sustained inflation and high interest rates, and his campaign site and a 2017 House release oppose omnibus spending bills; held at 0.85 because his House issues page states no position, the only release that opposes a named spending bill is from 2017, and the campaign site speaks to the appropriations process rather than to the overall level of spending.",
+  "sources": [
+    {
+      "type": "official House issues page (section)",
+      "date": null,
+      "link": "https://massie.house.gov/issues/issue/?IssueID=112042",
+      "excerpt": "\"To learn more about my views on federal spending and the national debt, please contact my office.\"",
+      "weight": "mention",
+      "note": "Read directly on 2026-11-25. The Spending Cuts and Debt section of his House issues page, reached from https://massie.house.gov/issues. No date on page. The section's only text is the quoted line plus a list of related releases, so it names the topic but states no position. Recorded as not taking a clear position and given no weight, even though the request expected this page to state one.",
+      "takes_clear_position": false,
+      "page_fully_readable": true
+    },
+    {
+      "type": "campaign site (homepage issues section)",
+      "date": null,
+      "link": "https://www.thomasmassie.com/",
+      "excerpt": "\"Fix the Broken Appropriations Process\" ... \"Congress has recklessly given up its Constitutionally delegated “power of the purse.” I’ve urged Speakers Boehner, Ryan, and Pelosi, McCarthy, and Johnson to return to regular order, and I have voted against every single one of their Omnibus funding bills they have passed.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25. No date on page. First-party campaign platform. It states a clear position against omnibus funding bills and for regular-order appropriations. It does not use the words \"cut spending\" or name a spending level, so it backs the stance on the omnibus and process side only. The site has no separate issues page (/issues returns 404).",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "official press release",
+      "date": "2017-05-03",
+      "link": "https://massie.house.gov/news/documentsingle.aspx?DocumentID=395231",
+      "excerpt": "\"America’s national debt is nearing $20 trillion, yet today Congress passed a $1.163 trillion omnibus spending bill (H.R. 244). This legislation exceeds congressional spending caps by over $90 billion\" ... \"We should write, debate, amend, and pass 12 separate appropriations bills as the law prescribes, so that if any one bill fails to pass, only 1/12th of the Federal government shuts down.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25. First-party release from his House office, tagged Spending Cuts and Debt. It ties the bill to the national debt and the breached spending caps and states his opposition to a specific spending bill (H.R. 244, FY2017 omnibus). Only the release text and his quoted words count; the vote it reports is not used as a source. This is the most recent release on massie.house.gov that both ties spending to the debt and opposes a named spending bill; about 120 releases were checked.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "official press release",
+      "date": "2025-03-05",
+      "link": "https://massie.house.gov/news/documentsingle.aspx?DocumentID=395707",
+      "excerpt": "\"During COVID, the Federal Reserve created trillions of dollars out of thin air and loaned it to the Treasury Department to enable unprecedented deficit spending. By monetizing the debt, the Federal Reserve devalued the dollar and enabled free money policies that caused high inflation.\"",
+      "weight": "mention",
+      "note": "Read directly on 2026-11-25. First-party release introducing H.R. 1846, the Federal Reserve Board Abolition Act. It ties deficit spending and the debt to inflation, but the position it takes is on abolishing the Fed, not on cutting spending or opposing a spending bill. Recorded as not taking a clear position on this key. Only Massie's quoted words count, not Sen. Lee's.",
+      "takes_clear_position": false,
+      "page_fully_readable": true
+    },
+    {
+      "type": "social media post (own X account, @RepThomasMassie)",
+      "date": "2025-11-06",
+      "link": "https://x.com/RepThomasMassie/status/1986254282442596670",
+      "excerpt": "\"Grocery prices are not way down. The only way to reverse inflation is to quit spending more money than we bring in, which means we must cut spending. The big beautiful bill increased spending.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (full post text and timestamp, 2025-11-06T02:08Z, via X's public embed data). His own words: deficit spending drives inflation and spending must be cut. This is the requested X quote that says federal spending causes inflation.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "social media post (own X account, @RepThomasMassie)",
+      "date": "2025-07-03",
+      "link": "https://x.com/RepThomasMassie/status/1940847893675757858",
+      "excerpt": "\"Although there were some conservative wins in the budget reconciliation bill (OBBBA), I voted No on final passage because it will significantly increase U.S. budget deficits in the near term, negatively impacting all Americans through sustained inflation and high interest rates.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (full post text and timestamp, 2025-07-03T18:59Z, via X's public embed data; the post's link is an attached image, not a press release). His own statement opposing a specific bill because of its deficits, and tying those deficits to inflation and high interest rates. The House site has no press release on this bill. Only his stated reasons count; the vote is not used as a source.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    }
+  ],
+  "last_updated": "2026-11-25",
+  "status": "active",
+  "locked": true,
+  "locked_on": "2026-11-25"
+}
