@@ -1,0 +1,85 @@
+{
+  "stance_id": "massie|free_speech|gt-101",
+  "politician_id": "massie",
+  "topic": "free_speech",
+  "position": "support",
+  "position_on": "the key's own pole: protecting free speech and limiting government censorship, including ending taxpayer funding for federal programs that censor Americans' speech and opposing federal 'hate speech' rules he says violate the First Amendment",
+  "confidence": 0.85,
+  "confidence_reason": "Two House press releases (2024 and 2025) introduce his bill to end taxpayer-funded censorship programs and say the government colluded with private companies to violate the First Amendment, a 2024 House newsletter calls a campus antisemitism-definition bill unconstitutional hate-speech legislation that violates the First Amendment, and four of his own X posts (2022 to 2025) defend speech people dislike and call hate speech antithetical to the First Amendment; held at the 0.85 ceiling because his sources address government censorship and say little about private Big Tech moderation on its own, which the key also covers.",
+  "sources": [
+    {
+      "type": "official press release",
+      "date": "2024-05-23",
+      "link": "https://massie.house.gov/news/documentsingle.aspx?DocumentID=395646",
+      "excerpt": "\"If a Member of Congress's account can be censored on the pretext of combatting 'misinformation', 'disinformation', or 'malinformation', it can be done to anyone's account,\" Rep. Massie continued . ... \"My legislation will end taxpayer funding for programs the federal government uses to censor speech.\"",
+      "weight": "strong",
+      "note": "Read on 2026-11-25 from an Internet Archive capture of this exact House page, because the House site refused direct requests from this environment that day; the title and date are taken from the captured page. Release titled \"Rep. Massie Introduces Legislation to End Taxpayer-Funded Censorship Programs\" (H.R. 8519). The stray space before the period is as published. His own words; the bill's cosponsor list is not used.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "official press release",
+      "date": "2025-02-12",
+      "link": "https://massie.house.gov/news/documentsingle.aspx?DocumentID=395698",
+      "excerpt": "\"However, after purchasing the company, Mr. Musk released internal documents known as the 'Twitter Files' that showed the government colludes with private companies and universities to violate the First Amendment. The government's censorship efforts even extended to accurate tweets I posted to my official congressional Twitter account.\"",
+      "weight": "strong",
+      "note": "Read on 2026-11-25 from an Internet Archive capture of this exact House page, because the House site refused direct requests from this environment that day; the title and date are taken from the captured page. Release reintroducing the bill in the 119th Congress (H.R. 1233). Shows the position carried into a second Congress.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "official House e-newsletter (April update)",
+      "date": "2024-05-08",
+      "link": "https://massie.house.gov/news/email/show.aspx?ID=LJCWZJNIK2RRGG6NQWUN7XLMDU",
+      "excerpt": "\"The House voted on a bill ( HR 6090 ) to define \"antisemitism\" with the intent of increasing prosecution of activity on college campuses. The bill has a problem beyond its violation of the First Amendment: the definition of \"antisemitism\" appears nowhere in the bill!\"",
+      "weight": "strong",
+      "note": "Read on 2026-11-25 from an Internet Archive capture of this exact House page, because the House site refused direct requests from this environment that day; the title and date are taken from the captured page. First-party newsletter from his House office, in the first person, under the heading \"Rep. Massie Votes Against Unconstitutional \\\"Hate Speech\\\" Legislation\". His stated reasoning is used; the vote he reports in the same item is not a source.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "social media post (own X account, @RepThomasMassie)",
+      "date": "2023-11-21",
+      "link": "https://x.com/RepThomasMassie/status/1726759095317787082",
+      "excerpt": "\"Protecting free speech means protecting speech you don’t like, even if it opens you up to criticism.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (full post text and timestamp, 2023-11-21T00:27Z, via X's public embed data). Only the first sentence is quoted; the second sentence reports a vote, which is not used.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "social media post (own X account, @RepThomasMassie)",
+      "date": "2025-09-16",
+      "link": "https://x.com/RepThomasMassie/status/1967946533770551390",
+      "excerpt": "\"“Hate speech” is a term used by those in power to describe thoughts they don’t want spoken. It’s antithetical to the First Amendment.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (full post text and timestamp, 2025-09-16T13:39Z, via X's public embed data). Quotes his own April 2024 post calling hate-speech crimes Orwellian thought crimes. A clear statement of the position.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "social media post (own X account, @RepThomasMassie)",
+      "date": "2022-05-19",
+      "link": "https://x.com/RepThomasMassie/status/1527336140931379200",
+      "excerpt": "\"I don’t hate anyone based on his or her ethnicity or religion. Legitimate government exists, in part, to punish those who commit unprovoked violence against others, but government can’t legislate thought. This bill promoted internet censorship and violations of the 1st amendment\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (full post text and timestamp, 2022-05-19T17:11Z, via X's public embed data; the line break is collapsed). His own explanation, quoting a post that reports a vote count; the vote is not used as a source.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "social media post (own X account, @RepThomasMassie)",
+      "date": "2024-05-01",
+      "link": "https://x.com/RepThomasMassie/status/1785749895443312825",
+      "excerpt": "\"Johnson encounters opposition from several republicans to a “hate speech” bill that many of us believe is a violation of the 1st Amendment.\"",
+      "weight": "weak",
+      "note": "Read directly on 2026-11-25 (full post text and timestamp, 2024-05-01T19:15Z, via X's public embed data). Only the first paragraph is quoted. Weighted weak because it states a group view about one bill.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    }
+  ],
+  "last_updated": "2026-11-25",
+  "status": "active",
+  "locked": true,
+  "locked_on": "2026-11-25"
+}

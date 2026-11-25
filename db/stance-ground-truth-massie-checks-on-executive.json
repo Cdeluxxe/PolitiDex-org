@@ -1,0 +1,65 @@
+{
+  "stance_id": "massie|checks_balances|gt-103",
+  "politician_id": "massie",
+  "topic": "checks_balances",
+  "position": "support",
+  "position_on": "the key's own pole: keeping Congress a real check on executive power whoever is president, including when his own party holds the White House (war powers, impeachment of a cabinet officer for ignoring Congress, and refusing to trust officials who disregard parts of the Constitution)",
+  "confidence": 0.8,
+  "confidence_reason": "Two 2026 House press releases announce his impeachment charges against the Secretary of Defense for ignoring congressional war powers resolutions and say the House must act to defend the Constitution, and three of his own X posts (2024 to 2026) say only Congress can declare war, praise holding that line while one's own party holds the White House, and say supporting an administration does not give it authority Congress holds; held at 0.8 because almost all of his sources are about war powers, one part of the key, and he says little about the courts as a check, which the key also names.",
+  "sources": [
+    {
+      "type": "official press release",
+      "date": "2026-09-15",
+      "link": "https://massie.house.gov/news/documentsingle.aspx?DocumentID=395853",
+      "excerpt": "\"He is abusing the power of his office to ignore congressional war powers resolutions, to kidnap foreign leaders, and to intimidate critics of the Trump administration by retaliating against them for exercising free speech. If we are to remain true to our oath to 'support and defend the Constitution of the United States,' Congress must not turn a blind eye to Secretary Hegseth's unconstitutional and illegal actions.\"",
+      "weight": "strong",
+      "note": "Read on 2026-11-25 from an Internet Archive capture of this exact House page, because the House site refused direct requests from this environment that day; the title and date are taken from the captured page. Release titled \"Rep. Massie Forces Vote to Impeach Secretary of Defense Peter Hegseth\". His own words on Congress checking a Republican administration. The impeachment resolution and any vote on it are not used as sources.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "official press release",
+      "date": "2026-11-09",
+      "link": "https://massie.house.gov/news/documentsingle.aspx?DocumentID=395863",
+      "excerpt": "\"Secretary Hegseth's constitutional violations extend beyond the illegal war in Iran. He is abusing the power of his office to ignore congressional war powers resolutions, to kidnap foreign leaders, and to intimidate critics of the Trump administration by retaliating against them for exercising free speech. If we are to remain true to our oath to 'support and defend the Constitution of the United States,' the House of Representatives must act.\"",
+      "weight": "strong",
+      "note": "Read on 2026-11-25 from an Internet Archive capture of this exact House page, because the House site refused direct requests from this environment that day; the title and date are taken from the captured page. Release titled \"Rep. Massie Forcing House of Representatives to Vote on Impeaching Secretary Hegseth\". Restates the position two months later.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "social media post (own X account, @RepThomasMassie)",
+      "date": "2024-01-12",
+      "link": "https://x.com/RepThomasMassie/status/1745613733932535955",
+      "excerpt": "\"Only Congress has the power to declare war. I have to give credit to @RepRoKhanna here for sticking to his principles, as very few are willing to make this statement while their party is in the White House.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (full post text and timestamp, 2024-01-12T01:08Z, via X's public embed data). Quotes a post saying the President must come to Congress before striking the Houthis. His own words tie the check to \"whoever is president\", the key's wording.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "social media post (own X account, @RepThomasMassie)",
+      "date": "2025-05-01",
+      "link": "https://x.com/RepThomasMassie/status/1917935181924807119",
+      "excerpt": "\"I support this administration, but the Secretary of Defense doesn’t have the Constitutional authority to declare war on a sovereign country. A planned military attack on Iran is an Act of War and requires a vote of Congress according to the U.S. Constitution.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (full post text and timestamp, 2025-05-01T13:32Z, via X's public embed data; the line break is collapsed). Holds his own party's administration to Congress's authority.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "social media post (own X account, @RepThomasMassie)",
+      "date": "2026-11-20",
+      "link": "https://x.com/RepThomasMassie/status/2123864520204648611",
+      "excerpt": "\"Trusting that the people running the government will always respect the parts of the Constitution you appreciate while you watch them violate other provisions of the Constitution is like believing a romantic interest will never cheat on you even though they’ve cheated on others.\"",
+      "weight": "weak",
+      "note": "Read directly on 2026-11-25 (full post text and timestamp, 2026-11-20T19:42Z, via X's public embed data). A general warning against trusting officials who ignore constitutional limits. Weighted weak because it names no branch or policy.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    }
+  ],
+  "last_updated": "2026-11-25",
+  "status": "active",
+  "locked": true,
+  "locked_on": "2026-11-25"
+}

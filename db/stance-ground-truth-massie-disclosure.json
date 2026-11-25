@@ -1,0 +1,55 @@
+{
+  "stance_id": "massie|gov_transparency|gt-104",
+  "politician_id": "massie",
+  "topic": "gov_transparency",
+  "position": "support",
+  "position_on": "the disclosure part of the key's pole: forcing more disclosure of foreign ties in Congress and elections, by requiring candidates to disclose any foreign citizenship and requiring lobbying groups that principally advance a foreign government's interests to register under FARA",
+  "confidence": 0.7,
+  "confidence_reason": "Two House press releases (March 2025 and May 2026) introduce his bills requiring federal candidates to disclose dual citizenship and closing the FARA loophole for lobbying groups that advance foreign interests, with his own quotes that Americans have a right to know and that the bill simply ensures transparency, and two of his own X posts (2024 and 2025) say members should at a minimum disclose foreign citizenship; held at 0.7 because his sources address only foreign-influence disclosure, and none speaks to a ban on member stock trading or to general ethics rules, which the key's pole also names. Epstein-files transparency is a separate key and is filed separately.",
+  "sources": [
+    {
+      "type": "official press release",
+      "date": "2026-05-14",
+      "link": "https://massie.house.gov/news/documentsingle.aspx?DocumentID=395839",
+      "excerpt": "\"Americans have a right to know when powerful lobbying organizations are advancing the interests of foreign governments in Congress,\" said Rep. Massie. \"The Americans Insist on Political Agent Clarity Act does not ban speech, restrict advocacy, or prohibit Americans from supporting foreign allies. It simply ensures transparency.\"",
+      "weight": "strong",
+      "note": "Read on 2026-11-25 from an Internet Archive capture of this exact House page, because the House site refused direct requests from this environment that day; the title and date are taken from the captured page. Release titled \"Rep. Massie Introduces the \\\"Americans Insist on Political Agent Clarity Act\\\" to Require All Foreign Lobbyists to Register Under FARA\". His own words making a disclosure argument.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "official press release",
+      "date": "2025-03-26",
+      "link": "https://massie.house.gov/news/documentsingle.aspx?DocumentID=395713",
+      "excerpt": "\"If we are going to continue to allow Members of Congress to acquire and retain citizenship in other countries, they should at least be required to disclose to voters all countries of which they consider themselves to be citizens.\"",
+      "weight": "strong",
+      "note": "Read on 2026-11-25 from an Internet Archive capture of this exact House page, because the House site refused direct requests from this environment that day; the title and date are taken from the captured page. Release titled \"Rep. Massie Introduces Legislation Requiring Political Candidates to Disclose Dual Citizenship\" (H.R. 2356). His own words calling for required public disclosure. The cosponsor list is not used.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "social media post (own X account, @RepThomasMassie)",
+      "date": "2024-08-19",
+      "link": "https://x.com/RepThomasMassie/status/1825509312443076911",
+      "excerpt": "\"Dual citizens elected to United States Congress should renounce citizenship in all other countries. At a minimum, they should disclose their citizenship in other countries and abstain from votes specifically benefitting those countries.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (full post text and timestamp, 2024-08-19T12:25Z, via X's public embed data; the line break is collapsed). Only the disclosure part bears on this key.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "social media post (own X account, @RepThomasMassie)",
+      "date": "2025-10-26",
+      "link": "https://x.com/RepThomasMassie/status/1982484164717977721",
+      "excerpt": "\"Dual citizens in Congress should renounce citizenship in other countries. At a minimum they should disclose their citizenship.\"",
+      "weight": "weak",
+      "note": "Read directly on 2026-11-25 (full post text and timestamp, 2025-10-26T16:27Z, via X's public embed data). Only the first paragraph is quoted; the rest names cosponsors of his bill, which are not used. Weighted weak because it repeats the 2024 post.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    }
+  ],
+  "last_updated": "2026-11-25",
+  "status": "active",
+  "locked": true,
+  "locked_on": "2026-11-25"
+}
