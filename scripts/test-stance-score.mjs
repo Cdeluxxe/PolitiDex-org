@@ -5,7 +5,7 @@
 // ground-truth record: position must match; confidence must be within 0.1 (the
 // exact delta is always printed). Also pins each rule (R1–R5), and asserts the
 // ground-truth file, the raw record, and the raw-store code are unchanged.
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import path from 'node:path';
@@ -527,6 +527,149 @@ await t('all topics: cost of living and health care keep their calibrated rules;
   assert.equal(cands[0].confidence, 0.85);
   assert.equal(logs.filter((l) => l.startsWith('stance-score: candidate ')).length, 1, 'own-topic log line unchanged');
   assert.ok(logs.some((l) => /^stance-score: james_talarico scored against \d+ topics — page topic cost_living/.test(l)));
+});
+
+// ── Every Massie / Sanders / Talarico ground-truth record ─────────────────────
+// No raw page is on file for most of these, so each record is scored on its own
+// listed sources: the reviewer's verbatim excerpts, fragments split on " ... "
+// into paragraphs, pooled into one page typed "statement" (the same record-level
+// read as scripts/rescore-ground-truth-directional-2026-11.mjs). Every result is
+// printed. Matches are checked strictly. Records the scorer currently gets wrong
+// are pinned in KNOWN_GAPS at their exact current read: the suite fails if a
+// match breaks, a pinned gap changes (including being fixed — then move it out
+// of the list), or a new file appears without being pinned. Read-only.
+const GT_DIR = path.join(root, 'db');
+const GT_FILE_RE = /^stance-ground-truth-(massie|sanders|talarico)-.*\.json$/;
+const GT_FILES_SHA256 = {
+  'stance-ground-truth-massie-abolish-education.json': 'e723504fddceb10719849c12096277cf9bfc6648949f6e1891f6fb5a4fe0fe79',
+  'stance-ground-truth-massie-abortion.json': '45e5aa7749bd2700a965426569881ade0bf4ded40da6bc44397daa0875f2fc74',
+  'stance-ground-truth-massie-border.json': '45b8488ec7da62d70091a8c1bc889fd590cba5c70f0afb192911edc83b230e3b',
+  'stance-ground-truth-massie-cbdc.json': 'c48cb054640eb225b5eb0cfe08f9d67bf73c74ba1c3c5c709e2251384300382d',
+  'stance-ground-truth-massie-checks-on-executive.json': '8f22406d10b92a790c112bb521cbb57d3e9a6bb3d1cddc83d0c7601f8efe3b73',
+  'stance-ground-truth-massie-disclosure.json': '27cb38ee6dc3bc4f8ce630fdb2929b23435488aa21d50c9deabbf730e056d733',
+  'stance-ground-truth-massie-earmarks.json': 'f8337f5ae433cd0e3c68215fa4a11faeb2e69b8c919ab349ce0f4f8c5619edeb',
+  'stance-ground-truth-massie-epstein-files.json': 'dd6bcc4fade9e459dae53ac3067598e272949cad94c94d1f66b3f9f0e179de8c',
+  'stance-ground-truth-massie-federal-reserve.json': 'a7c38d82ddf1a58834e89d4f834277a1f43631b04a1c07c278c158396610f818',
+  'stance-ground-truth-massie-federal-spending.json': '55cfee5649f6b8ffeeaf144f78c88451af700977cbb1b1fdc7dfc735d93c764d',
+  'stance-ground-truth-massie-food-freedom.json': '88cb90b20013e62b4b4036ca618cafeb919dc1a1adc92f0b64fdd3fcd2434777',
+  'stance-ground-truth-massie-foreign-aid.json': 'a0dc7c317cfeca2dd6eeac317df5ecf1a18555b0abb6f34c073741a8d33f4c5f',
+  'stance-ground-truth-massie-free-speech.json': 'a4446c18a21d307ec0b1de2642970b697aad95207ac897c8686c0505212c2f68',
+  'stance-ground-truth-massie-medical-freedom.json': 'd735b222602b852cb9388ae6f6f02628fe69f1864243efa97a37e33b5a3c138b',
+  'stance-ground-truth-massie-school-choice.json': 'cc90cca945c3751e24857ea02a81010595bc52aeb5adb8c492fcd56fd5bbc876',
+  'stance-ground-truth-massie-second-amendment.json': 'eb64045e7defb46345821864b524d93b7d8d868caa08de1e3e87376e95282a75',
+  'stance-ground-truth-massie-surveillance.json': '04f545a35f16495ea8ea2ad3ee8dde5cbfcf5b63445ef6adc60d33b71109f92d',
+  'stance-ground-truth-massie-tariff-authority.json': '5e0f515b5600720100d1831ccbec9f3c4de2b43a38570035227971ccf123e91b',
+  'stance-ground-truth-sanders-child-care.json': '4bf9b286e390ad3d8e1c1c15b2c6ccf277015cfe1209a11d7166cca94da4e1b3',
+  'stance-ground-truth-sanders-climate.json': '304a12e3016cf725814d9e4ba9d554a00c0cb43f3bf6aac0e6801d62ceb44181',
+  'stance-ground-truth-sanders-college-cost.json': '7b7cdc4ed42813d87fcadf4528144b37f4cb799216cd7776b7b518571cbecc0e',
+  'stance-ground-truth-sanders-corporate-accountability.json': '4d91c10e0541cc8bb4435111194cead202b7988b31ec52b4d9315b1c780b22cd',
+  'stance-ground-truth-sanders-drug-prices.json': '52a83f7c93fc4ebe8c61beda28f9dc2cb50b618ab4fe8e2d08c6164a3a0cbf8a',
+  'stance-ground-truth-sanders-housing.json': '615b6c4cd04f80bd2ea39222e325b96ee3fe35c478a89bd68ae393dd0e122bff',
+  'stance-ground-truth-sanders-military-spending.json': 'e5cfe8830a7e11e12fc6dce726420612452e4a27c4d0c00294f96586364a16be',
+  'stance-ground-truth-sanders-money-in-politics.json': '046b7c5742187a218753c876d6c0673509ce58afbab890983591328781c6bb5c',
+  'stance-ground-truth-sanders-paid-leave.json': '7f5763d1f95f8d97a3cf3b1db81186d8970761a5d9bd3b93064f7a36e03002fe',
+  'stance-ground-truth-sanders-reproductive-rights.json': '6ea7755bc511e5d37c8ddda3d7bf41d1434a92fac04d5e39b430ae040c543155',
+  'stance-ground-truth-sanders-social-security.json': 'ff32492ebb545a8982a203c3d1061bdd86bfec83141f6cd02abc4a7e38476ce0',
+  'stance-ground-truth-sanders-trade.json': 'c47bf25cb306fd3728adc644b2da3e61b2d55f413c8faf64893ebe749e78963e',
+  'stance-ground-truth-sanders-wealth-tax.json': 'c4608822c9425a54561fc324b507d1aab493e66702a642e1458a4fdf1f66fdcc',
+  'stance-ground-truth-sanders-workers-wages.json': 'bf279c629a205bd0a2f6c4cff233d8b7d336b42afb534e2ef217283ccc32fdec',
+  'stance-ground-truth-talarico-cannabis.json': 'af34cda9006e8eae1c79f33427e90d25b8bc421988461242e43ab8394f2dadce',
+  'stance-ground-truth-talarico-child-care.json': 'ab6a336331e3fee8e93315f30ba54d7cbbf13349e52465edb8d468c364127552',
+  'stance-ground-truth-talarico-cost-of-living.json': 'f2889f2a8e30dbae8f4bd099719ed2c53f290a9fb1a017ca0a3601b46da59586',
+  'stance-ground-truth-talarico-drug-prices.json': '0e4f69ef6d67fbfad35859f61317ada4fbca374bd14dfec84f899ef2a083d9b3',
+  'stance-ground-truth-talarico-healthcare-access.json': 'f752e671f8702a4223fdfa01b91e42414c3a4d2636e7dd841855575e7fd0d503',
+  'stance-ground-truth-talarico-money-in-politics.json': '42c992d5c668836e56f63dd34ce5cd834bf21e8628e43aad4c3edabf4c910baf',
+  'stance-ground-truth-talarico-paid-leave.json': '6dcdfb06d368b3c021c9e615ae14c86b6ee9989fe3c010436de3eadab23651f4',
+  'stance-ground-truth-talarico-redistricting.json': '2867550b4566fcf33de48572d9c623e63f97bd8e7e598e8b83b818e4a7a86837',
+  'stance-ground-truth-talarico-reproductive-rights.json': '4c318c3dc033b6208fb1bd60b3e11001537d19bc8bf7d02865b53ecbd96354e4',
+  'stance-ground-truth-talarico-social-security.json': '4ba54ace4bf2ca5e9951c58d2f0708da2a45decaa6fb4d65ce0c10440c3187f5',
+  'stance-ground-truth-talarico-stock-trading.json': 'a0acc4863b5e03e87d487af82671fba1ce6f829591228b3eb85aaaba7d1d3706',
+  'stance-ground-truth-talarico-supreme-court.json': 'c5bccbe2b32596fd9ac2336735a5fb46373d9de26cbac3a019bbc21ac703620e',
+  'stance-ground-truth-talarico-term-limits.json': '032bc94780ff73ba2bf307c0bb4efd8848aab01a6cab81b5a5b85682392132f1',
+  'stance-ground-truth-talarico-voting-access.json': '5661710162fec702de6b6b18dce83a58b18c1e5aa9de97e7921dcc2f20d73dd6',
+  'stance-ground-truth-talarico-workers-wages.json': '11f8225468723eb9dd649542e24c20444c90ce84c107eeda7d7736650c67c391',
+};
+// stance_id → the scorer's current (wrong) read. Position differs from the human label.
+const KNOWN_GAPS = {
+  'massie|edu_parental|gt-088': { position: 'no clear position', confidence: 0.3 },
+  'massie|checks_balances|gt-103': { position: 'no clear position', confidence: 0 },
+  'massie|gov_transparency|gt-104': { position: 'no clear position', confidence: 0.3 },
+  'massie|gov_waste|gt-097': { position: 'no clear position', confidence: 0 },
+  'massie|medical_freedom|gt-094': { position: 'no clear position', confidence: 0.3 },
+  'massie|school_choice|gt-095': { position: 'no clear position', confidence: 0 },
+  'massie|tariffs_authority|gt-102': { position: 'no clear position', confidence: 0 },
+  'sanders|econ_corp_account|gt-113': { position: 'oppose', confidence: 0.8 },
+  'sanders|wealth_inequality_tax_fairness|gt-105': { position: 'no clear position', confidence: 0.3 },
+  'sanders|israel_military_aid|gt-006': { position: 'oppose', confidence: 0.8 },
+  'james_talarico|social_security|gt-128': { position: 'no clear position', confidence: 0.3 },
+  'james_talarico|scotus_reform|gt-131': { position: 'no clear position', confidence: 0.3 },
+  'james_talarico|term_limits|gt-130': { position: 'no clear position', confidence: 0.3 },
+};
+// stance_id → exact Δ for a position match whose confidence is outside 0.10 (logged, pinned).
+const CONFIDENCE_OUTSIDE = { 'sanders|econ_trade|gt-115': 0.2 };
+
+const gtEsc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const gtBody = (excerpt) => String(excerpt || '').split(/\s*\.\.\.\s*/).map((f) => f.trim()).filter(Boolean)
+  .map((f) => `<p>${gtEsc(f.replace(/^["“]|["”]$/g, '').replace(/,$/, '.'))}</p>`).join('\n');
+const gtFiles = readdirSync(GT_DIR).filter((n) => GT_FILE_RE.test(n)).sort();
+const gtBefore = Object.fromEntries(gtFiles.map((f) => [f, sha(path.join(GT_DIR, f))]));
+const gtRecords = [];
+for (const f of gtFiles) {
+  const j = JSON.parse(readFileSync(path.join(GT_DIR, f), 'utf8'));
+  for (const r of [j, ...(j.additional_records || [])]) gtRecords.push({ file: f, gt: r });
+}
+const gtResults = gtRecords.map(({ file, gt }) => {
+  const pooled = {
+    url: gt.sources[0].link, final_url: gt.sources[0].link, fetched_at: '2026-11-25T00:00:00.000Z',
+    source_type: 'statement', politician_id: gt.politician_id, topic: gt.topic,
+    body: gt.sources.map((s) => gtBody(s.excerpt)).join('\n'),
+  };
+  const cand = S.scoreRawRecord(pooled, gt.topic);
+  return { file, gt, cand, cmp: S.compareToGroundTruth(cand, gt) };
+});
+console.log(`    ground-truth sweep: ${gtResults.length} records from ${gtFiles.length} files`);
+for (const { file, cmp } of gtResults) console.log(`    [${file}] ${cmp.note}`);
+
+await t('ground-truth sweep: every Massie / Sanders / Talarico file is pinned and present', () => {
+  assert.deepEqual(gtFiles, Object.keys(GT_FILES_SHA256).sort(), 'new or missing ground-truth file — pin it here');
+  assert.equal(gtResults.length, 52);
+});
+for (const { gt, cand, cmp } of gtResults) {
+  const gap = KNOWN_GAPS[gt.stance_id];
+  if (gap) {
+    await t(`known gap ${gt.stance_id}: still reads ${gap.position} ${gap.confidence} (ground truth ${gt.position} ${gt.confidence})`, () => {
+      assert.equal(cmp.positionMatch, false, 'now matches — remove it from KNOWN_GAPS');
+      assert.equal(cand.position, gap.position);
+      assert.equal(cand.confidence, gap.confidence);
+    });
+    continue;
+  }
+  await t(`${gt.stance_id}: position ${gt.position} matches (Δ=${cmp.delta >= 0 ? '+' : ''}${cmp.delta.toFixed(2)})`, () => {
+    assert.equal(cand.position, gt.position, cmp.note);
+    if (gt.stance_id in CONFIDENCE_OUTSIDE) {
+      console.log(`      confidence outside ${S.CONFIDENCE_TOLERANCE}: exact Δ=${cmp.delta}`);
+      assert.equal(cmp.confidenceWithin, false, 'now within tolerance — remove it from CONFIDENCE_OUTSIDE');
+      assert.equal(cmp.delta, CONFIDENCE_OUTSIDE[gt.stance_id]);
+    } else {
+      assert.ok(cmp.confidenceWithin, `exact Δ=${cmp.delta}`);
+    }
+  });
+}
+await t('ground-truth sweep: gap lists name only real records; tally is 39 match / 13 gap', () => {
+  const ids = new Set(gtResults.map((r) => r.gt.stance_id));
+  for (const id of [...Object.keys(KNOWN_GAPS), ...Object.keys(CONFIDENCE_OUTSIDE)]) assert.ok(ids.has(id), id);
+  const matched = gtResults.filter((r) => r.cmp.positionMatch).length;
+  console.log(`    ground-truth sweep: ${matched} position match, ${gtResults.length - matched} known gap, ` +
+    `${gtResults.filter((r) => !r.cmp.confidenceWithin).length} outside confidence tolerance`);
+  assert.equal(matched, 39);
+  assert.equal(gtResults.length - matched, Object.keys(KNOWN_GAPS).length);
+});
+await t('ground-truth sweep: no ground-truth file was modified', () => {
+  for (const f of gtFiles) {
+    const now = sha(path.join(GT_DIR, f));
+    assert.equal(now, gtBefore[f], `${f} changed during the run`);
+    assert.equal(now, GT_FILES_SHA256[f], `${f} differs from its pinned hash`);
+  }
 });
 
 await t('ground-truth file is unchanged', () => assert.equal(sha(gtPath), GT_SHA256));
