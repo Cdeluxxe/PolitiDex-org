@@ -1,0 +1,25 @@
+{
+  "stance_id": "james_talarico|scotus_reform|gt-131",
+  "politician_id": "james_talarico",
+  "topic": "scotus_reform",
+  "position": "support",
+  "position_on": "the key's own pole: an ethics code and term limits for Supreme Court justices",
+  "confidence": 0.8,
+  "confidence_reason": "His campaign page pledges term limits and a binding code of conduct for Supreme Court justices, which is the key's pole word for word; held at 0.8 because only one first-party page states it.",
+  "sources": [
+    {
+      "type": "campaign issue page (own campaign site, jamestalarico.com)",
+      "date": "2026-10-12",
+      "link": "https://jamestalarico.com/issue/corruption-democracy/",
+      "excerpt": "\"Increase accountability for the Supreme Court: Implement term limits and a binding code of conduct for U.S. Supreme Court justices, including mandating rules for recusals, financial disclosures, and limitations on accepting gifts.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (the page's full text, as published on his campaign site). His “Corruption & Democracy” platform page. The date is the page's last-modified date in its own metadata; it was first published 2026-01-02. Only the page's own statement of his Senate priority is used. Other Talarico records cite different lines from this page.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    }
+  ],
+  "last_updated": "2026-11-25",
+  "status": "active",
+  "locked": true,
+  "locked_on": "2026-11-25"
+}

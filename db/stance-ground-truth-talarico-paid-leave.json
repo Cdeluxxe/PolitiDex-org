@@ -1,0 +1,45 @@
+{
+  "stance_id": "james_talarico|paid_leave|gt-124",
+  "politician_id": "james_talarico",
+  "topic": "paid_leave",
+  "position": "support",
+  "position_on": "the key's own pole: guaranteeing paid time off to care for a new baby or a sick loved one",
+  "confidence": 0.85,
+  "confidence_reason": "Two of his own campaign pages pledge federal paid family leave legislation, and his own 2023 post says he filed a paid family leave bill for all Texans; held at 0.85 because the record rests on campaign messaging and his own account of a state bill.",
+  "sources": [
+    {
+      "type": "campaign issue page (own campaign site, jamestalarico.com)",
+      "date": "2026-10-13",
+      "link": "https://jamestalarico.com/issue/labor-business/",
+      "excerpt": "\"Ensure no Texan has to choose between their career and their family: Pass paid family leave legislation that would allow Americans to take time off work to bond with a new child or care for a seriously ill family member\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (the page's full text, as published on his campaign site). His “Labor & Business” platform page. The date is the page's last-modified date in its own metadata; it was first published 2026-01-02. Only the page's own statement of his Senate priority is used.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "campaign issue page (own campaign site, jamestalarico.com)",
+      "date": "2026-10-12",
+      "link": "https://jamestalarico.com/issue/freedom-family-faith/",
+      "excerpt": "\"pass paid family leave legislation that would allow Americans to take time off work to bond with a new child or care for a seriously ill family member\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (the page's full text, as published on his campaign site). His “Freedom, Family & Faith” platform page. The date is the page's last-modified date in its own metadata; it was first published 2026-01-02. Only this clause of the page's “Make it easier to start and raise a family” priority is used. It repeats the labor page, so it is supporting evidence, not independent.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "social media post (his own X account, @jamestalarico)",
+      "date": "2023-02-14",
+      "link": "https://x.com/jamestalarico/status/1625586757705031682",
+      "excerpt": "\"Today she joined me as I filed legislation to enact paid family leave for all Texans.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (the post's full text from X's public embed data; the same post is embedded on his campaign site). The date is the post's UTC timestamp. His own words on filing a state paid family leave bill. No vote is cited.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    }
+  ],
+  "last_updated": "2026-11-25",
+  "status": "active",
+  "locked": true,
+  "locked_on": "2026-11-25"
+}

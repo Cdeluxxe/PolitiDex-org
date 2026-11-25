@@ -1,0 +1,25 @@
+{
+  "stance_id": "james_talarico|voting_access|gt-132",
+  "politician_id": "james_talarico",
+  "topic": "voting_access",
+  "position": "support",
+  "position_on": "the key's own pole: protecting and expanding access to the ballot",
+  "confidence": 0.8,
+  "confidence_reason": "His campaign page pledges to pass the John Lewis Voting Rights Advancement Act to remove barriers to registering and casting a ballot; held at 0.8 because only one first-party page states it.",
+  "sources": [
+    {
+      "type": "campaign issue page (own campaign site, jamestalarico.com)",
+      "date": "2026-10-12",
+      "link": "https://jamestalarico.com/issue/corruption-democracy/",
+      "excerpt": "\"Make it easier for citizens to participate in our elections: Pass the John Lewis Voting Rights Advancement Act to remove unnecessary barriers to registering to vote and casting a ballot.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (the page's full text, as published on his campaign site). His “Corruption & Democracy” platform page. The date is the page's last-modified date in its own metadata; it was first published 2026-01-02. Only the page's own statement of his Senate priority is used. The words “to vote” refer to voters registering, not to any vote he cast. Other Talarico records cite different lines from this page.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    }
+  ],
+  "last_updated": "2026-11-25",
+  "status": "active",
+  "locked": true,
+  "locked_on": "2026-11-25"
+}
