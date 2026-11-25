@@ -1,0 +1,25 @@
+{
+  "stance_id": "james_talarico|campaign_finance|gt-121",
+  "politician_id": "james_talarico",
+  "topic": "campaign_finance",
+  "position": "support",
+  "position_on": "the key's own pole: limiting big money and super-PAC influence over elections",
+  "confidence": 0.8,
+  "confidence_reason": "His campaign page names reversing Citizens United and banning super PACs and corporate PACs as the first legislation he will pursue in the Senate; held at 0.8 because only one first-party page states it, so the sources are not independent.",
+  "sources": [
+    {
+      "type": "campaign issue page (own campaign site, jamestalarico.com)",
+      "date": "2026-10-12",
+      "link": "https://jamestalarico.com/issue/corruption-democracy/",
+      "excerpt": "\"His anti-corruption agenda bans super PACs and corporate PACs\" ... \"the first set of legislation I will pursue in the U.S. Senate will be an anti-corruption package to ban super PACs and corporate PACs\" ... \"Get Big Money out of our politics: Reverse the impact of the Supreme Court’s Citizens United ruling, including by banning super PACs and corporate PACs.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (the page's full text, as published on his campaign site). His “Corruption & Democracy” platform page. The date is the page's last-modified date in its own metadata; it was first published 2026-01-02. Three passages from the same page: the summary, his first-person text and the Senate priority. Not counted as three sources. The stock-trading record cites a different line from this page.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    }
+  ],
+  "last_updated": "2026-11-25",
+  "status": "active",
+  "locked": true,
+  "locked_on": "2026-11-25"
+}

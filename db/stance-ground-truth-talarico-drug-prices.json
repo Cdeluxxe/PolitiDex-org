@@ -1,0 +1,45 @@
+{
+  "stance_id": "james_talarico|health_drug_prices|gt-119",
+  "politician_id": "james_talarico",
+  "topic": "health_drug_prices",
+  "position": "support",
+  "position_on": "the key's own pole: capping and negotiating prescription drug prices for patients",
+  "confidence": 0.85,
+  "confidence_reason": "His campaign health page commits him in the Senate to negotiating power, out-of-pocket caps and PBM rules, and two of his own 2023 posts describe his bills against insulin price gouging and for cheaper imported drugs; held at 0.85 because the record rests on campaign messaging and his own account of state bills, not a federal record.",
+  "sources": [
+    {
+      "type": "campaign issue page (own campaign site, jamestalarico.com)",
+      "date": "2026-10-12",
+      "link": "https://jamestalarico.com/issue/health-care/",
+      "excerpt": "\"In the Senate, he’ll protect Texans’ health insurance and Medicaid, lower drug costs and medical debt\" ... \"Lower prescription drug costs: Increase price transparency and negotiating power to ensure fair pricing, incentivize the development and approval of generic drugs, institute caps on out-of-pocket costs, and regulate pharmacy benefit managers to ensure they’re not up-charging patients.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (the page's full text, as published on his campaign site). His “Health Care” platform page. The date is the page's last-modified date in its own metadata; it was first published 2026-01-02. Only the page's own statements of his Senate priorities are used.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "social media post (his own X account, @jamestalarico)",
+      "date": "2023-05-29",
+      "link": "https://x.com/jamestalarico/status/1662974556074569728",
+      "excerpt": "\"Big Pharma has manipulated the insulin market to drive up prices.\" ... \"Senator Perry and I just passed bipartisan legislation to crack down on insulin price gouging.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (the post's full text from X's public embed data; the same post is embedded on his campaign site). The date is the post's UTC timestamp. His own words on his state insulin bill. The excerpt is his statement of the aim of the bill; no vote is cited.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "social media post (his own X account, @jamestalarico)",
+      "date": "2023-05-22",
+      "link": "https://x.com/jamestalarico/status/1660783258487906307",
+      "excerpt": "\"The Senate just passed my bill to import cheap prescription drugs from Canada and save Texans ~70% on everything from EpiPens to cancer medications.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (the post's full text from X's public embed data; the same post is embedded on his campaign site). The date is the post's UTC timestamp. His own words on his state drug-importation bill. No vote is cited.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    }
+  ],
+  "last_updated": "2026-11-25",
+  "status": "active",
+  "locked": true,
+  "locked_on": "2026-11-25"
+}

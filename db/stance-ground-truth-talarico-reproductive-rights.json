@@ -1,0 +1,35 @@
+{
+  "stance_id": "james_talarico|pro_choice|gt-120",
+  "politician_id": "james_talarico",
+  "topic": "pro_choice",
+  "position": "support",
+  "position_on": "the key's own pole: protecting abortion access and reproductive freedom",
+  "confidence": 0.85,
+  "confidence_reason": "Two of his own campaign platform pages pledge federal legislation to codify Roe v. Wade and protect contraception and IVF; held at 0.85 because both sources are campaign pages from the same site and neither is dated more precisely than its last edit.",
+  "sources": [
+    {
+      "type": "campaign issue page (own campaign site, jamestalarico.com)",
+      "date": "2026-10-12",
+      "link": "https://jamestalarico.com/issue/health-care/",
+      "excerpt": "\"Restore access to reproductive health care in Texas: Codify Roe v. Wade and protect access to contraception and IVF so that families can get the reproductive care they need and so that women are no longer dying needlessly due to Texas’ dangerous abortion ban.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (the page's full text, as published on his campaign site). His “Health Care” platform page. The date is the page's last-modified date in its own metadata; it was first published 2026-01-02. Only the page's own statement of his Senate priority is used.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "campaign issue page (own campaign site, jamestalarico.com)",
+      "date": "2026-10-12",
+      "link": "https://jamestalarico.com/issue/freedom-family-faith/",
+      "excerpt": "\"Get government out of Americans’ private personal decisions: Restore reproductive freedom with federal legislation to codify Roe v. Wade and protect access to contraception and IVF\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (the page's full text, as published on his campaign site). His “Freedom, Family & Faith” platform page. The date is the page's last-modified date in its own metadata; it was first published 2026-01-02. Only the page's own statement of his Senate priority is used. The cannabis record cites a later part of the same priority.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    }
+  ],
+  "last_updated": "2026-11-25",
+  "status": "active",
+  "locked": true,
+  "locked_on": "2026-11-25"
+}

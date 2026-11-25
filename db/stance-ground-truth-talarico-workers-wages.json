@@ -1,0 +1,45 @@
+{
+  "stance_id": "james_talarico|econ_workers|gt-123",
+  "politician_id": "james_talarico",
+  "topic": "econ_workers",
+  "position": "support",
+  "position_on": "the key's own pole: raising the minimum wage and protecting workers, including the right to unionize",
+  "confidence": 0.85,
+  "confidence_reason": "Two of his own campaign pages commit him to a $15 federal minimum wage, wider overtime and the PRO Act, and his own 2025 post backs striking hotel workers; held at 0.85 because the record rests on campaign messaging, not a federal record.",
+  "sources": [
+    {
+      "type": "campaign issue page (own campaign site, jamestalarico.com)",
+      "date": "2026-10-13",
+      "link": "https://jamestalarico.com/issue/labor-business/",
+      "excerpt": "\"James Talarico will raise the minimum wage to $15, expand overtime, pass paid family leave, protect the freedom to unionize\" ... \"Raise wages and reward hard work: Raise the federal minimum wage to $15 an hour, expand overtime eligibility\" ... \"Support workers’ right to unionize: Pass the PRO Act so that all working people have the freedom to join together and negotiate with their employers for better wages and working conditions.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (the page's full text, as published on his campaign site). His “Labor & Business” platform page. The date is the page's last-modified date in its own metadata; it was first published 2026-01-02. Only the page's own statements of his Senate priorities are used. The paid-leave record cites a different line from this page.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "campaign issue page (own campaign site, jamestalarico.com)",
+      "date": "2026-10-12",
+      "link": "https://jamestalarico.com/issue/taxes-cost-of-living/",
+      "excerpt": "\"Increase wages for workers, not CEOs: Raise the federal minimum wage to $15 an hour\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (the page's full text, as published on his campaign site). His “Taxes & Cost of Living” platform page. The date is the page's last-modified date in its own metadata; it was first published 2026-01-02. Only this line is used. It repeats the labor page's wage pledge, so it is supporting evidence, not independent. The earlier cost-of-living record cites a different passage from this page.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "social media post (his own X account, @jamestalarico)",
+      "date": "2025-09-16",
+      "link": "https://x.com/jamestalarico/status/1968031323865616694",
+      "excerpt": "\"I joined the picket line with striking hotel workers in Houston.\" ... \"If you put in the hours, you shouldn’t be scraping by.\"",
+      "weight": "weak",
+      "note": "Read directly on 2026-11-25 (the post's full text from X's public embed data; the same post is embedded on his campaign site). The date is the post's UTC timestamp. His own words. It backs one group of striking workers and names no policy, so it is weighted weak.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    }
+  ],
+  "last_updated": "2026-11-25",
+  "status": "active",
+  "locked": true,
+  "locked_on": "2026-11-25"
+}
