@@ -1,0 +1,45 @@
+{
+  "stance_id": "james_talarico|child_care|gt-127",
+  "politician_id": "james_talarico",
+  "topic": "child_care",
+  "position": "support",
+  "position_on": "the key's own pole: cutting child-care costs and expanding access",
+  "confidence": 0.85,
+  "confidence_reason": "Two of his own campaign pages pledge to expand access to affordable child care, and his own 2023 post describes his state bill to bring down child-care costs; held at 0.85 because the record rests on campaign messaging and his own account of a state bill, and none of the sources names pre-K, which the key also covers.",
+  "sources": [
+    {
+      "type": "campaign issue page (own campaign site, jamestalarico.com)",
+      "date": "2026-10-12",
+      "link": "https://jamestalarico.com/issue/freedom-family-faith/",
+      "excerpt": "\"expand access to affordable child care so that no parent has to choose between continuing their career and starting a family.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (the page's full text, as published on his campaign site). His “Freedom, Family & Faith” platform page. The date is the page's last-modified date in its own metadata; it was first published 2026-01-02. Only this clause of the page's “Make it easier to start and raise a family” priority is used. The paid-leave record cites a different clause of the same priority.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "campaign issue page (own campaign site, jamestalarico.com)",
+      "date": "2026-10-13",
+      "link": "https://jamestalarico.com/issue/labor-business/",
+      "excerpt": "\"and expand access to affordable childcare (which helps businesses, too!).\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (the page's full text, as published on his campaign site). His “Labor & Business” platform page. The date is the page's last-modified date in its own metadata; it was first published 2026-01-02. Only this clause of the page's “Ensure no Texan has to choose between their career and their family” priority is used. It repeats the family page's pledge, so it is supporting evidence, not independent. The paid-leave record cites the earlier clause of the same priority.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "social media post (his own X account, @jamestalarico)",
+      "date": "2023-05-19",
+      "link": "https://x.com/jamestalarico/status/1659672966844633088",
+      "excerpt": "\"I just passed major legislation with Sen. West and Rep. Button to bring down childcare costs for working families.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (the post's full text from X's public embed data; the same post is embedded on his campaign site). The date is the post's UTC timestamp. His own words on his state child-care bill. Only his description of what the bill does is used; no vote is cited.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    }
+  ],
+  "last_updated": "2026-11-25",
+  "status": "active",
+  "locked": true,
+  "locked_on": "2026-11-25"
+}

@@ -1,0 +1,35 @@
+{
+  "stance_id": "james_talarico|healthcare|gt-126",
+  "politician_id": "james_talarico",
+  "topic": "healthcare",
+  "position": "support",
+  "position_on": "the key's own pole: expanding health coverage and access, including a Medicare option open to every American",
+  "confidence": 0.85,
+  "confidence_reason": "His campaign health page pledges to let every American join Medicare and to protect the ACA and Medicaid, and his cost-of-living page pledges a federal public health insurance option; held at 0.85 because the record rests on campaign pages, not a federal record.",
+  "sources": [
+    {
+      "type": "campaign issue page (own campaign site, jamestalarico.com)",
+      "date": "2026-10-12",
+      "link": "https://jamestalarico.com/issue/health-care/",
+      "excerpt": "\"In the Senate, he’ll protect Texans’ health insurance and Medicaid\" ... \"Allow every American — regardless of their age — to join Medicare: Provide an affordable not-for-profit health care option for every American\" ... \"Protect health coverage and lower premiums: Protect and improve the Affordable Care Act (ACA) and reverse the Trump Administration’s dangerous cuts to the ACA enhanced tax credits, Medicare, and Medicaid\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (the page's full text, as published on his campaign site). His “Health Care” platform page. The date is the page's last-modified date in its own metadata; it was first published 2026-01-02. Only the page's own summary and statements of his Senate priorities are used. The drug-prices record cites a different line from this page.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "campaign issue page (own campaign site, jamestalarico.com)",
+      "date": "2026-10-12",
+      "link": "https://jamestalarico.com/issue/taxes-cost-of-living/",
+      "excerpt": "\"Lower health care and prescription drug costs: Create a federal public health insurance option that competes with private insurance\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (the page's full text, as published on his campaign site). His “Taxes & Cost of Living” platform page. The date is the page's last-modified date in its own metadata; it was first published 2026-01-02. Only this clause is used. It restates the health page's public-option pledge, so it is supporting evidence, not independent.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    }
+  ],
+  "last_updated": "2026-11-25",
+  "status": "active",
+  "locked": true,
+  "locked_on": "2026-11-25"
+}

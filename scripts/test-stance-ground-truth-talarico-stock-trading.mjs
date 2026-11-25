@@ -191,10 +191,10 @@ for (const [f, want] of Object.entries(EARLIER)) {
     assert.equal(h, want);
   });
 }
-t('every earlier ground-truth file is still present, and no unexpected file was added', () => {
+t('every earlier ground-truth file is still present alongside this one and the rest of its pass', () => {
+  // Only presence is pinned: later passes may add new ground-truth files without breaking this suite.
   const all = allGt();
-  for (const f of [...Object.keys(EARLIER), FILE_NAME]) assert.ok(all.includes(f), 'missing ' + f);
-  for (const f of all) assert.ok(f in EARLIER || f === FILE_NAME || SAME_PASS.includes(f), 'unexpected ground-truth file ' + f);
+  for (const f of [...Object.keys(EARLIER), FILE_NAME, ...SAME_PASS]) assert.ok(all.includes(f), 'missing ' + f);
 });
 t('the service worker and live scoring code do not read the new file', () => {
   for (const f of ['netlify/lib/raw-ingest-core.mjs', 'netlify/functions/raw-ingest-cron.mts', 'netlify/lib/stance-score-core.mjs', 'sw.js']) {

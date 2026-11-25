@@ -1,0 +1,35 @@
+{
+  "stance_id": "james_talarico|social_security|gt-128",
+  "politician_id": "james_talarico",
+  "topic": "social_security",
+  "position": "support",
+  "position_on": "the key's own pole: protecting Social Security and Medicare benefits from cuts",
+  "confidence": 0.8,
+  "confidence_reason": "Two of his own campaign pages pledge to fight attacks on Social Security and Medicare and to lift the payroll tax cap above $400,000; held at 0.8 because the two pages carry nearly the same sentence, so they are not independent.",
+  "sources": [
+    {
+      "type": "campaign issue page (own campaign site, jamestalarico.com)",
+      "date": "2026-10-13",
+      "link": "https://jamestalarico.com/issue/labor-business/",
+      "excerpt": "\"Protect the retirement benefits working people have earned: Fight tooth and nail against attacks on Social Security and Medicare, ensure the wealthiest Americans pay their fair share into Social Security by eliminating the tax cap on those earning over $400,000 a year\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (the page's full text, as published on his campaign site). His “Labor & Business” platform page. The date is the page's last-modified date in its own metadata; it was first published 2026-01-02. Only the page's own statement of his Senate priority is used. The wages record cites different lines from this page.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "campaign issue page (own campaign site, jamestalarico.com)",
+      "date": "2026-10-12",
+      "link": "https://jamestalarico.com/issue/taxes-cost-of-living/",
+      "excerpt": "\"Ensure Americans can afford to retire: Fight tooth and nail against attacks on Medicare and Social Security\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (the page's full text, as published on his campaign site). His “Taxes & Cost of Living” platform page. The date is the page's last-modified date in its own metadata; it was first published 2026-01-02. Only this clause is used. It repeats the labor page's pledge almost word for word, so it is supporting evidence, not independent.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    }
+  ],
+  "last_updated": "2026-11-25",
+  "status": "active",
+  "locked": true,
+  "locked_on": "2026-11-25"
+}
