@@ -1,0 +1,55 @@
+{
+  "stance_id": "massie|audit_spending|gt-089",
+  "politician_id": "massie",
+  "topic": "audit_spending",
+  "position": "support",
+  "position_on": "a full audit of the Federal Reserve (H.R. 24, Federal Reserve Transparency Act) and, beyond that, abolishing the Federal Reserve (H.R. 1846, Federal Reserve Board Abolition Act)",
+  "confidence": 0.85,
+  "confidence_reason": "He is the sponsor of the 2025 Audit the Fed bill and the 2025 End the Fed bill, and his own House releases and X post say in his words that the Fed should be audited and that Americans would be better off without it; held at 0.85 because the key also covers auditing federal agencies and wasteful spending, which these sources do not address, and his House issues page and campaign site state nothing on the Fed.",
+  "sources": [
+    {
+      "type": "official press release",
+      "date": "2025-01-03",
+      "link": "https://massie.house.gov/news/documentsingle.aspx?DocumentID=395681",
+      "excerpt": "\"Today, Congressman Thomas Massie reintroduced H.R. 24, the Federal Reserve Transparency Act of 2025, also known as “Audit the Fed.” The bill would require the Comptroller General to conduct a full examination of the Board of Governors of the Federal Reserve System and the Federal Reserve Banks.\" ... \"Behind closed doors, the Fed crafts monetary policies that devalue our currency, slow economic growth, and make life harder for the poor and middle class.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25. First-party release from his House office, tagged Federal Reserve Transparency, on the most recent reintroduction of Audit the Fed (H.R. 24, 119th Congress). No later reintroduction appears on his House site. It states a clear position for a full audit of the Fed, which is exactly this key's position. Only the release text and Massie's quoted words count.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "official press release",
+      "date": "2025-03-05",
+      "link": "https://massie.house.gov/news/documentsingle.aspx?DocumentID=395707",
+      "excerpt": "\"Representative Thomas Massie (R-KY) announces the introduction of H.R. 1846, the Federal Reserve Board Abolition Act.\" ... \"If we really want to reduce inflation, the most effective policy is to end the Federal Reserve.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25. First-party release, tagged Federal Reserve Transparency, introducing his bill to abolish the Federal Reserve. It goes beyond auditing, but it takes a clear position in the same direction as this key: against the Fed operating as it does now. Only Massie's words and the release's own text count, not Sen. Lee's quote. The release ends by noting that he has also introduced H.R. 24 to audit the Fed.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    },
+    {
+      "type": "official House issues page (section)",
+      "date": null,
+      "link": "https://massie.house.gov/issues/issue/?IssueID=112049",
+      "excerpt": "\"To learn more about my views on the Federal Reserve, please contact my office.\"",
+      "weight": "mention",
+      "note": "Read directly on 2026-11-25. The Federal Reserve Transparency section of his House issues page, reached from https://massie.house.gov/issues. No date on page. Its only text is the quoted line plus links to the Audit the Fed and End the Fed releases and bill files, so it states no position. Recorded as not taking a clear position and given no weight. His campaign site (https://www.thomasmassie.com/) does not mention the Federal Reserve, so there is no campaign language to record for this topic.",
+      "takes_clear_position": false,
+      "page_fully_readable": true
+    },
+    {
+      "type": "social media post (own X account, @RepThomasMassie)",
+      "date": "2025-03-05",
+      "link": "https://x.com/RepThomasMassie/status/1897400794946920547",
+      "excerpt": "\"Americans would be better off if the Federal Reserve did not exist. The Fed devalues our currency by monetizing the debt, causing inflation.\"",
+      "weight": "strong",
+      "note": "Read directly on 2026-11-25 (full post text and timestamp, 2025-03-05T21:36Z, via X's public embed data). His own words on the day he reintroduced End the Fed. The post opens with: \"I just reintroduced “End the Fed.\" Title: Federal Reserve Board Abolition Act, HR 1846.\" It states a clear position against the Fed and on monetary policy.",
+      "takes_clear_position": true,
+      "page_fully_readable": true
+    }
+  ],
+  "last_updated": "2026-11-25",
+  "status": "active",
+  "locked": true,
+  "locked_on": "2026-11-25"
+}
