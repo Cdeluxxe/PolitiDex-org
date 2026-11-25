@@ -11,6 +11,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import * as S from "../netlify/lib/stance-score-core.mjs";
+import { GROUND_TRUTH_LEAF_KEYS } from "./v103-chrome-seams.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const GT_PATHS = fs.readdirSync(path.join(root, "db")).filter((f) => /^stance-ground-truth-.*\.json$/.test(f)).map((f) => path.join(root, "db", f));
@@ -212,7 +213,9 @@ await t("only the four areas carry polarity frames; no issue key is added", () =
   const framed = Object.keys(S.TOPIC_RULES).filter((k) => S.TOPIC_RULES[k].frameSupport || S.TOPIC_RULES[k].vetoSupport || S.TOPIC_RULES[k].vetoOppose).sort();
   assert.deepEqual(framed, ["birthright_citizenship", "deportations", "gun_rights", "gun_safety", "pro_choice", "pro_life"]);
   const issueKeys = JSON.parse(fs.readFileSync(path.join(root, "db/issue-keys.json"), "utf8")).keys;
-  assert.deepEqual([...S.SCORED_TOPICS].sort(), [...issueKeys].sort());
+  // The ground-truth leaves are registered but read on request, never swept.
+  for (const k of GROUND_TRUTH_LEAF_KEYS) assert.ok(S.hasRulesFor(k) && !S.SCORED_TOPICS.includes(k), k);
+  assert.deepEqual([...S.SCORED_TOPICS].sort(), issueKeys.filter((k) => !GROUND_TRUTH_LEAF_KEYS.includes(k)).sort());
 });
 await t("every ground-truth file is unchanged by this pass", () => {
   GT_PATHS.forEach((p, i) => assert.equal(fs.readFileSync(p, "utf8"), gtBefore[i], p));

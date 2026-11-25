@@ -105,7 +105,7 @@ const curatedRow = (id, measureId, issueKey, extra = {}) => ({
 // added → 45 < the auto-approve cutoff), so this fixture exercises the MANUAL
 // review lane. The auto-approve lane has its own suite: test-vr-issue-confidence.mjs.
 const BORDER = { id: 1, measureType: "bill", title: "To amend the Immigration and Nationality Act", summary: "Strengthens border security enforcement and detention.", sourceUrl: "https://www.congress.gov/bill/119/hr/2" };
-const UKRAINE = { id: 2, measureType: "bill", title: "Ukraine Security Supplemental Appropriations Act — aid to Ukraine", sourceUrl: "https://www.congress.gov/bill/118/hr/8035" };
+const ISRAEL_ARMS = { id: 2, measureType: "bill", title: "Providing for congressional disapproval of the proposed foreign military sale to Israel of bombs and guidance kits", sourceUrl: "https://www.congress.gov/bill/118/hr/8035" };
 const CURATED = { id: 3, measureType: "bill", title: "Secure Border Enforcement Act", sourceUrl: "https://www.congress.gov/bill/119/hr/3" };
 const BLANK = { id: 4, measureType: "bill", title: "To designate the facility of the United States Postal Service", sourceUrl: "https://www.congress.gov/bill/119/hr/4" };
 
@@ -318,14 +318,14 @@ section("5. member packs refresh after a proposal or a review");
 // ═════════════════════════════════════════════════════════════════════════════
 section("6. unknown issue keys are rejected");
 {
-  ok(!ISSUE_KEYS.has("ukraine_aid"), "precondition: ukraine_aid is a pattern key but not a shipped issue key");
-  const { accepted, rejected } = P.proposeIssueKeys(UKRAINE);
-  ok(rejected.some((r) => r.issueKey === "ukraine_aid"), `ukraine_aid is rejected by the guard (rejected: ${rejected.map((r) => r.issueKey)})`);
+  ok(!ISSUE_KEYS.has("israel_offensive_arms"), "precondition: israel_offensive_arms is a pattern key but not a shipped issue key");
+  const { accepted, rejected } = P.proposeIssueKeys(ISRAEL_ARMS);
+  ok(rejected.some((r) => r.issueKey === "israel_offensive_arms"), `israel_offensive_arms is rejected by the guard (rejected: ${rejected.map((r) => r.issueKey)})`);
   ok(accepted.every((a) => ISSUE_KEYS.has(a.issueKey)), "nothing unknown is accepted");
-  const repo = memRepo({ measures: [UKRAINE] });
+  const repo = memRepo({ measures: [ISRAEL_ARMS] });
   const rep = await P.proposeForMeasures(repo, [2]);
   ok(repo.state.mappings.every((r) => ISSUE_KEYS.has(r.issueKey)), "no unknown key is ever written");
-  ok(rep.rejectedKeys.includes("ukraine_aid"), "the report lists the rejected key");
+  ok(rep.rejectedKeys.includes("israel_offensive_arms"), "the report lists the rejected key");
   ok(P.validateProposalRow({ issueKey: "not_a_real_key", weight: 10 }), "validateProposalRow refuses an unknown key");
   ok(P.validateProposalRow({ issueKey: "housing", weight: 41 }), "validateProposalRow refuses a weight above 40");
   eq(P.validateProposalRow({ issueKey: "housing", weight: 40 }), null, "validateProposalRow accepts a known key at 40");

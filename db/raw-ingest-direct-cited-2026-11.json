@@ -24,8 +24,8 @@
   "acct-spotlight-data.js"
  ],
  "summary": {
-  "politicians": 192,
-  "pages": 244,
+  "politicians": 193,
+  "pages": 252,
   "shared_hosts": 0,
   "shared_urls": 2
  },
@@ -972,6 +972,57 @@
   ],
   "james_talarico": [
    {
+    "url": "https://jamestalarico.com/issue/corruption-democracy/",
+    "label": "jamestalarico.com — campaign issue page, 2026-10-12",
+    "keys": [
+     "campaign_finance",
+     "redistricting_gerrymandering",
+     "stock_trading_ban",
+     "scotus_reform",
+     "term_limits",
+     "voting_access"
+    ]
+   },
+   {
+    "url": "https://jamestalarico.com/issue/freedom-family-faith/",
+    "label": "jamestalarico.com — campaign issue page, 2026-10-12",
+    "keys": [
+     "child_care"
+    ]
+   },
+   {
+    "url": "https://jamestalarico.com/issue/health-care/",
+    "label": "jamestalarico.com — campaign issue page, 2026-10-12",
+    "keys": [
+     "health_drug_prices",
+     "healthcare",
+     "pro_choice"
+    ]
+   },
+   {
+    "url": "https://jamestalarico.com/issue/labor-business/",
+    "label": "jamestalarico.com — campaign issue page, 2026-10-13",
+    "keys": [
+     "paid_leave",
+     "social_security",
+     "econ_workers"
+    ]
+   },
+   {
+    "url": "https://jamestalarico.com/issue/public-education/",
+    "label": "jamestalarico.com — campaign issue page",
+    "keys": [
+     "school_choice"
+    ]
+   },
+   {
+    "url": "https://jamestalarico.com/issue/public-safety-justice/",
+    "label": "jamestalarico.com — campaign issue page, 2026-10-12",
+    "keys": [
+     "cannabis_reform"
+    ]
+   },
+   {
     "url": "https://jamestalarico.com/issue/taxes-cost-of-living/",
     "label": "jamestalarico.com",
     "keys": [
@@ -1739,6 +1790,26 @@
      "gov_waste",
      "pro_life",
      "gun_rights"
+    ]
+   }
+  ],
+  "massie": [
+   {
+    "url": "https://responsiblestatecraft.org/massie-ukraine-casualty-numbers/",
+    "label": "responsiblestatecraft.org — interview, 2024-09-24",
+    "keys": [
+     "ukraine_aid"
+    ]
+   },
+   {
+    "url": "https://www.thomasmassie.com/",
+    "label": "thomasmassie.com — campaign site",
+    "keys": [
+     "pro_life",
+     "border_security",
+     "cut_spending",
+     "gun_rights",
+     "privacy_rights"
     ]
    }
   ],

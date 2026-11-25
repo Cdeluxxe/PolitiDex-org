@@ -95,9 +95,10 @@ const LOW = { id: 3, measureType: "bill", title: "To amend the Immigration and N
 const SAVE = { id: 4, measureType: "bill", title: "Safeguard American Voter Eligibility Act", summary: "Requires proof of citizenship to register to vote.", sourceUrl: src(22) };
 // WEAK + CUE: summary-only match (45) with a restriction cue → stays proposed.
 const WEAKCUE = { id: 7, measureType: "bill", title: "To amend the Immigration and Nationality Act", summary: "Strengthens border security enforcement and detention; restricts parole.", sourceUrl: src(7) };
-// Unknown key: ukraine_aid is a pattern key but not a shipped issue key.
-const UKR = { id: 5, measureType: "bill", title: "Ukraine Security Supplemental Appropriations Act — aid to Ukraine", summary: "", sourceUrl: src(8035) };
-const ALL = [HIGH, MED, LOW, SAVE, UKR, WEAKCUE];
+// Unknown key: israel_offensive_arms is a pattern key but not a shipped issue key
+// (ukraine_aid was, until the ground-truth stated positions pass registered it).
+const ISR_ARMS = { id: 5, measureType: "bill", title: "Providing for congressional disapproval of the proposed foreign military sale to Israel of bombs and guidance kits", summary: "", sourceUrl: src(8035) };
+const ALL = [HIGH, MED, LOW, SAVE, ISR_ARMS, WEAKCUE];
 const VOTES = { 1: ["alice"], 2: ["bob"], 3: ["carol"], 4: ["dan"], 7: ["erin"] };
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -236,16 +237,16 @@ section("4. auto-approved rows refresh packs and reach public reads like manual 
 // ═════════════════════════════════════════════════════════════════════════════
 section("5. unknown issue keys are still refused");
 {
-  const { accepted, rejected } = P.proposeIssueKeys(UKR);
-  ok(rejected.some((r) => r.issueKey === "ukraine_aid"), "ukraine_aid (pattern key, not an issue key) is refused");
+  const { accepted, rejected } = P.proposeIssueKeys(ISR_ARMS);
+  ok(rejected.some((r) => r.issueKey === "israel_offensive_arms"), "israel_offensive_arms (pattern key, not an issue key) is refused");
   ok(accepted.every((a) => ISSUE_KEYS.has(a.issueKey)), "nothing unknown is accepted");
-  const repo = memRepo({ measures: [UKR] });
+  const repo = memRepo({ measures: [ISR_ARMS] });
   await P.proposeForMeasures(repo, [5]);
   ok(repo.state.mappings.every((r) => ISSUE_KEYS.has(r.issueKey)), "no unknown key is written, proposed or reviewed");
   eq(P.shouldAutoApprove({ issueKey: "not_a_real_key", confidence: 99, directionClear: true }), false, "a confident unknown key is never auto-approved");
   eq(P.shouldAutoApprove({ issueKey: "housing", confidence: 99, directionClear: false }), true, "a reversal cue no longer blocks a strong match");
   eq(P.shouldAutoApprove({ issueKey: "not_a_real_key", confidence: 99, directionClear: false }), false, "…but an unknown key with a cue is still refused");
-  const unk = memRepo({ measures: [{ ...UKR, id: 15, title: "Repeal the Ukraine Security Supplemental Appropriations Act — aid to Ukraine" }] });
+  const unk = memRepo({ measures: [{ ...ISR_ARMS, id: 15, title: "Repeal the Ukraine Security Supplemental Appropriations Act — aid to Ukraine" }] });
   await P.proposeForMeasures(unk, [15]);
   ok(unk.state.mappings.every((r) => ISSUE_KEYS.has(r.issueKey) && !(r.reviewedBy === "auto" && !ISSUE_KEYS.has(r.issueKey))), "an unknown key + reversal cue is neither written nor auto-approved");
   eq(P.shouldAutoApprove({ issueKey: "housing", confidence: 59, directionClear: true }), false, "59 is below the cutoff");

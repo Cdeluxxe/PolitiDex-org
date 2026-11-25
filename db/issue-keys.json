@@ -1,6 +1,6 @@
 {
   "_generatedBy": "scripts/gen-issue-keys.mjs (from ISSUE_MAP in alignment-tool.js)",
-  "count": 138,
+  "count": 141,
   "keys": [
     "america_first",
     "america_first_fp",
@@ -73,7 +73,9 @@
     "immig_legal",
     "immigration_reform",
     "infrastructure",
+    "iran_hostilities",
     "iran_policy",
+    "israel_military_aid",
     "israel_support",
     "judicial_check",
     "justice_balance",
@@ -130,6 +132,7 @@
     "tough_on_crime",
     "transit",
     "tribal_consultation",
+    "ukraine_aid",
     "ukraine_policy",
     "venezuela_policy",
     "veterans",
@@ -1147,6 +1150,10 @@
       "rebuild",
       "construction"
     ],
+    "iran_hostilities": [
+      "unauthorized hostilities against iran",
+      "hostilities against iran"
+    ],
     "iran_policy": [
       "iran",
       "iranian",
@@ -1162,6 +1169,10 @@
       "irgc",
       "fordow",
       "natanz"
+    ],
+    "israel_military_aid": [
+      "military aid to israel",
+      "arms sales to israel"
     ],
     "israel_support": [
       "israel",
@@ -1882,6 +1893,10 @@
       "tribal land",
       "tribal historic preservation",
       "sacred sites"
+    ],
+    "ukraine_aid": [
+      "further aid to ukraine",
+      "ukraine supplemental appropriations"
     ],
     "ukraine_policy": [
       "ukraine",

@@ -26,6 +26,16 @@
      drawer. Existing keys on both sides, last in both lists, like the pairs
      above.
 
+   · GROUND-TRUTH LEAF PAIRS (Nov 2026). Three directional leaves joined the
+     register so the ground-truth stated positions filed on them can be
+     published: Further U.S. Aid to Ukraine with Ukraine, America First
+     foreign aid, diplomacy and restraint, and Congress and war powers;
+     Congress Must Authorize Hostilities with Iran with Iran, Congress and war
+     powers, diplomacy and restraint, and no new wars; U.S. Military Support
+     for Israel with Support for Israel, peace through strength, America First
+     foreign aid, and diplomacy and restraint. Each new key is last in the
+     existing keys' lists and has its own list at the end of the map.
+
    · CIVIC RULES & SAFETY NET PAIRS (Nov 2026). Five keys joined the
      register with no position seeded yet, each paired both ways with the
      existing keys whose ground it shares: Redistricting & Gerrymandering
@@ -208,7 +218,7 @@
     power_of_purse: ['cut_spending', 'gov_waste', 'gov_balance', 'national_debt', 'audit_spending', 'gov_services', 'checks_balances', 'war_powers', 'judicial_check', 'congress_oversight', 'tariffs_authority', 'civil_service_control', 'scotus_reform', 'senate_filibuster'],
     social_security: ['healthcare', 'national_debt', 'cut_spending', 'gov_balance'],
     healthcare: ['social_security', 'national_debt', 'cut_spending', 'gov_balance', 'healthcare_market', 'healthcare_costs', 'health_balance', 'health_drug_prices', 'health_rural', 'medical_freedom', 'health_mental', 'homeless', 'veterans', 'public_health_vs_chemical_liability', 'student_debt_college_access', 'safety_net_work_requirements'],
-    strong_defense: ['cut_spending', 'national_debt', 'foreign_balance', 'restraint', 'america_first', 'america_first_fp', 'veterans', 'israel_support', 'iran_policy', 'ukraine_policy', 'yemen_policy', 'venezuela_policy', 'war_powers', 'no_new_wars'],
+    strong_defense: ['cut_spending', 'national_debt', 'foreign_balance', 'restraint', 'america_first', 'america_first_fp', 'veterans', 'israel_support', 'iran_policy', 'ukraine_policy', 'yemen_policy', 'venezuela_policy', 'war_powers', 'no_new_wars', 'israel_military_aid'],
     sound_money: ['audit_spending', 'crypto_cbdc', 'national_debt', 'fed_independence', 'end_fed'],
     crypto_cbdc: ['sound_money', 'audit_spending', 'national_debt', 'tech_innovation', 'tech_balance', 'privacy_rights', 'datacenter_growth'],
     border_security: ['deportations', 'immig_fentanyl', 'immig_balance', 'immig_legal', 'immigration_reform', 'cut_spending'],
@@ -274,15 +284,15 @@
     privacy_rights: ['free_speech', 'tech_innovation', 'tech_balance', 'crypto_cbdc', 'datacenter_growth', 'congress_oversight'],
     tech_balance: ['free_speech', 'privacy_rights', 'tech_innovation', 'crypto_cbdc', 'datacenter_growth'],
     foreign_balance: ['strong_defense', 'restraint', 'america_first', 'america_first_fp', 'veterans'],
-    restraint: ['strong_defense', 'foreign_balance', 'america_first', 'america_first_fp', 'veterans', 'israel_support', 'iran_policy', 'ukraine_policy', 'yemen_policy', 'venezuela_policy', 'war_powers', 'no_new_wars'],
+    restraint: ['strong_defense', 'foreign_balance', 'america_first', 'america_first_fp', 'veterans', 'israel_support', 'iran_policy', 'ukraine_policy', 'yemen_policy', 'venezuela_policy', 'war_powers', 'no_new_wars', 'ukraine_aid', 'iran_hostilities', 'israel_military_aid'],
     america_first: ['strong_defense', 'foreign_balance', 'restraint', 'america_first_fp', 'veterans'],
-    america_first_fp: ['strong_defense', 'foreign_balance', 'restraint', 'america_first', 'veterans', 'israel_support', 'iran_policy', 'ukraine_policy', 'yemen_policy', 'venezuela_policy', 'war_powers'],
-    israel_support: ['iran_policy', 'ukraine_policy', 'yemen_policy', 'venezuela_policy', 'restraint', 'strong_defense', 'america_first_fp', 'war_powers'],
-    iran_policy: ['israel_support', 'ukraine_policy', 'yemen_policy', 'venezuela_policy', 'restraint', 'strong_defense', 'america_first_fp', 'war_powers'],
-    ukraine_policy: ['israel_support', 'iran_policy', 'yemen_policy', 'venezuela_policy', 'restraint', 'strong_defense', 'america_first_fp', 'war_powers'],
+    america_first_fp: ['strong_defense', 'foreign_balance', 'restraint', 'america_first', 'veterans', 'israel_support', 'iran_policy', 'ukraine_policy', 'yemen_policy', 'venezuela_policy', 'war_powers', 'ukraine_aid', 'israel_military_aid'],
+    israel_support: ['iran_policy', 'ukraine_policy', 'yemen_policy', 'venezuela_policy', 'restraint', 'strong_defense', 'america_first_fp', 'war_powers', 'israel_military_aid'],
+    iran_policy: ['israel_support', 'ukraine_policy', 'yemen_policy', 'venezuela_policy', 'restraint', 'strong_defense', 'america_first_fp', 'war_powers', 'iran_hostilities'],
+    ukraine_policy: ['israel_support', 'iran_policy', 'yemen_policy', 'venezuela_policy', 'restraint', 'strong_defense', 'america_first_fp', 'war_powers', 'ukraine_aid'],
     yemen_policy: ['israel_support', 'iran_policy', 'ukraine_policy', 'venezuela_policy', 'restraint', 'strong_defense', 'america_first_fp', 'war_powers'],
     venezuela_policy: ['israel_support', 'iran_policy', 'ukraine_policy', 'yemen_policy', 'restraint', 'strong_defense', 'america_first_fp', 'war_powers'],
-    war_powers: ['israel_support', 'iran_policy', 'ukraine_policy', 'yemen_policy', 'venezuela_policy', 'restraint', 'strong_defense', 'america_first_fp', 'checks_balances', 'judicial_check', 'power_of_purse', 'congress_oversight', 'tariffs_authority', 'civil_service_control', 'scotus_reform', 'guard_authority', 'no_new_wars'],
+    war_powers: ['israel_support', 'iran_policy', 'ukraine_policy', 'yemen_policy', 'venezuela_policy', 'restraint', 'strong_defense', 'america_first_fp', 'checks_balances', 'judicial_check', 'power_of_purse', 'congress_oversight', 'tariffs_authority', 'civil_service_control', 'scotus_reform', 'guard_authority', 'no_new_wars', 'ukraine_aid', 'iran_hostilities'],
     election_security: ['election_integrity', 'voter_id', 'democracy_balance', 'voting_access'],
     election_integrity: ['election_security', 'voter_id', 'democracy_balance', 'voting_access', 'redistricting_gerrymandering'],
     voter_id: ['election_security', 'election_integrity', 'democracy_balance', 'voting_access'],
@@ -302,7 +312,7 @@
     guard_authority: ['states_federal_power', 'state_standing', 'lands_local', 'war_powers', 'checks_balances'],
     public_health_vs_chemical_liability: ['cost_living', 'gov_regulation', 'healthcare'],
     epstein_files_transparency: ['gov_transparency'],
-    no_new_wars: ['restraint', 'war_powers', 'strong_defense'],
+    no_new_wars: ['restraint', 'war_powers', 'strong_defense', 'iran_hostilities'],
     wealth_inequality_tax_fairness: ['cut_spending', 'cost_living', 'econ_growth'],
     student_debt_college_access: ['cost_living', 'healthcare', 'edu_college_cost', 'econ_workers'],
     redistricting_gerrymandering: ['voting_access', 'democracy_balance', 'scotus_reform', 'election_integrity'],
@@ -312,6 +322,9 @@
     end_fed: ['audit_spending', 'cut_spending', 'national_debt', 'sound_money', 'fed_independence'],
     senate_filibuster: ['checks_balances', 'power_of_purse', 'voting_access', 'term_limits'],
     tribal_consultation: ['lands_preserve', 'lands_local', 'permitting_reform', 'states_federal_power'],
+    ukraine_aid: ['ukraine_policy', 'america_first_fp', 'restraint', 'war_powers'],
+    iran_hostilities: ['iran_policy', 'war_powers', 'restraint', 'no_new_wars'],
+    israel_military_aid: ['israel_support', 'strong_defense', 'america_first_fp', 'restraint'],
     mine_cleanup: ['lands_energy', 'lands_preserve', 'lands_keep_public', 'water']
   };
 
@@ -605,7 +618,7 @@
     { id: 'education', label: 'Education', icon: '🎓', keys: ['school_choice', 'public_schools', 'edu_parental', 'edu_balance', 'edu_college_cost', 'student_debt_college_access'] },
     { id: 'repro', label: 'Abortion & Reproductive Rights', icon: '🕊', keys: ['pro_life', 'repro_balance', 'pro_choice'] },
     { id: 'rights', label: 'Civil Rights & Speech', icon: '🗽', keys: ['religious_liberty', 'rights_balance', 'lgbtq_rights', 'free_speech', 'end_dei'] },
-    { id: 'foreign', label: 'Foreign Policy & Defense', icon: '🦅', keys: ['strong_defense', 'foreign_balance', 'restraint', 'america_first', 'america_first_fp', 'israel_support', 'iran_policy', 'ukraine_policy', 'yemen_policy', 'venezuela_policy', 'war_powers', 'no_new_wars', 'veterans'] },
+    { id: 'foreign', label: 'Foreign Policy & Defense', icon: '🦅', keys: ['strong_defense', 'foreign_balance', 'restraint', 'america_first', 'america_first_fp', 'israel_support', 'iran_policy', 'ukraine_policy', 'yemen_policy', 'venezuela_policy', 'war_powers', 'no_new_wars', 'veterans', 'ukraine_aid', 'iran_hostilities', 'israel_military_aid'] },
     { id: 'elections', label: 'Elections & Democracy', icon: '🗳', keys: ['election_security', 'election_integrity', 'voter_id', 'democracy_balance', 'voting_access', 'redistricting_gerrymandering', 'senate_filibuster'] },
     { id: 'reform', label: 'Government Reform & Checks', icon: '⚖️', keys: ['term_limits', 'campaign_finance', 'stock_trading_ban', 'reform_balance', 'congress_oversight', 'gov_transparency', 'epstein_files_transparency', 'checks_balances', 'judicial_check', 'civil_service_control', 'scotus_reform', 'states_federal_power', 'state_standing', 'guard_authority'] }
   ];
