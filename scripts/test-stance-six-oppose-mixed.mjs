@@ -36,9 +36,12 @@ const before = Object.fromEntries(gtFiles.map((f) => [f, sha(path.join(root, 'db
 const file = JSON.parse(readFileSync(RS.GT_PATH, 'utf8'));
 const recs = file.records;
 
-// As measured when the set was locked (rules phase9-v3, 2026-11-26). Raise a
-// floor when the scorer improves; never lower one to pass.
-export const GATES = { records: 27, min_matches: 4, max_wrong: 7, oppose_labels: 21, min_oppose_recall: 3, mixed_labels: 6, min_mixed_recall: 1 };
+// When the set was locked (rules phase9-v3, 2026-11-26): 4 match, 16 abstain,
+// 7 wrong, oppose recall 3, mixed recall 1. Raised after the R21 oppose / mixed
+// rules (same day; scripts/test-stance-oppose-mixed-rules.mjs): 13 match, 12
+// abstain, 2 wrong, oppose recall 10, mixed recall 3. Raise a floor when the
+// scorer improves; never lower one to pass.
+export const GATES = { records: 27, min_matches: 13, max_wrong: 2, oppose_labels: 21, min_oppose_recall: 10, mixed_labels: 6, min_mixed_recall: 3 };
 const PEOPLE = ['boebert', 'owens', 'tom_cole', 'bennie_thompson', 'lee', 'trump'];
 const FIRST_PARTY = /^https:\/\/(?:boebert|owens|cole|benniethompson|democrats-homeland)\.house\.gov\/|^https:\/\/www\.lee\.senate\.gov\/|^https:\/\/(?:www\.whitehouse\.gov|trumpwhitehouse\.archives\.gov)\//;
 

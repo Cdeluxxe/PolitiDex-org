@@ -143,6 +143,10 @@ const GUN_RIGHTS_FRAMES = [
   String.raw`\b${AGAINST_V}\b${GGAP}${GUN_CRITICIZED}`,
   GUN_RIGHTS_HARM,
   String.raw`\b(?:right|rights)\b[^.!?;]{0,60}?\b(?:was|were|is|are|been) (?:again |being )?(?:infringed|trampled|violated|stripped)\b`,
+  // R21d (2026-11-26), a negated harm: "<the right> shall not be infringed" defends the right.
+  String.raw`\b(?:(?:second|2nd) amendment(?: rights)?|right to (?:keep and )?bear arms|gun rights|rights of (?:law-abiding|gun owners))\b[^.!?;]{0,40}?\b(?:must|should|shall|will|may|can)(?: not|n['’]t| never) (?:ever )?be (?:infringed|violated|trampled|abridged|stripped|curtailed|eroded|taken away)\b`,
+  // …and the other harm verbs aimed at those rights ("curtail / erode / impinge on the rights of law-abiding citizens").
+  String.raw`(?<!\b(?:without|not|never|no|avoid|avoiding|while not|that|which)\s+)\b(?:limit\w{0,3}|restrict\w{0,3}|curtail\w{0,3}|erod\w{0,3}|undermin\w{0,3}|imping\w{0,3}(?: on| upon)?)\b (?:(?:the|their|our) )?(?:(?:second|2nd) amendment rights|rights of (?:law-abiding|gun owners)|(?:second|2nd) amendment rights of)\b`,
   String.raw`\b(?:defund\w{0,3}|end\w{0,3}|eliminat\w{0,3}|stop\w{0,4}|block\w{0,3})\b[^.!?;]{0,40}?\b(?:programs?|polic(?:y|ies)|efforts?|rules?)\b (?:that|which) (?:discourag\w*|restrict\w*|burden\w*|infring\w*|limit\w*)\b[^.!?;]{0,60}?\b(?:second amendment|gun owners|right to (?:keep and )?bear arms|firearms?)`,
 ];
 // Rhetoric about the other side, or gun violence put down to mental health: not a gun-safety stance.
@@ -1162,6 +1166,10 @@ export function compileTopicRules(spec) {
     implySupport: re(act(REMEDY, spec.problems)) || /(?!)/,
     implyOppose: re(act(REPEAL, spec.protects)) || /(?!)/,
     outcome: re(spec.outcome ? String.raw`\b(?:${spec.outcome})` : null),
+    // R21c (2026-11-26): the things a side wants kept or expanded (the objects of
+    // its pro verbs). Criticising one as a policy reads the other side.
+    objSupport: re(spec.up && spec.up.length ? String.raw`\b${alt(spec.up)}\b` : null),
+    objOppose: re(spec.upCon && spec.upCon.length ? String.raw`\b${alt(spec.upCon)}\b` : null),
     // polarity-v1 (see POLARITY FRAMES): present only on the keys that define them.
     ...(spec.frameSupport ? { frameSupport: re(anyOf(spec.frameSupport)) } : {}),
     ...(spec.frameOppose ? { frameOppose: re(anyOf(spec.frameOppose)) } : {}),
