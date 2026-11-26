@@ -117,10 +117,10 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout -B "$BRANCH"
           git add -A
-          git commit -m "\( {{ steps.fix.outputs.title }}" -m " \)(cat "$RUNNER_TEMP/freshness.md")"
+          git commit -m "${{ steps.fix.outputs.title }}" -m "$(cat "$RUNNER_TEMP/freshness.md")"
           git push --force origin "$BRANCH"
           if gh pr view "$BRANCH" --json state -q .state 2>/dev/null | grep -q OPEN; then
-            gh pr edit "\( BRANCH" --title " \){{ steps.fix.outputs.title }}" --body-file "$RUNNER_TEMP/freshness.md"
+            gh pr edit "$BRANCH" --title " \){{ steps.fix.outputs.title }}" --body-file "$RUNNER_TEMP/freshness.md"
           else
             gh pr create --base main --head "$BRANCH" \
               --title "${{ steps.fix.outputs.title }}" \
