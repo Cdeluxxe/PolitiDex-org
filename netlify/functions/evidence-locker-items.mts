@@ -30,6 +30,7 @@ import { LOCKER_STORE_NAME, toSpotlightEntry, loadReviewFlags, reviewFor, regrad
 import { readLockerDocs } from "../lib/locker-read.mjs";
 import reviewFile from "../../db/evidence-locker-review.json" with { type: "json" };
 import { recordFlag, FLAG_STORE_NAME } from "../lib/dirkey-flag-core.mjs";
+import { LOCKED_GROUND_TRUTH_INDEX, contradictsLockedLabel } from "../lib/locked-ground-truth.mjs";
 
 // ?pid=<id>[,<id>…] — one politician's items only. Every key is stored as
 // "<politician_id>/<issue>/<hash>.json", so a prefix list reads that person's
@@ -63,10 +64,15 @@ async function listKeys(store: any, pids: string[] | null): Promise<string[]> {
   return keys;
 }
 
-export async function listLockerEntries(store: any, flagsDoc: any = reviewFile, { pids = null }: { pids?: string[] | null } = {}) {
+// Locked ground truth: a clear item (support / oppose) whose side differs from
+// a LOCKED hand-reviewed label for the same politician + issue
+// (locked-ground-truth.mjs) is not served — the profile promotes stances from
+// these items, and the ingest job no longer writes such reads. Counted as
+// `contradicts_ground_truth`.
+export async function listLockerEntries(store: any, flagsDoc: any = reviewFile, { pids = null, groundTruth = LOCKED_GROUND_TRUTH_INDEX }: { pids?: string[] | null; groundTruth?: any } = {}) {
   const flags = loadReviewFlags(flagsDoc);
   const items: Record<string, any[]> = {};
-  let count = 0, hidden = 0, unreadable = 0;
+  let count = 0, hidden = 0, unreadable = 0, contradicted = 0;
   const docs: any[] = await readLockerDocs(store, await listKeys(store, pids));
   const rows: any[] = [];
   for (const { key, doc } of docs) {
@@ -77,6 +83,7 @@ export async function listLockerEntries(store: any, flagsDoc: any = reviewFile, 
     // with nothing readable left (binary / PDF stream data) is not served.
     const served = readableWeakerItem(regradeStatedPosition(doc));
     if (!served) { unreadable++; continue; }
+    if (contradictsLockedLabel(groundTruth, served.politician_id, served.topic, served.position)) { contradicted++; continue; }
     rows.push({ key, doc: served, review });
   }
   const collapsed = collapseRestatedItems(rows);
@@ -88,7 +95,7 @@ export async function listLockerEntries(store: any, flagsDoc: any = reviewFile, 
     count++;
   }
   return {
-    items, count, hidden, ...(restated ? { restated } : {}), ...(unreadable ? { unreadable } : {}),
+    items, count, hidden, ...(restated ? { restated } : {}), ...(unreadable ? { unreadable } : {}), ...(contradicted ? { contradicts_ground_truth: contradicted } : {}),
     ...(dropped.foreign ? { not_own_page: dropped.foreign } : {}), ...(dropped.menu ? { site_menu: dropped.menu } : {}), ...(dropped.repeated ? { repeated: dropped.repeated } : {}),
   };
 }

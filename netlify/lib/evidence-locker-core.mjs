@@ -16,9 +16,11 @@
 //   W1  A strength above applies (see lockerStrength).
 //   W2  An excerpt to show.
 //   W3  Provenance:
-//         · the ground-truth pair (james_talarico | cost_living) writes a
-//           strong/weak item only when the candidate's position MATCHES the
-//           ground-truth position (a mention carries no position, so it may);
+//         · a pair with a LOCKED ground-truth label (every locked record in
+//           db/stance-ground-truth-*.json, locked-ground-truth.mjs — it used
+//           to be james_talarico | cost_living only) writes a strong/weak
+//           item only when the candidate's position MATCHES the locked
+//           position (a mention carries no position, so it may);
 //         · every other pair writes only when the source is a campaign or
 //           official page (source type says "campaign"/"official", or the link
 //           is on a .gov host).
@@ -73,6 +75,7 @@ import { ISSUE_TOPIC_LABELS } from "./stance-topic-vocab.mjs";
 import { statedSourceRule, namesBillOrOutcome, quotedSpeakerOf, KIND_LABELS, WEIGHTS as SCORE_WEIGHTS } from "./stance-score-core.mjs";
 import { readLockerDocs } from "./locker-read.mjs";
 import { pageOwnership, itemOwnership } from "./page-ownership.mjs";
+import { lockedLabelFor } from "./locked-ground-truth.mjs";
 
 export const LOCKER_STORE_NAME = "evidence-locker";
 export const LOCKER_MIN_CONFIDENCE = 0.8;
@@ -319,7 +322,8 @@ export function citationExcerpts(candidate) {
 
 /**
  * Should this candidate become a Locker item?
- * `gt` is the ground-truth record (or null). Returns { write, strength?, reason }.
+ * `gt` is the locked ground-truth index (LOCKED_GROUND_TRUTH_INDEX), an array of
+ * records, one record, or null. Returns { write, strength?, reason, contradicts? }.
  */
 export function lockerDecision(candidate, raw, gt = null) {
   if (!candidate) return { write: false, reason: "no candidate" };
@@ -338,13 +342,22 @@ export function lockerDecision(candidate, raw, gt = null) {
     quotes: [...citationExcerpts(candidate), src.excerpt].filter(Boolean),
   });
   if (!owner.own) return { write: false, reason: `not the politician's own page: ${owner.reason}`, ownership: owner.kind };
-  const isGtPair = gt && candidate.politician_id === gt.politician_id && candidate.topic === gt.topic;
-  if (isGtPair) {
-    if (strength === "mention") return { write: true, strength, reason: `${reason}; ground-truth pair, mention carries no position` };
-    if (candidate.position !== gt.position) return { write: false, reason: `position ${candidate.position} does not match ground truth (${gt.position})` };
+  // `gt` is the locked ground-truth index (locked-ground-truth.mjs), an array
+  // of records, or one record. A pair with a locked label only takes a clear
+  // read that agrees with it.
+  // The index only ever ADDS a refusal: a mention on a locked pair follows the
+  // ordinary campaign/official rule below. (The older one-record form keeps its
+  // original shortcut, a mention on that single pair being written as before.)
+  const label = lockedLabelFor(gt, candidate.politician_id, candidate.topic);
+  const legacyPair = label && !(gt instanceof Map) && !Array.isArray(gt);
+  if (label && strength !== "mention" && candidate.position !== label.position) {
+    return { write: false, reason: `position ${candidate.position} does not match ground truth (${label.position}, ${label.stance_id})`, contradicts: label.stance_id };
+  }
+  if (legacyPair && strength === "mention") return { write: true, strength, reason: `${reason}; ground-truth pair, mention carries no position` };
+  if (label && strength !== "mention") {
     if (!isOwnPage(candidate, raw)) return { write: false, reason: `source "${raw?.source_type ?? src.type}" is not the politician's own campaign/official page` };
     if (!citationExcerpts(candidate).length) return { write: false, reason: "no verbatim excerpt to cite" };
-    return { write: true, strength, reason: `${reason}; matches ground-truth position (${gt.position})` };
+    return { write: true, strength, reason: `${reason}; matches ground-truth position (${label.position})` };
   }
   // A floor speech, press release or co-sponsor statement that the scorer read
   // as a stated position (R8, phase8-v2) is the candidate's own first-party

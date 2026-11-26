@@ -60,6 +60,7 @@
 
 import { toSpotlightEntry, reviewFor, regradeStatedPosition, collapseRestatedItems, ownEvidenceRows } from "./evidence-locker-core.mjs";
 import { readLockerDocs } from "./locker-read.mjs";
+import { LOCKED_GROUND_TRUTH_INDEX, contradictsLockedLabel, lockedLabelFor } from "./locked-ground-truth.mjs";
 
 export const PROMOTE_WEAK_N = 3;
 export const STRONG_MIN = 0.8;
@@ -239,11 +240,18 @@ export async function lockerEntriesFor(store, pid, flags = null) {
   return ownEvidenceRows(collapseRestatedItems(rows)).kept.map(({ key, doc, review }) => toSpotlightEntry(doc, { key, review }));
 }
 
-/** Every qualifying issue for one politician: { [issueKey]: promotion }. */
-export function promoteEntries(entries) {
+/**
+ * Every qualifying issue for one politician: { [issueKey]: promotion }.
+ * With `pid`, an entry whose clear read contradicts a LOCKED ground-truth label
+ * for that politician + issue (locked-ground-truth.mjs) is left out before the
+ * thresholds are applied, so it can never be promoted to a card — including
+ * items written to the Locker before the ingest job checked every locked label.
+ */
+export function promoteEntries(entries, { pid = null, groundTruth = LOCKED_GROUND_TRUTH_INDEX } = {}) {
   const byIssue = {};
   for (const it of entries || []) {
     if (!it || !it.issueKey) continue;
+    if (pid && contradictsLockedLabel(groundTruth, pid, it.issueKey, it.pipeline?.position)) continue;
     (byIssue[it.issueKey] ||= []).push(it);
   }
   const out = {};
@@ -330,7 +338,7 @@ export function describeDbError(e) {
  */
 export async function syncPolitician(pid, entries, { db, now = () => new Date(), log = console.log } = {}) {
   try {
-    const promotions = promoteEntries(entries);
+    const promotions = promoteEntries(entries, { pid });
     const rows = await db.rowsFor(pid);
     const plan = planSync(promotions, rows, { reviewedKeys: reviewedKeysOf(entries) });
     const at = now();
@@ -384,13 +392,21 @@ export function toCard(row, labels = {}) {
   };
 }
 
-/** Rows → { cards: { pid: [card] }, count }. Only active, sourced rows. */
-export function cardsBody(rows, labels = {}, { hiddenKey = () => false } = {}) {
+/**
+ * Rows → { cards: { pid: [card] }, count }. Only active, sourced rows. A row
+ * whose stance differs from a LOCKED ground-truth label for the same
+ * politician + issue is never served (a row promoted before the promotion step
+ * checked every locked label stays in the table until the next recompute
+ * withdraws it, but no surface shows it).
+ */
+export function cardsBody(rows, labels = {}, { hiddenKey = () => false, groundTruth = LOCKED_GROUND_TRUTH_INDEX } = {}) {
   const cards = {};
   let count = 0;
   for (const r of rows || []) {
     if (!r || r.status !== "active" || r.provenance !== PROVENANCE || !isUrl(r.sourceUrl)) continue;
     if (r.stance !== "support" && r.stance !== "oppose" && r.stance !== "mixed") continue;
+    const locked = lockedLabelFor(groundTruth, r.politicianId, r.issueKey);
+    if (locked && locked.position !== r.stance) continue;
     // A promotion whose every piece of evidence has since been hidden is not served.
     const ev = Array.isArray(r.evidence) ? r.evidence : [];
     if (ev.length && ev.every((k) => hiddenKey(k))) continue;
