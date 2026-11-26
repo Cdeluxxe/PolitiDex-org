@@ -139,7 +139,7 @@ export async function runBackfill({ store, db, flags = null, state = null, budge
     if (clock() - started > budgetMs) { deferred++; continue; }
     const g = locker.byPid[pid] || { entries: [], skipped: { hidden: 0, restated: 0 } };
     try {
-      const promotions = promoteEntries(g.entries);
+      const promotions = promoteEntries(g.entries, { pid });
       const before = await db.rowsFor(pid);
       // Curated and reviewed rows are left exactly as they are (heldRowReason).
       const plan = planSync(promotions, before, { reviewedKeys: reviewedKeysOf(g.entries) });

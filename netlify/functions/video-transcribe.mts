@@ -28,7 +28,9 @@ import { getStore } from "@netlify/blobs";
 import { processTranscriptQueue, scoreIntoLocker, nameFromId, TRANSCRIPT_STORE_NAME, TRANSCRIBE_CALL_DELAY_MS } from "../lib/video-transcripts.mjs";
 import { RAW_STORE_NAME, ROSTER, RESOLVER_PEOPLE } from "../lib/raw-ingest-core.mjs";
 import { loadReviewFlags, LOCKER_STORE_NAME } from "../lib/evidence-locker-core.mjs";
-import groundTruth from "../../db/stance-ground-truth-talarico-cost-of-living.json" with { type: "json" };
+// Every locked ground-truth label (not only Talarico | cost of living): a clear
+// read that contradicts one is never written to the Locker.
+import { LOCKED_GROUND_TRUTH_INDEX as groundTruth } from "../lib/locked-ground-truth.mjs";
 import reviewFile from "../../db/evidence-locker-review.json" with { type: "json" };
 
 const NAMES = new Map<string, string>();

@@ -289,7 +289,9 @@ import { discoverVideoSpeech, addVideoSpeechSources, isVideoSpeechEntry, buildVi
 import VS_MEMBER_MAP from "../../db/vr-member-map.json" with { type: "json" };
 import { INGEST_ALLOW_LIST, scopeIds, inScope, filterToScope, scopedRotationKey, scopeLine } from "../lib/raw-ingest-scope.mjs";
 import { buildWordGaps, orderPullListByWordGap, wordGapLine, wordGapRank, loadWordGapData } from "../lib/raw-ingest-word-gap.mjs";
-import groundTruth from "../../db/stance-ground-truth-talarico-cost-of-living.json" with { type: "json" };
+// Every locked ground-truth label (not only Talarico | cost of living): a clear
+// read that contradicts one is never written to the Locker.
+import { LOCKED_GROUND_TRUTH_INDEX as groundTruth } from "../lib/locked-ground-truth.mjs";
 import reviewFile from "../../db/evidence-locker-review.json" with { type: "json" };
 
 // Retired sources (raw-ingest-retired.mjs): logged ONCE per RETIRED_VERSION —

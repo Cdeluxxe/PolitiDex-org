@@ -23,7 +23,9 @@ import { rescoreStep, rescoreSummaryLine, RESCORE_STATE_KEY, RETIRED_STORE_NAME 
 import { loadReviewFlags, LOCKER_STORE_NAME } from "../lib/evidence-locker-core.mjs";
 import { lockerEntriesFor, syncPolitician } from "../lib/stated-positions-core.mjs";
 import { RAW_STORE_NAME, ROTATION_STORE_NAME } from "../lib/raw-ingest-core.mjs";
-import groundTruth from "../../db/stance-ground-truth-talarico-cost-of-living.json" with { type: "json" };
+// Every locked ground-truth label (not only Talarico | cost of living): a clear
+// read that contradicts one is never written to the Locker.
+import { LOCKED_GROUND_TRUTH_INDEX as groundTruth } from "../lib/locked-ground-truth.mjs";
 import reviewFile from "../../db/evidence-locker-review.json" with { type: "json" };
 
 export const RUN_BUDGET_MS = 20_000;
