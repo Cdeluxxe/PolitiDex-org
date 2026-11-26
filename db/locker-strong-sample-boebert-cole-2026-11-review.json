@@ -1,0 +1,810 @@
+{
+  "_readme": "Human-check verdicts for the 50-item review sample in locker-strong-sample-boebert-cole-2026-11.json, using the match / wrong / unclear / skip checklist. Each source page was opened for the items the excerpt alone did not settle (YouTube clips judged from the transcript excerpt). Read-only: nothing in the Locker, the stance store or any ground-truth file was changed.",
+  "reviewed_at": "2026-11-26",
+  "totals": {
+    "match": 40,
+    "wrong": 3,
+    "unclear": 7
+  },
+  "by_person": {
+    "Lauren Boebert": {
+      "n": 35,
+      "match": 30,
+      "wrong": 2,
+      "unclear": 3
+    },
+    "Tom Cole": {
+      "n": 15,
+      "match": 10,
+      "unclear": 4,
+      "wrong": 1
+    }
+  },
+  "by_confidence": {
+    "≥0.95": {
+      "n": 26,
+      "match": 22,
+      "wrong": 3,
+      "unclear": 1
+    },
+    "0.8": {
+      "n": 21,
+      "match": 15,
+      "unclear": 6
+    },
+    "0.85–0.9": {
+      "n": 3,
+      "match": 3
+    }
+  },
+  "by_pattern": {
+    "cross_topic": {
+      "with": {
+        "n": 33,
+        "match": 25,
+        "wrong": 3,
+        "unclear": 5
+      },
+      "without": {
+        "n": 17,
+        "match": 15,
+        "unclear": 2
+      }
+    },
+    "youtube": {
+      "with": {
+        "n": 2,
+        "unclear": 1,
+        "wrong": 1
+      },
+      "without": {
+        "n": 48,
+        "match": 40,
+        "wrong": 2,
+        "unclear": 6
+      }
+    },
+    "headline_only": {
+      "with": {
+        "n": 3,
+        "unclear": 2,
+        "match": 1
+      },
+      "without": {
+        "n": 47,
+        "match": 39,
+        "wrong": 3,
+        "unclear": 5
+      }
+    },
+    "single_statement": {
+      "with": {
+        "n": 23,
+        "match": 15,
+        "unclear": 7,
+        "wrong": 1
+      },
+      "without": {
+        "n": 27,
+        "match": 25,
+        "wrong": 2
+      }
+    }
+  },
+  "population_served_strong": {
+    "served_strong": 251,
+    "youtube": [
+      "Tom Cole|border_security|1",
+      "Tom Cole|gov_services|1"
+    ],
+    "gender_care_pages_on_health_keys": [
+      "Lauren Boebert|health_mental|0.95 (reviewed: wrong)",
+      "Lauren Boebert|healthcare|0.95 (reviewed: wrong)",
+      "Lauren Boebert|healthcare_costs|0.8 (reviewed: unclear)"
+    ],
+    "headline_only": 17,
+    "cross_topic_single_statement_080": 82,
+    "not_in_sample_same_pattern_worth_checking": [
+      "Lauren Boebert|healthcare|rep-lauren-boebert-introduces-no-federal-taxpayer-dollars-il… (a bill limiting federal health spending, read as support for Expand Healthcare Access)"
+    ]
+  },
+  "items": [
+    {
+      "n": 1,
+      "key": "boebert/rural_ag/63602059d80aa5a7.json",
+      "politician": "Lauren Boebert",
+      "issue_key": "rural_ag",
+      "position": "support",
+      "confidence": 0.95,
+      "url": "https://boebert.house.gov/media/press-releases/rep-boebert-secures-key-wins-colorado-farmers-and-rural-communities-house",
+      "verdict": "match",
+      "note": "Page celebrates ag appropriations wins for farmers and rural communities.",
+      "patterns": []
+    },
+    {
+      "n": 2,
+      "key": "boebert/border_security/3b7a5e1783b2d82c.json",
+      "politician": "Lauren Boebert",
+      "issue_key": "border_security",
+      "position": "support",
+      "confidence": 0.95,
+      "url": "https://boebert.house.gov/media/press-releases/rep-boebert-introduces-two-bills-end-biden-border-crisis",
+      "verdict": "match",
+      "note": "Introduces bills to end the border crisis and codify Trump border policy.",
+      "patterns": []
+    },
+    {
+      "n": 3,
+      "key": "boebert/strong_defense/de7467f3e7bb9e8e.json",
+      "politician": "Lauren Boebert",
+      "issue_key": "strong_defense",
+      "position": "support",
+      "confidence": 0.95,
+      "url": "https://boebert.house.gov/media/press-releases/boebert-amendments-and-legislative-priorities-support-our-troops-included",
+      "verdict": "match",
+      "note": "Amendments 'to support our troops' in the NDAA.",
+      "patterns": []
+    },
+    {
+      "n": 4,
+      "key": "boebert/energy_production/ab109c1c4ec807f2.json",
+      "politician": "Lauren Boebert",
+      "issue_key": "energy_production",
+      "position": "support",
+      "confidence": 0.95,
+      "url": "https://boebert.house.gov/media/press-releases/congresswoman-boebert-introduces-restoring-american-energy-dominance-act",
+      "verdict": "match",
+      "note": "Bill to counter a BLM leasing rule and expand energy production.",
+      "patterns": [
+        "cross_topic"
+      ]
+    },
+    {
+      "n": 5,
+      "key": "boebert/infrastructure/75aaa0f68a7b5dcf.json",
+      "politician": "Lauren Boebert",
+      "issue_key": "infrastructure",
+      "position": "support",
+      "confidence": 0.95,
+      "url": "https://boebert.house.gov/media/press-releases/rep-boebert-introduces-real-infrastructure-bill",
+      "verdict": "match",
+      "note": "Introduces an infrastructure funding bill.",
+      "patterns": []
+    },
+    {
+      "n": 6,
+      "key": "boebert/veterans/c32cbc9dfaa7317e.json",
+      "politician": "Lauren Boebert",
+      "issue_key": "veterans",
+      "position": "support",
+      "confidence": 0.95,
+      "url": "https://boebert.house.gov/media/press-releases/rep-boebert-votes-increase-funding-veterans-benefits",
+      "verdict": "match",
+      "note": "Votes to increase veterans' benefits; 'strong record supporting our veterans'.",
+      "patterns": []
+    },
+    {
+      "n": 7,
+      "key": "boebert/cost_living/14f92b5488a90839.json",
+      "politician": "Lauren Boebert",
+      "issue_key": "cost_living",
+      "position": "support",
+      "confidence": 0.95,
+      "url": "https://boebert.house.gov/media/press-releases/rep-lauren-boeberts-american-energy-act-included-energy-legislation-hearing",
+      "verdict": "match",
+      "note": "Bill framed as reducing gas prices.",
+      "patterns": [
+        "cross_topic"
+      ]
+    },
+    {
+      "n": 8,
+      "key": "boebert/gun_rights/480d226260105689.json",
+      "politician": "Lauren Boebert",
+      "issue_key": "gun_rights",
+      "position": "support",
+      "confidence": 0.95,
+      "url": "https://boebert.house.gov/media/press-releases/rep-lauren-boebert-introduces-legislation-repeal-rino-gun-control-and-protect",
+      "verdict": "match",
+      "note": "'I unapologetically support the Second Amendment.'",
+      "patterns": []
+    },
+    {
+      "n": 9,
+      "key": "boebert/gov_waste/457e094df8ca7f4c.json",
+      "politician": "Lauren Boebert",
+      "issue_key": "gov_waste",
+      "position": "support",
+      "confidence": 0.8,
+      "url": "https://boebert.house.gov/media/press-releases/rep-lauren-boebert-secures-wins-one-big-beautiful-bill-passage",
+      "verdict": "match",
+      "note": "Rescinding 'wasteful slush funds' and rooting out Medicaid waste: a waste-cutting claim.",
+      "patterns": [
+        "cross_topic",
+        "single_statement"
+      ]
+    },
+    {
+      "n": 10,
+      "key": "boebert/free_speech/233020c86794e2f6.json",
+      "politician": "Lauren Boebert",
+      "issue_key": "free_speech",
+      "position": "support",
+      "confidence": 0.95,
+      "url": "https://boebert.house.gov/media/newsletters/fighting-truth-opposing-censorship-and-demanding-answers",
+      "verdict": "match",
+      "note": "Opposes censorship board; introduced Protecting Free Speech Act.",
+      "patterns": []
+    },
+    {
+      "n": 11,
+      "key": "boebert/lands_preserve/e0c73c984d697256.json",
+      "politician": "Lauren Boebert",
+      "issue_key": "lands_preserve",
+      "position": "support",
+      "confidence": 0.8,
+      "url": "https://boebert.house.gov/media/press-releases/rep-lauren-boebert-applauds-passage-fix-our-forests-act",
+      "verdict": "match",
+      "note": "Applauds Fix Our Forests Act; watershed restoration and preventing forest conversion.",
+      "patterns": [
+        "cross_topic"
+      ]
+    },
+    {
+      "n": 12,
+      "key": "boebert/back_police/a876912cd8252feb.json",
+      "politician": "Lauren Boebert",
+      "issue_key": "back_police",
+      "position": "support",
+      "confidence": 0.95,
+      "url": "https://boebert.house.gov/media/press-releases/rep-boebert-transparency-amendment-passes-house-strong-bipartisan-support",
+      "verdict": "match",
+      "note": "Amendment holding aliens accountable for assaulting officers.",
+      "patterns": [
+        "cross_topic"
+      ]
+    },
+    {
+      "n": 13,
+      "key": "boebert/health_mental/cd3904dece9a792a.json",
+      "politician": "Lauren Boebert",
+      "issue_key": "health_mental",
+      "position": "support",
+      "confidence": 0.95,
+      "url": "https://boebert.house.gov/media/press-releases/rep-boebert-leads-colorado-republicans-opposing-taxpayer-dollars-going-sex",
+      "verdict": "wrong",
+      "note": "Page OPPOSES CMS covering gender-affirming care framed as mental-health care; read as SUPPORT for 'Mental Health & Addiction'. Criticism of a coverage expansion read as support for the key.",
+      "patterns": [
+        "cross_topic"
+      ]
+    },
+    {
+      "n": 14,
+      "key": "boebert/permitting_reform/14f92b5488a90839.json",
+      "politician": "Lauren Boebert",
+      "issue_key": "permitting_reform",
+      "position": "support",
+      "confidence": 0.8,
+      "url": "https://boebert.house.gov/media/press-releases/rep-lauren-boeberts-american-energy-act-included-energy-legislation-hearing",
+      "verdict": "match",
+      "note": "'We must do more to streamline the energy permitting process.'",
+      "patterns": [
+        "cross_topic"
+      ]
+    },
+    {
+      "n": 15,
+      "key": "boebert/pro_life/63a990c7ef1d2f98.json",
+      "politician": "Lauren Boebert",
+      "issue_key": "pro_life",
+      "position": "support",
+      "confidence": 0.85,
+      "url": "https://boebert.house.gov/media/press-releases/rep-boebert-votes-protect-right-life",
+      "verdict": "match",
+      "note": "Votes for Born-Alive Act; 'defend the right to life'.",
+      "patterns": []
+    },
+    {
+      "n": 16,
+      "key": "boebert/water_storage/a6a05648837aeb89.json",
+      "politician": "Lauren Boebert",
+      "issue_key": "water_storage",
+      "position": "support",
+      "confidence": 0.85,
+      "url": "https://boebert.house.gov/issues/getting-things-done",
+      "verdict": "match",
+      "note": "Secured funding for reservoirs and water storage.",
+      "patterns": [
+        "cross_topic"
+      ]
+    },
+    {
+      "n": 17,
+      "key": "boebert/cut_spending/f83758039c8f046f.json",
+      "politician": "Lauren Boebert",
+      "issue_key": "cut_spending",
+      "position": "support",
+      "confidence": 0.8,
+      "url": "https://boebert.house.gov/media/press-releases/rep-boeberts-nine-legislative-priorities-pass-house",
+      "verdict": "match",
+      "note": "Opposed final passage 'due to reckless spending levels' correctly read as support for cutting spending (negated/procedural handled).",
+      "patterns": [
+        "cross_topic",
+        "single_statement"
+      ]
+    },
+    {
+      "n": 18,
+      "key": "boebert/deportations/d4d45eb4d91f0f7a.json",
+      "politician": "Lauren Boebert",
+      "issue_key": "deportations",
+      "position": "support",
+      "confidence": 0.95,
+      "url": "https://boebert.house.gov/media/press-releases/boebert-votes-deport-laken-rileys-murderer",
+      "verdict": "match",
+      "note": "Votes to deport; A+ NumbersUSA rating.",
+      "patterns": []
+    },
+    {
+      "n": 19,
+      "key": "boebert/econ_growth/a6a05648837aeb89.json",
+      "politician": "Lauren Boebert",
+      "issue_key": "econ_growth",
+      "position": "support",
+      "confidence": 0.8,
+      "url": "https://boebert.house.gov/issues/getting-things-done",
+      "verdict": "unclear",
+      "note": "Earmark for a road project 'to help economic growth' filed under 'Pro-Growth Deregulation'; no deregulation position on the page. Key mismatch.",
+      "patterns": [
+        "cross_topic",
+        "single_statement"
+      ]
+    },
+    {
+      "n": 20,
+      "key": "boebert/healthcare_costs/0ae0b4368f7e9169.json",
+      "politician": "Lauren Boebert",
+      "issue_key": "healthcare_costs",
+      "position": "support",
+      "confidence": 0.8,
+      "url": "https://boebert.house.gov/media/press-releases/rep-boebert-introduces-house-companion-senator-lees-bill-prohibiting-funding",
+      "verdict": "unclear",
+      "note": "Headline only (R14 title verb). Bill bars funding for gender procedures for minors; says nothing about lowering healthcare costs.",
+      "patterns": [
+        "headline_only",
+        "single_statement"
+      ]
+    },
+    {
+      "n": 21,
+      "key": "boebert/medical_freedom/bad7e271115f03d5.json",
+      "politician": "Lauren Boebert",
+      "issue_key": "medical_freedom",
+      "position": "support",
+      "confidence": 0.8,
+      "url": "https://boebert.house.gov/issues/health",
+      "verdict": "match",
+      "note": "Sued CDC to end mask mandate.",
+      "patterns": [
+        "cross_topic",
+        "single_statement"
+      ]
+    },
+    {
+      "n": 22,
+      "key": "boebert/property_rights/4d8d49cdd11f9c73.json",
+      "politician": "Lauren Boebert",
+      "issue_key": "property_rights",
+      "position": "support",
+      "confidence": 0.95,
+      "url": "https://boebert.house.gov/media/newsletters/fighting-deep-state",
+      "verdict": "match",
+      "note": "'I am a strong believer that conservation must protect private property rights.'",
+      "patterns": [
+        "cross_topic"
+      ]
+    },
+    {
+      "n": 23,
+      "key": "boebert/econ_smallbiz/fc9deac893051b68.json",
+      "politician": "Lauren Boebert",
+      "issue_key": "econ_smallbiz",
+      "position": "support",
+      "confidence": 0.8,
+      "url": "https://boebert.house.gov/media/press-releases/rep-boebert-introduces-freedom-ship-act",
+      "verdict": "match",
+      "note": "Gun-shipping bill, but the page does say it protects small businesses (secondary framing).",
+      "patterns": [
+        "cross_topic",
+        "single_statement"
+      ]
+    },
+    {
+      "n": 24,
+      "key": "boebert/gov_regulation/82cbc6fa360ef521.json",
+      "politician": "Lauren Boebert",
+      "issue_key": "gov_regulation",
+      "position": "support",
+      "confidence": 0.8,
+      "url": "https://boebert.house.gov/issues/economy-and-jobs",
+      "verdict": "match",
+      "note": "'I am fighting to reduce job-killing regulations.'",
+      "patterns": [
+        "cross_topic",
+        "single_statement"
+      ]
+    },
+    {
+      "n": 25,
+      "key": "boebert/health_rural/b6ef02b6fac3ef72.json",
+      "politician": "Lauren Boebert",
+      "issue_key": "health_rural",
+      "position": "support",
+      "confidence": 0.95,
+      "url": "https://boebert.house.gov/media/press-releases/rep-boebert-fighting-every-colorado-rural-hospital-eastern-plains",
+      "verdict": "match",
+      "note": "Op-ed on her record fighting for rural hospitals.",
+      "patterns": [
+        "cross_topic"
+      ]
+    },
+    {
+      "n": 26,
+      "key": "boebert/healthcare/cd3904dece9a792a.json",
+      "politician": "Lauren Boebert",
+      "issue_key": "healthcare",
+      "position": "support",
+      "confidence": 0.95,
+      "url": "https://boebert.house.gov/media/press-releases/rep-boebert-leads-colorado-republicans-opposing-taxpayer-dollars-going-sex",
+      "verdict": "wrong",
+      "note": "Page OPPOSES requiring Medicaid/Medicare/CHIP/insurers to cover gender-affirming care; read as SUPPORT for 'Expand Healthcare Access'. Second excerpt is CMS's own quote (third party).",
+      "patterns": [
+        "cross_topic"
+      ]
+    },
+    {
+      "n": 27,
+      "key": "boebert/immig_fentanyl/cb1684d482c21a70.json",
+      "politician": "Lauren Boebert",
+      "issue_key": "immig_fentanyl",
+      "position": "support",
+      "confidence": 0.8,
+      "url": "https://boebert.house.gov/issues/veterans-and-defense",
+      "verdict": "match",
+      "note": "Redirected funds to the Counterdrug Program against fentanyl.",
+      "patterns": [
+        "cross_topic",
+        "single_statement"
+      ]
+    },
+    {
+      "n": 28,
+      "key": "boebert/lands_energy/876d8a256c4144f8.json",
+      "politician": "Lauren Boebert",
+      "issue_key": "lands_energy",
+      "position": "support",
+      "confidence": 0.8,
+      "url": "https://boebert.house.gov/media/press-releases/congresswoman-boebert-introduces-american-energy-act?_gl=1%2A13rm8m2%2A_ga%2AMTQwMDY1MDExLjE2NTgzNDAwODE.%2A_ga_6PQ8C7GE92%2AMTcxNzQ1MDg5Ni4xMy4xLjE3MTc0NTU3NjAuMC4wLjA.",
+      "verdict": "match",
+      "note": "Headline only, but the American Energy Act page is about energy leasing and production.",
+      "patterns": [
+        "headline_only",
+        "single_statement"
+      ]
+    },
+    {
+      "n": 29,
+      "key": "boebert/lands_local/00f4e82cead7c05c.json",
+      "politician": "Lauren Boebert",
+      "issue_key": "lands_local",
+      "position": "support",
+      "confidence": 0.85,
+      "url": "https://boebert.house.gov/issues/energy-and-natural-resources",
+      "verdict": "match",
+      "note": "Bill to transfer federal land to local communities.",
+      "patterns": [
+        "cross_topic",
+        "single_statement"
+      ]
+    },
+    {
+      "n": 30,
+      "key": "boebert/pro_choice/4fd5889802ffcbba.json",
+      "politician": "Lauren Boebert",
+      "issue_key": "pro_choice",
+      "position": "oppose",
+      "confidence": 0.95,
+      "url": "https://boebert.house.gov/media/press-releases/rep-lauren-boebert-introduces-defund-planned-parenthood-act",
+      "verdict": "match",
+      "note": "Defund Planned Parenthood Act read as oppose on reproductive rights.",
+      "patterns": [
+        "cross_topic"
+      ]
+    },
+    {
+      "n": 31,
+      "key": "boebert/water/a64a55807d318633.json",
+      "politician": "Lauren Boebert",
+      "issue_key": "water",
+      "position": "support",
+      "confidence": 0.8,
+      "url": "https://boebert.house.gov/media/press-releases/reps-lauren-boebert-and-gabe-evans-introduce-conservation-reserve-enhancement",
+      "verdict": "match",
+      "note": "CREP Improvement Act to conserve water; excerpt is only the stakeholder list, but the page supports the key.",
+      "patterns": [
+        "cross_topic",
+        "single_statement"
+      ]
+    },
+    {
+      "n": 32,
+      "key": "boebert/america_first/269d7206376b0f26.json",
+      "politician": "Lauren Boebert",
+      "issue_key": "america_first",
+      "position": "support",
+      "confidence": 0.8,
+      "url": "https://boebert.house.gov/media/editorial/washington-times-onshore-federal-governments-digital-infrastructure",
+      "verdict": "match",
+      "note": "Op-ed for American-made, American-managed government code; 'America First' economic framing.",
+      "patterns": [
+        "cross_topic",
+        "single_statement"
+      ]
+    },
+    {
+      "n": 33,
+      "key": "boebert/congress_oversight/269d7206376b0f26.json",
+      "politician": "Lauren Boebert",
+      "issue_key": "congress_oversight",
+      "position": "support",
+      "confidence": 0.8,
+      "url": "https://boebert.house.gov/media/editorial/washington-times-onshore-federal-governments-digital-infrastructure",
+      "verdict": "unclear",
+      "note": "'Moving it through the oversight committee' is a procedural mention, not a position on congressional oversight.",
+      "patterns": [
+        "cross_topic",
+        "single_statement"
+      ]
+    },
+    {
+      "n": 34,
+      "key": "boebert/disaster_resilience/1430c0adf02dc9a2.json",
+      "politician": "Lauren Boebert",
+      "issue_key": "disaster_resilience",
+      "position": "support",
+      "confidence": 0.8,
+      "url": "https://boebert.house.gov/media/press-releases/nine-boebert-legislative-wins-colorado-signed-law",
+      "verdict": "match",
+      "note": "Wildfire prevention and forest management wins.",
+      "patterns": [
+        "cross_topic",
+        "single_statement"
+      ]
+    },
+    {
+      "n": 35,
+      "key": "boebert/econ_trade/269d7206376b0f26.json",
+      "politician": "Lauren Boebert",
+      "issue_key": "econ_trade",
+      "position": "support",
+      "confidence": 0.8,
+      "url": "https://boebert.house.gov/media/editorial/washington-times-onshore-federal-governments-digital-infrastructure",
+      "verdict": "match",
+      "note": "Op-ed to onshore government software work to American workers.",
+      "patterns": [
+        "cross_topic",
+        "single_statement"
+      ]
+    },
+    {
+      "n": 36,
+      "key": "tom_cole/strong_defense/2a0662b5694a9bb4.json",
+      "politician": "Tom Cole",
+      "issue_key": "strong_defense",
+      "position": "support",
+      "confidence": 0.95,
+      "url": "https://cole.house.gov/media/press-releases/cole-votes-support-military-families-and-fully-fund-veterans-care",
+      "verdict": "match",
+      "note": "Votes for MilCon-VA; 'support military families'.",
+      "patterns": []
+    },
+    {
+      "n": 37,
+      "key": "tom_cole/veterans/5bd7306c62c9c44d.json",
+      "politician": "Tom Cole",
+      "issue_key": "veterans",
+      "position": "support",
+      "confidence": 0.95,
+      "url": "https://cole.house.gov/media/press-releases/cole-votes-favor-consolidated-appropriations-act-2024",
+      "verdict": "match",
+      "note": "Appropriations package 'keeps our commitment to our veterans'.",
+      "patterns": [
+        "cross_topic"
+      ]
+    },
+    {
+      "n": 38,
+      "key": "tom_cole/econ_smallbiz/88b416cc4b312685.json",
+      "politician": "Tom Cole",
+      "issue_key": "econ_smallbiz",
+      "position": "support",
+      "confidence": 0.95,
+      "url": "https://cole.house.gov/media-center/weekly-columns/supporting-small-business",
+      "verdict": "match",
+      "note": "Column supporting PPP for small businesses.",
+      "patterns": []
+    },
+    {
+      "n": 39,
+      "key": "tom_cole/rural_ag/5cc975d540389c14.json",
+      "politician": "Tom Cole",
+      "issue_key": "rural_ag",
+      "position": "support",
+      "confidence": 0.95,
+      "url": "https://cole.house.gov/media/press-releases/cole-votes-support-americas-farmers-ranchers-and-agriculture-industry",
+      "verdict": "match",
+      "note": "'This legislation supports our farmers, ranchers, and rural communities.'",
+      "patterns": []
+    },
+    {
+      "n": 40,
+      "key": "tom_cole/social_security/1d0eb3bfef38d439.json",
+      "politician": "Tom Cole",
+      "issue_key": "social_security",
+      "position": "support",
+      "confidence": 0.95,
+      "url": "https://cole.house.gov/media/press-releases/cole-suozzi-introduce-bipartisan-social-security-commission-act",
+      "verdict": "match",
+      "note": "Bipartisan commission 'entrusted with the task of saving Social Security'. (A fiscal commission could also cut benefits; the page frames it as protection.)",
+      "patterns": [
+        "cross_topic"
+      ]
+    },
+    {
+      "n": 41,
+      "key": "tom_cole/border_security/3e9e623da1b8cb86.json",
+      "politician": "Tom Cole",
+      "issue_key": "border_security",
+      "position": "support",
+      "confidence": 1,
+      "url": "https://www.youtube.com/watch?v=og9T-V6ecF4&t=1139s",
+      "verdict": "unclear",
+      "note": "YouTube clip: 'He wants to secure the border; I suspect that'll be job number one.' Cole describing Trump's priority (third party), scored at confidence 1.0.",
+      "patterns": [
+        "cross_topic",
+        "youtube",
+        "single_statement"
+      ]
+    },
+    {
+      "n": 42,
+      "key": "tom_cole/cut_spending/7bf37a4b6cc796a6.json",
+      "politician": "Tom Cole",
+      "issue_key": "cut_spending",
+      "position": "support",
+      "confidence": 0.95,
+      "url": "https://cole.house.gov/media/press-releases/cole-opinion-piece-published-wall-street-journal",
+      "verdict": "match",
+      "note": "'Tackle the main cause of the problem, mandatory spending.'",
+      "patterns": []
+    },
+    {
+      "n": 43,
+      "key": "tom_cole/gun_rights/685c4a44f1e2b3e1.json",
+      "politician": "Tom Cole",
+      "issue_key": "gun_rights",
+      "position": "support",
+      "confidence": 0.95,
+      "url": "https://cole.house.gov/media/press-releases/cole-opposes-democrats-attack-second-amendment",
+      "verdict": "match",
+      "note": "Opposes H.R. 1808 as an attack on gun owners correctly read as support for gun rights (negated language handled).",
+      "patterns": []
+    },
+    {
+      "n": 44,
+      "key": "tom_cole/national_debt/15b9bf1d0b983410.json",
+      "politician": "Tom Cole",
+      "issue_key": "national_debt",
+      "position": "support",
+      "confidence": 0.95,
+      "url": "https://cole.house.gov/media-center/weekly-columns/addressing-americas-debt-crisis",
+      "verdict": "match",
+      "note": "'We must reduce our nation's spending … to address America's debt crisis.'",
+      "patterns": [
+        "cross_topic",
+        "single_statement"
+      ]
+    },
+    {
+      "n": 45,
+      "key": "tom_cole/cost_living/bff80cb8c55ba1f0.json",
+      "politician": "Tom Cole",
+      "issue_key": "cost_living",
+      "position": "support",
+      "confidence": 0.8,
+      "url": "https://cole.house.gov/media-center/weekly-columns/bidens-converging-crises",
+      "verdict": "match",
+      "note": "'Work to reduce prices for American consumers.'",
+      "patterns": [
+        "cross_topic",
+        "single_statement"
+      ]
+    },
+    {
+      "n": 46,
+      "key": "tom_cole/econ_workers/802353cc7f5149a0.json",
+      "politician": "Tom Cole",
+      "issue_key": "econ_workers",
+      "position": "support",
+      "confidence": 0.8,
+      "url": "https://cole.house.gov/media-center/weekly-columns/democrats-crush-americans-more-act",
+      "verdict": "unclear",
+      "note": "Generic rhetoric in a column attacking Democrats ('leaders who want to … support workers'); no wage or worker-protection position.",
+      "patterns": [
+        "cross_topic",
+        "single_statement"
+      ]
+    },
+    {
+      "n": 47,
+      "key": "tom_cole/gov_services/38b08abc01595284.json",
+      "politician": "Tom Cole",
+      "issue_key": "gov_services",
+      "position": "support",
+      "confidence": 1,
+      "url": "https://www.youtube.com/watch?v=WYbhYIG1lG4&t=227s",
+      "verdict": "wrong",
+      "note": "YouTube clip: 'A majority of both Houses passed the Medicaid reforms and the President signed them.' Defends Medicaid cuts / reforms; read as SUPPORT for 'Invest in Public Services' at confidence 1.0.",
+      "patterns": [
+        "cross_topic",
+        "youtube",
+        "single_statement"
+      ]
+    },
+    {
+      "n": 48,
+      "key": "tom_cole/health_mental/4ccfbac3c1b7f1f9.json",
+      "politician": "Tom Cole",
+      "issue_key": "health_mental",
+      "position": "support",
+      "confidence": 0.8,
+      "url": "https://cole.house.gov/media/press-releases/cole-opposes-deeply-flawed-gun-bills",
+      "verdict": "match",
+      "note": "'Proud to support increased funding for the National Institute on Mental Health.'",
+      "patterns": [
+        "cross_topic",
+        "single_statement"
+      ]
+    },
+    {
+      "n": 49,
+      "key": "tom_cole/housing/64ee1706b46dc55d.json",
+      "politician": "Tom Cole",
+      "issue_key": "housing",
+      "position": "support",
+      "confidence": 0.8,
+      "url": "https://cole.house.gov/media/press-releases/cole-votes-favor-defense-labor-health-and-human-services-education",
+      "verdict": "unclear",
+      "note": "Excerpt is a 29% HUD bureaucracy cut; read as support for 'Housing Affordability'. Nothing on the page about affordability.",
+      "patterns": [
+        "cross_topic",
+        "single_statement"
+      ]
+    },
+    {
+      "n": 50,
+      "key": "tom_cole/power_of_purse/5bd7306c62c9c44d.json",
+      "politician": "Tom Cole",
+      "issue_key": "power_of_purse",
+      "position": "support",
+      "confidence": 0.8,
+      "url": "https://cole.house.gov/media/press-releases/cole-votes-favor-consolidated-appropriations-act-2024",
+      "verdict": "unclear",
+      "note": "Headline only: voting for an appropriations act read as support for 'Power of the Purse'. A vote for a spending bill is not a position on congressional spending authority.",
+      "patterns": [
+        "headline_only",
+        "single_statement"
+      ]
+    }
+  ]
+}
