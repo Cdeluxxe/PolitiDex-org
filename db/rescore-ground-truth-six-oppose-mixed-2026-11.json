@@ -1,0 +1,1085 @@
+{
+  "_note": "Offline score of the six-politician oppose / mixed ground-truth records with the current stance scorer, compared with each human label. Diagnostic only: no ground-truth label, rule or site file changes, and a disagreement is left as it is.",
+  "rules_version": "phase9-v3",
+  "vocab_version": "issue-vocab-v2-directional",
+  "confidence_tolerance": 0.1,
+  "summary": {
+    "records": 27,
+    "scorer_agrees_on_position": 4,
+    "abstains": 16,
+    "wrong_position": 7,
+    "confidence_outside_tolerance": 1,
+    "by_label": {
+      "oppose": {
+        "records": 21,
+        "match": 3,
+        "abstain": 15,
+        "wrong": 3
+      },
+      "mixed": {
+        "records": 6,
+        "match": 1,
+        "abstain": 1,
+        "wrong": 4
+      }
+    },
+    "by_politician": {
+      "boebert": {
+        "records": 5,
+        "match": 3,
+        "abstain": 1,
+        "wrong": 1
+      },
+      "owens": {
+        "records": 4,
+        "match": 0,
+        "abstain": 4,
+        "wrong": 0
+      },
+      "tom_cole": {
+        "records": 5,
+        "match": 1,
+        "abstain": 1,
+        "wrong": 3
+      },
+      "bennie_thompson": {
+        "records": 5,
+        "match": 0,
+        "abstain": 3,
+        "wrong": 2
+      },
+      "lee": {
+        "records": 4,
+        "match": 0,
+        "abstain": 4,
+        "wrong": 0
+      },
+      "trump": {
+        "records": 4,
+        "match": 0,
+        "abstain": 3,
+        "wrong": 1
+      }
+    },
+    "verdicts": {
+      "boebert|voting_access|gt-201": "oppose → no clear position (disagrees)",
+      "boebert|pro_choice|gt-202": "oppose → oppose (agrees)",
+      "boebert|ukraine_aid|gt-203": "mixed → mixed (agrees on position, confidence outside tolerance)",
+      "boebert|immigration_reform|gt-204": "oppose → oppose (agrees)",
+      "boebert|climate_action|gt-205": "oppose → support (disagrees)",
+      "owens|gun_safety|gt-206": "oppose → no clear position (disagrees)",
+      "owens|voting_access|gt-207": "oppose → no clear position (disagrees)",
+      "owens|student_debt_college_access|gt-208": "oppose → no clear position (disagrees)",
+      "owens|america_first_fp|gt-209": "oppose → no clear position (disagrees)",
+      "tom_cole|pro_choice|gt-210": "oppose → support (disagrees)",
+      "tom_cole|gun_safety|gt-211": "oppose → oppose (agrees)",
+      "tom_cole|immigration_reform|gt-212": "oppose → no clear position (disagrees)",
+      "tom_cole|climate_action|gt-213": "mixed → support (disagrees)",
+      "tom_cole|healthcare|gt-214": "mixed → support (disagrees)",
+      "bennie_thompson|cut_spending|gt-215": "oppose → no clear position (disagrees)",
+      "bennie_thompson|lower_taxes|gt-216": "oppose → no clear position (disagrees)",
+      "bennie_thompson|deportations|gt-217": "oppose → support (disagrees)",
+      "bennie_thompson|border_security|gt-218": "mixed → support (disagrees)",
+      "bennie_thompson|gov_regulation|gt-219": "oppose → no clear position (disagrees)",
+      "lee|gun_safety|gt-220": "oppose → no clear position (disagrees)",
+      "lee|lands_keep_public|gt-221": "oppose → no clear position (disagrees)",
+      "lee|ukraine_aid|gt-222": "mixed → no clear position (disagrees)",
+      "lee|climate_action|gt-223": "oppose → no clear position (disagrees)",
+      "trump|climate_action|gt-224": "oppose → no clear position (disagrees)",
+      "trump|iran_hostilities|gt-225": "oppose → no clear position (disagrees)",
+      "trump|war_powers|gt-226": "oppose → no clear position (disagrees)",
+      "trump|gun_safety|gt-227": "mixed → support (disagrees)"
+    }
+  },
+  "records": [
+    {
+      "stance_id": "boebert|voting_access|gt-201",
+      "politician_id": "boebert",
+      "topic": "voting_access",
+      "human": {
+        "position": "oppose",
+        "confidence": 0.85
+      },
+      "scorer": {
+        "position": "no clear position",
+        "confidence": 0.3,
+        "reason": "1 topic mention(s), none states a clear position (R3)",
+        "statements": []
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: boebert|voting_access position MISMATCH (candidate no clear position, ground truth oppose); confidence 0.3 vs 0.85, Δ=-0.55 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "official House issues page",
+          "date": null,
+          "link": "https://boebert.house.gov/issues/election-integrity",
+          "position": "no clear position",
+          "confidence": 0.3,
+          "reason": "1 topic mention(s), none states a clear position (R3)",
+          "statements": []
+        }
+      ]
+    },
+    {
+      "stance_id": "boebert|pro_choice|gt-202",
+      "politician_id": "boebert",
+      "topic": "pro_choice",
+      "human": {
+        "position": "oppose",
+        "confidence": 0.9
+      },
+      "scorer": {
+        "position": "oppose",
+        "confidence": 0.95,
+        "reason": "3 clear high-weight statement(s) for oppose; 0 implication(s) for oppose at medium weight (R6); ≥3 consistent raise confidence (R4)",
+        "statements": [
+          "oppose (clear): I support the Hyde Amendment in all appropriations bills and am proud that my appropriation's request prohibiting federal tax dollars from funding abortions was signed into law.",
+          "oppose (clear): I cosponsored the Life at Conception Act to protect the unborn.",
+          "oppose (clear): I will continue to provide a voice to the voiceless, protect the unborn, and support the pro-life movement."
+        ]
+      },
+      "verdict": "agrees",
+      "scorer_agrees": true,
+      "note": "stance-score: boebert|pro_choice position MATCH (candidate oppose, ground truth oppose); confidence 0.95 vs 0.9, Δ=+0.05 within 0.1",
+      "per_source": [
+        {
+          "type": "official House issues page",
+          "date": null,
+          "link": "https://boebert.house.gov/issues/pro-life-and-family-values",
+          "position": "oppose",
+          "confidence": 0.85,
+          "reason": "3 clear medium-weight statement(s) for oppose; 0 implication(s) for oppose at medium weight (R6); ≥3 consistent raise confidence (R4)",
+          "statements": [
+            "oppose (clear): I support the Hyde Amendment in all appropriations bills and am proud that my appropriation's request prohibiting federal tax dollars from funding abortions was signed into law.",
+            "oppose (clear): I cosponsored the Life at Conception Act to protect the unborn.",
+            "oppose (clear): I will continue to provide a voice to the voiceless, protect the unborn, and support the pro-life movement."
+          ]
+        }
+      ]
+    },
+    {
+      "stance_id": "boebert|ukraine_aid|gt-203",
+      "politician_id": "boebert",
+      "topic": "ukraine_aid",
+      "human": {
+        "position": "mixed",
+        "confidence": 0.75
+      },
+      "scorer": {
+        "position": "mixed",
+        "confidence": 0.5,
+        "reason": "equal weight of directional signals on both sides (1 vs 1; 0 implication(s))",
+        "statements": [
+          "support (clear): Congress and the American people shouldn't be presented with the false choice that the only way to support aid for Ukraine is to also pass a 2,741-page, drunken-sailor, monstrosity of a spending bill in less than 22 hours.",
+          "oppose (clear): I am opposed to the U.S. sending any more of your hard-earned taxpayer money to Ukraine."
+        ]
+      },
+      "verdict": "agrees on position, confidence outside tolerance",
+      "scorer_agrees": true,
+      "note": "stance-score: boebert|ukraine_aid position MATCH (candidate mixed, ground truth mixed); confidence 0.5 vs 0.75, Δ=-0.25 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2022-03-10",
+          "link": "https://boebert.house.gov/media/press-releases/rep-boebert-introduces-ukraine-assistance-american-energy-acceleration-0",
+          "position": "support",
+          "confidence": 0.8,
+          "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 1 mention(s) recorded at zero weight (R3)",
+          "statements": [
+            "support (clear): Congress and the American people shouldn't be presented with the false choice that the only way to support aid for Ukraine is to also pass a 2,741-page, drunken-sailor, monstrosity of a spending bill in less than 22 hours."
+          ]
+        },
+        {
+          "type": "official newsletter",
+          "date": "2024-02-23",
+          "link": "https://boebert.house.gov/media/newsletters/fighting-biden-border-crisis",
+          "position": "oppose",
+          "confidence": 0.8,
+          "reason": "1 clear medium-weight statement(s) for oppose; 0 implication(s) for oppose at medium weight (R6); explicit claim on a primary source reads as a stated position (R8); 1 mention(s) recorded at zero weight (R3)",
+          "statements": [
+            "oppose (clear): I am opposed to the U.S. sending any more of your hard-earned taxpayer money to Ukraine."
+          ]
+        }
+      ]
+    },
+    {
+      "stance_id": "boebert|immigration_reform|gt-204",
+      "politician_id": "boebert",
+      "topic": "immigration_reform",
+      "human": {
+        "position": "oppose",
+        "confidence": 0.85
+      },
+      "scorer": {
+        "position": "oppose",
+        "confidence": 0.8,
+        "reason": "1 clear high-weight statement(s) for oppose; 0 implication(s) for oppose at medium weight (R6); 1 mention(s) recorded at zero weight (R3)",
+        "statements": [
+          "oppose (clear): I oppose amnesty in all forms and am doing everything in my power to end the Biden border invasion."
+        ]
+      },
+      "verdict": "agrees",
+      "scorer_agrees": true,
+      "note": "stance-score: boebert|immigration_reform position MATCH (candidate oppose, ground truth oppose); confidence 0.8 vs 0.85, Δ=-0.05 within 0.1",
+      "per_source": [
+        {
+          "type": "official newsletter",
+          "date": "2024-02-23",
+          "link": "https://boebert.house.gov/media/newsletters/fighting-biden-border-crisis",
+          "position": "oppose",
+          "confidence": 0.8,
+          "reason": "1 clear medium-weight statement(s) for oppose; 0 implication(s) for oppose at medium weight (R6); explicit claim on a primary source reads as a stated position (R8); 1 mention(s) recorded at zero weight (R3)",
+          "statements": [
+            "oppose (clear): I oppose amnesty in all forms and am doing everything in my power to end the Biden border invasion."
+          ]
+        },
+        {
+          "type": "official House issues page",
+          "date": null,
+          "link": "https://boebert.house.gov/issues/border-security",
+          "position": "no clear position",
+          "confidence": 0,
+          "reason": "topic not found in source",
+          "statements": []
+        }
+      ]
+    },
+    {
+      "stance_id": "boebert|climate_action|gt-205",
+      "politician_id": "boebert",
+      "topic": "climate_action",
+      "human": {
+        "position": "oppose",
+        "confidence": 0.75
+      },
+      "scorer": {
+        "position": "support",
+        "confidence": 0.8,
+        "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 2 mention(s) recorded at zero weight (R3)",
+        "statements": [
+          "support (clear): I introduced the Paris Agreement Constitutional Treaty Act to prohibit Congress from spending funds on the Paris Agreement until the Senate ratifies it."
+        ]
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: boebert|climate_action position MISMATCH (candidate support, ground truth oppose); confidence 0.8 vs 0.75, Δ=+0.05 within 0.1",
+      "per_source": [
+        {
+          "type": "official House issues page",
+          "date": null,
+          "link": "https://boebert.house.gov/issues/foreign-policy",
+          "position": "support",
+          "confidence": 0.8,
+          "reason": "1 clear medium-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); explicit claim on a primary source reads as a stated position (R8); 1 mention(s) recorded at zero weight (R3)",
+          "statements": [
+            "support (clear): I introduced the Paris Agreement Constitutional Treaty Act to prohibit Congress from spending funds on the Paris Agreement until the Senate ratifies it."
+          ]
+        },
+        {
+          "type": "official House issues page",
+          "date": null,
+          "link": "https://boebert.house.gov/issues/taxes-and-spending",
+          "position": "no clear position",
+          "confidence": 0.3,
+          "reason": "1 topic mention(s), none states a clear position (R3)",
+          "statements": []
+        }
+      ]
+    },
+    {
+      "stance_id": "owens|gun_safety|gt-206",
+      "politician_id": "owens",
+      "topic": "gun_safety",
+      "human": {
+        "position": "oppose",
+        "confidence": 0.85
+      },
+      "scorer": {
+        "position": "no clear position",
+        "confidence": 0,
+        "reason": "topic not found in source",
+        "statements": []
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: owens|gun_safety position MISMATCH (candidate no clear position, ground truth oppose); confidence 0 vs 0.85, Δ=-0.85 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "floor speech (official release)",
+          "date": "2021-03-10",
+          "link": "https://owens.house.gov/posts/owens-remarks-on-the-house-floor-in-response-to-hr-8-and-hr-1446",
+          "position": "no clear position",
+          "confidence": 0,
+          "reason": "topic not found in source",
+          "statements": []
+        }
+      ]
+    },
+    {
+      "stance_id": "owens|voting_access|gt-207",
+      "politician_id": "owens",
+      "topic": "voting_access",
+      "human": {
+        "position": "oppose",
+        "confidence": 0.8
+      },
+      "scorer": {
+        "position": "no clear position",
+        "confidence": 0,
+        "reason": "topic not found in source",
+        "statements": []
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: owens|voting_access position MISMATCH (candidate no clear position, ground truth oppose); confidence 0 vs 0.8, Δ=-0.80 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2021-03-03",
+          "link": "https://owens.house.gov/posts/owens-statement-opposing-the-for-the-politicians-act",
+          "position": "no clear position",
+          "confidence": 0,
+          "reason": "topic not found in source",
+          "statements": []
+        },
+        {
+          "type": "official press release",
+          "date": "2022-09-21",
+          "link": "https://owens.house.gov/posts/owens-statement-opposing-the-presidential-election-reform-act",
+          "position": "no clear position",
+          "confidence": 0,
+          "reason": "topic not found in source",
+          "statements": []
+        }
+      ]
+    },
+    {
+      "stance_id": "owens|student_debt_college_access|gt-208",
+      "politician_id": "owens",
+      "topic": "student_debt_college_access",
+      "human": {
+        "position": "oppose",
+        "confidence": 0.85
+      },
+      "scorer": {
+        "position": "no clear position",
+        "confidence": 0,
+        "reason": "topic not found in source",
+        "statements": []
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: owens|student_debt_college_access position MISMATCH (candidate no clear position, ground truth oppose); confidence 0 vs 0.85, Δ=-0.85 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2022-08-25",
+          "link": "https://owens.house.gov/posts/owens-statement-opposing-bidens-unconstitutional-student-loan-debt-transfer",
+          "position": "no clear position",
+          "confidence": 0,
+          "reason": "topic not found in source",
+          "statements": []
+        },
+        {
+          "type": "official press release",
+          "date": "2023-09-29",
+          "link": "https://owens.house.gov/posts/owens-works-to-stop-bidens-free-college-scheme",
+          "position": "no clear position",
+          "confidence": 0,
+          "reason": "topic not found in source",
+          "statements": []
+        }
+      ]
+    },
+    {
+      "stance_id": "owens|america_first_fp|gt-209",
+      "politician_id": "owens",
+      "topic": "america_first_fp",
+      "human": {
+        "position": "oppose",
+        "confidence": 0.7
+      },
+      "scorer": {
+        "position": "no clear position",
+        "confidence": 0,
+        "reason": "topic not found in source",
+        "statements": []
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: owens|america_first_fp position MISMATCH (candidate no clear position, ground truth oppose); confidence 0 vs 0.7, Δ=-0.70 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2022-05-10",
+          "link": "https://owens.house.gov/posts/owens-backs-additional-ukraine-aid",
+          "position": "no clear position",
+          "confidence": 0,
+          "reason": "topic not found in source",
+          "statements": []
+        },
+        {
+          "type": "official press release",
+          "date": "2023-11-02",
+          "link": "https://owens.house.gov/posts/owens-votes-for-aid-to-israel",
+          "position": "no clear position",
+          "confidence": 0,
+          "reason": "topic not found in source",
+          "statements": []
+        }
+      ]
+    },
+    {
+      "stance_id": "tom_cole|pro_choice|gt-210",
+      "politician_id": "tom_cole",
+      "topic": "pro_choice",
+      "human": {
+        "position": "oppose",
+        "confidence": 0.9
+      },
+      "scorer": {
+        "position": "support",
+        "confidence": 0.8,
+        "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6)",
+        "statements": [
+          "support (clear): I vehemently oppose any efforts to repeal the Hyde Amendment and other pro-life provisions traditionally included in funding legislation, and I remain committed to supporting legislation and efforts to defend vulnerable unborn children and protect the conscience rights of pro-life Americans."
+        ]
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: tom_cole|pro_choice position MISMATCH (candidate support, ground truth oppose); confidence 0.8 vs 0.9, Δ=-0.10 within 0.1",
+      "per_source": [
+        {
+          "type": "official House issues page",
+          "date": null,
+          "link": "https://cole.house.gov/issues/life",
+          "position": "support",
+          "confidence": 0.8,
+          "reason": "1 clear medium-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); explicit claim on a primary source reads as a stated position (R8)",
+          "statements": [
+            "support (clear): I vehemently oppose any efforts to repeal the Hyde Amendment and other pro-life provisions traditionally included in funding legislation, and I remain committed to supporting legislation and efforts to defend vulnerable unborn children and protect the conscience rights of pro-life Americans."
+          ]
+        }
+      ]
+    },
+    {
+      "stance_id": "tom_cole|gun_safety|gt-211",
+      "politician_id": "tom_cole",
+      "topic": "gun_safety",
+      "human": {
+        "position": "oppose",
+        "confidence": 0.75
+      },
+      "scorer": {
+        "position": "oppose",
+        "confidence": 0.8,
+        "reason": "1 clear high-weight statement(s) for oppose; 0 implication(s) for oppose at medium weight (R6)",
+        "statements": [
+          "oppose (clear): While I share the goal of keeping guns out of the hands of dangerous criminals and preventing mass violence, overly broad executive orders and legislative proposals that limit the rights of law-abiding gun owners are not the answer to gun violence."
+        ]
+      },
+      "verdict": "agrees",
+      "scorer_agrees": true,
+      "note": "stance-score: tom_cole|gun_safety position MATCH (candidate oppose, ground truth oppose); confidence 0.8 vs 0.75, Δ=+0.05 within 0.1",
+      "per_source": [
+        {
+          "type": "official House issues page",
+          "date": null,
+          "link": "https://cole.house.gov/issues/second-amendment",
+          "position": "oppose",
+          "confidence": 0.8,
+          "reason": "1 clear medium-weight statement(s) for oppose; 0 implication(s) for oppose at medium weight (R6); explicit claim on a primary source reads as a stated position (R8)",
+          "statements": [
+            "oppose (clear): While I share the goal of keeping guns out of the hands of dangerous criminals and preventing mass violence, overly broad executive orders and legislative proposals that limit the rights of law-abiding gun owners are not the answer to gun violence."
+          ]
+        }
+      ]
+    },
+    {
+      "stance_id": "tom_cole|immigration_reform|gt-212",
+      "politician_id": "tom_cole",
+      "topic": "immigration_reform",
+      "human": {
+        "position": "oppose",
+        "confidence": 0.75
+      },
+      "scorer": {
+        "position": "no clear position",
+        "confidence": 0,
+        "reason": "topic not found in source",
+        "statements": []
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: tom_cole|immigration_reform position MISMATCH (candidate no clear position, ground truth oppose); confidence 0 vs 0.75, Δ=-0.75 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "official House issues page",
+          "date": null,
+          "link": "https://cole.house.gov/issues/immigration",
+          "position": "no clear position",
+          "confidence": 0,
+          "reason": "topic not found in source",
+          "statements": []
+        }
+      ]
+    },
+    {
+      "stance_id": "tom_cole|climate_action|gt-213",
+      "politician_id": "tom_cole",
+      "topic": "climate_action",
+      "human": {
+        "position": "mixed",
+        "confidence": 0.65
+      },
+      "scorer": {
+        "position": "support",
+        "confidence": 0.8,
+        "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6)",
+        "statements": [
+          "support (clear): While I am supportive of our traditional energy producers and protective of the thousands they employ, I have also supported tax credits that promote renewable energy development—like wind power—and incentivize consumers to use renewable and alternative fuels."
+        ]
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: tom_cole|climate_action position MISMATCH (candidate support, ground truth mixed); confidence 0.8 vs 0.65, Δ=+0.15 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "official House issues page",
+          "date": null,
+          "link": "https://cole.house.gov/issues/energy",
+          "position": "support",
+          "confidence": 0.8,
+          "reason": "1 clear medium-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); explicit claim on a primary source reads as a stated position (R8)",
+          "statements": [
+            "support (clear): While I am supportive of our traditional energy producers and protective of the thousands they employ, I have also supported tax credits that promote renewable energy development—like wind power—and incentivize consumers to use renewable and alternative fuels."
+          ]
+        }
+      ]
+    },
+    {
+      "stance_id": "tom_cole|healthcare|gt-214",
+      "politician_id": "tom_cole",
+      "topic": "healthcare",
+      "human": {
+        "position": "mixed",
+        "confidence": 0.6
+      },
+      "scorer": {
+        "position": "support",
+        "confidence": 0.8,
+        "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 1 mention(s) recorded at zero weight (R3)",
+        "statements": [
+          "support (clear): I strongly support a role for private enterprise in American healthcare and believe the answers to our nation’s health care problems entail market-based solutions, not in granting the federal government sole control over the nation’s health care industry."
+        ]
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: tom_cole|healthcare position MISMATCH (candidate support, ground truth mixed); confidence 0.8 vs 0.6, Δ=+0.20 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "official House issues page",
+          "date": null,
+          "link": "https://cole.house.gov/issues/healthcare",
+          "position": "support",
+          "confidence": 0.8,
+          "reason": "1 clear medium-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); explicit claim on a primary source reads as a stated position (R8); 1 mention(s) recorded at zero weight (R3)",
+          "statements": [
+            "support (clear): I strongly support a role for private enterprise in American healthcare and believe the answers to our nation’s health care problems entail market-based solutions, not in granting the federal government sole control over the nation’s health care industry."
+          ]
+        }
+      ]
+    },
+    {
+      "stance_id": "bennie_thompson|cut_spending|gt-215",
+      "politician_id": "bennie_thompson",
+      "topic": "cut_spending",
+      "human": {
+        "position": "oppose",
+        "confidence": 0.75
+      },
+      "scorer": {
+        "position": "no clear position",
+        "confidence": 0,
+        "reason": "topic not found in source",
+        "statements": []
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: bennie_thompson|cut_spending position MISMATCH (candidate no clear position, ground truth oppose); confidence 0 vs 0.75, Δ=-0.75 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2025-05-22",
+          "link": "https://benniethompson.house.gov/media/press-releases/congressman-bennie-g-thompson-statement-republicans-jamming-their-gop-tax-scam",
+          "position": "no clear position",
+          "confidence": 0,
+          "reason": "topic not found in source",
+          "statements": []
+        }
+      ]
+    },
+    {
+      "stance_id": "bennie_thompson|lower_taxes|gt-216",
+      "politician_id": "bennie_thompson",
+      "topic": "lower_taxes",
+      "human": {
+        "position": "oppose",
+        "confidence": 0.7
+      },
+      "scorer": {
+        "position": "no clear position",
+        "confidence": 0.3,
+        "reason": "2 topic mention(s), none states a clear position (R3)",
+        "statements": []
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: bennie_thompson|lower_taxes position MISMATCH (candidate no clear position, ground truth oppose); confidence 0.3 vs 0.7, Δ=-0.40 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "official statement",
+          "date": "2025-07-03",
+          "link": "https://democrats-homeland.house.gov/news/press-releases/ranking-member-thompson-condemns-passage-of-one-big-ugly-bill-as-a-dangerous-betrayal-of-the-american-people",
+          "position": "no clear position",
+          "confidence": 0.3,
+          "reason": "1 topic mention(s), none states a clear position (R3)",
+          "statements": []
+        },
+        {
+          "type": "official press release",
+          "date": "2025-05-22",
+          "link": "https://benniethompson.house.gov/media/press-releases/congressman-bennie-g-thompson-statement-republicans-jamming-their-gop-tax-scam",
+          "position": "no clear position",
+          "confidence": 0.3,
+          "reason": "1 topic mention(s), none states a clear position (R3)",
+          "statements": []
+        }
+      ]
+    },
+    {
+      "stance_id": "bennie_thompson|deportations|gt-217",
+      "politician_id": "bennie_thompson",
+      "topic": "deportations",
+      "human": {
+        "position": "oppose",
+        "confidence": 0.85
+      },
+      "scorer": {
+        "position": "support",
+        "confidence": 0.8,
+        "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 2 mention(s) recorded at zero weight (R3)",
+        "statements": [
+          "support (clear): Rounding up anyone without status just to boost deportation numbers does nothing to make us safer and only destroys families."
+        ]
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: bennie_thompson|deportations position MISMATCH (candidate support, ground truth oppose); confidence 0.8 vs 0.85, Δ=-0.05 within 0.1",
+      "per_source": [
+        {
+          "type": "official statement",
+          "date": "2017-02-16",
+          "link": "https://democrats-homeland.house.gov/news/press-releases/rankin-member-thompson-statement-ice-raids",
+          "position": "support",
+          "confidence": 0.8,
+          "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 1 mention(s) recorded at zero weight (R3)",
+          "statements": [
+            "support (clear): Rounding up anyone without status just to boost deportation numbers does nothing to make us safer and only destroys families."
+          ]
+        },
+        {
+          "type": "official statement",
+          "date": "2026-06-09",
+          "link": "https://democrats-homeland.house.gov/news/press-releases/ranking-member-thompson-statement-on-republicans-giving-trump-billions-more-for-out-of-control-mass-deportations",
+          "position": "no clear position",
+          "confidence": 0,
+          "reason": "topic not found in source",
+          "statements": []
+        },
+        {
+          "type": "official statement",
+          "date": "2018-02-12",
+          "link": "https://democrats-homeland.house.gov/news/press-releases/thompson-statement-trump-s-homeland-security-budget-request-0",
+          "position": "no clear position",
+          "confidence": 0.3,
+          "reason": "1 topic mention(s), none states a clear position (R3)",
+          "statements": []
+        }
+      ]
+    },
+    {
+      "stance_id": "bennie_thompson|border_security|gt-218",
+      "politician_id": "bennie_thompson",
+      "topic": "border_security",
+      "human": {
+        "position": "mixed",
+        "confidence": 0.7
+      },
+      "scorer": {
+        "position": "support",
+        "confidence": 0.8,
+        "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 2 mention(s) recorded at zero weight (R3)",
+        "statements": [
+          "support (clear): I urge my Republican colleagues to join Democrats to pass real, lasting solutions to strengthen border security, reform our immigration system, and protect vulnerable asylum seekers.”"
+        ]
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: bennie_thompson|border_security position MISMATCH (candidate support, ground truth mixed); confidence 0.8 vs 0.7, Δ=+0.10 within 0.1",
+      "per_source": [
+        {
+          "type": "official statement",
+          "date": "2024-02-14",
+          "link": "https://democrats-homeland.house.gov/news/press-releases/ranking-member-thompson-ice-reducing-operations-releasing-detainees-a-direct-result-of-republicans-political-games-and-governing-failures",
+          "position": "no clear position",
+          "confidence": 0.3,
+          "reason": "1 topic mention(s), none states a clear position (R3)",
+          "statements": []
+        },
+        {
+          "type": "official statement",
+          "date": "2024-06-04",
+          "link": "https://democrats-homeland.house.gov/news/press-releases/ranking-member-thompson-statement-on-president-bidens-border-security-executive-action",
+          "position": "support",
+          "confidence": 0.8,
+          "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6)",
+          "statements": [
+            "support (clear): I urge my Republican colleagues to join Democrats to pass real, lasting solutions to strengthen border security, reform our immigration system, and protect vulnerable asylum seekers.”"
+          ]
+        },
+        {
+          "type": "official statement",
+          "date": "2018-02-12",
+          "link": "https://democrats-homeland.house.gov/news/press-releases/thompson-statement-trump-s-homeland-security-budget-request-0",
+          "position": "no clear position",
+          "confidence": 0.3,
+          "reason": "1 topic mention(s), none states a clear position (R3)",
+          "statements": []
+        }
+      ]
+    },
+    {
+      "stance_id": "bennie_thompson|gov_regulation|gt-219",
+      "politician_id": "bennie_thompson",
+      "topic": "gov_regulation",
+      "human": {
+        "position": "oppose",
+        "confidence": 0.6
+      },
+      "scorer": {
+        "position": "no clear position",
+        "confidence": 0,
+        "reason": "topic not found in source",
+        "statements": []
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: bennie_thompson|gov_regulation position MISMATCH (candidate no clear position, ground truth oppose); confidence 0 vs 0.6, Δ=-0.60 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "official statement",
+          "date": "2020-05-15",
+          "link": "https://democrats-homeland.house.gov/news/press-releases/government-report-shows-cfats-program-must-be-strengthened",
+          "position": "no clear position",
+          "confidence": 0,
+          "reason": "topic not found in source",
+          "statements": []
+        }
+      ]
+    },
+    {
+      "stance_id": "lee|gun_safety|gt-220",
+      "politician_id": "lee",
+      "topic": "gun_safety",
+      "human": {
+        "position": "oppose",
+        "confidence": 0.8
+      },
+      "scorer": {
+        "position": "no clear position",
+        "confidence": 0.3,
+        "reason": "1 topic mention(s), none states a clear position (R3)",
+        "statements": []
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: lee|gun_safety position MISMATCH (candidate no clear position, ground truth oppose); confidence 0.3 vs 0.8, Δ=-0.50 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2013-04-17",
+          "link": "https://www.lee.senate.gov/news/press-releases/lee-statement-on-gun-bill-votes/",
+          "position": "no clear position",
+          "confidence": 0.3,
+          "reason": "1 topic mention(s), none states a clear position (R3)",
+          "statements": []
+        },
+        {
+          "type": "official press release",
+          "date": "2013-04-01",
+          "link": "https://www.lee.senate.gov/news/press-releases/lee-gun-proposals-limit-second-amendment-rights-of-law-abiding-citizens/",
+          "position": "no clear position",
+          "confidence": 0,
+          "reason": "topic not found in source",
+          "statements": []
+        }
+      ]
+    },
+    {
+      "stance_id": "lee|lands_keep_public|gt-221",
+      "politician_id": "lee",
+      "topic": "lands_keep_public",
+      "human": {
+        "position": "oppose",
+        "confidence": 0.85
+      },
+      "scorer": {
+        "position": "no clear position",
+        "confidence": 0.3,
+        "reason": "1 topic mention(s), none states a clear position (R3)",
+        "statements": []
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: lee|lands_keep_public position MISMATCH (candidate no clear position, ground truth oppose); confidence 0.3 vs 0.85, Δ=-0.55 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2022-04-08",
+          "link": "https://www.lee.senate.gov/news/press-releases/sen-lee-introduces-bill-to-increase-utah-housing-supply/",
+          "position": "no clear position",
+          "confidence": 0.3,
+          "reason": "1 topic mention(s), none states a clear position (R3)",
+          "statements": []
+        },
+        {
+          "type": "official press release",
+          "date": "2011-03-17",
+          "link": "https://www.lee.senate.gov/2011/3/lee-mccain-submit-bill-to-reduce-ownership-of-federal-lands",
+          "position": "no clear position",
+          "confidence": 0,
+          "reason": "topic not found in source",
+          "statements": []
+        }
+      ]
+    },
+    {
+      "stance_id": "lee|ukraine_aid|gt-222",
+      "politician_id": "lee",
+      "topic": "ukraine_aid",
+      "human": {
+        "position": "mixed",
+        "confidence": 0.7
+      },
+      "scorer": {
+        "position": "no clear position",
+        "confidence": 0.3,
+        "reason": "2 topic mention(s), none states a clear position (R3)",
+        "statements": []
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: lee|ukraine_aid position MISMATCH (candidate no clear position, ground truth mixed); confidence 0.3 vs 0.7, Δ=-0.40 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2022-05-16",
+          "link": "https://www.lee.senate.gov/2022/5/lee-offers-amendment-to-target-and-pay-for-ukraine-aid",
+          "position": "no clear position",
+          "confidence": 0.3,
+          "reason": "1 topic mention(s), none states a clear position (R3)",
+          "statements": []
+        },
+        {
+          "type": "official press release (letter to the President)",
+          "date": "2023-04-20",
+          "link": "https://www.lee.senate.gov/news/press-releases/group-of-senators-and-house-members-express-concern-over-u-s-aid-to-ukraine/",
+          "position": "no clear position",
+          "confidence": 0.3,
+          "reason": "1 topic mention(s), none states a clear position (R3)",
+          "statements": []
+        }
+      ]
+    },
+    {
+      "stance_id": "lee|climate_action|gt-223",
+      "politician_id": "lee",
+      "topic": "climate_action",
+      "human": {
+        "position": "oppose",
+        "confidence": 0.7
+      },
+      "scorer": {
+        "position": "no clear position",
+        "confidence": 0.3,
+        "reason": "3 topic mention(s), none states a clear position (R3)",
+        "statements": []
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: lee|climate_action position MISMATCH (candidate no clear position, ground truth oppose); confidence 0.3 vs 0.7, Δ=-0.40 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "floor speech (official release)",
+          "date": "2019-03-26",
+          "link": "https://www.lee.senate.gov/news/press-releases/remarks-on-the-green-new-deal/",
+          "position": "no clear position",
+          "confidence": 0.3,
+          "reason": "3 topic mention(s), none states a clear position (R3)",
+          "statements": []
+        }
+      ]
+    },
+    {
+      "stance_id": "trump|climate_action|gt-224",
+      "politician_id": "trump",
+      "topic": "climate_action",
+      "human": {
+        "position": "oppose",
+        "confidence": 0.85
+      },
+      "scorer": {
+        "position": "no clear position",
+        "confidence": 0.3,
+        "reason": "3 topic mention(s), none states a clear position (R3)",
+        "statements": []
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: trump|climate_action position MISMATCH (candidate no clear position, ground truth oppose); confidence 0.3 vs 0.85, Δ=-0.55 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "official statement",
+          "date": "2017-06-01",
+          "link": "https://trumpwhitehouse.archives.gov/briefings-statements/statement-president-trump-paris-climate-accord/",
+          "position": "no clear position",
+          "confidence": 0.3,
+          "reason": "2 topic mention(s), none states a clear position (R3)",
+          "statements": []
+        },
+        {
+          "type": "executive order (official)",
+          "date": "2025-01-20",
+          "link": "https://www.whitehouse.gov/presidential-actions/2025/01/putting-america-first-in-international-environmental-agreements/",
+          "position": "no clear position",
+          "confidence": 0.3,
+          "reason": "1 topic mention(s), none states a clear position (R3)",
+          "statements": []
+        }
+      ]
+    },
+    {
+      "stance_id": "trump|iran_hostilities|gt-225",
+      "politician_id": "trump",
+      "topic": "iran_hostilities",
+      "human": {
+        "position": "oppose",
+        "confidence": 0.9
+      },
+      "scorer": {
+        "position": "no clear position",
+        "confidence": 0.3,
+        "reason": "2 topic mention(s), none states a clear position (R3)",
+        "statements": []
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: trump|iran_hostilities position MISMATCH (candidate no clear position, ground truth oppose); confidence 0.3 vs 0.9, Δ=-0.60 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "presidential veto message (official)",
+          "date": "2020-05-06",
+          "link": "https://trumpwhitehouse.archives.gov/briefings-statements/presidential-veto-message-senate-s-j-res-68/",
+          "position": "no clear position",
+          "confidence": 0.3,
+          "reason": "1 topic mention(s), none states a clear position (R3)",
+          "statements": []
+        },
+        {
+          "type": "official statement",
+          "date": "2020-05-06",
+          "link": "https://trumpwhitehouse.archives.gov/briefings-statements/statement-president-regarding-veto-s-j-res-68/",
+          "position": "no clear position",
+          "confidence": 0.3,
+          "reason": "1 topic mention(s), none states a clear position (R3)",
+          "statements": []
+        }
+      ]
+    },
+    {
+      "stance_id": "trump|war_powers|gt-226",
+      "politician_id": "trump",
+      "topic": "war_powers",
+      "human": {
+        "position": "oppose",
+        "confidence": 0.85
+      },
+      "scorer": {
+        "position": "no clear position",
+        "confidence": 0,
+        "reason": "topic not found in source",
+        "statements": []
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: trump|war_powers position MISMATCH (candidate no clear position, ground truth oppose); confidence 0 vs 0.85, Δ=-0.85 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "presidential veto message (official)",
+          "date": "2019-04-16",
+          "link": "https://trumpwhitehouse.archives.gov/presidential-actions/presidential-veto-message-senate-accompany-s-j-res-7/",
+          "position": "no clear position",
+          "confidence": 0,
+          "reason": "topic not found in source",
+          "statements": []
+        }
+      ]
+    },
+    {
+      "stance_id": "trump|gun_safety|gt-227",
+      "politician_id": "trump",
+      "topic": "gun_safety",
+      "human": {
+        "position": "mixed",
+        "confidence": 0.7
+      },
+      "scorer": {
+        "position": "support",
+        "confidence": 0.8,
+        "reason": "2 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6)",
+        "statements": [
+          "support (clear): That is why I have called for red flag laws, also known as extreme risk protection orders.",
+          "support (clear): Last year, we enacted the STOP School Violence and Fix NICS Acts into law, providing grants to improve school safety and strengthening critical background checks for firearm purchases."
+        ]
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: trump|gun_safety position MISMATCH (candidate support, ground truth mixed); confidence 0.8 vs 0.7, Δ=+0.10 within 0.1",
+      "per_source": [
+        {
+          "type": "remarks (official transcript)",
+          "date": "2019-08-05",
+          "link": "https://trumpwhitehouse.archives.gov/briefings-statements/remarks-president-trump-mass-shootings-texas-ohio/",
+          "position": "support",
+          "confidence": 0.8,
+          "reason": "2 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6)",
+          "statements": [
+            "support (clear): That is why I have called for red flag laws, also known as extreme risk protection orders.",
+            "support (clear): Last year, we enacted the STOP School Violence and Fix NICS Acts into law, providing grants to improve school safety and strengthening critical background checks for firearm purchases."
+          ]
+        },
+        {
+          "type": "executive order (official)",
+          "date": "2025-02-07",
+          "link": "https://www.whitehouse.gov/presidential-actions/2025/02/protecting-second-amendment-rights/",
+          "position": "no clear position",
+          "confidence": 0,
+          "reason": "topic not found in source",
+          "statements": []
+        }
+      ]
+    }
+  ]
+}

@@ -5,8 +5,9 @@
 // (Talarico on the cost of living). This module loads every locked record in
 // db/stance-ground-truth-*.json — the per-topic Massie / Sanders / Talarico
 // files (with the cost-of-living file's `additional_records`), the Abbott and
-// Hinojosa cost-of-living files, and the 77 expansion records — and indexes
-// them by "<politician_id>|<issue key>".
+// Hinojosa cost-of-living files, the 77 expansion records and the 27 oppose /
+// mixed records for six more politicians (Boebert, Owens, Cole, Thompson, Lee,
+// Trump; 2026-11-26) — and indexes them by "<politician_id>|<issue key>".
 //
 // HOW IT IS USED (read-only; this module never writes a label):
 //   · evidence-locker-core.mjs lockerDecision() looks up the candidate's pair:
@@ -73,6 +74,7 @@ import gt46 from "../../db/stance-ground-truth-talarico-supreme-court.json" with
 import gt47 from "../../db/stance-ground-truth-talarico-term-limits.json" with { type: "json" };
 import gt48 from "../../db/stance-ground-truth-talarico-voting-access.json" with { type: "json" };
 import gt49 from "../../db/stance-ground-truth-talarico-workers-wages.json" with { type: "json" };
+import gt50 from "../../db/stance-ground-truth-six-oppose-mixed-2026-11.json" with { type: "json" };
 
 /** File name → parsed file, for the coverage test. */
 export const GROUND_TRUTH_FILES = {
@@ -126,6 +128,7 @@ export const GROUND_TRUTH_FILES = {
   "stance-ground-truth-talarico-term-limits.json": gt47,
   "stance-ground-truth-talarico-voting-access.json": gt48,
   "stance-ground-truth-talarico-workers-wages.json": gt49,
+  "stance-ground-truth-six-oppose-mixed-2026-11.json": gt50,
 };
 
 /** The records one file holds: a single record (plus `additional_records`) or `{ records: [...] }`. */

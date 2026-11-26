@@ -1,0 +1,806 @@
+{
+  "_note": "Locked ground-truth stance records for six politicians (Lauren Boebert, Burgess Owens, Tom Cole, Bennie Thompson, Mike Lee, Donald Trump), added 2026-11-26 as a separate set aimed at oppose and mixed labels, where the scorer is weakest. Each person has an oppose record and, where their own pages support it, a mixed one; no politician-and-key pair here repeats one already locked elsewhere. Same fields as db/stance-ground-truth-expansion-2026-11.json, which this file does not change. Every excerpt is quoted verbatim from a page the politician controls (campaign, House or Senate office, committee press office) or an official White House page attributed to the President by name; fragments are separated by \" ... \". Not used to tune any rule: these are scored as a held-out set by scripts/rescore-ground-truth-six-oppose-mixed-2026-11.mjs.",
+  "records": [
+    {
+      "stance_id": "boebert|voting_access|gt-201",
+      "politician_id": "boebert",
+      "topic": "voting_access",
+      "position": "oppose",
+      "position_on": "federal election mandates sold as expanding access (H.R. 1 of the 117th Congress: nationalized mail-in voting, limits on voter ID); she wants election rules set by the states",
+      "confidence": 0.85,
+      "confidence_reason": "Her own House issue page says she led the opposition to H.R. 1 and lists nationalizing mail-in voting and banning voter ID among her reasons, and says sweeping federal rules are not the way; held at 0.85 because the page is undated and is framed as election security rather than access.",
+      "sources": [
+        {
+          "type": "official House issues page",
+          "date": null,
+          "link": "https://boebert.house.gov/issues/election-integrity",
+          "excerpt": "\"Instead of working for real election security, Democrats are trying to sell a partisan federal takeover of elections as an election security measure.\" ... \"I led the opposition to their H.R. 1, since it would ban voter ID laws, federalize our elections, weaponize the IRS against conservatives, give D.C. statehood, use tax dollars to fund politicians’ campaigns, give California even more power over Colorado, nationalize mail-in voting, and make it harder to audit election results.\" ... \"Sweeping federal regulations and activist court decisions are not the way to secure our elections since Article 1 Section 4 of the Constitution gives state legislatures the power to govern election law.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-26. No date on page. Her Election Integrity issue page, written in the first person. The opening sentence is the partisan framing she uses for the opposition that follows. The same page backs voter ID and signature checks; those lines belong to election security and are not used here.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-26",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-26"
+    },
+    {
+      "stance_id": "boebert|pro_choice|gt-202",
+      "politician_id": "boebert",
+      "topic": "pro_choice",
+      "position": "oppose",
+      "position_on": "legal abortion and taxpayer funding for it (she backs the Hyde Amendment and the Life at Conception Act)",
+      "confidence": 0.9,
+      "confidence_reason": "Her House issue page states in the first person that life begins at conception, that she will always defend life, and lists bills she cosponsored to bar federal abortion funding and protect the unborn; held at 0.9 because the page is undated.",
+      "sources": [
+        {
+          "type": "official House issues page",
+          "date": null,
+          "link": "https://boebert.house.gov/issues/pro-life-and-family-values",
+          "excerpt": "\"As a mother of four children, I believe that life begins at conception, and I will always defend life.\" ... \"I support the Hyde Amendment in all appropriations bills and am proud that my appropriation's request prohibiting federal tax dollars from funding abortions was signed into law.\" ... \"I cosponsored the Life at Conception Act to protect the unborn.\" ... \"I will continue to provide a voice to the voiceless, protect the unborn, and support the pro-life movement.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-26. No date on page. Her Pro-Life and Family Values issue page. Read on the Protect Reproductive Rights key, where her stated position is the opposing side.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-26",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-26"
+    },
+    {
+      "stance_id": "boebert|ukraine_aid|gt-203",
+      "politician_id": "boebert",
+      "topic": "ukraine_aid",
+      "position": "mixed",
+      "position_on": "further U.S. aid to Ukraine: in March 2022 she offered her own targeted military and humanitarian package while opposing the omnibus that carried aid; by February 2024 she opposed sending any more",
+      "confidence": 0.75,
+      "confidence_reason": "In 2022 her own release introduced a bill providing targeted military and humanitarian aid to Ukraine; in 2024 her newsletter says she is opposed to sending any more taxpayer money to Ukraine. Both are her own words on her House site, so the record reads mixed; held at 0.75 because the two statements are two years apart and the later one is the current position.",
+      "sources": [
+        {
+          "type": "official press release",
+          "date": "2022-03-10",
+          "link": "https://boebert.house.gov/media/press-releases/rep-boebert-introduces-ukraine-assistance-american-energy-acceleration-0",
+          "excerpt": "\"Congress and the American people shouldn't be presented with the false choice that the only way to support aid for Ukraine is to also pass a 2,741-page, drunken-sailor, monstrosity of a spending bill in less than 22 hours.\" ... \"That's why my Ukraine Assistance and American Energy Acceleration Act reins in Pelosi's bloated foreign aid package and provides a targeted amount of military and humanitarian resources for Ukraine without using it as a political pawn.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-26. Her quoted statement introducing her own Ukraine aid bill ($1 billion in weapons requested by Ukraine, plus humanitarian and refugee aid) after the House passed the FY2022 omnibus.",
+          "takes_clear_position": true
+        },
+        {
+          "type": "official newsletter",
+          "date": "2024-02-23",
+          "link": "https://boebert.house.gov/media/newsletters/fighting-biden-border-crisis",
+          "excerpt": "\"I came out in strong opposition to the Senate Amnesty Bill. This fundamentally flawed legislation would have shelled out another $60.06 billion to Ukraine. I am opposed to the U.S. sending any more of your hard-earned taxpayer money to Ukraine.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-26. Her House newsletter, first person. The bill named is the February 2024 Senate border and foreign-aid package.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-26",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-26"
+    },
+    {
+      "stance_id": "boebert|immigration_reform|gt-204",
+      "politician_id": "boebert",
+      "topic": "immigration_reform",
+      "position": "oppose",
+      "position_on": "amnesty or a pathway to citizenship for people in the country illegally",
+      "confidence": 0.85,
+      "confidence_reason": "Her House newsletter says she opposes amnesty in all forms and faults the Senate bill for a pathway to citizenship; her border issue page describes her bill to expedite removals; held at 0.85 because the newsletter is one item and the issue page states enforcement goals rather than the word 'citizenship' for long-settled immigrants.",
+      "sources": [
+        {
+          "type": "official newsletter",
+          "date": "2024-02-23",
+          "link": "https://boebert.house.gov/media/newsletters/fighting-biden-border-crisis",
+          "excerpt": "\"Additionally, the amnesty bill would have prevented illegals from being deported and even provided a pathway to citizenship for illegal immigrants.\" ... \"I oppose amnesty in all forms and am doing everything in my power to end the Biden border invasion.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-26. Her House newsletter, first person.",
+          "takes_clear_position": true
+        },
+        {
+          "type": "official House issues page",
+          "date": null,
+          "link": "https://boebert.house.gov/issues/border-security",
+          "excerpt": "\"I authored and introduced the Build the Wall and Deport Them All Act to stop the invasion taking place at our southern border. This legislation will end catch and release, end sanctuary cities, expedite the removal of illegal aliens, restore the Remain in Mexico policy, end birthright citizenship, and build the wall once and for all.\"",
+          "weight": "supporting",
+          "note": "Read directly on 2026-11-26. No date on page. Her Border Security issue page, first person.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-26",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-26"
+    },
+    {
+      "stance_id": "boebert|climate_action|gt-205",
+      "politician_id": "boebert",
+      "topic": "climate_action",
+      "position": "oppose",
+      "position_on": "climate agreements and climate spending (the Paris Agreement, the Green Climate Fund, international climate aid)",
+      "confidence": 0.75,
+      "confidence_reason": "Her issue pages say she introduced a bill to bar spending on the Paris Agreement, voted no on what she calls climate-change money for China, and filed amendments to cut the Green Climate Fund; held at 0.75 because she states no view on climate science or clean-energy investment as such.",
+      "sources": [
+        {
+          "type": "official House issues page",
+          "date": null,
+          "link": "https://boebert.house.gov/issues/foreign-policy",
+          "excerpt": "\"And when Democrats introduced the America CONCEDES Act to funnel $8 billion to China in “climate change” money laundering, I was proud to put America first and vote no.\" ... \"I introduced the Paris Agreement Constitutional Treaty Act to prohibit Congress from spending funds on the Paris Agreement until the Senate ratifies it.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-26. No date on page. Her Foreign Policy issue page, first person.",
+          "takes_clear_position": true
+        },
+        {
+          "type": "official House issues page",
+          "date": null,
+          "link": "https://boebert.house.gov/issues/taxes-and-spending",
+          "excerpt": "\"I use every opportunity in the legislative process to try and reduce federal spending, and I led Congress in the number of amendments filed to cut wasteful provisions in massive spending bills, including cutting funding for critical race theory, taxpayer-funded abortions, the Green Climate Fund, and gain-of-function research in China.\"",
+          "weight": "supporting",
+          "note": "Read directly on 2026-11-26. No date on page. Her Taxes and Spending issue page, first person. The Green Climate Fund is one item in a list of cuts.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-26",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-26"
+    },
+    {
+      "stance_id": "owens|gun_safety|gt-206",
+      "politician_id": "owens",
+      "topic": "gun_safety",
+      "position": "oppose",
+      "position_on": "new federal gun-control bills (H.R. 8, universal background checks, and H.R. 1446, the extended background-check waiting period, March 2021)",
+      "confidence": 0.85,
+      "confidence_reason": "His House floor statement, posted on his own site, opens by rising in opposition to both bills and pledges to fight them; held at 0.85 because it is one speech from 2021.",
+      "sources": [
+        {
+          "type": "floor speech (official release)",
+          "date": "2021-03-10",
+          "link": "https://owens.house.gov/posts/owens-remarks-on-the-house-floor-in-response-to-hr-8-and-hr-1446",
+          "excerpt": "\"“Madame Speaker, I rise today in opposition to H.R. 8 and H.R. 1446.\" ... \"“I absolutely will fight these measures with every tool in my grasp. These Rights to protect my life, liberty and property were granted to me by God and cannot be taken from me by D.C. bureaucrats.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-26. His remarks as prepared for delivery, posted on owens.house.gov. The constituent letters he reads aloud are not used as his words.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-26",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-26"
+    },
+    {
+      "stance_id": "owens|voting_access|gt-207",
+      "politician_id": "owens",
+      "topic": "voting_access",
+      "position": "oppose",
+      "position_on": "federal election mandates (H.R. 1, the For the People Act, 2021) and the 2022 Presidential Election Reform Act",
+      "confidence": 0.8,
+      "confidence_reason": "Two first-party statements oppose federal election bills: H.R. 1, which he says nullifies voter ID and nationalizes elections, and the Presidential Election Reform Act, which he says tramples the states' duty to oversee elections; held at 0.8 because both are framed as election integrity and states' authority rather than access.",
+      "sources": [
+        {
+          "type": "official press release",
+          "date": "2021-03-03",
+          "link": "https://owens.house.gov/posts/owens-statement-opposing-the-for-the-politicians-act",
+          "excerpt": "\"“H.R.1 has nothing to do with the people and nothing at all to do with fortifying our country’s election system. Taxpayer-funded political campaigns, nullified voter I.D. laws, and nationalized elections are not a successful recipe for restoring faith in our democracy or protecting the voice of American voters.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-26. His quoted statement opposing H.R. 1 (117th Congress). The release's bullet list (same-day registration, mail ballots) is office background and is not used.",
+          "takes_clear_position": true
+        },
+        {
+          "type": "official press release",
+          "date": "2022-09-21",
+          "link": "https://owens.house.gov/posts/owens-statement-opposing-the-presidential-election-reform-act",
+          "excerpt": "\"“The Presidential Election Reform Act, written behind closed doors with zero opportunity for collaboration, goes well beyond any bipartisan consensus to protect the integrity of the Electoral College, tramples the constitutional duty of states to oversee elections, and continues the partisan charge to centralize power in Washington.”\"",
+          "weight": "supporting",
+          "note": "Read directly on 2026-11-26. His quoted statement after voting against H.R. 8873.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-26",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-26"
+    },
+    {
+      "stance_id": "owens|student_debt_college_access|gt-208",
+      "politician_id": "owens",
+      "topic": "student_debt_college_access",
+      "position": "oppose",
+      "position_on": "broad student-loan cancellation (the 2022 Biden cancellation plan and the 2023 SAVE repayment rule)",
+      "confidence": 0.85,
+      "confidence_reason": "Two first-party releases oppose cancelling student debt: he calls the 2022 plan deceiving public policy that transfers debt to hardworking families, and he co-sponsored a resolution to overturn the SAVE plan; held at 0.85 because he says he backs a targeted reform of the loan program instead.",
+      "sources": [
+        {
+          "type": "official press release",
+          "date": "2022-08-25",
+          "link": "https://owens.house.gov/posts/owens-statement-opposing-bidens-unconstitutional-student-loan-debt-transfer",
+          "excerpt": "\"“Every person who agreed to a student loan did so with the full and transparent commitment to pay the money back. Transferring that debt to hardworking families and creating an offramp for responsibility is deceiving public policy with abysmal economic implications.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-26. His quoted statement on the August 2022 cancellation plan.",
+          "takes_clear_position": true
+        },
+        {
+          "type": "official press release",
+          "date": "2023-09-29",
+          "link": "https://owens.house.gov/posts/owens-works-to-stop-bidens-free-college-scheme",
+          "excerpt": "\"“The courts have confirmed – President Biden’s plan to cancel student loan debt at the expense of millions of hardworking Americans is unconstitutional,” said Rep. Owens.\" ... \"As the Chair of the Subcommittee on Higher Education and Workforce Development, I am proud to support this resolution to hold the White House accountable for its illegal use of executive authority and will continue to fight for a fiscally responsible, targeted solution to reform the federal student loan program.”\"",
+          "weight": "supporting",
+          "note": "Read directly on 2026-11-26. His quoted statement on co-sponsoring a Congressional Review Act resolution against the SAVE plan.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-26",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-26"
+    },
+    {
+      "stance_id": "owens|america_first_fp|gt-209",
+      "politician_id": "owens",
+      "topic": "america_first_fp",
+      "position": "oppose",
+      "position_on": "cutting or winding down U.S. foreign aid commitments: he voted for and defended the 2022 Ukraine supplemental and the 2023 Israel security supplemental",
+      "confidence": 0.7,
+      "confidence_reason": "His own releases back two foreign-aid packages in his own words (Ukraine in 2022, Israel in 2023), which is the side opposite to cutting or winding down aid abroad; held at 0.7 because neither release addresses foreign aid in general, and he notes the Israel package was fully offset.",
+      "sources": [
+        {
+          "type": "official press release",
+          "date": "2022-05-10",
+          "link": "https://owens.house.gov/posts/owens-backs-additional-ukraine-aid",
+          "excerpt": "\"“Tonight, I voted yes on H.R. 7691 to deliver immediate military, humanitarian, and economic aid to Ukraine.\" ... \"The U.S.A. must not waiver in our full-scale response.”\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-26. His quoted statement after the vote on the Additional Ukraine Supplemental Appropriations Act, 2022. The same source backs the locked ukraine_aid record for him; here it is read on the broader foreign-aid key.",
+          "takes_clear_position": true
+        },
+        {
+          "type": "official press release",
+          "date": "2023-11-02",
+          "link": "https://owens.house.gov/posts/owens-votes-for-aid-to-israel",
+          "excerpt": "\"In the wake of these barbaric acts of terror, America must stand shoulder to shoulder with Israel, our strongest ally in the Middle East and a critical partner in peace.\" ... \"America will continue to support Israel as it defends itself and its civilians from Hamas terrorism.”\"",
+          "weight": "supporting",
+          "note": "Read directly on 2026-11-26. His quoted statement on voting for the Israel Security Supplemental Appropriations Act.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-26",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-26"
+    },
+    {
+      "stance_id": "tom_cole|pro_choice|gt-210",
+      "politician_id": "tom_cole",
+      "topic": "pro_choice",
+      "position": "oppose",
+      "position_on": "abortion rights and repeal of the Hyde Amendment",
+      "confidence": 0.9,
+      "confidence_reason": "His House issue page states a 100 percent pro-life voting record, a commitment to defend the unborn, and vehement opposition to repealing the Hyde Amendment; held at 0.9 because the page is undated.",
+      "sources": [
+        {
+          "type": "official House issues page",
+          "date": null,
+          "link": "https://cole.house.gov/issues/life",
+          "excerpt": "\"Throughout my service in the U.S. House of Representatives, I have voted in support of life and currently have a 100 percent pro-life voting record. In the days ahead, I will continue to defend the sanctity of life with every vote I cast.\" ... \"I vehemently oppose any efforts to repeal the Hyde Amendment and other pro-life provisions traditionally included in funding legislation, and I remain committed to supporting legislation and efforts to defend vulnerable unborn children and protect the conscience rights of pro-life Americans.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-26. No date on page. His Life issue page, first person. Read on the Protect Reproductive Rights key.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-26",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-26"
+    },
+    {
+      "stance_id": "tom_cole|gun_safety|gt-211",
+      "politician_id": "tom_cole",
+      "topic": "gun_safety",
+      "position": "oppose",
+      "position_on": "new gun-control laws and executive orders that limit law-abiding gun owners",
+      "confidence": 0.75,
+      "confidence_reason": "His House issue page grants the goal of keeping guns from dangerous criminals but says broad orders and proposals that limit law-abiding owners are not the answer; held at 0.75 because it names no bill and leaves room for 'deliberative' measures.",
+      "sources": [
+        {
+          "type": "official House issues page",
+          "date": null,
+          "link": "https://cole.house.gov/issues/second-amendment",
+          "excerpt": "\"I am a member of the National Rifle Association because I believe that the Second Amendment should not be violated.\" ... \"While I share the goal of keeping guns out of the hands of dangerous criminals and preventing mass violence, overly broad executive orders and legislative proposals that limit the rights of law-abiding gun owners are not the answer to gun violence.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-26. No date on page. His Second Amendment issue page, first person. The concession ('I share the goal') is followed by the rejection, which carries the position.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-26",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-26"
+    },
+    {
+      "stance_id": "tom_cole|immigration_reform|gt-212",
+      "politician_id": "tom_cole",
+      "topic": "immigration_reform",
+      "position": "oppose",
+      "position_on": "amnesty or a pathway to citizenship for people who entered illegally (he backs border-first, bipartisan reform)",
+      "confidence": 0.75,
+      "confidence_reason": "His House issue page names not rewarding lawbreakers with amnesty as one of three principles, alongside securing the border first; held at 0.75 because the same page calls for comprehensive, bipartisan reform.",
+      "sources": [
+        {
+          "type": "official House issues page",
+          "date": null,
+          "link": "https://cole.house.gov/issues/immigration",
+          "excerpt": "\"Unfortunately, our current immigration system is broken and desperately needs comprehensive reform that puts America citizens first.\" ... \"As Congress considers any reforms, I will be guided by three basic principles: we must secure the border first; we must have tough sanctions for employers who knowingly hire illegal immigrants; and we must not reward those who broke our laws by providing them with amnesty.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-26. No date on page. His Immigration issue page, first person.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-26",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-26"
+    },
+    {
+      "stance_id": "tom_cole|climate_action|gt-213",
+      "politician_id": "tom_cole",
+      "topic": "climate_action",
+      "position": "mixed",
+      "position_on": "clean energy and environmental protection alongside fossil-fuel production: he backs renewable tax credits and preserving public lands, and opposes limits on oil and gas",
+      "confidence": 0.65,
+      "confidence_reason": "His House energy page says he has supported tax credits for renewables like wind and that the environment should be preserved for future generations, and also that hampering domestic oil and gas production is not the path; held at 0.65 because the page never mentions climate change and its main weight is on production.",
+      "sources": [
+        {
+          "type": "official House issues page",
+          "date": null,
+          "link": "https://cole.house.gov/issues/energy",
+          "excerpt": "\"While I am supportive of our traditional energy producers and protective of the thousands they employ, I have also supported tax credits that promote renewable energy development—like wind power—and incentivize consumers to use renewable and alternative fuels.\" ... \"Hampering domestic energy production is not the path towards a robust economy and job growth.\" ... \"I believe that our natural resources are among our nation's greatest treasures, and Congress should work to ensure that the environment is preserved for future generations.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-26. No date on page. His Energy issue page, first person.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-26",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-26"
+    },
+    {
+      "stance_id": "tom_cole|healthcare|gt-214",
+      "politician_id": "tom_cole",
+      "topic": "healthcare",
+      "position": "mixed",
+      "position_on": "expanding health coverage: he backs market-based access (HSAs, permanent telehealth) and NIH/CDC funding, and opposes federal control of health care",
+      "confidence": 0.6,
+      "confidence_reason": "His House healthcare page backs expanding HSAs and telehealth access and more NIH and CDC funding, and rejects giving the federal government sole control of health care; held at 0.6 because it does not address coverage programs such as Medicaid or the ACA.",
+      "sources": [
+        {
+          "type": "official House issues page",
+          "date": null,
+          "link": "https://cole.house.gov/issues/healthcare",
+          "excerpt": "\"I strongly support a role for private enterprise in American healthcare and believe the answers to our nation’s health care problems entail market-based solutions, not in granting the federal government sole control over the nation’s health care industry.\" ... \"Congress should also make permanent current – and temporary – expansions in telehealth services, which have broadened health care access for millions of families.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-26. No date on page. His Healthcare issue page, first person.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-26",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-26"
+    },
+    {
+      "stance_id": "bennie_thompson|cut_spending|gt-215",
+      "politician_id": "bennie_thompson",
+      "topic": "cut_spending",
+      "position": "oppose",
+      "position_on": "cutting federal programs, here the Medicaid and SNAP cuts in the 2025 reconciliation bill (H.R. 1)",
+      "confidence": 0.75,
+      "confidence_reason": "His own release says he will never vote for cuts to Medicaid, Medicare, Social Security or programs that benefit his constituents, and he voted against H.R. 1; held at 0.75 because the pledge is about those programs, not federal spending as a whole.",
+      "sources": [
+        {
+          "type": "official press release",
+          "date": "2025-05-22",
+          "link": "https://benniethompson.house.gov/media/press-releases/congressman-bennie-g-thompson-statement-republicans-jamming-their-gop-tax-scam",
+          "excerpt": "\"“Since my first day in Congress, I have been clear that I will never vote for any cuts to Medicaid, Medicare, Social Security, or any programs that benefit my constituents. Today, I proudly voted against House Republicans' “Big Ugly Bill.”\" ... \"The bill would take health care away from nearly 14 million people due to its harmful cuts to health care and nutrition assistance, which will cause tens of thousands of Mississippians to lose their benefits if this bill passes through the Senate and becomes law.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-26. His quoted statement on his House office site after the May 2025 House vote on H.R. 1.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-26",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-26"
+    },
+    {
+      "stance_id": "bennie_thompson|lower_taxes|gt-216",
+      "politician_id": "bennie_thompson",
+      "topic": "lower_taxes",
+      "position": "oppose",
+      "position_on": "the 2025 tax cuts in H.R. 1, which he describes as tax cuts for billionaires and corporations",
+      "confidence": 0.7,
+      "confidence_reason": "Two first-party statements condemn H.R. 1 for giving tax cuts and giveaways to billionaires and corporations at the expense of his constituents; held at 0.7 because he does not address income or business tax rates in general.",
+      "sources": [
+        {
+          "type": "official statement",
+          "date": "2025-07-03",
+          "link": "https://democrats-homeland.house.gov/news/press-releases/ranking-member-thompson-condemns-passage-of-one-big-ugly-bill-as-a-dangerous-betrayal-of-the-american-people",
+          "excerpt": "\"To appease President Trump, Republicans voted to rip healthcare from 17 million Americans, dole out tax cuts to billionaires, and give billions to Trump and Kristi Noem to fund mass deportations and more masked ICE agents to invade our communities.\" ... \"As they deliver tax giveaways to billionaires and corporations, they do so at the expense of the very constituents who sent them to Washington in the first place.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-26. His statement as Homeland Security ranking member, on the committee Democrats' site.",
+          "takes_clear_position": true
+        },
+        {
+          "type": "official press release",
+          "date": "2025-05-22",
+          "link": "https://benniethompson.house.gov/media/press-releases/congressman-bennie-g-thompson-statement-republicans-jamming-their-gop-tax-scam",
+          "excerpt": "\"The legislation includes drastic cuts to Medicaid, the Supplemental Nutrition Assistance Program, and other basic benefits, to pay for tax cuts for the rich and wealthy.\"",
+          "weight": "supporting",
+          "note": "Read directly on 2026-11-26. Office framing in his House release, introducing his quoted statement.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-26",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-26"
+    },
+    {
+      "stance_id": "bennie_thompson|deportations|gt-217",
+      "politician_id": "bennie_thompson",
+      "topic": "deportations",
+      "position": "oppose",
+      "position_on": "mass deportation and broad ICE raids (he wants enforcement focused on dangerous criminals)",
+      "confidence": 0.85,
+      "confidence_reason": "Three statements from 2017 to 2026 oppose broad ICE raids and mass deportation funding; held at 0.85 because he backs removing dangerous criminals.",
+      "sources": [
+        {
+          "type": "official statement",
+          "date": "2017-02-16",
+          "link": "https://democrats-homeland.house.gov/news/press-releases/rankin-member-thompson-statement-ice-raids",
+          "excerpt": "\"If the Administration was truly concerned with keeping the country safe, it would focus ICE’s resources on getting dangerous criminals off the streets and out of the country. Rounding up anyone without status just to boost deportation numbers does nothing to make us safer and only destroys families.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-26. His statement after meeting ICE on the February 2017 raids.",
+          "takes_clear_position": true
+        },
+        {
+          "type": "official statement",
+          "date": "2026-06-09",
+          "link": "https://democrats-homeland.house.gov/news/press-releases/ranking-member-thompson-statement-on-republicans-giving-trump-billions-more-for-out-of-control-mass-deportations",
+          "excerpt": "\"“Instead, this bill gives the Trump regime a blank check to execute more out-of-control, unaccountable crackdowns on migrants and the American citizens supporting them.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-26. His statement on 2026 funding for deportations.",
+          "takes_clear_position": true
+        },
+        {
+          "type": "official statement",
+          "date": "2018-02-12",
+          "link": "https://democrats-homeland.house.gov/news/press-releases/thompson-statement-trump-s-homeland-security-budget-request-0",
+          "excerpt": "\"Further, it obliterates the Department’s research and development arm to pay for a deportation force at ICE and 52,000 detention beds, a historic number of detention beds.\"\"",
+          "weight": "supporting",
+          "note": "Read directly on 2026-11-26. His statement on the FY 2019 DHS budget request.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-26",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-26"
+    },
+    {
+      "stance_id": "bennie_thompson|border_security|gt-218",
+      "politician_id": "bennie_thompson",
+      "topic": "border_security",
+      "position": "mixed",
+      "position_on": "border enforcement: he backs funding border security and the 2024 bipartisan Senate border bill (including ICE detention money), and opposes the wall and enforcement-only bills",
+      "confidence": 0.7,
+      "confidence_reason": "He praises the 2024 bipartisan Senate bill's ICE and detention funding and urges Congress to strengthen border security, while calling the wall a waste and rejecting H.R. 3602 as cruel; held at 0.7 because the support is for bipartisan packages, not barriers.",
+      "sources": [
+        {
+          "type": "official statement",
+          "date": "2024-02-14",
+          "link": "https://democrats-homeland.house.gov/news/press-releases/ranking-member-thompson-ice-reducing-operations-releasing-detainees-a-direct-result-of-republicans-political-games-and-governing-failures",
+          "excerpt": "\"The Senate bipartisan border supplemental, which Senate Republicans just scuttled days ago and Speaker Johnson said was ‘dead on arrival,’ would have provided an additional $7.6 billion to ICE, including $3.2 billion for detention capacity alone, more than covering any shortfall.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-26. His statement on ICE reducing operations.",
+          "takes_clear_position": true
+        },
+        {
+          "type": "official statement",
+          "date": "2024-06-04",
+          "link": "https://democrats-homeland.house.gov/news/press-releases/ranking-member-thompson-statement-on-president-bidens-border-security-executive-action",
+          "excerpt": "\"That being said, I am concerned about the impact of the Executive Order on vulnerable people coming to the United States for safety and protection. We must ensure continued access to asylum under U.S. law.\" ... \"I urge my Republican colleagues to join Democrats to pass real, lasting solutions to strengthen border security, reform our immigration system, and protect vulnerable asylum seekers.”\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-26. His statement on President Biden's June 2024 asylum executive action.",
+          "takes_clear_position": true
+        },
+        {
+          "type": "official statement",
+          "date": "2018-02-12",
+          "link": "https://democrats-homeland.house.gov/news/press-releases/thompson-statement-trump-s-homeland-security-budget-request-0",
+          "excerpt": "\"Instead of focusing on the critical needs of first responders – the boots on the ground that keep our communities safe – the budget would waste $1.6 billion on President Trump’s dream of a southwest border wall.\"",
+          "weight": "supporting",
+          "note": "Read directly on 2026-11-26. His statement on the FY 2019 DHS budget request.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-26",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-26"
+    },
+    {
+      "stance_id": "bennie_thompson|gov_regulation|gt-219",
+      "politician_id": "bennie_thompson",
+      "topic": "gov_regulation",
+      "position": "oppose",
+      "position_on": "cutting federal regulation: he wants Congress to strengthen and reauthorize the CFATS chemical-security program, not let it expire",
+      "confidence": 0.6,
+      "confidence_reason": "He says Congress must strengthen the federal chemical-security program, not let it expire; held at 0.6 because it is one program, not federal regulation as a whole.",
+      "sources": [
+        {
+          "type": "official statement",
+          "date": "2020-05-15",
+          "link": "https://democrats-homeland.house.gov/news/press-releases/government-report-shows-cfats-program-must-be-strengthened",
+          "excerpt": "\"“This report makes clear that Congress must strengthen the CFATS program – not let it expire.\" ... \"Congress needs to act quickly to reauthorize CFATS and empower DHS officials to make long-term improvements to the program that will promote strong cybersecurity in the chemical sector.”\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-26. His statement as Homeland Security chairman on a GAO report about the Chemical Facility Anti-Terrorism Standards program.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-26",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-26"
+    },
+    {
+      "stance_id": "lee|gun_safety|gt-220",
+      "politician_id": "lee",
+      "topic": "gun_safety",
+      "position": "oppose",
+      "position_on": "new federal gun-control laws, including expanded background checks (the 2013 Senate gun bill, S. 649)",
+      "confidence": 0.8,
+      "confidence_reason": "Two of his own releases oppose the 2013 gun proposals: he says they would limit law-abiding citizens' freedoms and that expanded background checks mainly limit rights; held at 0.8 because both are from 2013 and no first-party statement on the 2022 law was found.",
+      "sources": [
+        {
+          "type": "official press release",
+          "date": "2013-04-17",
+          "link": "https://www.lee.senate.gov/news/press-releases/lee-statement-on-gun-bill-votes/",
+          "excerpt": "\"Instead, the primary effect of most of the bills we voted on today, including the expansion of background checks, was to limit the rights of law-abiding citizens.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-26. His statement after the April 2013 Senate votes on S. 649.",
+          "takes_clear_position": true
+        },
+        {
+          "type": "official press release",
+          "date": "2013-04-01",
+          "link": "https://www.lee.senate.gov/news/press-releases/lee-gun-proposals-limit-second-amendment-rights-of-law-abiding-citizens/",
+          "excerpt": "\"Along with several of my colleagues, I have declared my intention to resist an immediate vote on any new restrictions that would serve primarily to limit the freedoms of law-abiding citizens rather than reduce violent crime.\" ... \"Unfortunately, the current gun control proposals do just that.\"",
+          "weight": "supporting",
+          "note": "Read directly on 2026-11-26. His column, posted as a release on his Senate site.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-26",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-26"
+    },
+    {
+      "stance_id": "lee|lands_keep_public|gt-221",
+      "politician_id": "lee",
+      "topic": "lands_keep_public",
+      "position": "oppose",
+      "position_on": "keeping federal land in federal hands: he has sponsored bills to sell or transfer federal land (2011 land-disposal bill; the 2022 HOUSES Act)",
+      "confidence": 0.85,
+      "confidence_reason": "His own releases say there is no need for the federal government to hold certain land and that federal ownership restricts Utah housing, and back bills to sell it; held at 0.85 because both bills cover a small share of federal land.",
+      "sources": [
+        {
+          "type": "official press release",
+          "date": "2022-04-08",
+          "link": "https://www.lee.senate.gov/news/press-releases/sen-lee-introduces-bill-to-increase-utah-housing-supply/",
+          "excerpt": "\"Of the bill Sen. Lee said, “Supply is not meeting housing demand in Utah, and the federal government’s land ownership is a significant cause of our restricted housing stock. The HOUSES Act will free federal land in a responsible manner to keep the dream and promise of Utah alive.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-26. His quoted statement. The release also quotes Sens. Barrasso and Romney and local officials; their words are not used.",
+          "takes_clear_position": true
+        },
+        {
+          "type": "official press release",
+          "date": "2011-03-17",
+          "link": "https://www.lee.senate.gov/2011/3/lee-mccain-submit-bill-to-reduce-ownership-of-federal-lands",
+          "excerpt": "\"“It’s been more than a decade since the land was deemed suitable for disposal and there is no critical need for the federal government to hold on to it,” said Senator Lee.\"",
+          "weight": "supporting",
+          "note": "Read directly on 2026-11-26. His quoted statement on the Reducing Federal Ownership of Public Lands Act. Sen. McCain's quote is not used.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-26",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-26"
+    },
+    {
+      "stance_id": "lee|ukraine_aid|gt-222",
+      "politician_id": "lee",
+      "topic": "ukraine_aid",
+      "position": "mixed",
+      "position_on": "further U.S. aid to Ukraine: in May 2022 he offered a smaller, paid-for aid package; in April 2023 he led a letter pledging to oppose future packages without a diplomatic strategy",
+      "confidence": 0.7,
+      "confidence_reason": "In 2022 he said the U.S. should look for ways to support Ukrainians and offered his own targeted, paid-for package; in 2023 he led a letter saying unrestrained aid must end and signers would oppose future packages without a diplomatic strategy. Both are on his Senate site, so the record reads mixed; held at 0.7 because the 2023 words are the letter's (he led it) rather than his alone.",
+      "sources": [
+        {
+          "type": "official press release",
+          "date": "2022-05-16",
+          "link": "https://www.lee.senate.gov/2022/5/lee-offers-amendment-to-target-and-pay-for-ukraine-aid",
+          "excerpt": "\"Lee continued, “Putin’s aggression is indefensible, and we should look for appropriate ways to support Ukrainians in the noble defense of their homeland.\" ... \"My amendment will ensure we can help our friends without compromising our constitutional or financial integrity.”\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-26. His quoted statement on his amendment to the $40 billion Ukraine package.",
+          "takes_clear_position": true
+        },
+        {
+          "type": "official press release (letter to the President)",
+          "date": "2023-04-20",
+          "link": "https://www.lee.senate.gov/news/press-releases/group-of-senators-and-house-members-express-concern-over-u-s-aid-to-ukraine/",
+          "excerpt": "\"The letter says in part, “Unrestrained U.S. aid for Ukraine must come to an end, and we will adamantly oppose all future aid packages unless they are linked to a clear diplomatic strategy designed to bring this war to a rapid conclusion.”\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-26. A letter he led with Rep. Eli Crane, quoted in his own release. The words are the signers' jointly; he is the lead signer.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-26",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-26"
+    },
+    {
+      "stance_id": "lee|climate_action|gt-223",
+      "politician_id": "lee",
+      "topic": "climate_action",
+      "position": "oppose",
+      "position_on": "climate legislation such as the Green New Deal (he says climate change is real but will be solved by innovation, not more laws)",
+      "confidence": 0.7,
+      "confidence_reason": "His Senate floor speech, posted on his site, says climate change is no joke but the Green New Deal is, and that such problems are solved not by more laws but by more people; held at 0.7 because he accepts climate change as a problem and rejects one policy, not every climate measure.",
+      "sources": [
+        {
+          "type": "floor speech (official release)",
+          "date": "2019-03-26",
+          "link": "https://www.lee.senate.gov/news/press-releases/remarks-on-the-green-new-deal/",
+          "excerpt": "\"So let’s be really clear, Mr. President. Climate change is no joke. But the Green New Deal is a joke.\" ... \"The Green New Deal is not the solution to climate change. It’s not even part of the solution. It’s part of the problem.\" ... \"And problems of human imagination are not solved by more laws, but by more humans!\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-26. His floor remarks on the Green New Deal resolution, posted on lee.senate.gov.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-26",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-26"
+    },
+    {
+      "stance_id": "trump|climate_action|gt-224",
+      "politician_id": "trump",
+      "topic": "climate_action",
+      "position": "oppose",
+      "position_on": "the Paris climate agreement and U.S. climate commitments (withdrawn in 2017 and again in 2025)",
+      "confidence": 0.85,
+      "confidence_reason": "His 2017 Rose Garden statement announces withdrawal from the Paris Accord and an end to its emissions contribution and the Green Climate Fund, and his 2025 order withdraws again; held at 0.85 because he says he cares about the environment and offered to renegotiate.",
+      "sources": [
+        {
+          "type": "official statement",
+          "date": "2017-06-01",
+          "link": "https://trumpwhitehouse.archives.gov/briefings-statements/statement-president-trump-paris-climate-accord/",
+          "excerpt": "\"Therefore, in order to fulfill my solemn duty to protect America and its citizens, the United States will withdraw from the Paris Climate Accord\" ... \"Thus, as of today, the United States will cease all implementation of the non-binding Paris Accord and the draconian financial and economic burdens the agreement imposes on our country. This includes ending the implementation of the nationally determined contribution and, very importantly, the Green Climate Fund which is costing the United States a vast fortune.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-26. His statement as delivered, on the archived Trump White House site. In the same speech he offers to negotiate a fairer deal; that is noted in the confidence reason.",
+          "takes_clear_position": true
+        },
+        {
+          "type": "executive order (official)",
+          "date": "2025-01-20",
+          "link": "https://www.whitehouse.gov/presidential-actions/2025/01/putting-america-first-in-international-environmental-agreements/",
+          "excerpt": "\"Sec. 3. Implementation. (a) The United States Ambassador to the United Nations shall immediately submit formal written notification of the United States’ withdrawal from the Paris Agreement under the United Nations Framework Convention on Climate Change.\"",
+          "weight": "supporting",
+          "note": "Read directly on 2026-11-26. An executive order he signed, on whitehouse.gov.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-26",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-26"
+    },
+    {
+      "stance_id": "trump|iran_hostilities|gt-225",
+      "politician_id": "trump",
+      "topic": "iran_hostilities",
+      "position": "oppose",
+      "position_on": "requiring Congress to authorize U.S. hostilities against Iran (he vetoed S.J. Res. 68 in May 2020)",
+      "confidence": 0.9,
+      "confidence_reason": "His veto message says the Iran war-powers resolution would weaken the President's Article II authority and that he cannot support it, and his signed statement calls the resolution insulting and wrong on the President's power; held at 0.9 because both concern one resolution in 2020.",
+      "sources": [
+        {
+          "type": "presidential veto message (official)",
+          "date": "2020-05-06",
+          "link": "https://trumpwhitehouse.archives.gov/briefings-statements/presidential-veto-message-senate-s-j-res-68/",
+          "excerpt": "\"I am returning herewith without my approval S.J. Res. 68, a joint resolution that purports to direct the President to terminate the use of United States Armed Forces in hostilities against Iran. This indefinite prohibition is unnecessary and dangerous. It would weaken the President’s authority in violation of Article II of the Constitution, and endanger the lives of American citizens and brave service members.\" ... \"For all of these reasons, I cannot support this joint resolution.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-26. His veto message to the Senate, first person, on the archived White House site.",
+          "takes_clear_position": true
+        },
+        {
+          "type": "official statement",
+          "date": "2020-05-06",
+          "link": "https://trumpwhitehouse.archives.gov/briefings-statements/statement-president-regarding-veto-s-j-res-68/",
+          "excerpt": "\"Today, I vetoed S.J. Res. 68, which purported to direct me to terminate the use of United States Armed Forces in hostilities against Iran. This was a very insulting resolution, introduced by Democrats as part of a strategy to win an election on November 3 by dividing the Republican Party.\" ... \"Congress should not have passed this resolution.\"",
+          "weight": "supporting",
+          "note": "Read directly on 2026-11-26. His statement on the veto, first person.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-26",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-26"
+    },
+    {
+      "stance_id": "trump|war_powers|gt-226",
+      "politician_id": "trump",
+      "topic": "war_powers",
+      "position": "oppose",
+      "position_on": "Congress directing the withdrawal of U.S. forces from hostilities (he vetoed the Yemen war-powers resolution, S.J. Res. 7, in April 2019)",
+      "confidence": 0.85,
+      "confidence_reason": "His veto message calls the Yemen war-powers resolution a dangerous attempt to weaken his constitutional authorities and says Congress should not limit tactical operations or set timelines; held at 0.85 because it is one veto, and he argues the U.S. was not in hostilities there.",
+      "sources": [
+        {
+          "type": "presidential veto message (official)",
+          "date": "2019-04-16",
+          "link": "https://trumpwhitehouse.archives.gov/presidential-actions/presidential-veto-message-senate-accompany-s-j-res-7/",
+          "excerpt": "\"This resolution is an unnecessary, dangerous attempt to weaken my constitutional authorities, endangering the lives of American citizens and brave service members, both today and in the future.\" ... \"The Congress should not seek to prohibit certain tactical operations, such as in-flight refueling, or require military engagements to adhere to arbitrary timelines. Doing so would interfere with the President’s constitutional authority as Commander in Chief of the Armed Forces\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-26. His veto message to the Senate, first person, on the archived White House site.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-26",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-26"
+    },
+    {
+      "stance_id": "trump|gun_safety|gt-227",
+      "politician_id": "trump",
+      "topic": "gun_safety",
+      "position": "mixed",
+      "position_on": "gun safety laws: in 2019 he called for red-flag laws and cited the bump-stock ban and the Fix NICS Act; in 2025 he ordered a review of Biden-era gun rules as possible Second Amendment infringements",
+      "confidence": 0.7,
+      "confidence_reason": "In his 2019 remarks after El Paso and Dayton he says he has called for red-flag laws and lists the bump-stock ban and stronger background checks; his 2025 order says the right to bear arms must not be infringed and directs a review of 2021–2025 gun rules. Both are on official White House pages, so the record reads mixed; held at 0.7 because the 2019 remarks also say mental illness, not the gun, pulls the trigger.",
+      "sources": [
+        {
+          "type": "remarks (official transcript)",
+          "date": "2019-08-05",
+          "link": "https://trumpwhitehouse.archives.gov/briefings-statements/remarks-president-trump-mass-shootings-texas-ohio/",
+          "excerpt": "\"Fourth, we must make sure that those judged to pose a grave risk to public safety do not have access to firearms, and that, if they do, those firearms can be taken through rapid due process. That is why I have called for red flag laws, also known as extreme risk protection orders.\" ... \"Last year, we enacted the STOP School Violence and Fix NICS Acts into law, providing grants to improve school safety and strengthening critical background checks for firearm purchases. At my direction, the Department of Justice banned bump stocks.\" ... \"Mental illness and hatred pulls the trigger, not the gun.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-26. His remarks as delivered, on the archived Trump White House site.",
+          "takes_clear_position": true
+        },
+        {
+          "type": "executive order (official)",
+          "date": "2025-02-07",
+          "link": "https://www.whitehouse.gov/presidential-actions/2025/02/protecting-second-amendment-rights/",
+          "excerpt": "\"Because it is foundational to maintaining all other rights held by Americans, the right to keep and bear arms must not be infringed.\" ... \"(i) All Presidential and agencies’ actions from January 2021 through January 2025 that purport to promote safety but may have impinged on the Second Amendment rights of law-abiding citizens;\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-26. An executive order he signed, on whitehouse.gov. The second fragment is one of the items the order directs the Attorney General to review.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-26",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-26"
+    }
+  ]
+}
