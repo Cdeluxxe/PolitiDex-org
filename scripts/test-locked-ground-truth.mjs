@@ -5,7 +5,8 @@
 //   · netlify/lib/locked-ground-truth.mjs imports EVERY db/stance-ground-truth-*.json
 //     file, holds exactly what is on disk, and indexes all locked records
 //     (the 52 Massie / Sanders / Talarico records, the 77 expansion records and
-//     the Abbott and Hinojosa cost-of-living records — 131) with one label per
+//     the Abbott and Hinojosa cost-of-living records and the 27 six-politician
+//     oppose / mixed records — 158) with one label per
 //     politician + issue key;
 //   · the ingest cron, the video transcriber and the Locker re-score pass pass
 //     that index to the Locker writer — no longer the single Talarico record;
@@ -47,12 +48,15 @@ await t('every ground-truth file on disk is imported, with its content unchanged
 
 const original = G.LOCKED_GROUND_TRUTH.filter((r) => ['massie', 'sanders', 'james_talarico'].includes(r.politician_id));
 const expansion = G.recordsOf(G.GROUND_TRUTH_FILES['stance-ground-truth-expansion-2026-11.json']);
-await t('131 locked records: the original 52, the 77 expansion records, Abbott and Hinojosa — one label per pair', () => {
+const sixOpposeMixed = G.recordsOf(G.GROUND_TRUTH_FILES['stance-ground-truth-six-oppose-mixed-2026-11.json']);
+await t('158 locked records: the original 52, the 77 expansion records, Abbott and Hinojosa, and the 27 six-politician oppose / mixed records — one label per pair', () => {
   assert.equal(original.length, 52);
   assert.equal(expansion.length, 77);
   assert.ok(expansion.every(G.isLocked));
-  assert.equal(G.LOCKED_GROUND_TRUTH.length, 131);
-  assert.equal(G.LOCKED_GROUND_TRUTH_INDEX.size, 131);
+  assert.equal(sixOpposeMixed.length, 27);
+  assert.ok(sixOpposeMixed.every(G.isLocked));
+  assert.equal(G.LOCKED_GROUND_TRUTH.length, 158);
+  assert.equal(G.LOCKED_GROUND_TRUTH_INDEX.size, 158);
   assert.deepEqual(G.LOCKED_GROUND_TRUTH.filter((r) => ['greg_abbott', 'gina_hinojosa'].includes(r.politician_id)).map((r) => r.stance_id).length, 2);
 });
 
@@ -94,7 +98,7 @@ await t('every locked record: a clear read on the other side is refused by the L
       if (L.lockerDecision(c, raw, null).write) { controls++; assert.equal(d.contradicts, r.stance_id, d.reason); }
     }
   }
-  console.log(`    ${refused} contradicting read(s) refused across 131 locked records; ${controls} of them would be written without the labels`);
+  console.log(`    ${refused} contradicting read(s) refused across ${G.LOCKED_GROUND_TRUTH.length} locked records; ${controls} of them would be written without the labels`);
   assert.ok(controls > 0.9 * refused, 'the fixture is refused for some other reason — the sweep proves nothing');
 });
 
