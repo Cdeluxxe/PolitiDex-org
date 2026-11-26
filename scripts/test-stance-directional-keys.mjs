@@ -262,8 +262,12 @@ t('spans: only directional keys read spans; register topics read exactly as befo
 const UNTOUCHED_FINGERPRINT = 'fb16b9185b7a74c24ae8a76f8e2478c88a4d02582ff7037a482a894a7e036bff';
 const FIX_AN_KEYS = ['term_limits', 'scotus_reform', 'wealth_inequality_tax_fairness', 'social_security', 'edu_parental', 'school_choice',
   'medical_freedom', 'gov_transparency', 'tariffs_authority', 'checks_balances', 'econ_corp_account', 'econ_trade', 'gov_waste'];
+// R21c (2026-11-26) adds objSupport / objOppose to every key: both are built from
+// the key's existing `up` / `upCon` objects (no new words), so they stay out of
+// the fingerprint and the vocabulary itself is what is pinned.
+const DERIVED_FIELDS = new Set(['objSupport', 'objOppose']);
 const fingerprint = (rules, keys) => createHash('sha256').update(JSON.stringify(keys.map((k) =>
-  [k, Object.fromEntries(Object.entries(rules[k]).map(([f, r]) => [f, r ? String(r) : null]))]))).digest('hex');
+  [k, Object.fromEntries(Object.entries(rules[k]).filter(([f]) => !DERIVED_FIELDS.has(f)).map(([f, r]) => [f, r ? String(r) : null]))]))).digest('hex');
 t('the register sweep and every existing key\'s rules are unchanged', () => {
   const issueKeys = JSON.parse(readFileSync(path.join(root, 'db/issue-keys.json'), 'utf8')).keys;
   // The ground-truth leaves are registered but read on request, never swept.
@@ -289,7 +293,12 @@ t('the register sweep and every existing key\'s rules are unchanged', () => {
   // phase9-v3 (polarity, R19) changed six keys on purpose — deportations,
   // birthright_citizenship, pro_life, pro_choice, gun_safety, gun_rights (polarity
   // frames and vetoes); every other existing key is unchanged (checked below).
-  assert.equal(fingerprint(S.TOPIC_RULES, existing), '7b716541408d42281e7bca17044b313c3a09a4281c50992cb1a56f80e0759637');
+  // It was 7b716541408d42281e7bca17044b313c3a09a4281c50992cb1a56f80e0759637 after
+  // phase9-v3; R21d (2026-11-26) extended the gun-rights frame on purpose — one
+  // frame shared by gun_safety (frameOppose) and gun_rights (frameSupport): a
+  // negated harm on the right, and limit / curtail / impinge on law-abiding
+  // owners' rights. No other key changed.
+  assert.equal(fingerprint(S.TOPIC_RULES, existing), '2d3659405bf263bb0223d3b26ca72e8e8d2d3826bdf3bc6d9b258fb5ad88ddef');
   const POLARITY_KEYS = ['deportations', 'birthright_citizenship', 'pro_life', 'pro_choice', 'gun_safety', 'gun_rights'];
   const untouched = existing.filter((k) => !POLARITY_KEYS.includes(k) && !FIX_AN_KEYS.includes(k));
   assert.equal(fingerprint(S.TOPIC_RULES, untouched), UNTOUCHED_FINGERPRINT);

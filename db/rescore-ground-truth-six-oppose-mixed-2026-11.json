@@ -5,30 +5,30 @@
   "confidence_tolerance": 0.1,
   "summary": {
     "records": 27,
-    "scorer_agrees_on_position": 4,
-    "abstains": 16,
-    "wrong_position": 7,
-    "confidence_outside_tolerance": 1,
+    "scorer_agrees_on_position": 13,
+    "abstains": 12,
+    "wrong_position": 2,
+    "confidence_outside_tolerance": 3,
     "by_label": {
       "oppose": {
         "records": 21,
-        "match": 3,
-        "abstain": 15,
-        "wrong": 3
+        "match": 10,
+        "abstain": 11,
+        "wrong": 0
       },
       "mixed": {
         "records": 6,
-        "match": 1,
+        "match": 3,
         "abstain": 1,
-        "wrong": 4
+        "wrong": 2
       }
     },
     "by_politician": {
       "boebert": {
         "records": 5,
-        "match": 3,
-        "abstain": 1,
-        "wrong": 1
+        "match": 5,
+        "abstain": 0,
+        "wrong": 0
       },
       "owens": {
         "records": 4,
@@ -38,57 +38,57 @@
       },
       "tom_cole": {
         "records": 5,
-        "match": 1,
+        "match": 2,
         "abstain": 1,
-        "wrong": 3
+        "wrong": 2
       },
       "bennie_thompson": {
         "records": 5,
-        "match": 0,
+        "match": 2,
         "abstain": 3,
-        "wrong": 2
+        "wrong": 0
       },
       "lee": {
         "records": 4,
-        "match": 0,
-        "abstain": 4,
+        "match": 2,
+        "abstain": 2,
         "wrong": 0
       },
       "trump": {
         "records": 4,
-        "match": 0,
-        "abstain": 3,
-        "wrong": 1
+        "match": 2,
+        "abstain": 2,
+        "wrong": 0
       }
     },
     "verdicts": {
-      "boebert|voting_access|gt-201": "oppose → no clear position (disagrees)",
+      "boebert|voting_access|gt-201": "oppose → oppose (agrees)",
       "boebert|pro_choice|gt-202": "oppose → oppose (agrees)",
       "boebert|ukraine_aid|gt-203": "mixed → mixed (agrees on position, confidence outside tolerance)",
       "boebert|immigration_reform|gt-204": "oppose → oppose (agrees)",
-      "boebert|climate_action|gt-205": "oppose → support (disagrees)",
+      "boebert|climate_action|gt-205": "oppose → oppose (agrees)",
       "owens|gun_safety|gt-206": "oppose → no clear position (disagrees)",
       "owens|voting_access|gt-207": "oppose → no clear position (disagrees)",
       "owens|student_debt_college_access|gt-208": "oppose → no clear position (disagrees)",
       "owens|america_first_fp|gt-209": "oppose → no clear position (disagrees)",
-      "tom_cole|pro_choice|gt-210": "oppose → support (disagrees)",
+      "tom_cole|pro_choice|gt-210": "oppose → oppose (agrees)",
       "tom_cole|gun_safety|gt-211": "oppose → oppose (agrees)",
       "tom_cole|immigration_reform|gt-212": "oppose → no clear position (disagrees)",
       "tom_cole|climate_action|gt-213": "mixed → support (disagrees)",
       "tom_cole|healthcare|gt-214": "mixed → support (disagrees)",
       "bennie_thompson|cut_spending|gt-215": "oppose → no clear position (disagrees)",
       "bennie_thompson|lower_taxes|gt-216": "oppose → no clear position (disagrees)",
-      "bennie_thompson|deportations|gt-217": "oppose → support (disagrees)",
-      "bennie_thompson|border_security|gt-218": "mixed → support (disagrees)",
+      "bennie_thompson|deportations|gt-217": "oppose → oppose (agrees)",
+      "bennie_thompson|border_security|gt-218": "mixed → mixed (agrees on position, confidence outside tolerance)",
       "bennie_thompson|gov_regulation|gt-219": "oppose → no clear position (disagrees)",
-      "lee|gun_safety|gt-220": "oppose → no clear position (disagrees)",
+      "lee|gun_safety|gt-220": "oppose → oppose (agrees)",
       "lee|lands_keep_public|gt-221": "oppose → no clear position (disagrees)",
       "lee|ukraine_aid|gt-222": "mixed → no clear position (disagrees)",
-      "lee|climate_action|gt-223": "oppose → no clear position (disagrees)",
+      "lee|climate_action|gt-223": "oppose → oppose (agrees)",
       "trump|climate_action|gt-224": "oppose → no clear position (disagrees)",
-      "trump|iran_hostilities|gt-225": "oppose → no clear position (disagrees)",
+      "trump|iran_hostilities|gt-225": "oppose → oppose (agrees)",
       "trump|war_powers|gt-226": "oppose → no clear position (disagrees)",
-      "trump|gun_safety|gt-227": "mixed → support (disagrees)"
+      "trump|gun_safety|gt-227": "mixed → mixed (agrees on position, confidence outside tolerance)"
     }
   },
   "records": [
@@ -101,23 +101,27 @@
         "confidence": 0.85
       },
       "scorer": {
-        "position": "no clear position",
-        "confidence": 0.3,
-        "reason": "1 topic mention(s), none states a clear position (R3)",
-        "statements": []
+        "position": "oppose",
+        "confidence": 0.8,
+        "reason": "1 clear high-weight statement(s) for oppose; 0 implication(s) for oppose at medium weight (R6); stance verb in the opening sentences acts on a named bill reads as a clear oppose (R14)",
+        "statements": [
+          "oppose (clear): I led the opposition to their H.R. 1, since it would ban voter ID laws, federalize our elections, weaponize the IRS against conservatives, give D.C. statehood, use tax dollars to fund politicians’ campaigns, give California even more power over Colorado, nationalize mail-in voting, and make it ha…"
+        ]
       },
-      "verdict": "disagrees",
-      "scorer_agrees": false,
-      "note": "stance-score: boebert|voting_access position MISMATCH (candidate no clear position, ground truth oppose); confidence 0.3 vs 0.85, Δ=-0.55 OUTSIDE 0.1",
+      "verdict": "agrees",
+      "scorer_agrees": true,
+      "note": "stance-score: boebert|voting_access position MATCH (candidate oppose, ground truth oppose); confidence 0.8 vs 0.85, Δ=-0.05 within 0.1",
       "per_source": [
         {
           "type": "official House issues page",
           "date": null,
           "link": "https://boebert.house.gov/issues/election-integrity",
-          "position": "no clear position",
-          "confidence": 0.3,
-          "reason": "1 topic mention(s), none states a clear position (R3)",
-          "statements": []
+          "position": "oppose",
+          "confidence": 0.8,
+          "reason": "1 clear medium-weight statement(s) for oppose; 0 implication(s) for oppose at medium weight (R6); explicit claim on a primary source reads as a stated position (R8); stance verb in the opening sentences acts on a named bill reads as a clear oppose (R14)",
+          "statements": [
+            "oppose (clear): I led the opposition to their H.R. 1, since it would ban voter ID laws, federalize our elections, weaponize the IRS against conservatives, give D.C. statehood, use tax dollars to fund politicians’ campaigns, give California even more power over Colorado, nationalize mail-in voting, and make it ha…"
+          ]
         }
       ]
     },
@@ -254,26 +258,26 @@
         "confidence": 0.75
       },
       "scorer": {
-        "position": "support",
+        "position": "oppose",
         "confidence": 0.8,
-        "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 2 mention(s) recorded at zero weight (R3)",
+        "reason": "1 clear high-weight statement(s) for oppose; 0 implication(s) for oppose at medium weight (R6); 2 mention(s) recorded at zero weight (R3)",
         "statements": [
-          "support (clear): I introduced the Paris Agreement Constitutional Treaty Act to prohibit Congress from spending funds on the Paris Agreement until the Senate ratifies it."
+          "oppose (clear): I introduced the Paris Agreement Constitutional Treaty Act to prohibit Congress from spending funds on the Paris Agreement until the Senate ratifies it."
         ]
       },
-      "verdict": "disagrees",
-      "scorer_agrees": false,
-      "note": "stance-score: boebert|climate_action position MISMATCH (candidate support, ground truth oppose); confidence 0.8 vs 0.75, Δ=+0.05 within 0.1",
+      "verdict": "agrees",
+      "scorer_agrees": true,
+      "note": "stance-score: boebert|climate_action position MATCH (candidate oppose, ground truth oppose); confidence 0.8 vs 0.75, Δ=+0.05 within 0.1",
       "per_source": [
         {
           "type": "official House issues page",
           "date": null,
           "link": "https://boebert.house.gov/issues/foreign-policy",
-          "position": "support",
+          "position": "oppose",
           "confidence": 0.8,
-          "reason": "1 clear medium-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); explicit claim on a primary source reads as a stated position (R8); 1 mention(s) recorded at zero weight (R3)",
+          "reason": "1 clear medium-weight statement(s) for oppose; 0 implication(s) for oppose at medium weight (R6); explicit claim on a primary source reads as a stated position (R8); 1 mention(s) recorded at zero weight (R3)",
           "statements": [
-            "support (clear): I introduced the Paris Agreement Constitutional Treaty Act to prohibit Congress from spending funds on the Paris Agreement until the Senate ratifies it."
+            "oppose (clear): I introduced the Paris Agreement Constitutional Treaty Act to prohibit Congress from spending funds on the Paris Agreement until the Senate ratifies it."
           ]
         },
         {
@@ -439,26 +443,26 @@
         "confidence": 0.9
       },
       "scorer": {
-        "position": "support",
+        "position": "oppose",
         "confidence": 0.8,
-        "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6)",
+        "reason": "1 clear high-weight statement(s) for oppose; 0 implication(s) for oppose at medium weight (R6)",
         "statements": [
-          "support (clear): I vehemently oppose any efforts to repeal the Hyde Amendment and other pro-life provisions traditionally included in funding legislation, and I remain committed to supporting legislation and efforts to defend vulnerable unborn children and protect the conscience rights of pro-life Americans."
+          "oppose (clear): I vehemently oppose any efforts to repeal the Hyde Amendment and other pro-life provisions traditionally included in funding legislation, and I remain committed to supporting legislation and efforts to defend vulnerable unborn children and protect the conscience rights of pro-life Americans."
         ]
       },
-      "verdict": "disagrees",
-      "scorer_agrees": false,
-      "note": "stance-score: tom_cole|pro_choice position MISMATCH (candidate support, ground truth oppose); confidence 0.8 vs 0.9, Δ=-0.10 within 0.1",
+      "verdict": "agrees",
+      "scorer_agrees": true,
+      "note": "stance-score: tom_cole|pro_choice position MATCH (candidate oppose, ground truth oppose); confidence 0.8 vs 0.9, Δ=-0.10 within 0.1",
       "per_source": [
         {
           "type": "official House issues page",
           "date": null,
           "link": "https://cole.house.gov/issues/life",
-          "position": "support",
+          "position": "oppose",
           "confidence": 0.8,
-          "reason": "1 clear medium-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); explicit claim on a primary source reads as a stated position (R8)",
+          "reason": "1 clear medium-weight statement(s) for oppose; 0 implication(s) for oppose at medium weight (R6); explicit claim on a primary source reads as a stated position (R8)",
           "statements": [
-            "support (clear): I vehemently oppose any efforts to repeal the Hyde Amendment and other pro-life provisions traditionally included in funding legislation, and I remain committed to supporting legislation and efforts to defend vulnerable unborn children and protect the conscience rights of pro-life Americans."
+            "oppose (clear): I vehemently oppose any efforts to repeal the Hyde Amendment and other pro-life provisions traditionally included in funding legislation, and I remain committed to supporting legislation and efforts to defend vulnerable unborn children and protect the conscience rights of pro-life Americans."
           ]
         }
       ]
@@ -474,8 +478,9 @@
       "scorer": {
         "position": "oppose",
         "confidence": 0.8,
-        "reason": "1 clear high-weight statement(s) for oppose; 0 implication(s) for oppose at medium weight (R6)",
+        "reason": "2 clear high-weight statement(s) for oppose; 0 implication(s) for oppose at medium weight (R6)",
         "statements": [
+          "oppose (clear): I am a member of the National Rifle Association because I believe that the Second Amendment should not be violated.",
           "oppose (clear): While I share the goal of keeping guns out of the hands of dangerous criminals and preventing mass violence, overly broad executive orders and legislative proposals that limit the rights of law-abiding gun owners are not the answer to gun violence."
         ]
       },
@@ -489,8 +494,9 @@
           "link": "https://cole.house.gov/issues/second-amendment",
           "position": "oppose",
           "confidence": 0.8,
-          "reason": "1 clear medium-weight statement(s) for oppose; 0 implication(s) for oppose at medium weight (R6); explicit claim on a primary source reads as a stated position (R8)",
+          "reason": "2 clear medium-weight statement(s) for oppose; 0 implication(s) for oppose at medium weight (R6); explicit claim on a primary source reads as a stated position (R8)",
           "statements": [
+            "oppose (clear): I am a member of the National Rifle Association because I believe that the Second Amendment should not be violated.",
             "oppose (clear): While I share the goal of keeping guns out of the hands of dangerous criminals and preventing mass violence, overly broad executive orders and legislative proposals that limit the rights of law-abiding gun owners are not the answer to gun violence."
           ]
         }
@@ -667,26 +673,26 @@
         "confidence": 0.85
       },
       "scorer": {
-        "position": "support",
+        "position": "oppose",
         "confidence": 0.8,
-        "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 2 mention(s) recorded at zero weight (R3)",
+        "reason": "1 clear high-weight statement(s) for oppose; 0 implication(s) for oppose at medium weight (R6); 2 mention(s) recorded at zero weight (R3)",
         "statements": [
-          "support (clear): Rounding up anyone without status just to boost deportation numbers does nothing to make us safer and only destroys families."
+          "oppose (clear): Rounding up anyone without status just to boost deportation numbers does nothing to make us safer and only destroys families."
         ]
       },
-      "verdict": "disagrees",
-      "scorer_agrees": false,
-      "note": "stance-score: bennie_thompson|deportations position MISMATCH (candidate support, ground truth oppose); confidence 0.8 vs 0.85, Δ=-0.05 within 0.1",
+      "verdict": "agrees",
+      "scorer_agrees": true,
+      "note": "stance-score: bennie_thompson|deportations position MATCH (candidate oppose, ground truth oppose); confidence 0.8 vs 0.85, Δ=-0.05 within 0.1",
       "per_source": [
         {
           "type": "official statement",
           "date": "2017-02-16",
           "link": "https://democrats-homeland.house.gov/news/press-releases/rankin-member-thompson-statement-ice-raids",
-          "position": "support",
+          "position": "oppose",
           "confidence": 0.8,
-          "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 1 mention(s) recorded at zero weight (R3)",
+          "reason": "1 clear high-weight statement(s) for oppose; 0 implication(s) for oppose at medium weight (R6); 1 mention(s) recorded at zero weight (R3)",
           "statements": [
-            "support (clear): Rounding up anyone without status just to boost deportation numbers does nothing to make us safer and only destroys families."
+            "oppose (clear): Rounding up anyone without status just to boost deportation numbers does nothing to make us safer and only destroys families."
           ]
         },
         {
@@ -718,16 +724,17 @@
         "confidence": 0.7
       },
       "scorer": {
-        "position": "support",
-        "confidence": 0.8,
-        "reason": "1 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6); 2 mention(s) recorded at zero weight (R3)",
+        "position": "mixed",
+        "confidence": 0.5,
+        "reason": "equal weight of directional signals on both sides (1 vs 1; 0 implication(s))",
         "statements": [
-          "support (clear): I urge my Republican colleagues to join Democrats to pass real, lasting solutions to strengthen border security, reform our immigration system, and protect vulnerable asylum seekers.”"
+          "support (clear): I urge my Republican colleagues to join Democrats to pass real, lasting solutions to strengthen border security, reform our immigration system, and protect vulnerable asylum seekers.”",
+          "oppose (clear): Instead of focusing on the critical needs of first responders – the boots on the ground that keep our communities safe – the budget would waste $1.6 billion on President Trump’s dream of a southwest border wall."
         ]
       },
-      "verdict": "disagrees",
-      "scorer_agrees": false,
-      "note": "stance-score: bennie_thompson|border_security position MISMATCH (candidate support, ground truth mixed); confidence 0.8 vs 0.7, Δ=+0.10 within 0.1",
+      "verdict": "agrees on position, confidence outside tolerance",
+      "scorer_agrees": true,
+      "note": "stance-score: bennie_thompson|border_security position MATCH (candidate mixed, ground truth mixed); confidence 0.5 vs 0.7, Δ=-0.20 OUTSIDE 0.1",
       "per_source": [
         {
           "type": "official statement",
@@ -753,10 +760,12 @@
           "type": "official statement",
           "date": "2018-02-12",
           "link": "https://democrats-homeland.house.gov/news/press-releases/thompson-statement-trump-s-homeland-security-budget-request-0",
-          "position": "no clear position",
-          "confidence": 0.3,
-          "reason": "1 topic mention(s), none states a clear position (R3)",
-          "statements": []
+          "position": "oppose",
+          "confidence": 0.8,
+          "reason": "1 clear high-weight statement(s) for oppose; 0 implication(s) for oppose at medium weight (R6)",
+          "statements": [
+            "oppose (clear): Instead of focusing on the critical needs of first responders – the boots on the ground that keep our communities safe – the budget would waste $1.6 billion on President Trump’s dream of a southwest border wall."
+          ]
         }
       ]
     },
@@ -798,23 +807,27 @@
         "confidence": 0.8
       },
       "scorer": {
-        "position": "no clear position",
-        "confidence": 0.3,
-        "reason": "1 topic mention(s), none states a clear position (R3)",
-        "statements": []
+        "position": "oppose",
+        "confidence": 0.8,
+        "reason": "1 clear high-weight statement(s) for oppose; 0 implication(s) for oppose at medium weight (R6)",
+        "statements": [
+          "oppose (clear): Instead, the primary effect of most of the bills we voted on today, including the expansion of background checks, was to limit the rights of law-abiding citizens."
+        ]
       },
-      "verdict": "disagrees",
-      "scorer_agrees": false,
-      "note": "stance-score: lee|gun_safety position MISMATCH (candidate no clear position, ground truth oppose); confidence 0.3 vs 0.8, Δ=-0.50 OUTSIDE 0.1",
+      "verdict": "agrees",
+      "scorer_agrees": true,
+      "note": "stance-score: lee|gun_safety position MATCH (candidate oppose, ground truth oppose); confidence 0.8 vs 0.8, Δ=+0.00 within 0.1",
       "per_source": [
         {
           "type": "official press release",
           "date": "2013-04-17",
           "link": "https://www.lee.senate.gov/news/press-releases/lee-statement-on-gun-bill-votes/",
-          "position": "no clear position",
-          "confidence": 0.3,
-          "reason": "1 topic mention(s), none states a clear position (R3)",
-          "statements": []
+          "position": "oppose",
+          "confidence": 0.8,
+          "reason": "1 clear high-weight statement(s) for oppose; 0 implication(s) for oppose at medium weight (R6)",
+          "statements": [
+            "oppose (clear): Instead, the primary effect of most of the bills we voted on today, including the expansion of background checks, was to limit the rights of law-abiding citizens."
+          ]
         },
         {
           "type": "official press release",
@@ -912,23 +925,27 @@
         "confidence": 0.7
       },
       "scorer": {
-        "position": "no clear position",
-        "confidence": 0.3,
-        "reason": "3 topic mention(s), none states a clear position (R3)",
-        "statements": []
+        "position": "oppose",
+        "confidence": 0.8,
+        "reason": "1 clear high-weight statement(s) for oppose; 0 implication(s) for oppose at medium weight (R6); 2 mention(s) recorded at zero weight (R3)",
+        "statements": [
+          "oppose (clear): The Green New Deal is not the solution to climate change."
+        ]
       },
-      "verdict": "disagrees",
-      "scorer_agrees": false,
-      "note": "stance-score: lee|climate_action position MISMATCH (candidate no clear position, ground truth oppose); confidence 0.3 vs 0.7, Δ=-0.40 OUTSIDE 0.1",
+      "verdict": "agrees",
+      "scorer_agrees": true,
+      "note": "stance-score: lee|climate_action position MATCH (candidate oppose, ground truth oppose); confidence 0.8 vs 0.7, Δ=+0.10 within 0.1",
       "per_source": [
         {
           "type": "floor speech (official release)",
           "date": "2019-03-26",
           "link": "https://www.lee.senate.gov/news/press-releases/remarks-on-the-green-new-deal/",
-          "position": "no clear position",
-          "confidence": 0.3,
-          "reason": "3 topic mention(s), none states a clear position (R3)",
-          "statements": []
+          "position": "oppose",
+          "confidence": 0.8,
+          "reason": "1 clear high-weight statement(s) for oppose; 0 implication(s) for oppose at medium weight (R6); 2 mention(s) recorded at zero weight (R3)",
+          "statements": [
+            "oppose (clear): The Green New Deal is not the solution to climate change."
+          ]
         }
       ]
     },
@@ -979,32 +996,38 @@
         "confidence": 0.9
       },
       "scorer": {
-        "position": "no clear position",
-        "confidence": 0.3,
-        "reason": "2 topic mention(s), none states a clear position (R3)",
-        "statements": []
+        "position": "oppose",
+        "confidence": 0.8,
+        "reason": "1 clear high-weight statement(s) for oppose; 0 implication(s) for oppose at medium weight (R6); stance verb in the opening sentences acts on a named bill reads as a clear oppose (R14); 1 mention(s) recorded at zero weight (R3)",
+        "statements": [
+          "oppose (clear): I am returning herewith without my approval S.J. Res. 68, a joint resolution that purports to direct the President to terminate the use of United States Armed Forces in hostilities against Iran."
+        ]
       },
-      "verdict": "disagrees",
-      "scorer_agrees": false,
-      "note": "stance-score: trump|iran_hostilities position MISMATCH (candidate no clear position, ground truth oppose); confidence 0.3 vs 0.9, Δ=-0.60 OUTSIDE 0.1",
+      "verdict": "agrees",
+      "scorer_agrees": true,
+      "note": "stance-score: trump|iran_hostilities position MATCH (candidate oppose, ground truth oppose); confidence 0.8 vs 0.9, Δ=-0.10 within 0.1",
       "per_source": [
         {
           "type": "presidential veto message (official)",
           "date": "2020-05-06",
           "link": "https://trumpwhitehouse.archives.gov/briefings-statements/presidential-veto-message-senate-s-j-res-68/",
-          "position": "no clear position",
-          "confidence": 0.3,
-          "reason": "1 topic mention(s), none states a clear position (R3)",
-          "statements": []
+          "position": "oppose",
+          "confidence": 0.8,
+          "reason": "1 clear medium-weight statement(s) for oppose; 0 implication(s) for oppose at medium weight (R6); explicit claim on a primary source reads as a stated position (R8); stance verb in the opening sentences acts on a named bill reads as a clear oppose (R14)",
+          "statements": [
+            "oppose (clear): I am returning herewith without my approval S.J. Res. 68, a joint resolution that purports to direct the President to terminate the use of United States Armed Forces in hostilities against Iran."
+          ]
         },
         {
           "type": "official statement",
           "date": "2020-05-06",
           "link": "https://trumpwhitehouse.archives.gov/briefings-statements/statement-president-regarding-veto-s-j-res-68/",
-          "position": "no clear position",
-          "confidence": 0.3,
-          "reason": "1 topic mention(s), none states a clear position (R3)",
-          "statements": []
+          "position": "oppose",
+          "confidence": 0.8,
+          "reason": "1 clear high-weight statement(s) for oppose; 0 implication(s) for oppose at medium weight (R6); stance verb in the opening sentences acts on a named bill reads as a clear oppose (R14)",
+          "statements": [
+            "oppose (clear): Today, I vetoed S.J. Res. 68, which purported to direct me to terminate the use of United States Armed Forces in hostilities against Iran."
+          ]
         }
       ]
     },
@@ -1046,17 +1069,19 @@
         "confidence": 0.7
       },
       "scorer": {
-        "position": "support",
-        "confidence": 0.8,
-        "reason": "2 clear high-weight statement(s) for support; 0 implication(s) for support at medium weight (R6)",
+        "position": "mixed",
+        "confidence": 0.5,
+        "reason": "equal weight of directional signals on both sides (2 vs 2; 0 implication(s))",
         "statements": [
           "support (clear): That is why I have called for red flag laws, also known as extreme risk protection orders.",
-          "support (clear): Last year, we enacted the STOP School Violence and Fix NICS Acts into law, providing grants to improve school safety and strengthening critical background checks for firearm purchases."
+          "support (clear): Last year, we enacted the STOP School Violence and Fix NICS Acts into law, providing grants to improve school safety and strengthening critical background checks for firearm purchases.",
+          "oppose (clear): Because it is foundational to maintaining all other rights held by Americans, the right to keep and bear arms must not be infringed.",
+          "oppose (clear): (i) All Presidential and agencies’ actions from January 2021 through January 2025 that purport to promote safety but may have impinged on the Second Amendment rights of law-abiding citizens;"
         ]
       },
-      "verdict": "disagrees",
-      "scorer_agrees": false,
-      "note": "stance-score: trump|gun_safety position MISMATCH (candidate support, ground truth mixed); confidence 0.8 vs 0.7, Δ=+0.10 within 0.1",
+      "verdict": "agrees on position, confidence outside tolerance",
+      "scorer_agrees": true,
+      "note": "stance-score: trump|gun_safety position MATCH (candidate mixed, ground truth mixed); confidence 0.5 vs 0.7, Δ=-0.20 OUTSIDE 0.1",
       "per_source": [
         {
           "type": "remarks (official transcript)",
@@ -1074,10 +1099,13 @@
           "type": "executive order (official)",
           "date": "2025-02-07",
           "link": "https://www.whitehouse.gov/presidential-actions/2025/02/protecting-second-amendment-rights/",
-          "position": "no clear position",
-          "confidence": 0,
-          "reason": "topic not found in source",
-          "statements": []
+          "position": "oppose",
+          "confidence": 0.8,
+          "reason": "2 clear medium-weight statement(s) for oppose; 0 implication(s) for oppose at medium weight (R6); explicit claim on a primary source reads as a stated position (R8)",
+          "statements": [
+            "oppose (clear): Because it is foundational to maintaining all other rights held by Americans, the right to keep and bear arms must not be infringed.",
+            "oppose (clear): (i) All Presidential and agencies’ actions from January 2021 through January 2025 that purport to promote safety but may have impinged on the Second Amendment rights of law-abiding citizens;"
+          ]
         }
       ]
     }

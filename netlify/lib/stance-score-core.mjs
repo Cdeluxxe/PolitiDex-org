@@ -231,6 +231,25 @@
 //       agency. Own-voice, quote, negation and question checks are unchanged.
 //       Splitter: a middle initial in a name ("Mark R. Warner", "Mazie K.
 //       Hirono") is not a sentence end.
+//   R21 Oppose and mixed reads (2026-11-26, rules version unchanged so the
+//       live Locker re-score does not run) — general forms the earlier rules
+//       read the wrong way or missed:
+//         (a) a counter verb on an effort BEFORE a polarity frame turns it
+//             around ("fight every attempt to overturn <a protection>" is not a
+//             call to overturn it); a counter verb inside the frame still
+//             never flips it (frameCounter);
+//         (b) "prohibit / bar / block / prevent / stop X FROM <verb>ing Y"
+//             counters Y (COUNTER_FROM);
+//         (c) criticism: a policy as the subject of a verdict on it ("… does
+//             nothing to …", "… is not the solution / answer", "… is a scam",
+//             "… is unconstitutional") or the object of "waste … on" reads the
+//             side opposite to it (criticizedAfter / criticizedObject);
+//         (d) gun keys: a negated harm ("<the right> shall not be infringed")
+//             and limit / curtail / erode / impinge on "the rights of
+//             law-abiding …" read as defending gun rights;
+//         (e) R14 reads procedural opposition to a named measure in the lead
+//             ("rise today in opposition to", "led the opposition to", a veto,
+//             "returning … without my approval") as a vote against it.
 //
 
 // Calibration: the ground truth (0.85) rests on first-party campaign pages
@@ -908,13 +927,24 @@ const IN_TITLE = /\b[A-Z][\w'’-]*(?:\s+[A-Z][\w'’-]*)*\s+Act\b/;
 const MEANS_BEFORE = /\b(?:by|through|while|with|via)\s*$/i;
 // "never stop fighting to …" (phase9-v2): a negated stop is a promise, not a counter.
 const NEGATED_OP = /(?:\b(?:not|never|no longer)\b|n['’]t\b)\s+(?:ever\s+)?$/i;
+// R21b (2026-11-26): "bar the agency FROM enforcing …", "prohibit the state
+// from collecting …": the act after "from" is what is being stopped.
+const COUNTER_FROM = /\b(prohibit(?:s|ed|ing)?|bar(?:s|red|ring)?|forbid(?:s|ding)?|forbade|block(?:s|ed|ing)?|prevent(?:s|ed|ing)?|stop(?:s|ped|ping)?)\s+(?:(?!(?:and|but|or|while|so|because)\b)[\w'’.$-]+\s+){1,5}?from\s+(?:(?:\w+ly\s+)?\w+ing\s+)?$/i;
 export function counterFrame(prefix, match) {
   const b = COUNTER_BRIDGE.exec(prefix);
   if (b && !IN_TITLE.test(prefix.slice(b.index)) && !NEGATED_OP.test(prefix.slice(0, b.index))) return { opStart: b.index, via: b[1] };
+  const f = COUNTER_FROM.exec(prefix);
+  if (f && !IN_TITLE.test(prefix.slice(f.index)) && !NEGATED_OP.test(prefix.slice(0, f.index))) return { opStart: f.index, via: f[1] };
   if (NOMINAL_MATCH.test(match) && !MEANS_BEFORE.test(prefix)) {
     const d = COUNTER_DIRECT.exec(prefix);
     if (d && !IN_TITLE.test(prefix.slice(d.index)) && !NEGATED_OP.test(prefix.slice(0, d.index))) return { opStart: d.index, via: d[1] };
   }
+  return null;
+}
+/** R21a: a counter verb on an effort right before a polarity frame ("oppose efforts to …") → { opStart, via } or null. */
+export function frameCounter(prefix) {
+  const b = COUNTER_BRIDGE.exec(prefix);
+  if (b && !IN_TITLE.test(prefix.slice(b.index)) && !NEGATED_OP.test(prefix.slice(0, b.index))) return { opStart: b.index, via: b[1] };
   return null;
 }
 // R18(a): "will never stop fighting to protect …", "won't back down from defending …"
@@ -1039,6 +1069,46 @@ function claimMatch(sentence, topic) {
 }
 
 const FRAME_SUBJECT = /(?:^|[.;:,—–"“]\s*)(?:The|An?)\s+((?:[A-Z][\w'’&-]*\s+){1,4})$/;
+
+// ── CRITICISM (R21c, 2026-11-26) ──────────────────────────────────────────────
+// A policy named as the SUBJECT of a verdict on it is criticised, not called
+// for: "<X> does nothing to …", "<X> is not the solution / answer", "<X> is a
+// scam", "<X> is unconstitutional". So is the object of "waste … on <X>". The
+// side is the one opposite to X's pole. Only verdict forms that judge a policy
+// count — "is a disaster" / "is broken" also describe a problem the speaker
+// wants fixed, and stay as they are.
+const CRITIC_PREDICATE = String.raw`(?:(?:does|do|did|will do|would do|has done|have done)\s+(?:absolutely\s+)?(?:nothing|little)\s+to\b|(?:is|are|was|were|would be|will be)\s+(?:simply\s+|just\s+|clearly\s+)?(?:not|never|no)\s+(?:the\s+|a\s+|an\s+)?(?:real\s+|right\s+|long-term\s+)?(?:solution|answer|way forward|fix|remedy)s?\b|(?:is|are|was|were)\s+(?:a|an)\s+(?:\w+\s+)?(?:scam|boondoggle)\b|(?:is|are|was|were)\s+(?:plainly\s+|clearly\s+)?unconstitutional\b)`;
+// Between the policy and the verdict: a few words of the same noun phrase, never
+// a clause break or a harm noun ("Medicaid cuts do nothing to …" judges the cuts).
+const CRITIC_GAP_WORD = String.raw`(?!(?:and|but|or|while|so|because|that|which|who|when|if|cuts?|cutbacks?|bans?|repeal|restrictions?|limits?|caps?|attacks?|rollbacks?|elimination|privatization|threats?)\b)[\w'’$-]+`;
+const CRITIC_AFTER = new RegExp(String.raw`^(?:\s+${CRITIC_GAP_WORD}){0,4}?\s*,?\s+${CRITIC_PREDICATE}`, "i");
+// The policy opens its clause: only a connective, a determiner and up to two
+// modifiers before it ("But the Green New Deal …"), no preposition or harm noun.
+const CLAUSE_LEAD = /(?:^|[,;:—–]\s*)(?:(?:but|and|so|yet|still|however|unfortunately|frankly|instead)\s*,?\s+)*(?:(?:the|this|that|these|those|their|his|her|its|any|a|an|your|our)\s+)?(?:(?!(?:of|to|on|for|in|from|against|with|by|cuts?|bans?|repeal|attacks?|restrictions?|limits?|not|no|never)\b)[\w'’-]+\s+){0,2}$/i;
+const NO_SELF_SUBJECT = (clause) => !/\b(?:I|we|I['’](?:m|ve|ll|d)|we['’](?:re|ve|ll))\b/i.test(clause);
+const WASTE_ON = /\b(?:wast(?:e|es|ed|ing)|squander(?:s|ed|ing)?)\b(?:[^.!?;]|\.(?=\d)){0,40}?\bon\s+(?:[^.!?;\s]+\s+){0,6}?$/i;
+const lastClause = (prefix) => prefix.slice(Math.max(prefix.lastIndexOf(";"), prefix.lastIndexOf(" but "), prefix.lastIndexOf(" — "), prefix.lastIndexOf(" – ")) + 1);
+/** R21c: is the match the subject of a verdict on it? (the match is the policy, the speaker is not its subject) */
+export function criticizedAfter(sentence, m) {
+  const clause = lastClause(sentence.slice(0, m.index));
+  return NO_SELF_SUBJECT(clause) && CRITIC_AFTER.test(sentence.slice(m.index + m[0].length));
+}
+/** R21c: a topic object criticised by a verdict or "waste … on" → { side, index } or null. */
+export function criticizedObject(sentence, r) {
+  for (const [re, pole] of [[r.objSupport, "support"], [r.objOppose, "oppose"]]) {
+    if (!re) continue;
+    const g = asGlobal(re);
+    g.lastIndex = 0;
+    let m;
+    while ((m = g.exec(sentence))) {
+      if (m[0] === "") { g.lastIndex++; continue; }
+      const prefix = sentence.slice(0, m.index);
+      const verdict = CLAUSE_LEAD.test(prefix) && NO_SELF_SUBJECT(lastClause(prefix)) && CRITIC_AFTER.test(sentence.slice(m.index + m[0].length));
+      if (verdict || WASTE_ON.test(prefix)) return { side: pole === "support" ? "oppose" : "support", index: m.index };
+    }
+  }
+  return null;
+}
 /** polarity-v1: does the topic's veto for `side` (vetoSupport / vetoOppose) cover this sentence? */
 const polarityVeto = (r, side, sentence) => !!(side === "support" ? r.vetoSupport : side === "oppose" ? r.vetoOppose : null)?.test(sentence);
 
@@ -1094,7 +1164,10 @@ export function classify(sentence, topic, politicianId = null, { claims = false,
     // actor is whoever does the countering.
     // A question ("What more will it take for the VA to stop …?") states no side.
     if (!reversal && /\?\s*["”’]?\s*$/.test(sentence)) return { kind: "mention", side: null, reversal: false, actor: null, framing: "question" };
-    let cf = reversal || framed ? null : counterFrame(prefix, m[0]);
+    // R21a (2026-11-26): a polarity frame keeps its side against a counter verb
+    // INSIDE it, but a counter verb on an effort BEFORE it turns it around —
+    // "fight every attempt to overturn <a protection>" is not a call to overturn it.
+    let cf = reversal ? null : framed ? frameCounter(prefix) : counterFrame(prefix, m[0]);
     // "voted against every bill that does NOT uphold …" — a double negative: the
     // counter verb and the negation cancel out, the side stands as written.
     if (cf && negatedMatch(prefix)) cf = null;
@@ -1106,6 +1179,9 @@ export function classify(sentence, topic, politicianId = null, { claims = false,
       else if (!nr?.keep) return { kind: "mention", side: null, reversal: false, actor: null, framing: "nominal" };
     }
     if (cf) side = side === "support" ? "oppose" : "support";
+    // R21c: "<the policy> does nothing to lower costs" — the speaker judges it.
+    let criticized = false;
+    if (!cf && !reversal && criticizedAfter(sentence, m)) { side = side === "support" ? "oppose" : "support"; criticized = true; }
     if (!framed && om && !sm && burdenObject(m[0])) side = side === "support" ? "oppose" : "support";
     const actorPrefix = cf ? prefix.slice(0, cf.opStart) : prefix;
     // phase9-v1: "<subject> banning / cutting …" names who acts on either side.
@@ -1143,9 +1219,19 @@ export function classify(sentence, topic, politicianId = null, { claims = false,
     // polarity-v1: criticism of the policy or a description of an event never reads this side.
     if (!reversal && polarityVeto(r, side, sentence)) return { kind: "mention", side: null, reversal: false, actor: null, framing: "polarity_veto" };
     if (actor.kind === "self" || reversal) {
-      return { kind: "clear", side, reversal, actor, ...(via ? { via } : {}), ...(cf ? { framing: "counter", counter_via: cf.via } : {}), ...(framed ? { polarity: "frame" } : {}) };
+      return { kind: "clear", side, reversal, actor, ...(via ? { via } : {}), ...(cf ? { framing: "counter", counter_via: cf.via } : {}), ...(criticized ? { framing: "criticized" } : {}), ...(framed ? { polarity: "frame" } : {}) };
     }
     return { kind: "mention", side: null, reversal: false, actor };
+  }
+  // R21c: no verb acts on the topic, but a policy on it is the subject of a
+  // verdict ("<the program> is not the answer") or the object of
+  // "waste … on" — in the speaker's own voice, that is the side against it.
+  if (!(sm || om) && inContext && !reportedVoice && !reversal && !/\?\s*["”’]?\s*$/.test(sentence)) {
+    const co = criticizedObject(sentence, r);
+    if (co && !negatedMatch(sentence.slice(0, co.index)) && !polarityVeto(r, co.side, sentence)) {
+      const actor = actorFor(sentence.slice(0, co.index), politicianId);
+      if (actor.kind === "self") return { kind: "clear", side: co.side, reversal: false, actor, framing: "criticized" };
+    }
   }
   const imp = !(sm || om) && inContext && !reportedVoice ? classifyImplication(sentence, r, politicianId) : null;
   if (imp && imp.kind === "implication" && polarityVeto(r, imp.side, sentence)) return { kind: "mention", side: null, reversal: false, actor: null, framing: "polarity_veto" };
@@ -1282,6 +1368,11 @@ export function mentionLean(sentence, topic, politicianId = null) {
 export const LEAD_SENTENCES = 2;
 const LEAD_VOTE_FOR = /\b(?:vote[sd]?|voting|cast (?:a|his|her|my|their) vote)\s+(?:yes\s+|aye\s+)?(?:in favor of|for)\b/i;
 const LEAD_VOTE_AGAINST = /\b(?:vote[sd]?|voting|cast (?:a|his|her|my|their) vote)\s+(?:no\s+|nay\s+)?against\b/i;
+// R21e (2026-11-26): procedural and institutional opposition to a named measure —
+// floor opposition ("rise today in opposition to"), leading the opposition, and
+// an executive's veto ("vetoed", "returning … without my approval"). Read as a
+// vote against: the same own-voice, negation and topic checks apply.
+const LEAD_PROCEDURAL_AGAINST = /\b(?:rise|rose|rising|stand|stood|speak|spoke|testif(?:y|ied))\s+(?:here\s+)?(?:today\s+|tonight\s+)?in\s+(?:strong\s+|firm\s+|full\s+)?opposition\s+to\b|\b(?:led|lead|leading)\s+(?:the\s+)?opposition\s+to\b|\bveto(?:ed|ing)\b|\b(?:I|we)\s+(?:will\s+|must\s+|am\s+going\s+to\s+)?veto\b|\breturn(?:ing|ed|s)?\s+(?:herewith\s+)?without\s+my\s+(?:approval|signature)\b/i;
 const LEAD_PURPOSE = /\bcall(?:s|ed|ing)?\s+(?:on\s+\w+(?:\s+\w+)?\s+)?(?:for\s+\w+\s+)?to\s+block\b|\bdemand(?:s|ed|ing)?\s+(?:for\s+)?(?:no|zero)\b|\b(?:block(?:s|ed|ing)?|stop(?:s|ped|ping)?|end(?:s|ed|ing)?|prevent(?:s|ed|ing)?)\s+the\b|\b(?:will not|won['’]t)\s+agree\b|\b(?:cannot|can['’]t|can not)\s+continue\b|\bmust\s+not\s+(?:fund|allow)\b/i;
 // The purpose of the politician's own bill or vote: "a bill to block Yucca Mountain".
 const LEAD_BILL_PURPOSE = /\b(?:bill|legislation|resolution|act|amendment|measure)s?\s+(?:that would\s+|to\s+)(?:block|stop|end|prevent|halt|bar|prohibit|overturn|repeal|rescind|nullify|reverse|disapprove)\b|\bresolutions?\s+of\s+disapproval\b/i;
@@ -1384,7 +1475,7 @@ function leadCue(text, politicianId, alias = null) {
     if (prescriptive && PRESCRIBED_SUBJECT.test((HEADLINE_SUBJECT.exec(prefix) || [])[1] || "")) return true;
     return actorFor(prefix, politicianId).kind === "self";
   };
-  const va = LEAD_VOTE_AGAINST.exec(text), vf = LEAD_VOTE_FOR.exec(text);
+  const va = LEAD_VOTE_AGAINST.exec(text) || LEAD_PROCEDURAL_AGAINST.exec(text), vf = LEAD_VOTE_FOR.exec(text);
   const v = LEAD_VEHICLE.exec(text);
   const p = LEAD_PURPOSE.exec(text) || ((vf || v) ? LEAD_BILL_PURPOSE.exec(text) : null);
   const okVa = own(va, true), okVf = own(vf, true), okV = own(v, true);
