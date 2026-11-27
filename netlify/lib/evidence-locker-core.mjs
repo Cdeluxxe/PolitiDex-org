@@ -473,15 +473,46 @@ function displayDate(iso) {
  * components already render (headline / facts / date / issueKey / source).
  * The pipeline fields ride along under `pipeline` for transparency.
  */
+/** A C-SPAN clip (attribution or source type says so). */
+const isCspanItem = (item) => /\bc-span\b/i.test(String(item?.attribution || "")) || /\bc-span\b/i.test(String(item?.source_type || ""));
+const VIDEO_LINK = /^https?:\/\/(?:www\.|m\.)?(?:youtube\.com\/watch\?|youtu\.be\/)/i;
+
+/** "11:47" / "1:02:05" for a watch?v=ID&t=NNs link, else "". */
+export function videoLinkTimestamp(link) {
+  const m = /[?&]t=(\d+)s?(?:&|$)/.exec(String(link || ""));
+  if (!m) return "";
+  const n = Number(m[1]), h = Math.floor(n / 3600), mi = Math.floor((n % 3600) / 60), se = n % 60;
+  const ss = String(se).padStart(2, "0");
+  return h ? `${h}:${String(mi).padStart(2, "0")}:${ss}` : `${mi}:${ss}`;
+}
+
+/**
+ * The `media` block for a video-derived item (YouTube link): the same shape
+ * curated video receipts carry ({ type: "video", kind: "youtube", url, label }),
+ * so the Locker UI renders it as a video (tile, "Quote on video"), with the
+ * cited moment as `timestamp`. Null for every other item.
+ */
+export function videoMediaFor(item) {
+  const link = String(item?.link || "");
+  if (!VIDEO_LINK.test(link)) return null;
+  const ts = videoLinkTimestamp(link);
+  const label = isCspanItem(item) ? "C-SPAN video" : String(item.attribution || "YouTube video").replace(/^Source:\s*/, "");
+  return { type: "video", kind: "youtube", url: link, label, ...(ts ? { timestamp: ts } : {}) };
+}
+
 export function toSpotlightEntry(item, { key = null, review = null } = {}) {
   const who = surnameOf(item.politician_id);
-  // A floor speech, release or co-sponsor statement is named as what it is.
+  // A floor speech, release or co-sponsor statement is named as what it is; a
+  // C-SPAN clip is a C-SPAN video, never the politician's campaign page.
+  const cspan = isCspanItem(item);
   const page = KIND_LABELS[item.primary_kind] || (/YouTube channel/.test(item.attribution) ? "own YouTube channel" : /official/i.test(item.attribution) ? "official page" : "campaign page");
+  const where = cspan ? "In a C-SPAN video" : `${KIND_LABELS[item.primary_kind] ? "In" : "On"} ${who}'s ${page}`;
+  const media = videoMediaFor(item);
   return {
     // The page type rides in the headline so two pages on one topic stay two
     // receipts (the Locker de-duplicates by headline within a member).
     headline: `${who} ${headlinePhrase(item.topic, item.position)} (${item.source_type})`,
-    facts: `${KIND_LABELS[item.primary_kind] ? "In" : "On"} ${who}'s ${page}, ${who} stated: “${item.excerpt}” ${item.attribution}. Captured ${displayDate(item.date)}.`,
+    facts: `${where}, ${who} stated: “${item.excerpt}” ${item.attribution}. Captured ${displayDate(item.date)}.`,
     date: displayDate(item.date),
     issueKey: item.topic,
     impact: "neutral",
@@ -489,6 +520,8 @@ export function toSpotlightEntry(item, { key = null, review = null } = {}) {
     sourceType: "statement",
     tags: ["Public Statements", "Automated stance read"],
     source: { label: item.attribution, url: item.link },
+    // Video-derived items only; every other item is served exactly as before.
+    ...(media ? { media } : {}),
     pipeline: {
       position: item.position,
       confidence: item.confidence,

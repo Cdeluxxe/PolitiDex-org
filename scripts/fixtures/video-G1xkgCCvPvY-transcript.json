@@ -1,0 +1,382 @@
+{
+ "_note": "Cached transcript of https://www.youtube.com/watch?v=G1xkgCCvPvY (C-SPAN, Rep. Adelita Grijalva sworn in), as stored before time_format existed: start times are clock digits (1147 = 11:47). Regression fixture for the timestamp decoder.",
+ "video_id": "G1xkgCCvPvY",
+ "status": "ok",
+ "provider": "gemini",
+ "model": "gemini-3.5-flash",
+ "transcribed_at": "2026-11-21T16:46:13.333Z",
+ "speaker": "Adelita S. Grijalva",
+ "max_seconds": 1200,
+ "segments": [
+  {
+   "t": 0,
+   "text": "The chair lays before the House, a communication.",
+   "own": false
+  },
+  {
+   "t": 10,
+   "text": "The Honorable the Speaker, House of Representatives. Sir, I have the honor to transmit herewith a copy of the certificate of election received from the Honorable Adrian Fontes, Arizona Secretary of State, indicating that the special election held on September 23rd, 2025, the Honorable Adelita Grijalva was duly elected Representative in Congress for the Seventh Congressional District, State of Arizona. Signed sincerely, Kevin F. McCumber, Clerk.",
+   "own": false
+  },
+  {
+   "t": 107,
+   "text": "Will representative-elect Grijalva and members of the Arizona delegation present themselves in the well?",
+   "own": false
+  },
+  {
+   "t": 112,
+   "text": "And all members will rise.",
+   "own": false
+  },
+  {
+   "t": 118,
+   "text": "And the representative-elect will raise her right hand.",
+   "own": false
+  },
+  {
+   "t": 127,
+   "text": "Do you solemnly swear or affirm that you will support and defend the Constitution of the United States against all enemies, foreign and domestic; that you will bear true faith and allegiance to the same; that you take this obligation freely, without any mental reservation or purpose of evasion; and that you will well and faithfully discharge the duties of the office on which you are about to enter, so help you God?",
+   "own": false
+  },
+  {
+   "t": 146,
+   "text": "I do.",
+   "own": true
+  },
+  {
+   "t": 147,
+   "text": "Congratulations, you're now a member of the United States Congress.",
+   "own": false
+  },
+  {
+   "t": 217,
+   "text": "Without objection, the gentleman from Arizona is recognized for one minute.",
+   "own": false
+  },
+  {
+   "t": 222,
+   "text": "Thank you, Mr. Speaker.",
+   "own": false
+  },
+  {
+   "t": 224,
+   "text": "It is my pleasure to rise today to congratulate our newest colleague and fellow Arizonan on her swearing-in as a representative from Arizona's Seventh Congressional District, Congresswoman Adelita Grijalva.",
+   "own": false
+  },
+  {
+   "t": 238,
+   "text": "Congresswoman Grijalva has concentrated her career on issues associated in advocating for students and supporting families.",
+   "own": false
+  },
+  {
+   "t": 245,
+   "text": "As she follows her late father's footsteps, and boy, those are some footsteps especially with those bolo ties.",
+   "own": false
+  },
+  {
+   "t": 251,
+   "text": "Wow.",
+   "own": false
+  },
+  {
+   "t": 253,
+   "text": "I have no doubt she will bring to the halls of Congress the same energy that has defined her years of public service.",
+   "own": false
+  },
+  {
+   "t": 259,
+   "text": "As dean of the Arizona Congressional Delegation, I wish to congratulate Congresswoman Grijalva and welcome her to the United States House of Representatives.",
+   "own": false
+  },
+  {
+   "t": 306,
+   "text": "I now yield to my friend from Arizona, Mr. Stanton.",
+   "own": false
+  },
+  {
+   "t": 311,
+   "text": "Mr. Speaker, thank you, and thank you to Congressman Gosar, the new dean of Arizona's state delegation.",
+   "own": false
+  },
+  {
+   "t": 317,
+   "text": "It has been a minute since we've all been together on the House floor.",
+   "own": false
+  },
+  {
+   "t": 320,
+   "text": "Looking for cobwebs around here.",
+   "own": false
+  },
+  {
+   "t": 323,
+   "text": "As dean, Congressman Gosar replaces the late Congressman Raul Grijalva, one of the most impactful leaders in Arizona history.",
+   "own": false
+  },
+  {
+   "t": 341,
+   "text": "And now with great pride, I rise today to do something we have waited 50 long days to do. Exactly 49 days too long.",
+   "own": false
+  },
+  {
+   "t": 349,
+   "text": "And that is to introduce our colleague from Arizona, Congresswoman Adelita Grijalva.",
+   "own": false
+  },
+  {
+   "t": 358,
+   "text": "Since September 23rd, the people of Arizona have been waiting for this day.",
+   "own": false
+  },
+  {
+   "t": 402,
+   "text": "And the excuse for the delay have changed seemingly daily. First, they said they need election certificate, though one isn't required.",
+   "own": false
+  },
+  {
+   "t": 409,
+   "text": "Then they wanted to make sure there was enough pomp and circumstance. Then we were informed about a non-existent Pelosi precedent.",
+   "own": false
+  },
+  {
+   "t": 417,
+   "text": "At one point, the Speaker went on television and said, quote, \"Bless her heart, she is representative-elect, she doesn't know how it works around here.\"",
+   "own": false
+  },
+  {
+   "t": 425,
+   "text": "Bless his heart because here's how it should work.",
+   "own": false
+  },
+  {
+   "t": 428,
+   "text": "Let's call it the Adelita Grijalva precedent. When the American people vote, this Chamber respects their will and seats them immediately. Politics should never come into play.",
+   "own": false
+  },
+  {
+   "t": 446,
+   "text": "Mr. Speaker, Congresswoman Grijalva is a native of Tucson, the granddaughter of a bracero who came here from Mexico.",
+   "own": false
+  },
+  {
+   "t": 455,
+   "text": "The youngest woman ever elected to the Tucson Unified School Board, serving 20 years. Then a Pima County supervisor fighting for working families, affordable housing, early child education.",
+   "own": false
+  },
+  {
+   "t": 507,
+   "text": "She brings that same fight to Congress.",
+   "own": false
+  },
+  {
+   "t": 510,
+   "text": "The people of Arizona's Seventh District placed their placed their trust in her. And today, that trust is rewarded.",
+   "own": false
+  },
+  {
+   "t": 516,
+   "text": "And her first act of Congress will be a powerful one.",
+   "own": false
+  },
+  {
+   "t": 519,
+   "text": "She will be the 218th and final signature on the discharge petition to force the Trump administration to release the Epstein files, delivering long-overdue justice and accountability for hundreds of victims abused by rich and powerful men.",
+   "own": false
+  },
+  {
+   "t": 539,
+   "text": "She is a smart, principled fighter through and through.",
+   "own": false
+  },
+  {
+   "t": 542,
+   "text": "Mr. Speaker, it is my honor to welcome and introduce to this Chamber, Congresswoman Adelita Grijalva.",
+   "own": false
+  },
+  {
+   "t": 627,
+   "text": "Thank you. Muchas gracias.",
+   "own": true
+  },
+  {
+   "t": 631,
+   "text": "Thank you so much.",
+   "own": true
+  },
+  {
+   "t": 632,
+   "text": "Thank you to my colleague and friend, Congressman Stanton, for that kind introduction, and to the entire Democratic delegation from Arizona and the delegation that stood here with me that has supported me throughout this process.",
+   "own": true
+  },
+  {
+   "t": 643,
+   "text": "I rise today, the proud granddaughter of a bracero, a hardworking Mexican immigrant who came to this country for a better life.",
+   "own": true
+  },
+  {
+   "t": 653,
+   "text": "And I stand as the proud daughter of a US Congressman, a man who spent his entire life fighting for justice, equity, and dignity for the most vulnerable.",
+   "own": true
+  },
+  {
+   "t": 713,
+   "text": "From working as a vaquero to serving in Congress in just a single generation, that is the promise of this country.",
+   "own": true
+  },
+  {
+   "t": 722,
+   "text": "That is the America I want to raise my three beautiful children in—Adelina, Raul, and Joaquin.",
+   "own": true
+  },
+  {
+   "t": 729,
+   "text": "Stand up. Stand up, kids.",
+   "own": true
+  },
+  {
+   "t": 732,
+   "text": "Look at them.",
+   "own": true
+  },
+  {
+   "t": 742,
+   "text": "They, along with my amazing husband, Sol, and my wonderful mama, Ramona, are here with me today.",
+   "own": true
+  },
+  {
+   "t": 758,
+   "text": "Muchas gracias por su apoyo y por su amor.",
+   "own": true
+  },
+  {
+   "t": 801,
+   "text": "And thank you to la gente of Southern Arizona for making history, electing me, the first Latina, the first Chicana, from Arizona to ever go to Congress.",
+   "own": true
+  },
+  {
+   "t": 823,
+   "text": "Este momento es histórico para nuestra comunidad. Es un honor ser la primera latina en representar a Arizona en el Congreso.",
+   "own": true
+  },
+  {
+   "t": 832,
+   "text": "Y les aseguro que aunque soy la primera, no seré la última.",
+   "own": true
+  },
+  {
+   "t": 849,
+   "text": "And while we celebrate this moment today, our American promise is under serious threat.",
+   "own": true
+  },
+  {
+   "t": 857,
+   "text": "Basic freedoms are under attack.",
+   "own": true
+  },
+  {
+   "t": 859,
+   "text": "Healthcare premiums are skyrocketing, babies are being ripped away from their parents by masked agents. We can and must do better.",
+   "own": true
+  },
+  {
+   "t": 909,
+   "text": "What is most concerning is not what this administration has done,",
+   "own": true
+  },
+  {
+   "t": 914,
+   "text": "but what the majority in this body has failed to do.",
+   "own": true
+  },
+  {
+   "t": 918,
+   "text": "Hold Trump accountable as a co-equal branch of government that we are.",
+   "own": true
+  },
+  {
+   "t": 934,
+   "text": "It has been 50 days since the people of Arizona's Seventh Congressional District elected me to represent them.",
+   "own": true
+  },
+  {
+   "t": 944,
+   "text": "50 days that over 800,000 Arizonans have been left without access to the basic services that every constituent deserves.",
+   "own": true
+  },
+  {
+   "t": 955,
+   "text": "This is an abuse of power.",
+   "own": true
+  },
+  {
+   "t": 959,
+   "text": "One individual should not be able to unilaterally obstruct the swearing-in of a duly elected member of Congress for political reasons.",
+   "own": true
+  },
+  {
+   "t": 1021,
+   "text": "Our democracy only works when everyone has a voice.",
+   "own": true
+  },
+  {
+   "t": 1026,
+   "text": "This includes the millions of people across the country who have experienced violence and exploitation, including Liz Stein and Jessica Michaels, both survivors of Jeffrey Epstein's abuse.",
+   "own": true
+  },
+  {
+   "t": 1040,
+   "text": "They are here in the gallery with us this evening.",
+   "own": true
+  },
+  {
+   "t": 1044,
+   "text": "Thank you for being here.",
+   "own": true
+  },
+  {
+   "t": 1058,
+   "text": "Just this morning, House Democrats released more emails showing that Trump knew more about Epstein's abuses than he previously acknowledged.",
+   "own": true
+  },
+  {
+   "t": 1110,
+   "text": "It's past time for Congress to restore its role as a check and balance on this administration and fight for we, the American people.",
+   "own": true
+  },
+  {
+   "t": 1123,
+   "text": "We need to fight for our immigrant communities and veterans. We need to stand up for our public schools, children, and educators.",
+   "own": true
+  },
+  {
+   "t": 1130,
+   "text": "We need to respect tribal sovereignty and our environment. We need to stand up for LGBTQ+ rights because that's what the American people expect us to do.",
+   "own": true
+  },
+  {
+   "t": 1141,
+   "text": "Fight for them.",
+   "own": true
+  },
+  {
+   "t": 1147,
+   "text": "That is why I will sign the discharge petition right now to release the Epstein files.",
+   "own": true
+  },
+  {
+   "t": 1210,
+   "text": "Justice cannot wait another day.",
+   "own": true
+  },
+  {
+   "t": 1214,
+   "text": "Adelante, mi gente. Muchas gracias. Thank you very much. I yield back.",
+   "own": true
+  },
+  {
+   "t": 1243,
+   "text": "Under clause five of Rule 20, the chair announces to the House that in light of the administration of the oath of the gentleman from Arizona, the whole number of the House is now 433.",
+   "own": false
+  }
+ ]
+}

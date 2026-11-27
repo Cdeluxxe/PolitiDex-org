@@ -280,7 +280,7 @@ import {
   rosterSummary, baselineLine, isFilled, ROSTER, BASELINE_STRONG, BASELINE_WEAK,
   RAW_STORE_NAME, SOURCES, ROTATION_STORE_NAME, ROTATION_KEY, MAX_SOURCES_PER_RUN,
   MAX_POLITICIANS_PER_RUN, MAX_SOURCES_PER_POLITICIAN, RUN_BUDGET_MS, POOL_VERSION, rotationStateForPool, sourceTierOf,
-  RESOLUTION,
+  RESOLUTION, hasAnyEvidence,
 } from "../lib/raw-ingest-core.mjs";
 import { resolutionLine } from "../lib/raw-ingest-resolve.mjs";
 import { logCandidateStances, SCORED_TOPICS } from "../lib/stance-score-core.mjs";
@@ -561,6 +561,22 @@ export async function run(deps: {
   // Final fence: nothing outside the allow-list reaches the fetcher, however it
   // got into the list (fixed sources, discovery, the fresh frontier).
   if (scope) { sources = filterToScope(scope, sources); discovered = filterToScope(scope, discovered); }
+  // Transcript queue order hints: a video queued for the background
+  // transcriber carries its politician's roster tier, band and whether they
+  // have any Locker evidence yet (video-transcripts.mjs, orderQueue).
+  {
+    const tierOfPid = new Map<string, number>();
+    for (const r of [...(roster || []), ...(ROSTER as any[])]) if (r?.politician_id && !tierOfPid.has(r.politician_id)) tierOfPid.set(r.politician_id, Number(r.tier));
+    const dep = new Set<string>(plan?.deprioritised || []);
+    sources = sources.map((x: any) => (x?.source_class === "youtube" || x?.source_class === "youtube_video") ? {
+      ...x,
+      queue_priority: {
+        ...(Number.isFinite(tierOfPid.get(x.politician_id)) ? { tier: tierOfPid.get(x.politician_id) } : {}),
+        band: dep.has(x.politician_id) ? 1 : 0,
+        no_evidence: !hasAnyEvidence(counts, x.politician_id),
+      },
+    } : x);
+  }
   await logRetiredOnce(deps.rotationStore, log, deps.now);
   const included = runPlanLine(sources);
   console.log(`raw-ingest: run included ${included.count} source(s) · politicians: ${included.politicians.join(", ")} · source kinds: ${JSON.stringify(included.kinds)} · source types: ${JSON.stringify(included.source_types)} · source classes: ${JSON.stringify(included.source_classes)} · evidence tiers: ${JSON.stringify(included.source_tiers)}`);
