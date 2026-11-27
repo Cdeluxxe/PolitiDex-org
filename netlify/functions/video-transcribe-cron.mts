@@ -17,11 +17,12 @@ import type { Config } from "@netlify/functions";
 // Locker writes and queue handling exactly as before; if a run is already
 // going, the worker lock turns this wake into a no-op.
 //
-// Every 10 minutes (was 15): a 4-video run with 18 s between Gemini calls
-// takes ~1–4 minutes, so a run normally ends before the next wake; one that
-// runs long (11-min budget) still holds the 15-min worker lock, so the wake
-// that overlaps it is a no-op. A run that dies leaves a lock that expires
-// after 15 min, i.e. at most two wakes are skipped.
+// Every 3 minutes (was 10): a 3-video run with 18 s between Gemini calls
+// takes ~1–3 minutes, so a run normally ends before the next wake — about 3
+// videos every 3–4 minutes. One that runs long (no call starts after the
+// 11-min budget, each call is cut off after 2.5 min) still holds the 15-min
+// worker lock, so the wakes that overlap it are no-ops. A run that dies
+// leaves a lock that expires after 15 min.
 
 export default async (): Promise<void> => {
   const origin = process.env.URL || "https://politidex.fyi";
@@ -34,5 +35,5 @@ export default async (): Promise<void> => {
 };
 
 export const config: Config = {
-  schedule: "*/10 * * * *",
+  schedule: "*/3 * * * *",
 };

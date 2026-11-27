@@ -256,9 +256,13 @@
 
 // Video priority lane (raw-ingest-video.mjs, planVideoLane): with the video /
 // speech pass on, up to VIDEO_LANE_PER_RUN (2) slots of each run are reserved
-// for video / speech frontier entries of tier-1 and zero-evidence members —
-// hearing / floor first — and the rest of the run is planned under the cap
-// minus those slots. A member leaves the lane after VIDEO_LANE_COVERED lane
+// for video / speech frontier entries of tier-1, tier-2 and zero-evidence
+// members — Word vs Action gap items first, then hearing / floor — and the
+// rest of the run is planned under the cap minus those slots. Coverage
+// targets: tier 1 stays in the lane until 5–8 video / official-speech Locker
+// items, tier 2 until 3–5 (the high end only while gap items wait); the lane
+// keeps serving one member until they reach it or run out of entries.
+// Zero-evidence members of other tiers leave after VIDEO_LANE_COVERED lane
 // slots (state: VIDEO_LANE_STATE_KEY in the rotation store); everyone else
 // keeps the leftover-slot behaviour below. "raw-ingest: video lane — …" logs it.
 // Video / speech pass (raw-ingest-video.mjs; opt-in through `videoSpeech`,
@@ -306,11 +310,11 @@ import {
 } from "../lib/raw-ingest-hosts.mjs";
 import { retiredSourcesLine, RETIRED_VERSION, RETIRED_LOG_KEY } from "../lib/raw-ingest-retired.mjs";
 import { TRANSCRIPT_STORE_NAME, lockerRawFor, scoreRecordCandidates } from "../lib/video-transcripts.mjs";
-import { discoverVideoSpeech, addVideoSpeechSources, isVideoSpeechEntry, buildVideoSpeechConfigs, institutionalMembers, INSTITUTIONAL_CHANNELS, VIDEO_SPEECH_PER_POLITICIAN, planVideoLane, normaliseVideoLaneState, VIDEO_LANE_STATE_KEY, VIDEO_LANE_PER_RUN } from "../lib/raw-ingest-video.mjs";
+import { discoverVideoSpeech, addVideoSpeechSources, isVideoSpeechEntry, buildVideoSpeechConfigs, institutionalMembers, INSTITUTIONAL_CHANNELS, VIDEO_SPEECH_PER_POLITICIAN, planVideoLane, normaliseVideoLaneState, VIDEO_LANE_STATE_KEY, VIDEO_LANE_PER_RUN, createYoutubeMeter, readYoutubeUnits, saveYoutubeUnits, youtubeUnitsLine, YOUTUBE_SEARCH_GUARD_UNITS } from "../lib/raw-ingest-video.mjs";
 import VS_MEMBER_MAP from "../../db/vr-member-map.json" with { type: "json" };
 import PERSON_COMMITTEES from "../../db/person-committees.json" with { type: "json" };
 import { INGEST_ALLOW_LIST, scopeIds, inScope, filterToScope, scopedRotationKey, scopeLine } from "../lib/raw-ingest-scope.mjs";
-import { buildWordGaps, orderPullListByWordGap, wordGapLine, wordGapRank, loadWordGapData } from "../lib/raw-ingest-word-gap.mjs";
+import { buildWordGaps, orderPullListByWordGap, wordGapLine, wordGapRank, loadWordGapData, GAP_RANK } from "../lib/raw-ingest-word-gap.mjs";
 // Every locked ground-truth label (not only Talarico | cost of living): a clear
 // read that contradicts one is never written to the Locker.
 import { LOCKED_GROUND_TRUTH_INDEX as groundTruth } from "../lib/locked-ground-truth.mjs";
@@ -362,7 +366,9 @@ export async function run(deps: {
   // persists the rotation state between runs.
   // `state` overrides the stored rotation state and `counts` the Locker
   // per-issue baseline counts ("pid|topic" → { strong, weak }) (tests).
-  rotate?: boolean | { roster?: any[]; max?: number; state?: any; counts?: Record<string, { strong?: number; weak?: number }>; priorityPerRun?: number };
+  // `videoItems` (tests): pid → video / official-speech Locker items, else
+  // tallied with the baseline counts (the video lane's coverage targets).
+  rotate?: boolean | { roster?: any[]; max?: number; state?: any; counts?: Record<string, { strong?: number; weak?: number }>; priorityPerRun?: number; videoItems?: Record<string, any> };
   rotationStore?: any;
   reviewFlags?: any;
   // Promoted stances: the pdx_stated_positions adapter (stated-positions-core
@@ -396,7 +402,7 @@ export async function run(deps: {
   // in free slots under the unchanged caps. `state` overrides the stored
   // discovery-timing doc, `force` ignores the interval, and `youtubeKey` /
   // `govinfoKey` override the environment (tests). Omitted → off.
-  videoSpeech?: boolean | { state?: any; force?: boolean; youtubeKey?: string; govinfoKey?: string; per?: number; channels?: any[] | false; lane?: false | { perRun?: number; state?: any } };
+  videoSpeech?: boolean | { state?: any; force?: boolean; youtubeKey?: string; govinfoKey?: string; per?: number; channels?: any[] | false; lane?: false | { perRun?: number; state?: any }; youtubeUnits?: { day?: string; units?: number }; youtubeGuard?: number };
   // Baseline counts cache (cachedBaselineCounts), kept in rotationStore. Omitted
   // → the whole-Locker read every run (the earlier behaviour; tests).
   baselineCache?: boolean;
@@ -410,6 +416,8 @@ export async function run(deps: {
   let plan: any = null;
   let roster: any[] = ROSTER;
   let counts: Record<string, any> = {};
+  let videoItems: Record<string, any> = {};
+  let youtubeMeter: any = null;
   let wordGaps: Record<string, { gap: Set<string>; stated: Set<string> }> | null = null;
   let hostHealth: any = null;
   let skipHosts: Map<string, any> = new Map();
@@ -453,12 +461,13 @@ export async function run(deps: {
     if (scope) log(`raw-ingest: scope — planning ${roster.length} of ${fullRoster.length} roster politician(s) (allow-list: ${[...scope].sort().join(", ")}); the rest are skipped this run`);
     const pids = roster.map((r: any) => r.politician_id);
     const state = ro.state !== undefined ? normaliseRotationState(ro.state) : await readRotationState(deps.rotationStore, log, rotationKey);
-    if (ro.counts) counts = ro.counts;
+    if (ro.counts) { counts = ro.counts; videoItems = ro.videoItems || {}; }
     else if (deps.baselineCache) {
       // Cached counts (see cachedBaselineCounts): the whole-Locker read runs at
       // most every 30 minutes instead of every minute.
       const b = await cachedBaselineCounts(deps.lockerStore, deps.rotationStore, { flags, pids, log, now: nowFn });
       counts = b.counts;
+      videoItems = (b as any).video || {};
       log(`evidence-locker: baseline counts — ${b.source} (${Object.keys(counts).length} pair(s), ${b.ms}ms${b.age_ms != null ? `, ${Math.round(b.age_ms / 60_000)} min old` : ""})`);
       // A run that just spent most of its time refreshing stops here, so it
       // ends inside the function limit; the next run pulls with fresh counts.
@@ -466,7 +475,7 @@ export async function run(deps: {
         log(`raw-ingest: baseline counts refreshed from the Locker in ${b.ms}ms — this run stops before pulling; the next run continues the rotation`);
         return new Response(JSON.stringify({ ok: true, baseline_refreshed: true, results: [], duration_ms: Date.now() - startedAt, budget_ms: RUN_BUDGET_MS }), { status: 200, headers: { "content-type": "application/json" } });
       }
-    } else counts = await lockerBaselineCounts(deps.lockerStore, { flags, pids, log });
+    } else counts = await lockerBaselineCounts(deps.lockerStore, { flags, pids, log, video: videoItems });
     knownUrls = new Set([...knownUrls, ...allRosterUrls(roster)]);
     const max = ro.max ?? MAX_SOURCES_PER_RUN;
     // Word vs Action gaps, loaded only for the politicians this run may plan
@@ -499,6 +508,9 @@ export async function run(deps: {
       videoLane = planVideoLane(fresh, {
         roster: roster.filter((r: any) => inScope(scope, r.politician_id)), counts, state: normaliseVideoLaneState(laneState),
         perRun: Math.min(lo.perRun ?? VIDEO_LANE_PER_RUN, max), known: new Set(sources.map((x: any) => normUrl(x.url))), pendingVideoIds, log,
+        // Coverage targets (tier 1: 5–8, tier 2: 3–5 video / speech items) and
+        // the Word vs Action gaps the lane prefers.
+        videoItems, wordGaps,
       });
     }
     const planMax = Math.max(1, max - (videoLane?.reserved || 0));
@@ -534,7 +546,7 @@ export async function run(deps: {
       const lanePicks = videoLane.picks.filter((p: any) => !have.has(normUrl(p.url)) && !skipNow.has(hostOfUrl(p.url)));
       sources = [...sources, ...lanePicks];
       discovered = [...discovered, ...lanePicks];
-      videoLane.pulled = lanePicks.map((p: any) => ({ politician_id: p.politician_id, url: p.url, speech_kind: p.speech_kind || null, source_class: p.source_class }));
+      videoLane.pulled = lanePicks.map((p: any) => ({ politician_id: p.politician_id, url: p.url, speech_kind: p.speech_kind || null, source_class: p.source_class, ...(p.wva_gap ? { wva_gap: true } : {}) }));
       if (deps.rotationStore && !(lo && lo.state !== undefined)) {
         try { await deps.rotationStore.setJSON(VIDEO_LANE_STATE_KEY, { ...videoLane.state, updated_at: nowFn().toISOString() }); }
         catch (e: any) { log(`video-lane: state not saved — ${e?.message || e}`); }
@@ -548,8 +560,11 @@ export async function run(deps: {
       // One configuration per planned politician (hand-written entries win).
       const vsSet = new Set(vsPids);
       const vsConfigs = buildVideoSpeechConfigs(roster.filter((r: any) => vsSet.has(r.politician_id)), { members: (VS_MEMBER_MAP as any).members || [] });
+      // YouTube Data API units: today's total so far (the soft search guard), then this run's.
+      const day = vo.youtubeUnits ?? await readYoutubeUnits(deps.rotationStore, nowFn());
+      youtubeMeter = createYoutubeMeter({ dayUnits: day?.units || 0, day: day?.day || null, guard: vo.youtubeGuard ?? YOUTUBE_SEARCH_GUARD_UNITS });
       const vd = await discoverVideoSpeech({
-        configs: vsConfigs,
+        configs: vsConfigs, youtubeMeter,
         politicians: vsPids, fresh, fetch: deps.fetch, store: deps.rotationStore, state: vo.state ?? null, now: nowFn, log,
         force: !!vo.force, mergeFrontier,
         // Committee / conference channels: matched against the whole in-scope
@@ -564,6 +579,7 @@ export async function run(deps: {
       const va = addVideoSpeechSources(sources, fresh, { configs: vsConfigs, politicians: vsPids, max, perPolitician: MAX_SOURCES_PER_POLITICIAN, per: vo.per ?? VIDEO_SPEECH_PER_POLITICIAN, skipHosts: new Set(skipHosts.keys()), log });
       sources = va.sources;
       discovered = [...discovered, ...va.added];
+      if (!vo.youtubeUnits) await saveYoutubeUnits(deps.rotationStore, youtubeMeter, { now: nowFn(), log });
       videoSpeech = { checked: vd.checked, channels_checked: vd.channels_checked || [], queued: vd.added, discovery: vd.sources, added: va.added.length };
     }
     if (fresh) {
@@ -622,6 +638,8 @@ export async function run(deps: {
         ...(Number.isFinite(tierOfPid.get(x.politician_id)) ? { tier: tierOfPid.get(x.politician_id) } : {}),
         band: dep.has(x.politician_id) ? 1 : 0,
         no_evidence: !hasAnyEvidence(counts, x.politician_id),
+        // Works on a Word vs Action gap issue: the transcriber takes it first among equals.
+        ...(x.wva_gap || (wordGaps && wordGapRank(x, wordGaps) === GAP_RANK) ? { gap: true } : {}),
       },
     } : x);
   }
@@ -739,8 +757,9 @@ export async function run(deps: {
     videoSpeech.by_type = { video: by("video"), speech: by("speech") };
     report.video_speech = videoSpeech;
     if (videoLane) {
-      report.video_lane = { reserved: videoLane.reserved, pulled: videoLane.pulled || [], eligible: videoLane.eligible, covered: videoLane.covered };
-      log(`raw-ingest: video lane — ${(videoLane.pulled || []).length} reserved video slot(s) filled (${(videoLane.pulled || []).map((x: any) => `${x.politician_id} ${x.speech_kind || x.source_class}`).join(", ") || "none"}) · ${videoLane.eligible.length} high-value member(s) with video waiting · ${videoLane.covered.length} covered`);
+      report.video_lane = { reserved: videoLane.reserved, pulled: videoLane.pulled || [], eligible: videoLane.eligible, covered: videoLane.covered, targets: videoLane.targets };
+      const tg = videoLane.targets || {};
+      log(`raw-ingest: video lane — ${(videoLane.pulled || []).length} reserved video slot(s) filled (${(videoLane.pulled || []).map((x: any) => `${x.politician_id} ${x.speech_kind || x.source_class}${x.wva_gap ? " (gap)" : ""}`).join(", ") || "none"}) · ${videoLane.eligible.length} high-value member(s) under target with video waiting · ${videoLane.covered.length} at target / covered · under target: tier 1 ${tg.tier1?.under ?? 0}/${tg.tier1?.members ?? 0}, tier 2 ${tg.tier2?.under ?? 0}/${tg.tier2?.members ?? 0}`);
     }
     log(`raw-ingest: video/speech — ${pulled.length} source(s) pulled this run (video ${by("video")}, speech ${by("speech")}) · ${pulled.reduce((n, x) => n + x.items, 0)} Locker item(s) · ${pulled.filter((x) => x.queued).length} awaiting transcription · ${pulled.filter((x) => !x.ok).length} failed · ${videoSpeech.queued} new URL(s) queued into the frontier${videoSpeech.checked.length ? "" : " (discovery not due this run)"}`);
   }
@@ -751,6 +770,12 @@ export async function run(deps: {
     report.youtube = { channels: yt.length, videos: sum("videos"), stored: sum("stored"), already_stored: sum("seen"), transcript: sum("transcript"), description_fallback: sum("fallback"), queued: sum("queued") };
     const tried = report.youtube.transcript + report.youtube.description_fallback;
     log(`raw-ingest: youtube — ${yt.length} channel(s), ${report.youtube.stored} new video record(s) · transcript ${report.youtube.transcript}/${tried}, description fallback ${report.youtube.description_fallback}/${tried} · ${report.youtube.queued} queued for the background transcriber · ${report.youtube.already_stored} already stored`);
+  }
+  // YouTube Data API units this run: one summary line (function logs only).
+  if (deps.videoSpeech) {
+    const m = youtubeMeter ?? createYoutubeMeter({});
+    report.youtube_api = m.summary();
+    log(youtubeUnitsLine(m));
   }
   if (wordGaps) {
     report.word_gap = Object.fromEntries(Object.entries(wordGaps).map(([pid, g]) => [pid, {

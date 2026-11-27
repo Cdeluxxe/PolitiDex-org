@@ -87,10 +87,10 @@ const laneFrontier = () => ({ frontier: {
 console.log("video lane + transcript versions:");
 console.log(" 1 · video priority lane");
 
-await t("the lane reserves ≤ 2 slots for tier-1 / zero-evidence members, zero-evidence first, hearing / floor first inside a member", async () => {
+await t("the lane reserves ≤ 2 slots for tier-1 / tier-2 / zero-evidence members, zero-evidence first, hearing / floor first inside a member", async () => {
   const lane = video.planVideoLane(laneFrontier(), { roster: LANE_ROSTER, counts: LANE_COUNTS, log: () => {} });
   assert.equal(lane.reserved, 2);
-  assert.deepEqual(lane.eligible.sort(), ["t1_member", "zero_ev"], "tier 2 with evidence is not in the lane");
+  assert.deepEqual(lane.eligible.sort(), ["t1_member", "t2_covered", "zero_ev"], "tier 2 under its coverage target is in the lane too");
   assert.deepEqual(lane.picks.map((p) => p.politician_id), ["zero_ev", "t1_member"], "zero-evidence member first, then tier 1");
   const t1 = lane.picks.find((p) => p.politician_id === "t1_member");
   assert.equal(t1.url, W("T1Hearing01"), "the hearing wins over newer official / campaign videos");
@@ -120,16 +120,16 @@ await t("a member with a hearing goes before one with only a campaign video; a l
   assert.deepEqual(solo.picks.map((p) => p.url), [W("BHearing001"), W("BOfficial01")], "spare slot → the member's next entry");
 });
 
-await t("lap rotation, then coverage: a member who got VIDEO_LANE_COVERED slots leaves the lane", async () => {
+await t("the lane stays on one member until covered, then: a member who got VIDEO_LANE_COVERED slots leaves the lane", async () => {
   const fr = laneFrontier();
   let state = null;
   const turns = [];
-  for (let i = 0; i < 3; i++) {
+  for (let i = 0; i < 4; i++) {
     const lane = video.planVideoLane(fr, { roster: LANE_ROSTER, counts: LANE_COUNTS, state, perRun: 1, log: () => {} });
     turns.push(lane.picks.map((p) => p.politician_id).join(","));
     state = lane.state;
   }
-  assert.deepEqual(turns, ["zero_ev", "t1_member", "zero_ev"], "one slot alternates through the lap");
+  assert.deepEqual(turns, ["zero_ev", "zero_ev", "zero_ev", "t1_member"], "the focus member keeps the slot until covered, then the next member");
   const covered = video.planVideoLane(fr, { roster: LANE_ROSTER, counts: LANE_COUNTS, state: { lap_done: [], given: { zero_ev: video.VIDEO_LANE_COVERED } }, log: () => {} });
   assert.ok(!covered.eligible.includes("zero_ev"), "covered member dropped out");
   assert.deepEqual(covered.covered, ["zero_ev"]);
@@ -140,7 +140,7 @@ await t("entries already in the pull list, already read or waiting in the transc
   const fr = laneFrontier();
   fr.seen[freshLib.normUrl(W("ZeroCspan01"))] = "2026-11-27";
   const lane = video.planVideoLane(fr, { roster: LANE_ROSTER, counts: LANE_COUNTS, known: new Set([freshLib.normUrl(W("T1Hearing01"))]), pendingVideoIds: new Set(["T1Official1"]), log: () => {} });
-  assert.deepEqual(lane.picks.map((p) => p.url), [W("T1Campaign1")]);
+  assert.deepEqual(lane.picks.map((p) => p.url), [W("T1Campaign1"), W("T2Floor0001")], "tier 1 first; the spare slot goes to the tier-2 member's floor speech");
   assert.equal(video.planVideoLane({ frontier: {}, seen: {} }, { roster: LANE_ROSTER, counts: {}, log: () => {} }).reserved, 0, "nothing waiting → nothing reserved");
 });
 

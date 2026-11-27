@@ -755,7 +755,19 @@ export function reviewFor(item, key, flags) {
  * out. `pids` limits the count to those politicians. Read-only; returns {} when
  * the store cannot be listed.
  */
-export async function lockerBaselineCounts(store, { flags = null, pids = null, log = console.log } = {}) {
+// A Locker item from a video or official speech: a YouTube link, or a
+// Congressional Record floor speech / GPO hearing transcript.
+const SPEECH_TYPE = /\b(?:Congressional Record|hearing transcript)\b/i;
+export function isVideoSpeechLockerItem(doc) {
+  return VIDEO_LINK.test(String(doc?.link || "")) || SPEECH_TYPE.test(String(doc?.source_type || ""));
+}
+
+/**
+ * `video` (optional, an object): filled with pid → { items, topics: { topic: n } }
+ * for strong / weak video / official-speech items (the video lane's coverage
+ * targets). The returned counts keep their { strong, weak } shape.
+ */
+export async function lockerBaselineCounts(store, { flags = null, pids = null, log = console.log, video = null } = {}) {
   const counts = {};
   if (!store || typeof store.list !== "function") return counts;
   const want = pids ? new Set(pids) : null;
@@ -771,6 +783,11 @@ export async function lockerBaselineCounts(store, { flags = null, pids = null, l
       if (s !== "strong" && s !== "weak") continue;
       const c = (counts[`${doc.politician_id}|${doc.topic}`] ||= { strong: 0, weak: 0 });
       c[s] += 1;
+      if (video && isVideoSpeechLockerItem(doc)) {
+        const v = (video[doc.politician_id] ||= { items: 0, topics: {} });
+        v.items += 1;
+        v.topics[doc.topic] = (v.topics[doc.topic] || 0) + 1;
+      }
     }
   } catch (e) {
     log(`evidence-locker: baseline count unavailable — ${e?.message || e}`);
@@ -790,10 +807,11 @@ export const BASELINE_CACHE_KEY = "baseline-counts.json";
 export const BASELINE_CACHE_TTL_MS = 30 * 60_000;
 export const BASELINE_REFRESH_CLAIM_MS = 3 * 60_000;
 
-const onlyPids = (counts, pids) => {
+// `byPid`: keys are bare politician ids (the video tally), not "pid|topic" pairs.
+const onlyPids = (counts, pids, byPid = false) => {
   if (!pids) return { ...counts };
   const want = new Set(pids);
-  return Object.fromEntries(Object.entries(counts || {}).filter(([k]) => want.has(k.split("|")[0])));
+  return Object.fromEntries(Object.entries(counts || {}).filter(([k]) => want.has(byPid ? k : k.split("|")[0])));
 };
 
 /**
@@ -804,7 +822,9 @@ const onlyPids = (counts, pids) => {
  */
 export async function cachedBaselineCounts(lockerStore, cacheStore, { flags = null, pids = null, log = console.log, now = () => new Date(), ttlMs = BASELINE_CACHE_TTL_MS } = {}) {
   const t0 = Date.now();
-  const live = async () => ({ counts: await lockerBaselineCounts(lockerStore, { flags, pids, log }), source: "live", ms: Date.now() - t0 });
+  const live = async () => { const video = {}; const counts = await lockerBaselineCounts(lockerStore, { flags, pids, log, video }); return { counts, video, source: "live", ms: Date.now() - t0 }; };
+  // Video / official-speech item tallies ride along in the same doc (older docs: none yet).
+  const videoOf = (d) => onlyPids(d?.video && typeof d.video === "object" ? d.video : {}, pids, true);
   if (!cacheStore || typeof cacheStore.get !== "function" || typeof cacheStore.setJSON !== "function") return live();
   let doc = null;
   try {
@@ -814,13 +834,14 @@ export async function cachedBaselineCounts(lockerStore, cacheStore, { flags = nu
   const nowMs = now().getTime();
   const has = doc && doc.counts && typeof doc.counts === "object";
   const age = has ? nowMs - Date.parse(doc.computed_at || 0) : Infinity;
-  if (has && age >= 0 && age < ttlMs) return { counts: onlyPids(doc.counts, pids), source: "cache", ms: Date.now() - t0, age_ms: age };
-  if (has && Number(doc.refreshing_until) > nowMs) return { counts: onlyPids(doc.counts, pids), source: "stale", ms: Date.now() - t0, age_ms: age };
+  if (has && age >= 0 && age < ttlMs) return { counts: onlyPids(doc.counts, pids), video: videoOf(doc), source: "cache", ms: Date.now() - t0, age_ms: age };
+  if (has && Number(doc.refreshing_until) > nowMs) return { counts: onlyPids(doc.counts, pids), video: videoOf(doc), source: "stale", ms: Date.now() - t0, age_ms: age };
   try { await cacheStore.setJSON(BASELINE_CACHE_KEY, { ...(doc || {}), refreshing_until: nowMs + BASELINE_REFRESH_CLAIM_MS }); } catch { /* best effort */ }
-  const all = await lockerBaselineCounts(lockerStore, { flags, log });
-  try { await cacheStore.setJSON(BASELINE_CACHE_KEY, { computed_at: now().toISOString(), pairs: Object.keys(all).length, counts: all }); }
+  const video = {};
+  const all = await lockerBaselineCounts(lockerStore, { flags, log, video });
+  try { await cacheStore.setJSON(BASELINE_CACHE_KEY, { computed_at: now().toISOString(), pairs: Object.keys(all).length, counts: all, video }); }
   catch (e) { log(`evidence-locker: baseline cache not saved — ${e?.message || e}`); }
-  return { counts: onlyPids(all, pids), source: "refreshed", ms: Date.now() - t0 };
+  return { counts: onlyPids(all, pids), video: videoOf({ video }), source: "refreshed", ms: Date.now() - t0 };
 }
 
 /** counts + this run's Locker writes (strong / weak only), without re-reading the Locker. */
