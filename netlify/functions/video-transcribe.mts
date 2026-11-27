@@ -16,7 +16,10 @@ import { getStore } from "@netlify/blobs";
 // 15 minutes) and not inside the every-minute cron (30 s). The cron wakes this
 // function when a run queued videos; a run that leaves work in the queue wakes
 // the next one — unless most of its calls failed (likely a Gemini 429), then
-// the chain stops. Gemini calls run one at a time, 18 s apart
+// the chain stops. A run takes up to 3 videos (TRANSCRIBE_PER_RUN) and the
+// scheduled wake comes every 3 minutes: ~3 videos every 3–4 minutes. No call
+// starts past the 11-min budget and each call is cut off after 2.5 min, so
+// the queue work ends inside the 15-min lock. Gemini calls run one at a time, 18 s apart
 // (TRANSCRIBE_CALL_DELAY_MS), and a self-wake waits the same pause first so
 // the next run's first call is not back-to-back with this run's last. A worker
 // lock in the store keeps runs from overlapping, so an extra wake only costs
@@ -71,8 +74,9 @@ export function tooManyFailures(summary: any): boolean {
   return calls > 0 && failures / calls > MAX_FAILURE_SHARE;
 }
 
-export async function transcribeRun(deps: { store?: any; rawStore?: any; lockerStore?: any; retiredStore?: any; generate?: any; log?: (l: string) => void; wake?: () => Promise<void>; sleep?: (ms: number) => Promise<void>; callDelayMs?: number; repair?: boolean; sync?: ((pid: string) => Promise<void>) | null; reprocess?: any } = {}) {
-  const startedAt = Date.now();
+export async function transcribeRun(deps: { store?: any; rawStore?: any; lockerStore?: any; retiredStore?: any; generate?: any; log?: (l: string) => void; wake?: () => Promise<void>; sleep?: (ms: number) => Promise<void>; callDelayMs?: number; callTimeoutMs?: number; clock?: () => number; repair?: boolean; sync?: ((pid: string) => Promise<void>) | null; reprocess?: any } = {}) {
+  const clock = deps.clock ?? Date.now;
+  const startedAt = clock();
   const log = deps.log ?? ((l: string) => console.log(l));
   const lockerStore = deps.lockerStore ?? getStore(LOCKER_STORE_NAME);
   const flags = loadReviewFlags(reviewFile);
@@ -102,6 +106,8 @@ export async function transcribeRun(deps: { store?: any; rawStore?: any; lockerS
     ...(deps.generate ? { generate: deps.generate } : {}),
     ...(deps.sleep ? { sleep: deps.sleep } : {}),
     ...(deps.callDelayMs !== undefined ? { callDelayMs: deps.callDelayMs } : {}),
+    ...(deps.callTimeoutMs !== undefined ? { callTimeoutMs: deps.callTimeoutMs } : {}),
+    clock,
     log,
     onRecord: async (rec: any) => {
       // A re-transcribed video: its existing items are re-read first (moved, never doubled).
@@ -119,7 +125,7 @@ export async function transcribeRun(deps: { store?: any; rawStore?: any; lockerS
   // C-SPAN chamber labels (video-link-repair.mjs). Under the worker lock, in
   // what is left of the run; a finished pass only retries pending resyncs.
   if (!summary.locked && deps.repair !== false) {
-    const budgetMs = Math.min(LINK_REPAIR_BUDGET_MS, RUN_LIMIT_MS - (Date.now() - startedAt));
+    const budgetMs = Math.min(LINK_REPAIR_BUDGET_MS, RUN_LIMIT_MS - (clock() - startedAt));
     if (budgetMs > 30_000 && await acquireLock(transcriptStore, Date.now())) {
       try {
         const prev = await transcriptStore.get(LINK_REPAIR_STATE_KEY, { type: "json" }).catch(() => null);

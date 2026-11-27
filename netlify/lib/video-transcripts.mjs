@@ -52,12 +52,22 @@ export const MAX_TRANSCRIBE_SECONDS = 1200;      // the first 20 minutes of a vi
 // video keeps the single first-20-minutes read.
 export const HEARING_EXTRA_WINDOWS = 2;          // up to the first 60 minutes of a hearing
 export const HEARING_MIN_OWN_SEGMENTS = 6;
-export const TRANSCRIBE_PER_RUN = 4;             // videos per background run (kept small for Gemini rate limits)
+// RATE. 3 videos per run, and the worker is woken every 3 minutes
+// (video-transcribe-cron.mts) besides its own self-wake chain: ~3 videos every
+// 3–4 minutes. A 3-video run is 3 calls (10–45 s each) with two 18 s pauses,
+// ~1–3 min, so it normally ends before the next wake; a hearing may add up to
+// HEARING_EXTRA_WINDOWS calls. Every run stays inside the existing budget:
+// no Gemini call STARTS after TRANSCRIBE_BUDGET_MS, and each call is cut off
+// after TRANSCRIBE_CALL_TIMEOUT_MS, so the queue work ends by
+// TRANSCRIBE_BUDGET_MS + TRANSCRIBE_CALL_TIMEOUT_MS (13.5 min) — inside the
+// 15-min worker lock and the 15-min background limit.
+export const TRANSCRIBE_PER_RUN = 3;             // videos per background run (kept small for Gemini rate limits)
+export const TRANSCRIBE_CALL_TIMEOUT_MS = 150_000; // one Gemini call (a 20-minute window) is cut off after 2.5 min
 export const TRANSCRIBE_CONCURRENCY = 1;         // one Gemini call at a time …
 // … with a pause between calls, to stay under the 429 limit. A 20-minute video
 // is a large request, so the limit that bites is tokens per minute, not
 // requests: at 1.5 s the 3rd and 4th call of a batch drew 429s. 18 s keeps a
-// 4-video batch near three calls a minute (a run is ~1–4 min, well inside the
+// batch near three calls a minute (a 3-video run is ~1–3 min, well inside the
 // 11-min budget and the 15-min lock).
 export const TRANSCRIBE_CALL_DELAY_MS = 18_000;
 export const TRANSCRIBE_BUDGET_MS = 11 * 60_000; // stop starting new videos after this (15-min limit)
@@ -238,13 +248,21 @@ export function normaliseSegments(json) {
  *   { ok: true, segments, text }   (text = every segment, whoever speaks)
  *   { ok: false, error }
  */
-export async function transcribeVideo(videoId, { name, generate = geminiGenerate, model = TRANSCRIPT_MODEL, startSeconds = 0, maxSeconds = MAX_TRANSCRIBE_SECONDS } = {}) {
+export async function transcribeVideo(videoId, { name, generate = geminiGenerate, model = TRANSCRIPT_MODEL, startSeconds = 0, maxSeconds = MAX_TRANSCRIBE_SECONDS, timeoutMs = 0 } = {}) {
+  let timer = null;
   try {
-    const raw = normaliseSegments(await generate(startSeconds ? { videoId, name, model, startSeconds, maxSeconds } : { videoId, name, model }));
+    const call = generate(startSeconds ? { videoId, name, model, startSeconds, maxSeconds } : { videoId, name, model });
+    // A call that hangs is cut off (the run's time budget); it counts as a failed attempt.
+    const out = timeoutMs > 0
+      ? await Promise.race([call, new Promise((_, rej) => { timer = setTimeout(() => rej(new Error(`transcription call timed out after ${Math.round(timeoutMs / 1000)} s`)), timeoutMs); })])
+      : await call;
+    const raw = normaliseSegments(out);
     const segments = startSeconds ? windowToVideoSeconds(raw, startSeconds) : raw;
     return { ok: true, segments, text: segments.map((s) => s.text).join(" ") };
   } catch (e) {
     return { ok: false, error: oneLine(e?.message || e).slice(0, 300) || "transcription failed" };
+  } finally {
+    if (timer) clearTimeout(timer);
   }
 }
 
@@ -376,6 +394,8 @@ export function retranscribeSrcFromRecord(rec) {
 //   3. evidence need — no Locker evidence at all, then an open issue (band 0),
 //      then fully filled (band 1);
 //   4. newest first (published date, else when it was queued).
+// Between 1 and 2: an entry that works on a Word vs Action gap issue
+// (priority.gap, set by the raw-ingest cron) goes before one that does not.
 // Ties fall back to the queue key, so the order is deterministic.
 const HEARING_OR_FLOOR = /\b(?:hearings?|committee|subcommittee|markup|testif\w*|floor (?:speech|remarks|debate)|on (?:the )?(?:house |senate )?floor|house floor|senate floor|speaks on floor)\b/i;
 
@@ -402,6 +422,7 @@ export function queuePriority(entry, { tierOf = null } = {}) {
   const need = p.no_evidence === true ? 0 : Number(p.band) === 1 ? 2 : 1;
   return {
     kind: queueKindRank(entry),
+    gap: p.gap === true ? 0 : 1,
     tier: Number.isFinite(tier) && tier > 0 ? tier : 9,
     need,
     when: String(entry?.published || entry?.queued_at || ""),
@@ -412,7 +433,7 @@ export function queuePriority(entry, { tierOf = null } = {}) {
 export function orderQueue(rows, { tierOf = null } = {}) {
   return rows
     .map((r) => ({ ...r, p: queuePriority(r.entry, { tierOf }) }))
-    .sort((a, b) => (a.p.kind - b.p.kind) || (a.p.tier - b.p.tier) || (a.p.need - b.p.need) || b.p.when.localeCompare(a.p.when) || String(a.key).localeCompare(String(b.key)))
+    .sort((a, b) => (a.p.kind - b.p.kind) || (a.p.gap - b.p.gap) || (a.p.tier - b.p.tier) || (a.p.need - b.p.need) || b.p.when.localeCompare(a.p.when) || String(a.key).localeCompare(String(b.key)))
     .map(({ p, ...r }) => r);
 }
 
@@ -781,10 +802,11 @@ export async function processTranscriptQueue({
   max = TRANSCRIBE_PER_RUN, concurrency = TRANSCRIBE_CONCURRENCY, budgetMs = TRANSCRIBE_BUDGET_MS,
   now = () => new Date(), log = console.log, lock = true,
   callDelayMs = TRANSCRIBE_CALL_DELAY_MS, sleep = (ms) => new Promise((r) => setTimeout(r, ms)),
+  callTimeoutMs = TRANSCRIBE_CALL_TIMEOUT_MS, clock = Date.now,
 } = {}) {
-  const summary = { locked: false, picked: 0, transcribed: 0, cache_hits: 0, recorded: 0, no_own_speech: 0, failed: 0, retry_later: 0, remaining: 0, records: [] };
+  const summary = { locked: false, picked: 0, transcribed: 0, cache_hits: 0, recorded: 0, no_own_speech: 0, failed: 0, retry_later: 0, deferred: 0, remaining: 0, records: [] };
   if (!store) return summary;
-  const started = Date.now();
+  const started = clock();
   if (lock && !(await acquireLock(store, now().getTime()))) {
     summary.locked = true;
     log("video-transcribe: another run holds the worker lock — nothing to do");
@@ -806,9 +828,15 @@ export async function processTranscriptQueue({
     let callsMade = 0;
     let gate = Promise.resolve();
     summary.retranscribed = 0;
+    // A call never STARTS past the budget (checked after its pause): the
+    // video stays queued, untouched, for the next run.
+    const DEFERRED = { ok: false, deferred: true, error: "time budget reached before the call" };
     const throttled = (f) => {
       const run = gate.then(async () => {
-        if (callsMade++ > 0 && callDelayMs > 0) await sleep(callDelayMs);
+        if (clock() - started > budgetMs) return DEFERRED;
+        if (callsMade > 0 && callDelayMs > 0) await sleep(callDelayMs);
+        if (clock() - started > budgetMs) return DEFERRED;
+        callsMade++;
         return f();
       });
       gate = run.catch(() => {});
@@ -834,7 +862,12 @@ export async function processTranscriptQueue({
       if (doc) summary.cache_hits++;
       else {
         const name = entry.name || nameOf(pid);
-        const tr = await throttled(() => transcribeVideo(videoId, { name, generate }));
+        const tr = await throttled(() => transcribeVideo(videoId, { name, generate, timeoutMs: callTimeoutMs }));
+        if (tr.deferred) {
+          summary.deferred++;
+          log(`video-transcribe: DEFER ${pid} ${watchUrl(videoId)} — time budget reached; waits in the queue for the next run`);
+          return;
+        }
         let readTo = MAX_TRANSCRIBE_SECONDS, windowsRead = 1;
         // Hearings: little of the member in the first window → read the next ones.
         if (tr.ok && isHearingEntry(entry)) {
@@ -843,9 +876,10 @@ export async function processTranscriptQueue({
             const last = tr.segments[tr.segments.length - 1].t;
             if (own >= HEARING_MIN_OWN_SEGMENTS) break;
             if (last < readTo - 120) { log(`video-transcribe: HEARING ${pid} ${watchUrl(videoId)} — ${own} own segment(s), the video ends before ${Math.round(readTo / 60)} min; no further window`); break; }
-            if (Date.now() - started > budgetMs) { log(`video-transcribe: HEARING ${pid} ${watchUrl(videoId)} — time budget reached; no further window`); break; }
+            if (clock() - started > budgetMs) { log(`video-transcribe: HEARING ${pid} ${watchUrl(videoId)} — time budget reached; no further window`); break; }
             const startSeconds = readTo;
-            const more = await throttled(() => transcribeVideo(videoId, { name, generate, startSeconds, maxSeconds: MAX_TRANSCRIBE_SECONDS }));
+            const more = await throttled(() => transcribeVideo(videoId, { name, generate, startSeconds, maxSeconds: MAX_TRANSCRIBE_SECONDS, timeoutMs: callTimeoutMs }));
+            if (more.deferred) { log(`video-transcribe: HEARING ${pid} ${watchUrl(videoId)} — time budget reached; no further window`); break; }
             if (!more.ok) { log(`video-transcribe: HEARING ${pid} ${watchUrl(videoId)} — window ${Math.round(startSeconds / 60)}–${Math.round((startSeconds + MAX_TRANSCRIBE_SECONDS) / 60)} min failed (${more.error}); keeping what was read`); break; }
             windowsRead++;
             readTo = startSeconds + MAX_TRANSCRIBE_SECONDS;
@@ -904,11 +938,12 @@ export async function processTranscriptQueue({
       try { await store.delete(key); } catch {}
     };
     for (let i = 0; i < batch.length; i += concurrency) {
-      if (Date.now() - started > budgetMs) { log("video-transcribe: time budget reached — the rest waits for the next run"); break; }
+      if (clock() - started > budgetMs) { log("video-transcribe: time budget reached — the rest waits for the next run"); break; }
       await Promise.all(batch.slice(i, i + concurrency).map((k) => one(k).catch((e) => log(`video-transcribe: error on ${k.key} — ${e?.message || e}`))));
     }
     try { summary.remaining = ((await store.list({ prefix: "queue/" }))?.blobs || []).length; } catch {}
-    log(`video-transcribe: run — ${summary.picked} picked · ${summary.transcribed} transcribed · ${summary.cache_hits} from cache · ${summary.recorded} scored record(s) · ${summary.no_own_speech} without the politician's words · ${summary.retry_later} retry later · ${summary.failed} given up · ${summary.remaining} left in the queue`);
+    summary.elapsed_ms = clock() - started;
+    log(`video-transcribe: run — ${summary.picked} picked · ${summary.transcribed} transcribed · ${summary.cache_hits} from cache · ${summary.recorded} scored record(s) · ${summary.no_own_speech} without the politician's words · ${summary.retry_later} retry later · ${summary.failed} given up${summary.deferred ? ` · ${summary.deferred} deferred (time budget)` : ""} · ${summary.remaining} left in the queue · ${Math.round(summary.elapsed_ms / 1000)} s of the ${Math.round(budgetMs / 60_000)}-min budget`);
     return summary;
   } finally {
     if (lock) await releaseLock(store);

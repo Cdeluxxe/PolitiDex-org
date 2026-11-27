@@ -69,6 +69,7 @@ import { parseYouTubeFeed, youtubeFeedUrl, youtubeWatchUrl } from "./raw-ingest-
 import { topicHits, normUrl } from "./raw-ingest-fresh.mjs";
 import { hasRulesFor } from "./stance-score-core.mjs";
 import { describeFetchError } from "./raw-ingest-hosts.mjs";
+import { wordGapRank, GAP_RANK } from "./raw-ingest-word-gap.mjs";
 
 export const VIDEO_SPEECH_STATE_KEY = "video-speech-discovery.json";
 export const VIDEO_DISCOVERY_INTERVAL_MS = 60 * 60_000;   // one discovery pass per politician per hour
@@ -230,7 +231,7 @@ export function matchInstitutionalVideo(video, ch, members = [], { allowChair = 
  * them into frontier entries for the politician each is matched to.
  * Returns { checked, entries, sources }; never throws.
  */
-async function discoverInstitutional({ channels, members, st, at, fresh, fetch, youtubeKey, force, interval, log }) {
+async function discoverInstitutional({ channels, members, st, at, fresh, fetch, youtubeKey, force, interval, log, meter = null }) {
   const out = { checked: [], entries: [], sources: [] };
   if (!channels?.length || !members?.length) return out;
   const inFrontier = new Set(Object.values(fresh.frontier || {}).flat().map((e) => normUrl(e.url)));
@@ -240,7 +241,7 @@ async function discoverInstitutional({ channels, members, st, at, fresh, fetch, 
     return true;
   });
   if (!due.length) { log(`video/speech discovery: committee / conference channels — none due this pass (${channels.length} channel(s), checked hourly)`); return out; }
-  const results = await Promise.all(due.map((ch) => memberChannelVideos(ch, { fetch, youtubeKey }).then((r) => ({ ch, r }))));
+  const results = await Promise.all(due.map((ch) => memberChannelVideos(ch, { fetch, youtubeKey, meter }).then((r) => ({ ch, r }))));
   const taken = new Set();
   for (const { ch, r } of results) {
     out.checked.push(ch.channel_id);
@@ -443,7 +444,75 @@ async function fetchWithTimeout(fetch, url, init = {}) {
 // Error text with any key in a URL removed, so a key never reaches a log line.
 const safeErr = (e) => oneLine(e?.name === "TimeoutError" ? "timeout" : e?.message || e).replace(/([?&](?:key|api_key)=)[^&\s]+/gi, "$1…").slice(0, 200);
 
-async function memberChannelVideos(ch, { fetch, youtubeKey }) {
+// ── YouTube Data API units ─────────────────────────────────────────────────
+// Quota cost per request (YouTube Data API v3): search.list 100 units, any
+// *.list read (playlistItems.list here) 1 unit. A run counts what it sent
+// (a request is charged whether or not it succeeds) and logs one line,
+// "youtube-api: N units (search X, list Y)". The day's running total sits in
+// YOUTUBE_UNITS_STATE_KEY (rotation store), on the API's own day (midnight
+// Pacific, when the quota resets). Soft guard: once the day passes
+// YOUTUBE_SEARCH_GUARD_UNITS, new C-SPAN searches are skipped until the next
+// day; the 1-unit uploads fallback keeps running.
+export const YOUTUBE_UNIT_COST = { search: 100, list: 1 };
+export const YOUTUBE_SEARCH_GUARD_UNITS = 6_000;
+export const YOUTUBE_UNITS_STATE_KEY = "youtube-api-units.json";
+
+/** The YouTube quota day ("YYYY-MM-DD", America/Los_Angeles) of a Date. */
+export function youtubeQuotaDay(d = new Date()) {
+  try { return new Intl.DateTimeFormat("en-CA", { timeZone: "America/Los_Angeles", year: "numeric", month: "2-digit", day: "2-digit" }).format(d); }
+  catch { return new Date(d.getTime() - 8 * 3_600_000).toISOString().slice(0, 10); }
+}
+
+/**
+ * A per-run unit meter. `dayUnits` = units already used today before this run.
+ * `guard` = daily total past which new searches are skipped (0 / Infinity = off).
+ */
+export function createYoutubeMeter({ dayUnits = 0, day = null, guard = YOUTUBE_SEARCH_GUARD_UNITS } = {}) {
+  const m = {
+    day, day_before: Math.max(0, Number(dayUnits) || 0), guard,
+    search_calls: 0, list_calls: 0, search_skipped: 0,
+    get search() { return m.search_calls * YOUTUBE_UNIT_COST.search; },
+    get list() { return m.list_calls * YOUTUBE_UNIT_COST.list; },
+    get units() { return m.search + m.list; },
+    get day_units() { return m.day_before + m.units; },
+    charge(kind) { if (kind === "search") m.search_calls++; else m.list_calls++; },
+    canSearch() { return !(m.guard > 0 && Number.isFinite(m.guard)) || m.day_units + YOUTUBE_UNIT_COST.search <= m.guard; },
+    summary() { return { units: m.units, search: m.search, list: m.list, search_calls: m.search_calls, list_calls: m.list_calls, search_skipped: m.search_skipped, day: m.day, day_units: m.day_units, guard: m.guard }; },
+  };
+  return m;
+}
+
+/** The run's one summary line. */
+export function youtubeUnitsLine(meter) {
+  const s = meter?.summary ? meter.summary() : { units: 0, search: 0, list: 0, search_calls: 0, list_calls: 0, search_skipped: 0, day_units: 0 };
+  return `youtube-api: ${s.units} units (search ${s.search}, list ${s.list}) · ${s.search_calls} search call(s), ${s.list_calls} list call(s)`
+    + `${s.day ? ` · ${s.day_units} units today (${s.day} Pacific)` : ""}`
+    + `${s.search_skipped ? ` · ${s.search_skipped} C-SPAN search(es) skipped by the daily guard (≥ ${s.guard} units)` : ""}`;
+}
+
+/** Today's stored total ({ day, units, search, list }); a new day starts at 0. */
+export async function readYoutubeUnits(store, now = new Date()) {
+  const day = youtubeQuotaDay(now);
+  const empty = { day, units: 0, search: 0, list: 0 };
+  if (!store) return empty;
+  try {
+    let d = await store.get(YOUTUBE_UNITS_STATE_KEY, { type: "json" });
+    if (typeof d === "string") { try { d = JSON.parse(d); } catch { d = null; } }
+    if (!d || d.day !== day) return empty;
+    return { day, units: Number(d.units) || 0, search: Number(d.search) || 0, list: Number(d.list) || 0 };
+  } catch { return empty; }
+}
+
+/** Add this run's units to today's total. Never throws. */
+export async function saveYoutubeUnits(store, meter, { now = new Date(), log = console.log } = {}) {
+  if (!store || !meter || !meter.units) return;
+  try {
+    const cur = await readYoutubeUnits(store, now);
+    await store.setJSON(YOUTUBE_UNITS_STATE_KEY, { day: cur.day, units: cur.units + meter.units, search: cur.search + meter.search, list: cur.list + meter.list, updated_at: now.toISOString() });
+  } catch (e) { log(`youtube-api: daily total not saved — ${safeErr(e)}`); }
+}
+
+async function memberChannelVideos(ch, { fetch, youtubeKey, meter = null }) {
   try {
     const res = await fetchWithTimeout(fetch, youtubeFeedUrl(ch.channel_id), { headers: { accept: "application/atom+xml,application/xml,*/*" } });
     const body = await res.text();
@@ -456,6 +525,7 @@ async function memberChannelVideos(ch, { fetch, youtubeKey }) {
     // Uploads playlist of a channel is its id with the "UC" prefix swapped for "UU".
     try {
       const pl = "UU" + ch.channel_id.slice(2);
+      meter?.charge("list");
       const res = await fetchWithTimeout(fetch, `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=${VIDEO_DISCOVERY_PER_SOURCE}&playlistId=${encodeURIComponent(pl)}&key=${encodeURIComponent(youtubeKey)}`);
       if (!res.ok) throw new Error(`YouTube Data API HTTP ${res.status}`);
       const json = await res.json();
@@ -468,9 +538,14 @@ async function memberChannelVideos(ch, { fetch, youtubeKey }) {
   }
 }
 
-async function searchChannelVideos(ch, { fetch, youtubeKey }) {
+async function searchChannelVideos(ch, { fetch, youtubeKey, meter = null }) {
   if (!youtubeKey) return { items: [], skipped: "YouTube Data API key (YOUTUBE_API_KEY) not set" };
+  if (meter && !meter.canSearch()) {
+    meter.search_skipped++;
+    return { items: [], skipped: `daily YouTube API guard — ${meter.day_units} units used today (guard ${meter.guard}); new searches wait for the next quota day` };
+  }
   try {
+    meter?.charge("search");
     const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&order=date&maxResults=${VIDEO_DISCOVERY_PER_SOURCE}&channelId=${encodeURIComponent(ch.channel_id)}&q=${encodeURIComponent(ch.query)}&key=${encodeURIComponent(youtubeKey)}`;
     const res = await fetchWithTimeout(fetch, url);
     if (!res.ok) throw new Error(`YouTube Data API HTTP ${res.status}`);
@@ -536,9 +611,10 @@ export async function discoverVideoSpeech({
   politicians = [], fresh, fetch, store = null, state = null, now = () => new Date(), log = console.log,
   youtubeKey = process.env.YOUTUBE_API_KEY || "", govinfoKey = process.env.GOVINFO_API_KEY || process.env.CONGRESS_GOV_API_KEY || "",
   force = false, interval = VIDEO_DISCOVERY_INTERVAL_MS, mergeFrontier, configs = null,
-  institutional = null,
+  institutional = null, youtubeMeter = null,
 } = {}) {
   const out = { checked: [], added: 0, entries: [], sources: [], channels_checked: [] };
+  const meter = youtubeMeter;
   if (!fresh || typeof fetch !== "function") return out;
   const st = state ? { last: { ...(state.last || {}) } } : await readVideoSpeechState(store);
   const at = now();
@@ -553,12 +629,12 @@ export async function discoverVideoSpeech({
     const cfg = videoSpeechConfigFor(pid, configs);
     out.checked.push(pid);
     const jobs = [
-      ...cfg.youtube_channels.map((ch) => memberChannelVideos(ch, { fetch, youtubeKey }).then((r) => ({ r, source: `YouTube ${ch.label} ${ch.handle || ch.channel_id}`, make: (v) => entry(pid, cfg, {
+      ...cfg.youtube_channels.map((ch) => memberChannelVideos(ch, { fetch, youtubeKey, meter }).then((r) => ({ r, source: `YouTube ${ch.label} ${ch.handle || ch.channel_id}`, make: (v) => entry(pid, cfg, {
         url: youtubeWatchUrl(v.video_id), source_class: "youtube_video",
         source_type: `official YouTube video (own channel) — ${speechKindOf(v.title)}`,
         title: v.title, published: v.published, found_from: youtubeFeedUrl(ch.channel_id), kind: speechKindOf(v.title), rank: 6, now: at,
       }) }))),
-      ...cfg.search_channels.map((ch) => searchChannelVideos(ch, { fetch, youtubeKey }).then((r) => ({ r, source: `YouTube ${ch.label} search "${ch.query}"`, make: (v) => entry(pid, cfg, {
+      ...cfg.search_channels.map((ch) => searchChannelVideos(ch, { fetch, youtubeKey, meter }).then((r) => ({ r, source: `YouTube ${ch.label} search "${ch.query}"`, make: (v) => entry(pid, cfg, {
         url: youtubeWatchUrl(v.video_id), source_class: "youtube_video",
         source_type: cspanSourceType(cfg.chamber, speechKindOf(v.title)),
         title: v.title, published: v.published, found_from: `youtube:${ch.channel_id}?q=${ch.query}`, kind: speechKindOf(v.title), rank: 6, now: at,
@@ -596,7 +672,7 @@ export async function discoverVideoSpeech({
   if (institutional) {
     const inst = await discoverInstitutional({
       channels: institutional.channels || INSTITUTIONAL_CHANNELS, members: institutional.members || [],
-      st, at, fresh, fetch, youtubeKey, force, interval, log,
+      st, at, fresh, fetch, youtubeKey, force, interval, log, meter,
     });
     out.channels_checked = inst.checked;
     out.sources.push(...inst.sources);
@@ -613,6 +689,7 @@ export async function discoverVideoSpeech({
     catch (e) { log(`video/speech discovery: state not saved — ${safeErr(e)}`); }
   }
   out.state = st;
+  if (meter) out.youtube_api = meter.summary();
   return out;
 }
 
@@ -655,27 +732,43 @@ export function addVideoSpeechSources(sources, fresh, { politicians = [], max, p
 // ── Video priority lane ────────────────────────────────────────────────────
 // Parallel to the priority-newsroom lane (raw-ingest-core.mjs, planRun): up to
 // VIDEO_LANE_PER_RUN slots of every run are RESERVED for video / speech
-// frontier entries of high-value members — tier 1, or no Locker evidence at
-// all — whether or not the rotation planned them this run. The cron plans the
-// rest of the run under the cap minus the reserved slots, so leftover-slot
-// behaviour (addVideoSpeechSources, then fresh pages) is unchanged for
-// everyone else.
+// frontier entries of high-value members — tier 1, tier 2, or no Locker
+// evidence at all — whether or not the rotation planned them this run. The
+// cron plans the rest of the run under the cap minus the reserved slots, so
+// leftover-slot behaviour (addVideoSpeechSources, then fresh pages) is
+// unchanged for everyone else.
+//   · COVERAGE TARGETS (VIDEO_LANE_TARGETS). Tier-1 members stay in the lane
+//     until they hold 5–8 video / official-speech Locker items, tier-2
+//     members 3–5. Below the low end a member is always under target; between
+//     the ends they stay only while a Word vs Action GAP entry is waiting (an
+//     issue with a formal record — votes, sponsorships — but no stated
+//     position yet, raw-ingest-word-gap.mjs): the video can supply the missing
+//     word. At the high end, or after VIDEO_LANE_SLOT_FACTOR × the high end
+//     lane slots (videos that keep yielding nothing), they leave the lane.
+//     Zero-evidence members of other tiers keep the earlier rule: they leave
+//     after VIDEO_LANE_COVERED lane slots (or once they have any evidence).
 //   · Candidates: lane members with an unfetched video / speech entry in their
 //     frontier (committee, C-SPAN, official or campaign video, floor speech,
 //     hearing transcript), not already in the pull list, not waiting in the
 //     transcript queue (a queued video would only re-occupy the slot).
-//   · Order: no evidence first, then members holding a hearing / floor item,
-//     then tier, then roster order; one member per slot, in a lap
-//     (`lap_done`, reset when everyone with an entry had a turn). Inside a
-//     member: hearing / floor first, then C-SPAN / committee, official,
-//     campaign; newest first. A spare slot goes to a picked member's next entry.
-//   · Coverage: each lane slot given is counted per member (`given`); after
-//     VIDEO_LANE_COVERED slots a member drops out of the lane and is served by
-//     the normal leftover slots, like a newsroom member once they have evidence.
-// State: VIDEO_LANE_STATE_KEY in the rotation store ({ lap_done, given }).
+//   · Member order: the member the lane is working on (`focus`) keeps every
+//     slot it can fill until they reach their target or their frontier is
+//     empty; then no evidence first, then members with a gap entry waiting,
+//     then tier, then members holding a hearing / floor item, then roster
+//     order. Spare slots go to the next member in that order.
+//   · Entry order inside a member: gap entries first, then hearing / floor,
+//     C-SPAN / committee, official, campaign; newest first.
+// State: VIDEO_LANE_STATE_KEY in the rotation store ({ focus, given }).
 export const VIDEO_LANE_PER_RUN = 2;
 export const VIDEO_LANE_COVERED = 3;
 export const VIDEO_LANE_STATE_KEY = "video-lane.json";
+export const VIDEO_LANE_TARGETS = Object.freeze({ 1: Object.freeze({ min: 5, max: 8 }), 2: Object.freeze({ min: 3, max: 5 }) });
+export const VIDEO_LANE_SLOT_FACTOR = 3;
+
+/** The coverage target of a roster tier, or null (no item target for that tier). */
+export function videoLaneTarget(tier, targets = VIDEO_LANE_TARGETS) {
+  return targets?.[Number(tier)] || null;
+}
 
 /** 0 hearing / floor · 1 C-SPAN or committee / conference · 2 official · 3 campaign. */
 export function videoEntryRank(e) {
@@ -687,11 +780,16 @@ export function videoEntryRank(e) {
   return 2;
 }
 
+/** True when a frontier entry works on one of the member's Word vs Action gap issues. */
+export function isWvaGapEntry(e, wordGaps) {
+  return !!wordGaps && !!e && wordGapRank(e, wordGaps) === GAP_RANK;
+}
+
 /** A stored lane state, normalised. */
 export function normaliseVideoLaneState(doc) {
   const given = {};
   for (const [k, v] of Object.entries(doc?.given || {})) if (Number(v) > 0) given[k] = Math.trunc(Number(v));
-  return { lap_done: Array.isArray(doc?.lap_done) ? doc.lap_done.map(String) : [], given };
+  return { focus: doc?.focus ? String(doc.focus) : null, given };
 }
 
 const evidenceIn = (counts, pid) => {
@@ -699,9 +797,37 @@ const evidenceIn = (counts, pid) => {
   for (const [k, c] of Object.entries(counts || {})) if (k.startsWith(pre) && ((Number(c?.strong) || 0) + (Number(c?.weak) || 0)) > 0) return true;
   return false;
 };
+const videoItemsOf = (videoItems, pid) => {
+  const v = videoItems?.[pid];
+  return Math.max(0, Number(typeof v === "object" && v ? v.items : v) || 0);
+};
 
-/** Lane members: tier-1 or zero-evidence roster politicians not yet covered → [{ politician_id, tier, no_evidence, i }]. */
-export function videoLaneMembers(roster = [], { counts = {}, state = null, covered = VIDEO_LANE_COVERED } = {}) {
+/**
+ * One member's standing against their coverage target →
+ * { target, items, given, under, reason }. `gapWaiting` says whether a gap
+ * entry is waiting in their frontier. Members without an item target (tier 3+)
+ * use the slot rule (VIDEO_LANE_COVERED).
+ */
+export function videoLaneStatus({ tier, items = 0, given = 0, gapWaiting = false, targets = VIDEO_LANE_TARGETS, covered = VIDEO_LANE_COVERED, slotFactor = VIDEO_LANE_SLOT_FACTOR } = {}) {
+  const target = videoLaneTarget(tier, targets);
+  if (!target) {
+    const under = given < covered;
+    return { target: null, items, given, under, reason: under ? "below the slot rule" : `covered (${covered} lane slots)` };
+  }
+  if (items >= target.max) return { target, items, given, under: false, reason: `target reached (${items} ≥ ${target.max} items)` };
+  if (given >= target.max * slotFactor) return { target, items, given, under: false, reason: `slot budget spent (${given} lane slots, ${items} item(s))` };
+  if (items < target.min) return { target, items, given, under: true, reason: `below target (${items} of ${target.min}–${target.max} items)` };
+  if (gapWaiting) return { target, items, given, under: true, reason: `gap item waiting (${items} of ${target.min}–${target.max} items)` };
+  return { target, items, given, under: false, reason: `target reached (${items} ≥ ${target.min} items, no gap item waiting)` };
+}
+
+/**
+ * Lane members: tier-1 / tier-2 members under their coverage target, and
+ * zero-evidence members of other tiers not yet covered →
+ * [{ politician_id, tier, no_evidence, i, status }].
+ * `videoItems` maps pid → video / official-speech Locker items (strong / weak).
+ */
+export function videoLaneMembers(roster = [], { counts = {}, state = null, covered = VIDEO_LANE_COVERED, videoItems = {}, gapWaiting = null, targets = VIDEO_LANE_TARGETS } = {}) {
   const st = normaliseVideoLaneState(state);
   const out = [], seen = new Set();
   (roster || []).forEach((r, i) => {
@@ -710,59 +836,91 @@ export function videoLaneMembers(roster = [], { counts = {}, state = null, cover
     seen.add(pid);
     const tier = Number(r.tier);
     const no_evidence = !evidenceIn(counts, pid);
-    if (!(tier === 1 || no_evidence)) return;
-    if ((st.given[pid] || 0) >= covered) return;
-    out.push({ politician_id: pid, tier: Number.isFinite(tier) && tier > 0 ? tier : 9, no_evidence, i });
+    const target = videoLaneTarget(tier, targets);
+    if (!(target || no_evidence)) return;
+    const status = videoLaneStatus({ tier, items: videoItemsOf(videoItems, pid), given: st.given[pid] || 0, gapWaiting: typeof gapWaiting === "function" ? !!gapWaiting(pid) : false, targets, covered });
+    if (!status.under) return;
+    out.push({ politician_id: pid, tier: Number.isFinite(tier) && tier > 0 ? tier : 9, no_evidence, i, status });
   });
   return out;
 }
 
 /**
  * Plan this run's video lane. Never throws. Returns { picks, reserved,
- * members, eligible, covered, state } — `picks` are pull-list sources (each
- * marked video_lane: true), `state` the lane state to persist.
- * `known` (normalised URLs already in the pull list) and `pendingVideoIds`
- * (ids waiting in the transcript queue) are skipped.
+ * members, eligible, covered, targets, state } — `picks` are pull-list
+ * sources (each marked video_lane: true, and wva_gap: true when they work on a
+ * gap issue), `targets` the tier-1 / tier-2 tally, `state` the lane state to
+ * persist. `known` (normalised URLs already in the pull list) and
+ * `pendingVideoIds` (ids waiting in the transcript queue) are skipped.
  */
 export function planVideoLane(fresh, {
   roster = [], counts = {}, state = null, perRun = VIDEO_LANE_PER_RUN, covered = VIDEO_LANE_COVERED,
   known = new Set(), pendingVideoIds = new Set(), configs = null, log = console.log,
+  videoItems = {}, wordGaps = null, targets = VIDEO_LANE_TARGETS,
 } = {}) {
   const st = normaliseVideoLaneState(state);
-  const out = { picks: [], reserved: 0, members: [], eligible: [], covered: Object.keys(st.given).filter((p) => st.given[p] >= covered).sort(), state: st };
-  if (!fresh?.frontier || !(perRun > 0)) return out;
+  const out = { picks: [], reserved: 0, members: [], eligible: [], covered: [], targets: null, state: st };
   const vid = (u) => (/[?&]v=([A-Za-z0-9_-]{11})/.exec(String(u || "")) || [])[1] || null;
+  const open = (pid) => (fresh?.frontier?.[pid] || []).filter((e) => isVideoSpeechEntry(e))
+    .filter((e) => { const u = normUrl(e.url); const id = vid(e.url); return !known.has(u) && !fresh.seen?.[u] && !(id && pendingVideoIds.has(id)); });
+  const gapWaiting = (pid) => !!wordGaps?.[pid] && open(pid).some((e) => isWvaGapEntry(e, wordGaps));
+  // Tier-1 / tier-2 standing (logged every run) and who has left the lane.
+  const tally = { 1: { members: 0, under: 0, reached: 0 }, 2: { members: 0, under: 0, reached: 0 } };
+  const seen = new Set();
+  for (const r of roster || []) {
+    const pid = String(r?.politician_id || "");
+    if (!pid || seen.has(pid)) continue;
+    seen.add(pid);
+    const tier = Number(r.tier);
+    const target = videoLaneTarget(tier, targets);
+    if (target) {
+      const s = videoLaneStatus({ tier, items: videoItemsOf(videoItems, pid), given: st.given[pid] || 0, gapWaiting: gapWaiting(pid), targets, covered });
+      const t = tally[tier] || (tally[tier] = { members: 0, under: 0, reached: 0 });
+      t.members++;
+      if (s.under) t.under++; else { t.reached++; out.covered.push(pid); }
+    } else if ((st.given[pid] || 0) >= covered) out.covered.push(pid);
+  }
+  out.covered.sort();
+  out.targets = { tier1: { ...tally[1], ...(targets?.[1] || {}) }, tier2: { ...tally[2], ...(targets?.[2] || {}) } };
+  const targetLine = () => log(`video-lane: targets — tier 1: ${tally[1].under} of ${tally[1].members} member(s) under target (${targets?.[1]?.min}–${targets?.[1]?.max} video/speech items) · tier 2: ${tally[2].under} of ${tally[2].members} under target (${targets?.[2]?.min}–${targets?.[2]?.max})`);
+  if (!fresh?.frontier || !(perRun > 0)) { targetLine(); return out; }
   const candidates = [];
-  for (const m of videoLaneMembers(roster, { counts, state: st, covered })) {
-    const entries = (fresh.frontier[m.politician_id] || []).filter((e) => isVideoSpeechEntry(e))
-      .filter((e) => { const u = normUrl(e.url); const id = vid(e.url); return !known.has(u) && !fresh.seen?.[u] && !(id && pendingVideoIds.has(id)); })
-      .sort((a, b) => (videoEntryRank(a) - videoEntryRank(b)) || String(b.published || b.found_at || "").localeCompare(String(a.published || a.found_at || "")));
-    if (entries.length) candidates.push({ ...m, entries, hearing: videoEntryRank(entries[0]) === 0 });
+  for (const m of videoLaneMembers(roster, { counts, state: st, covered, videoItems, gapWaiting, targets })) {
+    const entries = open(m.politician_id)
+      .map((e) => ({ e, gap: isWvaGapEntry(e, wordGaps) }))
+      .sort((a, b) => (Number(b.gap) - Number(a.gap)) || (videoEntryRank(a.e) - videoEntryRank(b.e)) || String(b.e.published || b.e.found_at || "").localeCompare(String(a.e.published || a.e.found_at || "")));
+    if (entries.length) candidates.push({ ...m, entries, gap: entries[0].gap, hearing: entries.some((x) => videoEntryRank(x.e) === 0) });
   }
   out.eligible = candidates.map((c) => c.politician_id);
-  if (!candidates.length) return out;
-  candidates.sort((a, b) => (Number(b.no_evidence) - Number(a.no_evidence)) || (Number(b.hearing) - Number(a.hearing)) || (a.tier - b.tier) || (a.i - b.i));
-  let lap = new Set(st.lap_done.filter((p) => out.eligible.includes(p)));
-  if (candidates.every((c) => lap.has(c.politician_id))) lap = new Set();
-  const turn = [...candidates.filter((c) => !lap.has(c.politician_id)), ...candidates.filter((c) => lap.has(c.politician_id))];
-  const chosen = turn.slice(0, perRun);
-  const take = (c, e) => {
-    const { rank, found_from, found_at, attempts, ...src } = e;
+  if (!candidates.length) {
+    out.state = { focus: null, given: st.given };
+    targetLine();
+    log(`video-lane: 0 of ${perRun} reserved slot(s) used · no high-value member under target with video waiting · ${out.covered.length} at target / covered`);
+    return out;
+  }
+  candidates.sort((a, b) => (Number(b.politician_id === st.focus) - Number(a.politician_id === st.focus))
+    || (Number(b.no_evidence) - Number(a.no_evidence)) || (Number(b.gap) - Number(a.gap)) || (a.tier - b.tier) || (Number(b.hearing) - Number(a.hearing)) || (a.i - b.i));
+  const take = (c, x) => {
+    const { rank, found_from, found_at, attempts, ...src } = x.e;
     const relabel = relabelCspanSourceType(src.source_type, videoSpeechConfigFor(c.politician_id, configs)?.chamber ?? null);
     if (relabel) src.source_type = relabel;
-    out.picks.push({ ...src, video_lane: true });
+    out.picks.push({ ...src, video_lane: true, ...(x.gap ? { wva_gap: true } : {}) });
   };
-  for (const c of chosen) take(c, c.entries.shift());
-  // A spare slot (fewer members than slots) goes to a chosen member's next entry.
-  for (const c of chosen) if (out.picks.length < perRun && c.entries.length) take(c, c.entries.shift());
+  // The focus member (else the first in order) fills every slot it can, then the next member.
+  for (const c of candidates) {
+    while (out.picks.length < perRun && c.entries.length) take(c, c.entries.shift());
+    if (out.picks.length >= perRun) break;
+  }
   out.reserved = out.picks.length;
   out.members = [...new Set(out.picks.map((p) => p.politician_id))];
   const given = { ...st.given };
   for (const p of out.picks) given[p.politician_id] = (given[p.politician_id] || 0) + 1;
-  for (const p of out.members) lap.add(p);
-  out.state = { lap_done: [...lap].sort(), given };
-  for (const p of out.picks) log(`video-lane: SLOT ${p.politician_id}|${p.topic} ${p.url} (${p.source_class} · ${p.speech_kind || "video/speech"} · ${p.source_type}) — reserved video slot`);
-  log(`video-lane: ${out.reserved} of ${perRun} reserved slot(s) used · ${out.eligible.length} high-value member(s) with video waiting · ${out.covered.length} covered (left the lane after ${covered} slots)`);
+  // The member served first stays the focus while they are under target with
+  // entries left; the next run otherwise moves on (re-checked against targets).
+  out.state = { focus: out.members[0] || null, given };
+  for (const p of out.picks) log(`video-lane: SLOT ${p.politician_id}|${p.topic} ${p.url} (${p.source_class} · ${p.speech_kind || "video/speech"} · ${p.source_type}${p.wva_gap ? " · Word vs Action gap issue" : ""}) — reserved video slot (${candidates.find((c) => c.politician_id === p.politician_id)?.status?.reason || "in the lane"})`);
+  targetLine();
+  log(`video-lane: ${out.reserved} of ${perRun} reserved slot(s) used · ${out.picks.filter((p) => p.wva_gap).length} on a gap issue · ${out.eligible.length} high-value member(s) under target with video waiting · ${out.covered.length} at target / covered`);
   return out;
 }
 
