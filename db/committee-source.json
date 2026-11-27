@@ -1,6 +1,6 @@
 {
  "_comment": "WRITTEN by scripts/gen-committees.mjs --fetch from the official membership files — do not edit by hand. house: the House Clerk's MemberData.xml (assignments [code, rank, leadership title as printed]); senate: the Senate LIS cvc_member_data.xml (assignments [code, null, null]; the file carries no titles). Members keyed by bioguide id.",
- "fetchedOn": "2026-11-19",
+ "fetchedOn": "2026-11-27",
  "house": {
   "committees": {
    "AG00": {
@@ -14421,12 +14421,12 @@
   "members": {
    "A000382": [
     [
-     "SSEV00",
+     "SSHR00",
      null,
      null
     ],
     [
-     "SPAG00",
+     "SSEV00",
      null,
      null
     ],
@@ -14436,31 +14436,31 @@
      null
     ],
     [
-     "SSHR00",
+     "SPAG00",
      null,
      null
     ]
    ],
    "A000383": [
     [
-     "SLIA00",
+     "SSHR00",
      null,
      null
     ],
     [
-     "SSHR00",
+     "SLIA00",
      null,
      null
     ]
    ],
    "B001230": [
     [
-     "SSHR00",
+     "SSCM00",
      null,
      null
     ],
     [
-     "SSCM00",
+     "SSHR00",
      null,
      null
     ],
@@ -14477,17 +14477,7 @@
      null
     ],
     [
-     "JCSE00",
-     null,
-     null
-    ],
-    [
      "SSAF00",
-     null,
-     null
-    ],
-    [
-     "SSAP00",
      null,
      null
     ],
@@ -14500,16 +14490,21 @@
      "SSRA00",
      null,
      null
+    ],
+    [
+     "JCSE00",
+     null,
+     null
+    ],
+    [
+     "SSAP00",
+     null,
+     null
     ]
    ],
    "B001243": [
     [
      "SSJU00",
-     null,
-     null
-    ],
-    [
-     "JSEC00",
      null,
      null
     ],
@@ -14527,6 +14522,11 @@
      "SSVA00",
      null,
      null
+    ],
+    [
+     "JSEC00",
+     null,
+     null
     ]
    ],
    "B001261": [
@@ -14536,19 +14536,19 @@
      null
     ],
     [
-     "SSEG00",
+     "SSFI00",
      null,
      null
     ],
     [
-     "SSFI00",
+     "SSEG00",
      null,
      null
     ]
    ],
    "B001267": [
     [
-     "SLIN00",
+     "SSFI00",
      null,
      null
     ],
@@ -14558,12 +14558,12 @@
      null
     ],
     [
-     "SSFI00",
+     "SSRA00",
      null,
      null
     ],
     [
-     "SSRA00",
+     "SLIN00",
      null,
      null
     ]
@@ -14575,17 +14575,7 @@
      null
     ],
     [
-     "SCNC00",
-     null,
-     null
-    ],
-    [
      "SSGA00",
-     null,
-     null
-    ],
-    [
-     "SSAS00",
      null,
      null
     ],
@@ -14593,16 +14583,26 @@
      "SSVA00",
      null,
      null
-    ]
-   ],
-   "B001288": [
+    ],
     [
-     "SSFR00",
+     "SCNC00",
      null,
      null
     ],
     [
+     "SSAS00",
+     null,
+     null
+    ]
+   ],
+   "B001288": [
+    [
      "SSJU00",
+     null,
+     null
+    ],
+    [
+     "SSFR00",
      null,
      null
     ],
@@ -14619,12 +14619,12 @@
    ],
    "B001299": [
     [
-     "SSBK00",
+     "SSHR00",
      null,
      null
     ],
     [
-     "SSHR00",
+     "SSVA00",
      null,
      null
     ],
@@ -14634,12 +14634,22 @@
      null
     ],
     [
-     "SSVA00",
+     "SSBK00",
      null,
      null
     ]
    ],
    "B001303": [
+    [
+     "SSCM00",
+     null,
+     null
+    ],
+    [
+     "SSHR00",
+     null,
+     null
+    ],
     [
      "SSEV00",
      null,
@@ -14649,21 +14659,16 @@
      "SSBK00",
      null,
      null
-    ],
-    [
-     "SSHR00",
-     null,
-     null
-    ],
-    [
-     "SSCM00",
-     null,
-     null
     ]
    ],
    "B001305": [
     [
-     "SLIN00",
+     "SSCM00",
+     null,
+     null
+    ],
+    [
+     "SSSB00",
      null,
      null
     ],
@@ -14673,17 +14678,12 @@
      null
     ],
     [
-     "SSCM00",
-     null,
-     null
-    ],
-    [
      "SSAS00",
      null,
      null
     ],
     [
-     "SSSB00",
+     "SLIN00",
      null,
      null
     ]
@@ -14695,12 +14695,12 @@
      null
     ],
     [
-     "JCSE00",
+     "SSRA00",
      null,
      null
     ],
     [
-     "SSBK00",
+     "JCSE00",
      null,
      null
     ],
@@ -14710,24 +14710,19 @@
      null
     ],
     [
-     "SSRA00",
+     "SSBK00",
      null,
      null
     ]
    ],
    "C000127": [
     [
-     "SLIA00",
-     null,
-     null
-    ],
-    [
-     "JSTX00",
-     null,
-     null
-    ],
-    [
      "SSCM00",
+     null,
+     null
+    ],
+    [
+     "SSFI00",
      null,
      null
     ],
@@ -14737,19 +14732,7 @@
      null
     ],
     [
-     "SSFI00",
-     null,
-     null
-    ],
-    [
      "SSSB00",
-     null,
-     null
-    ]
-   ],
-   "C000880": [
-    [
-     "SSBU00",
      null,
      null
     ],
@@ -14759,63 +14742,19 @@
      null
     ],
     [
-     "SSBK00",
+     "SLIA00",
      null,
      null
-    ],
+    ]
+   ],
+   "C000880": [
     [
      "SSFI00",
      null,
      null
-    ]
-   ],
-   "C001035": [
-    [
-     "SLIN00",
-     null,
-     null
     ],
     [
-     "SSHR00",
-     null,
-     null
-    ],
-    [
-     "SSAP00",
-     null,
-     null
-    ]
-   ],
-   "C001047": [
-    [
-     "SSEV00",
-     null,
-     null
-    ],
-    [
-     "SSCM00",
-     null,
-     null
-    ],
-    [
-     "SSAP00",
-     null,
-     null
-    ],
-    [
-     "SSRA00",
-     null,
-     null
-    ]
-   ],
-   "C001056": [
-    [
-     "SSFR00",
-     null,
-     null
-    ],
-    [
-     "SSJU00",
+     "JSTX00",
      null,
      null
     ],
@@ -14825,7 +14764,63 @@
      null
     ],
     [
+     "SSBK00",
+     null,
+     null
+    ]
+   ],
+   "C001035": [
+    [
+     "SSHR00",
+     null,
+     null
+    ],
+    [
+     "SSAP00",
+     null,
+     null
+    ],
+    [
      "SLIN00",
+     null,
+     null
+    ]
+   ],
+   "C001047": [
+    [
+     "SSCM00",
+     null,
+     null
+    ],
+    [
+     "SSEV00",
+     null,
+     null
+    ],
+    [
+     "SSRA00",
+     null,
+     null
+    ],
+    [
+     "SSAP00",
+     null,
+     null
+    ]
+   ],
+   "C001056": [
+    [
+     "SSJU00",
+     null,
+     null
+    ],
+    [
+     "SSFR00",
+     null,
+     null
+    ],
+    [
+     "SSFI00",
      null,
      null
     ],
@@ -14840,7 +14835,12 @@
      null
     ],
     [
-     "SSFI00",
+     "SSBU00",
+     null,
+     null
+    ],
+    [
+     "SLIN00",
      null,
      null
     ]
@@ -14852,12 +14852,12 @@
      null
     ],
     [
-     "SSEG00",
+     "SSFI00",
      null,
      null
     ],
     [
-     "SSFI00",
+     "SSEG00",
      null,
      null
     ],
@@ -14869,12 +14869,17 @@
    ],
    "C001088": [
     [
+     "SSJU00",
+     null,
+     null
+    ],
+    [
      "SSFR00",
      null,
      null
     ],
     [
-     "SSJU00",
+     "SSSB00",
      null,
      null
     ],
@@ -14887,16 +14892,11 @@
      "SSAP00",
      null,
      null
-    ],
-    [
-     "SSSB00",
-     null,
-     null
     ]
    ],
    "C001095": [
     [
-     "SLIN00",
+     "SSEG00",
      null,
      null
     ],
@@ -14906,12 +14906,12 @@
      null
     ],
     [
-     "SSEG00",
+     "SSAS00",
      null,
      null
     ],
     [
-     "SSAS00",
+     "SLIN00",
      null,
      null
     ]
@@ -14923,7 +14923,7 @@
      null
     ],
     [
-     "SSBK00",
+     "SSVA00",
      null,
      null
     ],
@@ -14933,19 +14933,19 @@
      null
     ],
     [
-     "SSVA00",
+     "SSBK00",
      null,
      null
     ]
    ],
    "C001098": [
     [
-     "SSFR00",
+     "SSJU00",
      null,
      null
     ],
     [
-     "SSJU00",
+     "SSFR00",
      null,
      null
     ],
@@ -14962,12 +14962,7 @@
    ],
    "C001113": [
     [
-     "SLIA00",
-     null,
-     null
-    ],
-    [
-     "SSBK00",
+     "SSFI00",
      null,
      null
     ],
@@ -14977,17 +14972,17 @@
      null
     ],
     [
-     "SSFI00",
+     "SLIA00",
+     null,
+     null
+    ],
+    [
+     "SSBK00",
      null,
      null
     ]
    ],
    "C001114": [
-    [
-     "SSEV00",
-     null,
-     null
-    ],
     [
      "SSFR00",
      null,
@@ -14995,6 +14990,11 @@
     ],
     [
      "SSCM00",
+     null,
+     null
+    ],
+    [
+     "SSEV00",
      null,
      null
     ],
@@ -15028,7 +15028,7 @@
      null
     ],
     [
-     "SLIA00",
+     "SSFI00",
      null,
      null
     ],
@@ -15038,7 +15038,7 @@
      null
     ],
     [
-     "SSFI00",
+     "SLIA00",
      null,
      null
     ]
@@ -15055,34 +15055,34 @@
      null
     ],
     [
-     "SSAS00",
+     "SSVA00",
      null,
      null
     ],
     [
-     "SSVA00",
+     "SSAS00",
      null,
      null
     ]
    ],
    "E000295": [
     [
-     "SSAF00",
-     null,
-     null
-    ],
-    [
      "SSGA00",
      null,
      null
     ],
     [
-     "SSAS00",
+     "SSAF00",
      null,
      null
     ],
     [
      "SSSB00",
+     null,
+     null
+    ],
+    [
+     "SSAS00",
      null,
      null
     ]
@@ -15094,7 +15094,17 @@
      null
     ],
     [
-     "JSLC00",
+     "SSCM00",
+     null,
+     null
+    ],
+    [
+     "SSAF00",
+     null,
+     null
+    ],
+    [
+     "SSRA00",
      null,
      null
     ],
@@ -15109,12 +15119,7 @@
      null
     ],
     [
-     "SSAF00",
-     null,
-     null
-    ],
-    [
-     "SSCM00",
+     "JSLC00",
      null,
      null
     ],
@@ -15127,21 +15132,11 @@
      "SSAS00",
      null,
      null
-    ],
-    [
-     "SSRA00",
-     null,
-     null
     ]
    ],
    "F000479": [
     [
-     "JCSE00",
-     null,
-     null
-    ],
-    [
-     "SSAF00",
+     "SSCM00",
      null,
      null
     ],
@@ -15151,7 +15146,12 @@
      null
     ],
     [
-     "SSCM00",
+     "SSAF00",
+     null,
+     null
+    ],
+    [
+     "JCSE00",
      null,
      null
     ]
@@ -15163,7 +15163,12 @@
      null
     ],
     [
-     "SSBU00",
+     "SSFI00",
+     null,
+     null
+    ],
+    [
+     "SSAF00",
      null,
      null
     ],
@@ -15178,27 +15183,12 @@
      null
     ],
     [
-     "SSAF00",
-     null,
-     null
-    ],
-    [
-     "SSFI00",
+     "SSBU00",
      null,
      null
     ]
    ],
    "G000555": [
-    [
-     "SLIN00",
-     null,
-     null
-    ],
-    [
-     "SPAG00",
-     null,
-     null
-    ],
     [
      "SSAP00",
      null,
@@ -15208,16 +15198,21 @@
      "SSAS00",
      null,
      null
-    ]
-   ],
-   "G000574": [
+    ],
     [
-     "JCSE00",
+     "SLIN00",
      null,
      null
     ],
     [
-     "SSBK00",
+     "SPAG00",
+     null,
+     null
+    ]
+   ],
+   "G000574": [
+    [
+     "SSEG00",
      null,
      null
     ],
@@ -15227,24 +15222,29 @@
      null
     ],
     [
-     "SSEG00",
+     "SSVA00",
      null,
      null
     ],
     [
-     "SSVA00",
+     "JCSE00",
+     null,
+     null
+    ],
+    [
+     "SSBK00",
      null,
      null
     ]
    ],
    "G000608": [
     [
-     "SSEV00",
+     "SSJU00",
      null,
      null
     ],
     [
-     "SSJU00",
+     "SSEV00",
      null,
      null
     ],
@@ -15261,12 +15261,12 @@
    ],
    "H000273": [
     [
-     "SSHR00",
+     "SSCM00",
      null,
      null
     ],
     [
-     "SSCM00",
+     "SSHR00",
      null,
      null
     ],
@@ -15288,12 +15288,12 @@
      null
     ],
     [
-     "JSPR00",
+     "SSRA00",
      null,
      null
     ],
     [
-     "SSBK00",
+     "JSPR00",
      null,
      null
     ],
@@ -15303,7 +15303,7 @@
      null
     ],
     [
-     "SSRA00",
+     "SSBK00",
      null,
      null
     ]
@@ -15320,11 +15320,6 @@
      null
     ],
     [
-     "SSAS00",
-     null,
-     null
-    ],
-    [
      "SSVA00",
      null,
      null
@@ -15333,11 +15328,16 @@
      "SSSB00",
      null,
      null
+    ],
+    [
+     "SSAS00",
+     null,
+     null
     ]
    ],
    "H001046": [
     [
-     "SLIN00",
+     "SSEG00",
      null,
      null
     ],
@@ -15347,19 +15347,19 @@
      null
     ],
     [
-     "SSEG00",
+     "SSAP00",
      null,
      null
     ],
     [
-     "SSAP00",
+     "SLIN00",
      null,
      null
     ]
    ],
    "H001061": [
     [
-     "SLIA00",
+     "SSEG00",
      null,
      null
     ],
@@ -15369,7 +15369,7 @@
      null
     ],
     [
-     "SSEG00",
+     "SLIA00",
      null,
      null
     ],
@@ -15381,16 +15381,6 @@
    ],
    "H001076": [
     [
-     "JSEC00",
-     null,
-     null
-    ],
-    [
-     "SSGA00",
-     null,
-     null
-    ],
-    [
      "SSHR00",
      null,
      null
@@ -15401,14 +15391,24 @@
      null
     ],
     [
+     "SSGA00",
+     null,
+     null
+    ],
+    [
      "SSVA00",
+     null,
+     null
+    ],
+    [
+     "JSEC00",
      null,
      null
     ]
    ],
    "H001079": [
     [
-     "JSLC00",
+     "SSEG00",
      null,
      null
     ],
@@ -15418,17 +15418,17 @@
      null
     ],
     [
-     "SSEG00",
+     "SSRA00",
+     null,
+     null
+    ],
+    [
+     "JSLC00",
      null,
      null
     ],
     [
      "SSAP00",
-     null,
-     null
-    ],
-    [
-     "SSRA00",
      null,
      null
     ]
@@ -15440,12 +15440,12 @@
      null
     ],
     [
-     "SSGA00",
+     "SSHR00",
      null,
      null
     ],
     [
-     "SSHR00",
+     "SSGA00",
      null,
      null
     ],
@@ -15457,17 +15457,17 @@
    ],
    "H001104": [
     [
+     "SSHR00",
+     null,
+     null
+    ],
+    [
      "SSEV00",
      null,
      null
     ],
     [
-     "SPAG00",
-     null,
-     null
-    ],
-    [
-     "SSHR00",
+     "SSSB00",
      null,
      null
     ],
@@ -15477,19 +15477,14 @@
      null
     ],
     [
-     "SSSB00",
+     "SPAG00",
      null,
      null
     ]
    ],
    "J000293": [
     [
-     "SSBU00",
-     null,
-     null
-    ],
-    [
-     "SPAG00",
+     "SSFI00",
      null,
      null
     ],
@@ -15499,14 +15494,19 @@
      null
     ],
     [
-     "SSFI00",
+     "SSBU00",
+     null,
+     null
+    ],
+    [
+     "SPAG00",
      null,
      null
     ]
    ],
    "J000312": [
     [
-     "SPAG00",
+     "SSEG00",
      null,
      null
     ],
@@ -15516,12 +15516,12 @@
      null
     ],
     [
-     "SSEG00",
+     "SSSB00",
      null,
      null
     ],
     [
-     "SSSB00",
+     "SPAG00",
      null,
      null
     ]
@@ -15538,12 +15538,7 @@
      null
     ],
     [
-     "JSEC00",
-     null,
-     null
-    ],
-    [
-     "JSLC00",
+     "SSCM00",
      null,
      null
     ],
@@ -15553,12 +15548,17 @@
      null
     ],
     [
-     "SSCM00",
+     "SSRA00",
      null,
      null
     ],
     [
-     "SSRA00",
+     "JSEC00",
+     null,
+     null
+    ],
+    [
+     "JSLC00",
      null,
      null
     ]
@@ -15566,6 +15566,16 @@
    "K000377": [
     [
      "SSEV00",
+     null,
+     null
+    ],
+    [
+     "JSEC00",
+     null,
+     null
+    ],
+    [
+     "SSAS00",
      null,
      null
     ],
@@ -15578,36 +15588,26 @@
      "SPAG00",
      null,
      null
-    ],
-    [
-     "JSEC00",
-     null,
-     null
-    ],
-    [
-     "SSAS00",
-     null,
-     null
     ]
    ],
    "K000383": [
-    [
-     "SLIN00",
-     null,
-     null
-    ],
     [
      "SSEG00",
      null,
      null
     ],
     [
+     "SSVA00",
+     null,
+     null
+    ],
+    [
      "SSAS00",
      null,
      null
     ],
     [
-     "SSVA00",
+     "SLIN00",
      null,
      null
     ]
@@ -15619,12 +15619,12 @@
      null
     ],
     [
-     "SSBU00",
+     "SSHR00",
      null,
      null
     ],
     [
-     "SSHR00",
+     "SSBU00",
      null,
      null
     ],
@@ -15646,29 +15646,19 @@
      null
     ],
     [
-     "SSBK00",
+     "SSAP00",
      null,
      null
     ],
     [
-     "SSAP00",
+     "SSBK00",
      null,
      null
     ]
    ],
    "K000394": [
     [
-     "SPAG00",
-     null,
-     null
-    ],
-    [
-     "SSBK00",
-     null,
-     null
-    ],
-    [
-     "SSGA00",
+     "SSCM00",
      null,
      null
     ],
@@ -15678,24 +15668,29 @@
      null
     ],
     [
-     "SSCM00",
+     "SSGA00",
+     null,
+     null
+    ],
+    [
+     "SSBK00",
+     null,
+     null
+    ],
+    [
+     "SPAG00",
      null,
      null
     ]
    ],
    "L000570": [
     [
-     "SSBU00",
+     "SSCM00",
      null,
      null
     ],
     [
-     "SLIA00",
-     null,
-     null
-    ],
-    [
-     "SCNC00",
+     "SSFI00",
      null,
      null
     ],
@@ -15705,17 +15700,27 @@
      null
     ],
     [
-     "SSCM00",
+     "SCNC00",
      null,
      null
     ],
     [
-     "SSFI00",
+     "SLIA00",
+     null,
+     null
+    ],
+    [
+     "SSBU00",
      null,
      null
     ]
    ],
    "L000571": [
+    [
+     "SSCM00",
+     null,
+     null
+    ],
     [
      "SSEV00",
      null,
@@ -15725,21 +15730,11 @@
      "SSBK00",
      null,
      null
-    ],
-    [
-     "SSCM00",
-     null,
-     null
     ]
    ],
    "L000575": [
     [
-     "SLIN00",
-     null,
-     null
-    ],
-    [
-     "SLET00",
+     "SSFI00",
      null,
      null
     ],
@@ -15749,24 +15744,24 @@
      null
     ],
     [
-     "SSFI00",
+     "SLET00",
+     null,
+     null
+    ],
+    [
+     "SLIN00",
      null,
      null
     ]
    ],
    "L000577": [
     [
-     "SSFR00",
-     null,
-     null
-    ],
-    [
      "SSJU00",
      null,
      null
     ],
     [
-     "SSBU00",
+     "SSFR00",
      null,
      null
     ],
@@ -15774,11 +15769,16 @@
      "SSEG00",
      null,
      null
+    ],
+    [
+     "SSBU00",
+     null,
+     null
     ]
    ],
    "M000133": [
     [
-     "SSEV00",
+     "SSCM00",
      null,
      null
     ],
@@ -15788,7 +15788,7 @@
      null
     ],
     [
-     "SSCM00",
+     "SSEV00",
      null,
      null
     ],
@@ -15800,7 +15800,12 @@
    ],
    "M000355": [
     [
-     "JSLC00",
+     "SSAF00",
+     null,
+     null
+    ],
+    [
+     "SSRA00",
      null,
      null
     ],
@@ -15810,29 +15815,19 @@
      null
     ],
     [
-     "SSAF00",
+     "JSLC00",
      null,
      null
     ],
     [
      "SSAP00",
-     null,
-     null
-    ],
-    [
-     "SSRA00",
      null,
      null
     ]
    ],
    "M000934": [
     [
-     "SLIN00",
-     null,
-     null
-    ],
-    [
-     "SLIA00",
+     "SSCM00",
      null,
      null
     ],
@@ -15842,7 +15837,12 @@
      null
     ],
     [
-     "SSCM00",
+     "SSVA00",
+     null,
+     null
+    ],
+    [
+     "SLIA00",
      null,
      null
     ],
@@ -15852,24 +15852,14 @@
      null
     ],
     [
-     "SSVA00",
+     "SLIN00",
      null,
      null
     ]
    ],
    "M001111": [
     [
-     "SSBU00",
-     null,
-     null
-    ],
-    [
      "SSHR00",
-     null,
-     null
-    ],
-    [
-     "SSAP00",
      null,
      null
     ],
@@ -15877,14 +15867,19 @@
      "SSVA00",
      null,
      null
-    ]
-   ],
-   "M001153": [
+    ],
     [
-     "SLIA00",
+     "SSBU00",
      null,
      null
     ],
+    [
+     "SSAP00",
+     null,
+     null
+    ]
+   ],
+   "M001153": [
     [
      "SSHR00",
      null,
@@ -15892,6 +15887,11 @@
     ],
     [
      "SSEG00",
+     null,
+     null
+    ],
+    [
+     "SLIA00",
      null,
      null
     ],
@@ -15920,17 +15920,17 @@
    ],
    "M001176": [
     [
-     "SSEV00",
-     null,
-     null
-    ],
-    [
      "SSFR00",
      null,
      null
     ],
     [
-     "SSBU00",
+     "SSEV00",
+     null,
+     null
+    ],
+    [
+     "SSRA00",
      null,
      null
     ],
@@ -15940,27 +15940,17 @@
      null
     ],
     [
-     "SSAP00",
-     null,
-     null
-    ],
-    [
-     "SSRA00",
-     null,
-     null
-    ]
-   ],
-   "M001198": [
-    [
      "SSBU00",
      null,
      null
     ],
     [
-     "SSAF00",
+     "SSAP00",
      null,
      null
-    ],
+    ]
+   ],
+   "M001198": [
     [
      "SSHR00",
      null,
@@ -15970,21 +15960,21 @@
      "SSFI00",
      null,
      null
-    ]
-   ],
-   "M001242": [
+    ],
+    [
+     "SSAF00",
+     null,
+     null
+    ],
     [
      "SSBU00",
      null,
      null
-    ],
+    ]
+   ],
+   "M001242": [
     [
-     "SCNC00",
-     null,
-     null
-    ],
-    [
-     "SSBK00",
+     "SSCM00",
      null,
      null
     ],
@@ -15994,7 +15984,17 @@
      null
     ],
     [
-     "SSCM00",
+     "SCNC00",
+     null,
+     null
+    ],
+    [
+     "SSBU00",
+     null,
+     null
+    ],
+    [
+     "SSBK00",
      null,
      null
     ]
@@ -16006,7 +16006,7 @@
      null
     ],
     [
-     "SPAG00",
+     "SSEG00",
      null,
      null
     ],
@@ -16021,7 +16021,7 @@
      null
     ],
     [
-     "SSEG00",
+     "SPAG00",
      null,
      null
     ]
@@ -16033,7 +16033,12 @@
      null
     ],
     [
-     "SPAG00",
+     "SSHR00",
+     null,
+     null
+    ],
+    [
+     "SSGA00",
      null,
      null
     ],
@@ -16043,24 +16048,19 @@
      null
     ],
     [
-     "SSGA00",
-     null,
-     null
-    ],
-    [
-     "SSHR00",
-     null,
-     null
-    ],
-    [
      "SSAS00",
+     null,
+     null
+    ],
+    [
+     "SPAG00",
      null,
      null
     ]
    ],
    "O000174": [
     [
-     "SLIN00",
+     "SSRA00",
      null,
      null
     ],
@@ -16070,34 +16070,14 @@
      null
     ],
     [
-     "SSRA00",
+     "SLIN00",
      null,
      null
     ]
    ],
    "P000145": [
     [
-     "SSEV00",
-     null,
-     null
-    ],
-    [
      "SSJU00",
-     null,
-     null
-    ],
-    [
-     "SSBU00",
-     null,
-     null
-    ],
-    [
-     "JSLC00",
-     null,
-     null
-    ],
-    [
-     "JSPR00",
      null,
      null
     ],
@@ -16107,19 +16087,39 @@
      null
     ],
     [
+     "SSEV00",
+     null,
+     null
+    ],
+    [
      "SSRA00",
+     null,
+     null
+    ],
+    [
+     "JSPR00",
+     null,
+     null
+    ],
+    [
+     "JSLC00",
+     null,
+     null
+    ],
+    [
+     "SSBU00",
      null,
      null
     ]
    ],
    "P000595": [
     [
-     "SSGA00",
+     "SSCM00",
      null,
      null
     ],
     [
-     "SSCM00",
+     "SSGA00",
      null,
      null
     ],
@@ -16141,12 +16141,12 @@
      null
     ],
     [
-     "SSGA00",
+     "SSHR00",
      null,
      null
     ],
     [
-     "SSHR00",
+     "SSGA00",
      null,
      null
     ],
@@ -16158,7 +16158,12 @@
    ],
    "R000122": [
     [
-     "SLIN00",
+     "SSAP00",
+     null,
+     null
+    ],
+    [
+     "SSAS00",
      null,
      null
     ],
@@ -16168,12 +16173,7 @@
      null
     ],
     [
-     "SSAP00",
-     null,
-     null
-    ],
-    [
-     "SSAS00",
+     "SLIN00",
      null,
      null
     ]
@@ -16185,7 +16185,12 @@
      null
     ],
     [
-     "SLIN00",
+     "SSEG00",
+     null,
+     null
+    ],
+    [
+     "SSSB00",
      null,
      null
     ],
@@ -16200,22 +16205,12 @@
      null
     ],
     [
-     "SSEG00",
-     null,
-     null
-    ],
-    [
-     "SSSB00",
+     "SLIN00",
      null,
      null
     ]
    ],
    "R000605": [
-    [
-     "SLIN00",
-     null,
-     null
-    ],
     [
      "SLIA00",
      null,
@@ -16227,17 +16222,22 @@
      null
     ],
     [
-     "SSBK00",
-     null,
-     null
-    ],
-    [
      "SSAP00",
      null,
      null
     ],
     [
      "SSAS00",
+     null,
+     null
+    ],
+    [
+     "SSBK00",
+     null,
+     null
+    ],
+    [
+     "SLIN00",
      null,
      null
     ]
@@ -16254,24 +16254,24 @@
      null
     ],
     [
-     "SSAS00",
+     "SSSB00",
      null,
      null
     ],
     [
-     "SSSB00",
+     "SSAS00",
      null,
      null
     ]
    ],
    "R000618": [
     [
-     "SSEV00",
+     "SSFR00",
      null,
      null
     ],
     [
-     "SSFR00",
+     "SSEV00",
      null,
      null
     ],
@@ -16288,16 +16288,6 @@
    ],
    "S000033": [
     [
-     "SSEV00",
-     null,
-     null
-    ],
-    [
-     "SSBU00",
-     null,
-     null
-    ],
-    [
      "SSHR00",
      null,
      null
@@ -16308,7 +16298,17 @@
      null
     ],
     [
+     "SSEV00",
+     null,
+     null
+    ],
+    [
      "SSVA00",
+     null,
+     null
+    ],
+    [
+     "SSBU00",
      null,
      null
     ]
@@ -16320,24 +16320,24 @@
      null
     ],
     [
-     "SLIN00",
+     "SSRA00",
      null,
      null
     ],
     [
-     "SSRA00",
+     "SLIN00",
      null,
      null
     ]
    ],
    "S001150": [
     [
-     "SSEV00",
+     "SSJU00",
      null,
      null
     ],
     [
-     "SSJU00",
+     "SSEV00",
      null,
      null
     ],
@@ -16359,12 +16359,17 @@
      null
     ],
     [
-     "JCSE00",
+     "SSSB00",
      null,
      null
     ],
     [
      "SLET00",
+     null,
+     null
+    ],
+    [
+     "JCSE00",
      null,
      null
     ],
@@ -16377,19 +16382,9 @@
      "SSAS00",
      null,
      null
-    ],
-    [
-     "SSSB00",
-     null,
-     null
     ]
    ],
    "S001184": [
-    [
-     "SSBK00",
-     null,
-     null
-    ],
     [
      "SSHR00",
      null,
@@ -16404,11 +16399,21 @@
      "SSSB00",
      null,
      null
+    ],
+    [
+     "SSBK00",
+     null,
+     null
     ]
    ],
    "S001194": [
     [
      "SSFR00",
+     null,
+     null
+    ],
+    [
+     "SSCM00",
      null,
      null
     ],
@@ -16423,11 +16428,6 @@
      null
     ],
     [
-     "SSCM00",
-     null,
-     null
-    ],
-    [
      "SSAP00",
      null,
      null
@@ -16435,17 +16435,12 @@
    ],
    "S001198": [
     [
-     "SSEV00",
-     null,
-     null
-    ],
-    [
      "SSCM00",
      null,
      null
     ],
     [
-     "SSAS00",
+     "SSEV00",
      null,
      null
     ],
@@ -16453,9 +16448,24 @@
      "SSVA00",
      null,
      null
+    ],
+    [
+     "SSAS00",
+     null,
+     null
     ]
    ],
    "S001203": [
+    [
+     "SSFI00",
+     null,
+     null
+    ],
+    [
+     "SSAF00",
+     null,
+     null
+    ],
     [
      "SLIA00",
      null,
@@ -16465,36 +16475,26 @@
      "SSBK00",
      null,
      null
-    ],
-    [
-     "SSAF00",
-     null,
-     null
-    ],
-    [
-     "SSFI00",
-     null,
-     null
     ]
    ],
    "S001208": [
-    [
-     "SSAF00",
-     null,
-     null
-    ],
     [
      "SSGA00",
      null,
      null
     ],
     [
-     "SSAS00",
+     "SSAF00",
      null,
      null
     ],
     [
      "SSVA00",
+     null,
+     null
+    ],
+    [
+     "SSAS00",
      null,
      null
     ]
@@ -16506,22 +16506,22 @@
      null
     ],
     [
-     "SSBU00",
-     null,
-     null
-    ],
-    [
-     "SPAG00",
-     null,
-     null
-    ],
-    [
      "SSGA00",
      null,
      null
     ],
     [
+     "SSBU00",
+     null,
+     null
+    ],
+    [
      "SSAS00",
+     null,
+     null
+    ],
+    [
+     "SPAG00",
      null,
      null
     ]
@@ -16533,12 +16533,12 @@
      null
     ],
     [
-     "JSEC00",
+     "SSCM00",
      null,
      null
     ],
     [
-     "SSCM00",
+     "JSEC00",
      null,
      null
     ],
@@ -16555,27 +16555,17 @@
      null
     ],
     [
-     "SSAS00",
+     "SSVA00",
      null,
      null
     ],
     [
-     "SSVA00",
+     "SSAS00",
      null,
      null
     ]
    ],
    "T000250": [
-    [
-     "SLIN00",
-     null,
-     null
-    ],
-    [
-     "SSAF00",
-     null,
-     null
-    ],
     [
      "SSCM00",
      null,
@@ -16585,11 +16575,21 @@
      "SSFI00",
      null,
      null
+    ],
+    [
+     "SSAF00",
+     null,
+     null
+    ],
+    [
+     "SLIN00",
+     null,
+     null
     ]
    ],
    "T000278": [
     [
-     "SPAG00",
+     "SSHR00",
      null,
      null
     ],
@@ -16599,7 +16599,7 @@
      null
     ],
     [
-     "SSHR00",
+     "SSVA00",
      null,
      null
     ],
@@ -16609,7 +16609,7 @@
      null
     ],
     [
-     "SSVA00",
+     "SPAG00",
      null,
      null
     ]
@@ -16621,22 +16621,22 @@
      null
     ],
     [
-     "JCSE00",
-     null,
-     null
-    ],
-    [
-     "SSBK00",
-     null,
-     null
-    ],
-    [
      "SSFI00",
      null,
      null
     ],
     [
      "SSVA00",
+     null,
+     null
+    ],
+    [
+     "JCSE00",
+     null,
+     null
+    ],
+    [
+     "SSBK00",
      null,
      null
     ]
@@ -16653,24 +16653,29 @@
      null
     ],
     [
-     "SSBK00",
+     "SSAP00",
      null,
      null
     ],
     [
-     "SSAP00",
+     "SSBK00",
      null,
      null
     ]
    ],
    "W000437": [
     [
+     "SSCM00",
+     null,
+     null
+    ],
+    [
      "SSEV00",
      null,
      null
     ],
     [
-     "SLIN00",
+     "SSRA00",
      null,
      null
     ],
@@ -16680,24 +16685,7 @@
      null
     ],
     [
-     "SSCM00",
-     null,
-     null
-    ],
-    [
      "SSAS00",
-     null,
-     null
-    ],
-    [
-     "SSRA00",
-     null,
-     null
-    ]
-   ],
-   "W000779": [
-    [
-     "SSBU00",
      null,
      null
     ],
@@ -16705,9 +16693,11 @@
      "SLIN00",
      null,
      null
-    ],
+    ]
+   ],
+   "W000779": [
     [
-     "JSTX00",
+     "SSFI00",
      null,
      null
     ],
@@ -16717,19 +16707,24 @@
      null
     ],
     [
-     "SSFI00",
+     "JSTX00",
+     null,
+     null
+    ],
+    [
+     "SSBU00",
+     null,
+     null
+    ],
+    [
+     "SLIN00",
      null,
      null
     ]
    ],
    "W000790": [
     [
-     "SPAG00",
-     null,
-     null
-    ],
-    [
-     "SSBK00",
+     "SSFI00",
      null,
      null
     ],
@@ -16739,7 +16734,12 @@
      null
     ],
     [
-     "SSFI00",
+     "SSBK00",
+     null,
+     null
+    ],
+    [
+     "SPAG00",
      null,
      null
     ]
@@ -16751,12 +16751,12 @@
      null
     ],
     [
-     "SSAF00",
+     "SSFI00",
      null,
      null
     ],
     [
-     "SSFI00",
+     "SSAF00",
      null,
      null
     ],
@@ -16768,17 +16768,17 @@
    ],
    "W000802": [
     [
-     "SSEV00",
-     null,
-     null
-    ],
-    [
      "SSJU00",
      null,
      null
     ],
     [
-     "SSBU00",
+     "SSFI00",
+     null,
+     null
+    ],
+    [
+     "SSEV00",
      null,
      null
     ],
@@ -16793,27 +16793,12 @@
      null
     ],
     [
-     "SSFI00",
+     "SSBU00",
      null,
      null
     ]
    ],
    "W000805": [
-    [
-     "SSBU00",
-     null,
-     null
-    ],
-    [
-     "SLIN00",
-     null,
-     null
-    ],
-    [
-     "SSBK00",
-     null,
-     null
-    ],
     [
      "SSFI00",
      null,
@@ -16823,11 +16808,9 @@
      "SSRA00",
      null,
      null
-    ]
-   ],
-   "W000817": [
+    ],
     [
-     "SPAG00",
+     "SSBU00",
      null,
      null
     ],
@@ -16837,6 +16820,13 @@
      null
     ],
     [
+     "SLIN00",
+     null,
+     null
+    ]
+   ],
+   "W000817": [
+    [
      "SSFI00",
      null,
      null
@@ -16845,14 +16835,19 @@
      "SSAS00",
      null,
      null
-    ]
-   ],
-   "Y000064": [
+    ],
     [
-     "SLIN00",
+     "SSBK00",
      null,
      null
     ],
+    [
+     "SPAG00",
+     null,
+     null
+    ]
+   ],
+   "Y000064": [
     [
      "SSCM00",
      null,
@@ -16867,10 +16862,15 @@
      "SSSB00",
      null,
      null
+    ],
+    [
+     "SLIN00",
+     null,
+     null
     ]
    ]
   },
-  "updated": "Wednesday, November 18, 2026 5:00:10 AM EST",
+  "updated": "Thursday, November 26, 2026 5:00:10 AM EST",
   "url": "https://www.senate.gov/legislative/LIS_MEMBER/cvc_member_data.xml"
  }
 }

@@ -9094,8 +9094,8 @@
    "n": "H.R. 2478",
    "c": "house",
    "t": "Financial Exploitation Prevention Act of 2025",
-   "st": "passed_house",
-   "sl": "Passed the House — not law",
+   "st": "passed_both",
+   "sl": "Passed both chambers — not yet law",
    "o": {
     "c": "house",
     "d": "2025-03-27"
@@ -9133,6 +9133,16 @@
      "d": "2026-06-25",
      "a": "Passed the House",
      "x": "On motion to suspend the rules and pass the bill, as amended Agreed to by the Yeas and Nays: (2/3 required): 414 - 2 (Roll no. 227)."
+    },
+    {
+     "d": "2026-11-18",
+     "a": "Discharged from Senate committee",
+     "x": "Senate Committee on Banking, Housing, and Urban Affairs discharged by Unanimous Consent."
+    },
+    {
+     "d": "2026-11-18",
+     "a": "Passed the Senate",
+     "x": "Passed Senate without amendment by Unanimous Consent."
     }
    ],
    "rs": "https://www.congress.gov/bill/119th-congress/house-bill/2478"
@@ -11302,8 +11312,8 @@
      "l": "Would let state agencies that set police hiring, training and ethical conduct standards receive FBI criminal history records."
     }
    ],
-   "st": "passed_both",
-   "sl": "Passed both chambers — not yet law",
+   "st": "enacted",
+   "sl": "Enacted — became law",
    "o": {
     "c": "house",
     "d": "2026-04-16"
@@ -11341,6 +11351,21 @@
      "d": "2026-09-30",
      "a": "Passed the Senate",
      "x": "Passed Senate without amendment by Unanimous Consent."
+    },
+    {
+     "d": "2026-11-12",
+     "a": "Presented to the President",
+     "x": "Presented to President."
+    },
+    {
+     "d": "2026-11-20",
+     "a": "Signed by the President",
+     "x": "Signed by President."
+    },
+    {
+     "d": "2026-11-20",
+     "a": "Became law",
+     "x": "Became Public Law No: 119-145."
     }
    ],
    "rs": "https://www.congress.gov/bill/119th-congress/house-bill/8352"
@@ -11601,8 +11626,8 @@
      "l": "Would grant concurrent receipt of disability and retired pay to some combat retirees; a motion to recommit it failed in the House 210-211."
     }
    ],
-   "st": "pending",
-   "sl": "Pending — no final action yet",
+   "st": "passed_house",
+   "sl": "Passed the House — not law",
    "o": {
     "c": "house",
     "d": "2026-06-10"
@@ -11650,6 +11675,11 @@
      "d": "2026-06-10",
      "a": "Introduced in the House",
      "x": "Introduced in House"
+    },
+    {
+     "d": "2026-11-11",
+     "a": "Passed the House",
+     "x": "On passage Passed by voice vote."
     }
    ],
    "rs": "https://www.congress.gov/bill/119th-congress/house-bill/9237"
@@ -11683,7 +11713,10 @@
      "nancy_mace",
      "wesley_bell",
      "melanie_stansbury",
-     "al_green"
+     "al_green",
+     "john_garamendi",
+     "fitzpatrick",
+     "brad_sherman"
     ]
    },
    "h": [
@@ -11791,6 +11824,11 @@
     ]
    },
    "h": [
+    {
+     "d": "2026-06-30",
+     "a": "Introduced in the House",
+     "x": "Submitted in House"
+    },
     {
      "d": "2026-06-30",
      "a": "Passed the House",
