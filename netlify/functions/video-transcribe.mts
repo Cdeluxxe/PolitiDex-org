@@ -27,6 +27,9 @@ import { getStore } from "@netlify/blobs";
 
 import { processTranscriptQueue, scoreIntoLocker, nameFromId, acquireLock, releaseLock, TRANSCRIPT_STORE_NAME, TRANSCRIBE_CALL_DELAY_MS } from "../lib/video-transcripts.mjs";
 import { repairStep, LINK_REPAIR_STATE_KEY, LINK_REPAIR_BUDGET_MS } from "../lib/video-link-repair.mjs";
+import { processReprocessRequests, scoreRecordIntoLocker } from "../lib/video-reprocess.mjs";
+import { RETIRED_STORE_NAME } from "../lib/locker-rescore.mjs";
+import reprocessFile from "../../db/video-reprocess.json" with { type: "json" };
 import { chamberForRow } from "../lib/raw-ingest-video.mjs";
 import { lockerEntriesFor, syncPolitician } from "../lib/stated-positions-core.mjs";
 import VS_MEMBER_MAP from "../../db/vr-member-map.json" with { type: "json" };
@@ -68,20 +71,32 @@ export function tooManyFailures(summary: any): boolean {
   return calls > 0 && failures / calls > MAX_FAILURE_SHARE;
 }
 
-export async function transcribeRun(deps: { store?: any; rawStore?: any; lockerStore?: any; generate?: any; log?: (l: string) => void; wake?: () => Promise<void>; sleep?: (ms: number) => Promise<void>; callDelayMs?: number; repair?: boolean; sync?: ((pid: string) => Promise<void>) | null } = {}) {
+export async function transcribeRun(deps: { store?: any; rawStore?: any; lockerStore?: any; retiredStore?: any; generate?: any; log?: (l: string) => void; wake?: () => Promise<void>; sleep?: (ms: number) => Promise<void>; callDelayMs?: number; repair?: boolean; sync?: ((pid: string) => Promise<void>) | null; reprocess?: any } = {}) {
   const startedAt = Date.now();
   const log = deps.log ?? ((l: string) => console.log(l));
   const lockerStore = deps.lockerStore ?? getStore(LOCKER_STORE_NAME);
   const flags = loadReviewFlags(reviewFile);
   const writes: any[] = [];
   const transcriptStore = deps.store ?? getStore({ name: TRANSCRIPT_STORE_NAME, consistency: "strong" });
+  const rawStore = deps.rawStore ?? getStore(RAW_STORE_NAME);
+  // On-demand re-processing (db/video-reprocess.json): each request once.
+  // Re-transcriptions join the queue below; rescoring runs here.
+  const retiredStore = deps.retiredStore ?? (deps.lockerStore ? null : getStore(RETIRED_STORE_NAME));
+  let reprocessSync: any;
+  const syncFor = async (pid: string) => {
+    if (deps.sync !== undefined) { if (deps.sync) await deps.sync(pid); return; }
+    if (reprocessSync === undefined) reprocessSync = await statedSync(lockerStore, flags, log);
+    if (reprocessSync) await reprocessSync(pid);
+  };
+  const reprocessed = await processReprocessRequests(deps.reprocess ?? reprocessFile, { transcriptStore, rawStore, lockerStore, retiredStore, flags, gt: groundTruth, log, sync: syncFor })
+    .catch((e: any) => { log(`video-reprocess: error — ${e?.message || e}`); return { done: [], skipped: [] }; });
   const summary = await processTranscriptQueue({
     // Strong consistency: a run woken right after another one finished must not
     // list the queue entries (or the worker lock) that run just deleted. With
     // the default eventual consistency it did: the next run "picked" 4 deleted
     // entries, made no progress, and so never woke the run after it.
     store: transcriptStore,
-    rawStore: deps.rawStore ?? getStore(RAW_STORE_NAME),
+    rawStore,
     nameOf: politicianName,
     tierOf: politicianTier,
     ...(deps.generate ? { generate: deps.generate } : {}),
@@ -89,8 +104,14 @@ export async function transcribeRun(deps: { store?: any; rawStore?: any; lockerS
     ...(deps.callDelayMs !== undefined ? { callDelayMs: deps.callDelayMs } : {}),
     log,
     onRecord: async (rec: any) => {
-      const r = await scoreIntoLocker(rec, { lockerStore, gt: groundTruth, flags, log });
+      // A re-transcribed video: its existing items are re-read first (moved, never doubled).
+      const r = rec?.retranscribed
+        ? await scoreRecordIntoLocker(rec, { lockerStore, rawStore, retiredStore, gt: groundTruth, flags, log })
+        : await scoreIntoLocker(rec, { lockerStore, gt: groundTruth, flags, log });
       writes.push(...r.writes);
+      if (rec?.retranscribed && ((r as any).rescored?.rescored || (r as any).rescored?.retired)) {
+        try { await syncFor(rec.politician_id); } catch (e: any) { log(`video-reprocess: stated positions for ${rec.politician_id} recompute later — ${e?.message || e}`); }
+      }
     },
   });
   log(`video-transcribe: ${writes.length} Evidence Locker item(s) written${writes.length ? ` (${writes.map((w) => `${w.politician_id}|${w.topic} ${w.strength}`).join(", ")})` : ""}`);
@@ -133,7 +154,7 @@ export async function transcribeRun(deps: { store?: any; rawStore?: any; lockerS
     if (pause > 0) await (deps.sleep ?? ((ms: number) => new Promise<void>((r) => setTimeout(r, ms))))(pause);
     try { await (deps.wake ?? wakeSelf)(); } catch (e: any) { log(`video-transcribe: next run not woken — ${e?.message || e}`); }
   }
-  return { ...summary, writes };
+  return { ...summary, writes, reprocessed };
 }
 
 // Recompute a politician's stated-position cards after their Locker items

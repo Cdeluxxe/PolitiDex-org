@@ -250,7 +250,7 @@ await t("cross-topic scoring stays on; without `fresh` the run behaves as before
   const src = (await imp("netlify/lib/stance-score-core.mjs"));
   assert.equal(typeof src.scoreAllTopics, "function");
   const fsrc = readFileSync(path.join(root, "netlify/functions/raw-ingest-cron.mts"), "utf8");
-  assert.match(fsrc, /logCandidateStances\(rec, \{ log \}\)/, "every page still goes through the multi-topic scorer");
+  assert.match(fsrc, /(?:logCandidateStances|scoreRecordCandidates)\(rec, \{ log \}\)/, "every page still goes through the multi-topic scorer (long videos per time window)");
   assert.match(fsrc, /fresh: true,/, "the scheduled entry point turns the fresh pass on");
   const { value: r } = await runFixture({ fresh: false });
   assert.equal(r.fresh, undefined);

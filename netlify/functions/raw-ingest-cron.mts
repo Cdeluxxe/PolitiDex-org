@@ -254,6 +254,13 @@
 //     sections, and (on these indexes) top-level multi-word slugs are now
 //     recognised as press releases.
 
+// Video priority lane (raw-ingest-video.mjs, planVideoLane): with the video /
+// speech pass on, up to VIDEO_LANE_PER_RUN (2) slots of each run are reserved
+// for video / speech frontier entries of tier-1 and zero-evidence members —
+// hearing / floor first — and the rest of the run is planned under the cap
+// minus those slots. A member leaves the lane after VIDEO_LANE_COVERED lane
+// slots (state: VIDEO_LANE_STATE_KEY in the rotation store); everyone else
+// keeps the leftover-slot behaviour below. "raw-ingest: video lane — …" logs it.
 // Video / speech pass (raw-ingest-video.mjs; opt-in through `videoSpeech`,
 // which the scheduled entry point turns on):
 //   · DISCOVERY — for every planned, in-scope politician (the whole roster
@@ -283,7 +290,7 @@ import {
   RESOLUTION, hasAnyEvidence,
 } from "../lib/raw-ingest-core.mjs";
 import { resolutionLine } from "../lib/raw-ingest-resolve.mjs";
-import { logCandidateStances, SCORED_TOPICS } from "../lib/stance-score-core.mjs";
+import { SCORED_TOPICS } from "../lib/stance-score-core.mjs";
 import { maybeWriteLockerItem, loadReviewFlags, lockerBaselineCounts, cachedBaselineCounts, bumpBaselineCounts, LOCKER_STORE_NAME } from "../lib/evidence-locker-core.mjs";
 import { appendRunSuggestions, SUGGESTIONS_STORE_NAME } from "../lib/raw-ingest-suggestions.mjs";
 import { lockerEntriesFor, syncPolitician, promotableWrite } from "../lib/stated-positions-core.mjs";
@@ -298,9 +305,10 @@ import {
   readHostHealth, saveHostHealth, normaliseHostHealth, skippedHosts, filterSkippedHosts, recordHostResults, HOST_LEVEL,
 } from "../lib/raw-ingest-hosts.mjs";
 import { retiredSourcesLine, RETIRED_VERSION, RETIRED_LOG_KEY } from "../lib/raw-ingest-retired.mjs";
-import { TRANSCRIPT_STORE_NAME, lockerRawFor } from "../lib/video-transcripts.mjs";
-import { discoverVideoSpeech, addVideoSpeechSources, isVideoSpeechEntry, buildVideoSpeechConfigs, VIDEO_SPEECH_PER_POLITICIAN } from "../lib/raw-ingest-video.mjs";
+import { TRANSCRIPT_STORE_NAME, lockerRawFor, scoreRecordCandidates } from "../lib/video-transcripts.mjs";
+import { discoverVideoSpeech, addVideoSpeechSources, isVideoSpeechEntry, buildVideoSpeechConfigs, institutionalMembers, INSTITUTIONAL_CHANNELS, VIDEO_SPEECH_PER_POLITICIAN, planVideoLane, normaliseVideoLaneState, VIDEO_LANE_STATE_KEY, VIDEO_LANE_PER_RUN } from "../lib/raw-ingest-video.mjs";
 import VS_MEMBER_MAP from "../../db/vr-member-map.json" with { type: "json" };
+import PERSON_COMMITTEES from "../../db/person-committees.json" with { type: "json" };
 import { INGEST_ALLOW_LIST, scopeIds, inScope, filterToScope, scopedRotationKey, scopeLine } from "../lib/raw-ingest-scope.mjs";
 import { buildWordGaps, orderPullListByWordGap, wordGapLine, wordGapRank, loadWordGapData } from "../lib/raw-ingest-word-gap.mjs";
 // Every locked ground-truth label (not only Talarico | cost of living): a clear
@@ -388,7 +396,7 @@ export async function run(deps: {
   // in free slots under the unchanged caps. `state` overrides the stored
   // discovery-timing doc, `force` ignores the interval, and `youtubeKey` /
   // `govinfoKey` override the environment (tests). Omitted → off.
-  videoSpeech?: boolean | { state?: any; force?: boolean; youtubeKey?: string; govinfoKey?: string; per?: number };
+  videoSpeech?: boolean | { state?: any; force?: boolean; youtubeKey?: string; govinfoKey?: string; per?: number; channels?: any[] | false; lane?: false | { perRun?: number; state?: any } };
   // Baseline counts cache (cachedBaselineCounts), kept in rotationStore. Omitted
   // → the whole-Locker read every run (the earlier behaviour; tests).
   baselineCache?: boolean;
@@ -406,6 +414,7 @@ export async function run(deps: {
   let hostHealth: any = null;
   let skipHosts: Map<string, any> = new Map();
   let videoSpeech: any = null;
+  let videoLane: any = null;
   const freshOutcome = new Map<string, { written: string[]; reasons: string[] }>();
   const flags = loadReviewFlags(deps.reviewFlags ?? reviewFile);
   const nowFn = deps.now ?? (() => new Date());
@@ -473,7 +482,27 @@ export async function run(deps: {
         log(`raw-ingest: word gap — unavailable, pull order unchanged (${e?.message || e})`);
       }
     }
-    plan = planRun(state, { roster, max, counts, maxPoliticians: MAX_POLITICIANS_PER_RUN, perPolitician: MAX_SOURCES_PER_POLITICIAN, wordGaps, ...(ro.priorityPerRun !== undefined ? { priorityPerRun: ro.priorityPerRun } : {}) });
+    // Video priority lane (raw-ingest-video.mjs, planVideoLane): up to
+    // VIDEO_LANE_PER_RUN slots are reserved for video / speech frontier entries
+    // of tier-1 and zero-evidence members; the rest of the run is planned
+    // under the cap minus those slots, so leftover-slot behaviour is unchanged.
+    const lo: any = fresh && deps.videoSpeech && !(typeof deps.videoSpeech === "object" && (deps.videoSpeech as any).lane === false)
+      ? ((typeof deps.videoSpeech === "object" && typeof (deps.videoSpeech as any).lane === "object") ? (deps.videoSpeech as any).lane : {}) : null;
+    if (lo) {
+      let laneState: any = lo.state;
+      if (laneState === undefined) { try { laneState = deps.rotationStore ? await deps.rotationStore.get(VIDEO_LANE_STATE_KEY, { type: "json" }) : null; } catch { laneState = null; } }
+      const pendingVideoIds = new Set<string>();
+      if (deps.transcriptStore) {
+        try { for (const b of ((await deps.transcriptStore.list({ prefix: "queue/" }))?.blobs || [])) pendingVideoIds.add(String(b.key).replace(/^queue\//, "").replace(/\.json$/, "")); }
+        catch (e: any) { log(`video-lane: transcript queue unreadable — ${e?.message || e} (queued videos may take a lane slot)`); }
+      }
+      videoLane = planVideoLane(fresh, {
+        roster: roster.filter((r: any) => inScope(scope, r.politician_id)), counts, state: normaliseVideoLaneState(laneState),
+        perRun: Math.min(lo.perRun ?? VIDEO_LANE_PER_RUN, max), known: new Set(sources.map((x: any) => normUrl(x.url))), pendingVideoIds, log,
+      });
+    }
+    const planMax = Math.max(1, max - (videoLane?.reserved || 0));
+    plan = planRun(state, { roster, max: planMax, counts, maxPoliticians: MAX_POLITICIANS_PER_RUN, perPolitician: MAX_SOURCES_PER_POLITICIAN, wordGaps, ...(ro.priorityPerRun !== undefined ? { priorityPerRun: ro.priorityPerRun } : {}) });
     const rs = rosterSummary(roster, counts);
     const tierOf = new Map(roster.map((r: any) => [r.politician_id, r.tier]));
     log(`raw-ingest: roster — ${rs.size} politician(s) (${Object.entries(rs.tiers).map(([t, n]) => `tier ${t}: ${n}`).join(", ")}) · ${rs.reached.length} politician + issue pair(s) filled`);
@@ -495,9 +524,22 @@ export async function run(deps: {
       const n = [...ps.dropped, ...pp.dropped].filter((s: any) => hostOfUrl(s.url) === h).length;
       log(`raw-ingest: HOST-SKIP ${h} — ${x.fails} host-level failure(s) this cycle, none OK (last: ${x.last_error || x.cls}); ${n} planned page(s) left out for the rest of cycle ${plan.cycle}`);
     }
-    const d = await discoverSources(ps.kept, { fetch: deps.fetch, log, patterns: pp.kept, max, restrict: false, onBody });
+    const d = await discoverSources(ps.kept, { fetch: deps.fetch, log, patterns: pp.kept, max: planMax, restrict: false, onBody });
     sources = d.sources;
     discovered = d.added;
+    // The reserved video slots, filled before any leftover slot is handed out.
+    if (videoLane?.picks?.length) {
+      const have = new Set(sources.map((x: any) => normUrl(x.url)));
+      const skipNow = new Set(skipHosts.keys());
+      const lanePicks = videoLane.picks.filter((p: any) => !have.has(normUrl(p.url)) && !skipNow.has(hostOfUrl(p.url)));
+      sources = [...sources, ...lanePicks];
+      discovered = [...discovered, ...lanePicks];
+      videoLane.pulled = lanePicks.map((p: any) => ({ politician_id: p.politician_id, url: p.url, speech_kind: p.speech_kind || null, source_class: p.source_class }));
+      if (deps.rotationStore && !(lo && lo.state !== undefined)) {
+        try { await deps.rotationStore.setJSON(VIDEO_LANE_STATE_KEY, { ...videoLane.state, updated_at: nowFn().toISOString() }); }
+        catch (e: any) { log(`video-lane: state not saved — ${e?.message || e}`); }
+      }
+    }
     // Video / speech: discover into the frontier, then take free slots (before
     // the web-page fresh pages, after every planned / official page).
     if (fresh && deps.videoSpeech) {
@@ -510,13 +552,19 @@ export async function run(deps: {
         configs: vsConfigs,
         politicians: vsPids, fresh, fetch: deps.fetch, store: deps.rotationStore, state: vo.state ?? null, now: nowFn, log,
         force: !!vo.force, mergeFrontier,
+        // Committee / conference channels: matched against the whole in-scope
+        // roster (a video waits in its member's frontier until they are planned).
+        ...(vo.channels === false ? {} : { institutional: {
+          channels: Array.isArray(vo.channels) ? vo.channels : INSTITUTIONAL_CHANNELS,
+          members: institutionalMembers(roster.filter((r: any) => inScope(scope, r.politician_id)), { members: (VS_MEMBER_MAP as any).members || [], committees: PERSON_COMMITTEES, configs: vsConfigs }),
+        } }),
         ...(vo.youtubeKey !== undefined ? { youtubeKey: vo.youtubeKey } : {}),
         ...(vo.govinfoKey !== undefined ? { govinfoKey: vo.govinfoKey } : {}),
       });
       const va = addVideoSpeechSources(sources, fresh, { configs: vsConfigs, politicians: vsPids, max, perPolitician: MAX_SOURCES_PER_POLITICIAN, per: vo.per ?? VIDEO_SPEECH_PER_POLITICIAN, skipHosts: new Set(skipHosts.keys()), log });
       sources = va.sources;
       discovered = [...discovered, ...va.added];
-      videoSpeech = { checked: vd.checked, queued: vd.added, discovery: vd.sources, added: va.added.length };
+      videoSpeech = { checked: vd.checked, channels_checked: vd.channels_checked || [], queued: vd.added, discovery: vd.sources, added: va.added.length };
     }
     if (fresh) {
       const f = addFreshSources(sources, fresh, { politicians: plan.politicians, max, perPolitician: MAX_SOURCES_PER_POLITICIAN, per: fo.per ?? FRESH_PER_POLITICIAN, protect, skipHosts: new Set(skipHosts.keys()), spare: fo.spare ?? FRESH_SPARE_PER_RUN, log, wordGaps, priority: plan.priority?.pids || [] });
@@ -605,7 +653,10 @@ export async function run(deps: {
         log(`stance-score: TARGET${tg.via === "headline" ? " (headline override)" : ""} ${incoming.politician_id}|${tg.from}${incoming.source_id ? "|" + incoming.source_id : ""} → ${tg.topic} — ${tg.reason}`);
       }
     }
-    const candidates = logCandidateStances(rec, { log });
+    // A long video transcript is scored per time window (scoreRecordCandidates);
+    // every other record exactly as logCandidateStances reads it.
+    const scored = scoreRecordCandidates(rec, { log });
+    const candidates = scored.map((x: any) => x.candidate);
     for (const c of candidates) topicsScored[c.topic] = (topicsScored[c.topic] || 0) + 1;
     if (!deps.lockerStore) return;
     const oc = String(rec?.source_id || "").startsWith("fresh-") ? (freshOutcome.get(incoming.url) || freshOutcome.set(incoming.url, { written: [], reasons: [] }).get(incoming.url)!) : null;
@@ -614,9 +665,9 @@ export async function run(deps: {
       log(`evidence-locker: SKIP ${rec?.politician_id}|${rec?.topic}${rec?.source_id ? "|" + rec.source_id : ""} — no scored candidate`);
       return;
     }
-    for (const candidate of candidates) {
+    for (const { candidate, raw: forLocker } of scored) {
       // A transcribed video links to the second the cited words are spoken.
-      const w = await maybeWriteLockerItem(candidate, lockerRawFor(candidate, rec), { store: deps.lockerStore, gt, log, flags });
+      const w = await maybeWriteLockerItem(candidate, lockerRawFor(candidate, forLocker), { store: deps.lockerStore, gt, log, flags });
       if (oc) { if (w.written) oc.written.push(`${candidate.topic} ${w.item?.strength}`); else oc.reasons.push(`${candidate.topic}: ${w.reason || "not written"}`); }
       if (w.written) lockerWrites.push({ key: w.key, politician_id: candidate.politician_id, topic: candidate.topic, strength: w.item?.strength, source_tier: sourceTierOf(w.item), confidence: w.item?.confidence, ...(candidate.topic !== rec.topic ? { page_topic: rec.topic } : {}) });
     }
@@ -687,6 +738,10 @@ export async function run(deps: {
     videoSpeech.pulled = pulled;
     videoSpeech.by_type = { video: by("video"), speech: by("speech") };
     report.video_speech = videoSpeech;
+    if (videoLane) {
+      report.video_lane = { reserved: videoLane.reserved, pulled: videoLane.pulled || [], eligible: videoLane.eligible, covered: videoLane.covered };
+      log(`raw-ingest: video lane — ${(videoLane.pulled || []).length} reserved video slot(s) filled (${(videoLane.pulled || []).map((x: any) => `${x.politician_id} ${x.speech_kind || x.source_class}`).join(", ") || "none"}) · ${videoLane.eligible.length} high-value member(s) with video waiting · ${videoLane.covered.length} covered`);
+    }
     log(`raw-ingest: video/speech — ${pulled.length} source(s) pulled this run (video ${by("video")}, speech ${by("speech")}) · ${pulled.reduce((n, x) => n + x.items, 0)} Locker item(s) · ${pulled.filter((x) => x.queued).length} awaiting transcription · ${pulled.filter((x) => !x.ok).length} failed · ${videoSpeech.queued} new URL(s) queued into the frontier${videoSpeech.checked.length ? "" : " (discovery not due this run)"}`);
   }
   // YouTube: how often the transcript worked vs. the description fallback.

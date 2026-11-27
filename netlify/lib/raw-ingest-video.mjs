@@ -40,6 +40,11 @@
 //   GovInfo search uses the api.data.gov key the site already has
 //   (GOVINFO_API_KEY, else CONGRESS_GOV_API_KEY). The stored URL is always the
 //   public govinfo.gov page, never one carrying a key.
+//   · youtube_video (committee / conference channel) — recent uploads of a
+//     short, verified list of official committee channels and the two Senate
+//     party conference channels (INSTITUTIONAL_CHANNELS), each queued for the
+//     one roster member its title names (else, for a hearing, the committee
+//     chair). Checked hourly per channel; same frontier, same transcript queue.
 //   · Facebook video posts are an eligible class, but Facebook shows no posts
 //     to an anonymous fetch and its videos cannot be handed to the transcriber
 //     by URL, so with no Facebook access configured they are logged as
@@ -108,6 +113,163 @@ export const VIDEO_SPEECH_SOURCES = {
     facebook_pages: [],
   },
 };
+
+// ── Committee and conference channels (institutional) ─────────────────────
+// Hearings and floor remarks posted by the institutions themselves, not by a
+// member. Each channel id below was read from the channel page the
+// committee's own website links to (or, for the two Senate conference
+// channels, the channel page itself), and its public feed was checked to
+// carry hearings / markups / floor remarks (2026-11-27). Chosen for the
+// committees tier-1 / tier-2 roster members sit on most (db/person-committees.json):
+// the House committees with an official full-hearing channel, and Senate
+// Commerce — the Senate committee with the most tier-1 / tier-2 members.
+// Most other Senate committees stream on senate.gov, not YouTube. Neither
+// chamber publishes an official floor-proceedings channel on YouTube (House
+// floor video is on live.house.gov, Senate floor video on senate.gov; both
+// reach the frontier through the C-SPAN search). For Senate floor remarks
+// the two party conference channels are used as a balanced pair.
+//
+// A channel video joins the frontier of ONE roster politician — the cached
+// transcript is per video id and marks one speaker's words — chosen as:
+//   1. a member the title names (full name, or an office / committee title +
+//      surname), restricted to the channel's chamber and, for a committee
+//      channel, to that committee's members; lowest roster tier first;
+//   2. otherwise, for a hearing / markup on a committee channel, the
+//      committee's chair when they are on the roster (at most
+//      INSTITUTIONAL_CHAIR_FALLBACK_PER_PASS per channel per pass);
+//   3. otherwise nothing is queued (logged).
+export const INSTITUTIONAL_CHANNELS = [
+  // House committees (official site → channel)
+  { channel_id: "UCdvbanLNRlC0Af1QWeJ9foA", label: "House Judiciary Committee", chamber: "house", committee: "JU00", kind: "committee", site: "judiciary.house.gov" },
+  { channel_id: "UCn8TJ6Tyq2aGvhybME_itDQ", label: "House Oversight Committee", chamber: "house", committee: "GO00", kind: "committee", site: "oversight.house.gov" },
+  { channel_id: "UC5s1kIfkfWbap31d5ef-VtQ", label: "House Energy and Commerce Committee", chamber: "house", committee: "IF00", kind: "committee", site: "energycommerce.house.gov" },
+  { channel_id: "UCD506yORW2voSanqEgLOUIQ", label: "House Armed Services Committee", chamber: "house", committee: "AS00", kind: "committee", site: "armedservices.house.gov" },
+  { channel_id: "UC8FSgDMEzdK7j3lsQ4G4L0A", label: "House Ways and Means Committee", chamber: "house", committee: "WM00", kind: "committee", site: "waysandmeans.house.gov" },
+  { channel_id: "UCMaSlF09S0fpoRshS2t_7XA", label: "House Appropriations Committee", chamber: "house", committee: "AP00", kind: "committee", site: "appropriations.house.gov" },
+  { channel_id: "UChdT2snPVxfp2m8n4VDdMag", label: "House Homeland Security Committee", chamber: "house", committee: "HM00", kind: "committee", site: "homeland.house.gov" },
+  { channel_id: "UCtxAmeCl0xtSuo7tHZpgcQA", label: "House Foreign Affairs Committee", chamber: "house", committee: "FA00", kind: "committee", site: "foreignaffairs.house.gov" },
+  // Senate committee (official site → channel)
+  { channel_id: "UC0lKQz7pObyGEYLz-CIUvUw", label: "Senate Commerce Committee", chamber: "senate", committee: "SSCM00", kind: "committee", site: "commerce.senate.gov" },
+  // Senate floor remarks — the two party conferences, as a pair
+  { channel_id: "UCAdyfSY2oRwNIB4LddDYZJA", label: "Senate Republicans", chamber: "senate", committee: null, kind: "conference" },
+  { channel_id: "UCpgILFSGxY-9mQR79fLSt2A", label: "Senate Democrats", chamber: "senate", committee: null, kind: "conference" },
+];
+export const INSTITUTIONAL_CHAIR_FALLBACK_PER_PASS = 2;
+const CHANNEL_STATE_PREFIX = "channel:";
+const CHAIR_TITLE = /^(?:chair|chairman|chairwoman)$/i;
+
+/** Source type of an institutional channel video ("official House committee video (House Judiciary Committee) — hearing"). */
+export function institutionalSourceType(ch, kind = "") {
+  const ch2 = ch.chamber === "senate" ? "Senate" : "House";
+  const base = ch.kind === "conference" ? `official ${ch2} party conference video (${ch.label})` : `official ${ch2} committee video (${ch.label})`;
+  return kind ? `${base} — ${kind}` : base;
+}
+
+/** Kind of a committee / conference video: a committee video that is neither floor speech nor hearing by title is still a hearing clip. */
+export function institutionalKind(ch, title) {
+  const k = speechKindOf(title);
+  return ch.kind === "committee" && k === "video post" ? "hearing" : k;
+}
+
+/**
+ * Who can be matched in institutional channel titles: one row per roster
+ * politician with a usable video configuration — { politician_id, cfg,
+ * name_re, chamber, committees (top-level codes), chairs, tier }.
+ * `committees` is db/person-committees.json; `members` the member map list.
+ */
+export function institutionalMembers(roster = [], { members = [], committees = null, configs = null } = {}) {
+  const bySlug = new Map();
+  for (const m of members || []) if (m?.slug && (m.serving119 !== false || !bySlug.has(m.slug))) bySlug.set(m.slug, m);
+  const codes = committees?.committees || {};
+  const out = [];
+  const seen = new Set();
+  for (const row of roster || []) {
+    const pid = String(row?.politician_id || "");
+    if (!pid || seen.has(pid)) continue;
+    seen.add(pid);
+    const member = bySlug.get(pid) || null;
+    const cfg = (configs && configs[pid]) || VIDEO_SPEECH_SOURCES[pid] || videoSpeechConfigFromRoster(row, { member });
+    if (!cfg?.surname) continue;
+    const chamber = cfg.chamber || chamberForRow(row, member);
+    if (!chamber) continue;
+    const firsts = [...new Set([nameParts(row.name)?.first, nameParts(member?.name)?.first, nameParts(cfg.name)?.first].filter(Boolean))];
+    const office = "(?:rep|sen|senator|representative|congressman|congresswoman|chair|chairman|chairwoman|ranking member|leader|whip|speaker)\\.?";
+    const name_re = new RegExp(`\\b(?:(?:${firsts.map(reEsc).join("|")})\\s+(?:[A-Z]\\.\\s+)?${reEsc(cfg.surname)}|${office}\\s+${reEsc(cfg.surname)})\\b`, "i");
+    const tops = new Set(), chairs = new Set();
+    for (const [code, title] of committees?.people?.[pid] || []) {
+      const top = codes[code]?.[2] || code;
+      tops.add(top);
+      if (!codes[code]?.[2] && CHAIR_TITLE.test(String(title || ""))) chairs.add(code);
+    }
+    const tier = Number(row.tier);
+    out.push({ politician_id: pid, cfg: { ...cfg, chamber }, name_re, chamber, committees: tops, chairs, tier: Number.isFinite(tier) && tier > 0 ? tier : 9 });
+  }
+  return out;
+}
+
+/**
+ * The one roster politician an institutional channel video is queued for:
+ * { member, via: "title" | "chair" } or null (see INSTITUTIONAL_CHANNELS).
+ */
+export function matchInstitutionalVideo(video, ch, members = [], { allowChair = true } = {}) {
+  const title = String(video?.title || "");
+  const pool = members.filter((m) => m.chamber === ch.chamber && (!ch.committee || m.committees.has(ch.committee)));
+  const named = pool.map((m) => ({ m, at: title.search(m.name_re) })).filter((x) => x.at >= 0)
+    .sort((a, b) => (a.m.tier - b.m.tier) || (a.at - b.at) || a.m.politician_id.localeCompare(b.m.politician_id));
+  if (named.length) return { member: named[0].m, via: "title" };
+  if (allowChair && ch.kind === "committee" && ch.committee && institutionalKind(ch, title) === "hearing") {
+    const chair = pool.filter((m) => m.chairs.has(ch.committee)).sort((a, b) => a.tier - b.tier)[0];
+    if (chair) return { member: chair, via: "chair" };
+  }
+  return null;
+}
+
+/**
+ * Discover institutional channel videos (each channel at most once per
+ * `interval`, remembered in the same state doc under "channel:<id>") and turn
+ * them into frontier entries for the politician each is matched to.
+ * Returns { checked, entries, sources }; never throws.
+ */
+async function discoverInstitutional({ channels, members, st, at, fresh, fetch, youtubeKey, force, interval, log }) {
+  const out = { checked: [], entries: [], sources: [] };
+  if (!channels?.length || !members?.length) return out;
+  const inFrontier = new Set(Object.values(fresh.frontier || {}).flat().map((e) => normUrl(e.url)));
+  const due = channels.filter((ch) => {
+    const last = Date.parse(st.last[CHANNEL_STATE_PREFIX + ch.channel_id] || "");
+    if (!force && Number.isFinite(last) && at.getTime() - last < interval) return false;
+    return true;
+  });
+  if (!due.length) { log(`video/speech discovery: committee / conference channels — none due this pass (${channels.length} channel(s), checked hourly)`); return out; }
+  const results = await Promise.all(due.map((ch) => memberChannelVideos(ch, { fetch, youtubeKey }).then((r) => ({ ch, r }))));
+  const taken = new Set();
+  for (const { ch, r } of results) {
+    out.checked.push(ch.channel_id);
+    let queued = 0, unmatched = 0, chairs = 0;
+    for (const v of r.items) {
+      const url = youtubeWatchUrl(v.video_id);
+      const n = normUrl(url);
+      if (fresh.seen?.[n] || inFrontier.has(n) || taken.has(n)) continue;
+      const match = matchInstitutionalVideo(v, ch, members, { allowChair: chairs < INSTITUTIONAL_CHAIR_FALLBACK_PER_PASS });
+      if (!match) { unmatched++; log(`video/speech discovery: ${ch.label} ${url} "${oneLine(v.title).slice(0, 90)}" — names no roster member of this ${ch.kind}; not queued`); continue; }
+      if (match.via === "chair") chairs++;
+      const kind = institutionalKind(ch, v.title);
+      const e = entry(match.member.politician_id, { ...match.member.cfg, derived: true }, {
+        url, source_class: "youtube_video", source_type: institutionalSourceType(ch, kind),
+        title: v.title, published: v.published, found_from: youtubeFeedUrl(ch.channel_id), kind, rank: 6, now: at,
+      });
+      e.institutional = { channel: ch.label, matched_by: match.via };
+      taken.add(n);
+      out.entries.push(e);
+      queued++;
+    }
+    const row = { politician_id: null, source: `YouTube ${ch.kind} channel ${ch.label}`, via: r.via || null, found: r.items.length, new: queued, ...(unmatched ? { unmatched } : {}), ...(r.error ? { error: r.error } : {}) };
+    out.sources.push(row);
+    if (r.error) log(`video/speech discovery: FAIL ${ch.kind} channel ${ch.label} — ${r.error}; skipped this pass, the rest of the run continues`);
+    else log(`video/speech discovery: ${ch.kind} channel ${ch.label} via ${r.via} — ${r.items.length} item(s) found, ${queued} matched to a roster member${chairs ? ` (${chairs} via the chair)` : ""}, ${unmatched} unmatched`);
+    if (!r.error) st.last[CHANNEL_STATE_PREFIX + ch.channel_id] = at.toISOString();
+  }
+  return out;
+}
 
 export const isVideoSpeechClass = (c) => Object.prototype.hasOwnProperty.call(VIDEO_SPEECH_CLASSES, c);
 /** A frontier entry / pull-list source queued by this module. */
@@ -374,8 +536,9 @@ export async function discoverVideoSpeech({
   politicians = [], fresh, fetch, store = null, state = null, now = () => new Date(), log = console.log,
   youtubeKey = process.env.YOUTUBE_API_KEY || "", govinfoKey = process.env.GOVINFO_API_KEY || process.env.CONGRESS_GOV_API_KEY || "",
   force = false, interval = VIDEO_DISCOVERY_INTERVAL_MS, mergeFrontier, configs = null,
+  institutional = null,
 } = {}) {
-  const out = { checked: [], added: 0, entries: [], sources: [] };
+  const out = { checked: [], added: 0, entries: [], sources: [], channels_checked: [] };
   if (!fresh || typeof fetch !== "function") return out;
   const st = state ? { last: { ...(state.last || {}) } } : await readVideoSpeechState(store);
   const at = now();
@@ -428,7 +591,24 @@ export async function discoverVideoSpeech({
     log(`video/speech discovery: ${pid} — ${n} new video/speech URL(s) queued into the frontier (frontier ${before} → ${(fresh.frontier[pid] || []).length})`);
     st.last[pid] = at.toISOString();
   }
-  if (out.checked.length && store && !state) {
+  // Committee / conference channels (INSTITUTIONAL_CHANNELS): each video goes
+  // to the one roster politician it is matched to, into the same frontier.
+  if (institutional) {
+    const inst = await discoverInstitutional({
+      channels: institutional.channels || INSTITUTIONAL_CHANNELS, members: institutional.members || [],
+      st, at, fresh, fetch, youtubeKey, force, interval, log,
+    });
+    out.channels_checked = inst.checked;
+    out.sources.push(...inst.sources);
+    if (inst.entries.length) {
+      const n = typeof mergeFrontier === "function" ? mergeFrontier(fresh, inst.entries) : 0;
+      out.added += n;
+      out.entries.push(...inst.entries.filter((e) => (fresh.frontier[e.politician_id] || []).some((x) => x.url === e.url)));
+      for (const e of inst.entries) log(`discovery: QUEUE ${e.politician_id}|${e.topic} ${e.url} (${e.source_class} · ${e.speech_kind} · ${e.source_type}, matched by ${e.institutional.matched_by}) — committee/conference video frontier entry`);
+      log(`video/speech discovery: committee / conference channels — ${n} new video URL(s) queued into the frontier`);
+    }
+  }
+  if ((out.checked.length || out.channels_checked.length) && store && !state) {
     try { await store.setJSON(VIDEO_SPEECH_STATE_KEY, { updated_at: at.toISOString(), last: st.last }); }
     catch (e) { log(`video/speech discovery: state not saved — ${safeErr(e)}`); }
   }
@@ -470,6 +650,120 @@ export function addVideoSpeechSources(sources, fresh, { politicians = [], max, p
     log(`video/speech: ${pid} — ${n} video/speech source(s) added to this run (≤ ${per} per politician, caps unchanged)${waiting ? ` · ${waiting} more waiting in the frontier` : ""}`);
   }
   return { sources: out, added };
+}
+
+// ── Video priority lane ────────────────────────────────────────────────────
+// Parallel to the priority-newsroom lane (raw-ingest-core.mjs, planRun): up to
+// VIDEO_LANE_PER_RUN slots of every run are RESERVED for video / speech
+// frontier entries of high-value members — tier 1, or no Locker evidence at
+// all — whether or not the rotation planned them this run. The cron plans the
+// rest of the run under the cap minus the reserved slots, so leftover-slot
+// behaviour (addVideoSpeechSources, then fresh pages) is unchanged for
+// everyone else.
+//   · Candidates: lane members with an unfetched video / speech entry in their
+//     frontier (committee, C-SPAN, official or campaign video, floor speech,
+//     hearing transcript), not already in the pull list, not waiting in the
+//     transcript queue (a queued video would only re-occupy the slot).
+//   · Order: no evidence first, then members holding a hearing / floor item,
+//     then tier, then roster order; one member per slot, in a lap
+//     (`lap_done`, reset when everyone with an entry had a turn). Inside a
+//     member: hearing / floor first, then C-SPAN / committee, official,
+//     campaign; newest first. A spare slot goes to a picked member's next entry.
+//   · Coverage: each lane slot given is counted per member (`given`); after
+//     VIDEO_LANE_COVERED slots a member drops out of the lane and is served by
+//     the normal leftover slots, like a newsroom member once they have evidence.
+// State: VIDEO_LANE_STATE_KEY in the rotation store ({ lap_done, given }).
+export const VIDEO_LANE_PER_RUN = 2;
+export const VIDEO_LANE_COVERED = 3;
+export const VIDEO_LANE_STATE_KEY = "video-lane.json";
+
+/** 0 hearing / floor · 1 C-SPAN or committee / conference · 2 official · 3 campaign. */
+export function videoEntryRank(e) {
+  const kind = String(e?.speech_kind || "");
+  if (e?.source_class === "floor_speech" || e?.source_class === "hearing_transcript" || kind === "hearing" || kind === "floor speech") return 0;
+  const st = String(e?.source_type || "");
+  if (/\bc-span\b/i.test(st) || /\b(?:committee|party conference) video\b/i.test(st)) return 1;
+  if (/\bcampaign\b/i.test(st)) return 3;
+  return 2;
+}
+
+/** A stored lane state, normalised. */
+export function normaliseVideoLaneState(doc) {
+  const given = {};
+  for (const [k, v] of Object.entries(doc?.given || {})) if (Number(v) > 0) given[k] = Math.trunc(Number(v));
+  return { lap_done: Array.isArray(doc?.lap_done) ? doc.lap_done.map(String) : [], given };
+}
+
+const evidenceIn = (counts, pid) => {
+  const pre = `${pid}|`;
+  for (const [k, c] of Object.entries(counts || {})) if (k.startsWith(pre) && ((Number(c?.strong) || 0) + (Number(c?.weak) || 0)) > 0) return true;
+  return false;
+};
+
+/** Lane members: tier-1 or zero-evidence roster politicians not yet covered → [{ politician_id, tier, no_evidence, i }]. */
+export function videoLaneMembers(roster = [], { counts = {}, state = null, covered = VIDEO_LANE_COVERED } = {}) {
+  const st = normaliseVideoLaneState(state);
+  const out = [], seen = new Set();
+  (roster || []).forEach((r, i) => {
+    const pid = String(r?.politician_id || "");
+    if (!pid || seen.has(pid)) return;
+    seen.add(pid);
+    const tier = Number(r.tier);
+    const no_evidence = !evidenceIn(counts, pid);
+    if (!(tier === 1 || no_evidence)) return;
+    if ((st.given[pid] || 0) >= covered) return;
+    out.push({ politician_id: pid, tier: Number.isFinite(tier) && tier > 0 ? tier : 9, no_evidence, i });
+  });
+  return out;
+}
+
+/**
+ * Plan this run's video lane. Never throws. Returns { picks, reserved,
+ * members, eligible, covered, state } — `picks` are pull-list sources (each
+ * marked video_lane: true), `state` the lane state to persist.
+ * `known` (normalised URLs already in the pull list) and `pendingVideoIds`
+ * (ids waiting in the transcript queue) are skipped.
+ */
+export function planVideoLane(fresh, {
+  roster = [], counts = {}, state = null, perRun = VIDEO_LANE_PER_RUN, covered = VIDEO_LANE_COVERED,
+  known = new Set(), pendingVideoIds = new Set(), configs = null, log = console.log,
+} = {}) {
+  const st = normaliseVideoLaneState(state);
+  const out = { picks: [], reserved: 0, members: [], eligible: [], covered: Object.keys(st.given).filter((p) => st.given[p] >= covered).sort(), state: st };
+  if (!fresh?.frontier || !(perRun > 0)) return out;
+  const vid = (u) => (/[?&]v=([A-Za-z0-9_-]{11})/.exec(String(u || "")) || [])[1] || null;
+  const candidates = [];
+  for (const m of videoLaneMembers(roster, { counts, state: st, covered })) {
+    const entries = (fresh.frontier[m.politician_id] || []).filter((e) => isVideoSpeechEntry(e))
+      .filter((e) => { const u = normUrl(e.url); const id = vid(e.url); return !known.has(u) && !fresh.seen?.[u] && !(id && pendingVideoIds.has(id)); })
+      .sort((a, b) => (videoEntryRank(a) - videoEntryRank(b)) || String(b.published || b.found_at || "").localeCompare(String(a.published || a.found_at || "")));
+    if (entries.length) candidates.push({ ...m, entries, hearing: videoEntryRank(entries[0]) === 0 });
+  }
+  out.eligible = candidates.map((c) => c.politician_id);
+  if (!candidates.length) return out;
+  candidates.sort((a, b) => (Number(b.no_evidence) - Number(a.no_evidence)) || (Number(b.hearing) - Number(a.hearing)) || (a.tier - b.tier) || (a.i - b.i));
+  let lap = new Set(st.lap_done.filter((p) => out.eligible.includes(p)));
+  if (candidates.every((c) => lap.has(c.politician_id))) lap = new Set();
+  const turn = [...candidates.filter((c) => !lap.has(c.politician_id)), ...candidates.filter((c) => lap.has(c.politician_id))];
+  const chosen = turn.slice(0, perRun);
+  const take = (c, e) => {
+    const { rank, found_from, found_at, attempts, ...src } = e;
+    const relabel = relabelCspanSourceType(src.source_type, videoSpeechConfigFor(c.politician_id, configs)?.chamber ?? null);
+    if (relabel) src.source_type = relabel;
+    out.picks.push({ ...src, video_lane: true });
+  };
+  for (const c of chosen) take(c, c.entries.shift());
+  // A spare slot (fewer members than slots) goes to a chosen member's next entry.
+  for (const c of chosen) if (out.picks.length < perRun && c.entries.length) take(c, c.entries.shift());
+  out.reserved = out.picks.length;
+  out.members = [...new Set(out.picks.map((p) => p.politician_id))];
+  const given = { ...st.given };
+  for (const p of out.picks) given[p.politician_id] = (given[p.politician_id] || 0) + 1;
+  for (const p of out.members) lap.add(p);
+  out.state = { lap_done: [...lap].sort(), given };
+  for (const p of out.picks) log(`video-lane: SLOT ${p.politician_id}|${p.topic} ${p.url} (${p.source_class} · ${p.speech_kind || "video/speech"} · ${p.source_type}) — reserved video slot`);
+  log(`video-lane: ${out.reserved} of ${perRun} reserved slot(s) used · ${out.eligible.length} high-value member(s) with video waiting · ${out.covered.length} covered (left the lane after ${covered} slots)`);
+  return out;
 }
 
 // ── Speech transcript pull (floor_speech / hearing_transcript) ─────────────

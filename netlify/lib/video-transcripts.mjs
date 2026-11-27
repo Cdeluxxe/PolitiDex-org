@@ -37,13 +37,21 @@
 // citation point at the moment the words are spoken. The Locker writer itself
 // is unchanged.
 
-import { logCandidateStances } from "./stance-score-core.mjs";
+import { logCandidateStances, hasRulesFor, TOPIC_RULES, NO_POLE_TOPICS, SCORED_TOPICS, WEIGHTS } from "./stance-score-core.mjs";
 import { maybeWriteLockerItem, citationExcerpts } from "./evidence-locker-core.mjs";
 
 export const TRANSCRIPT_STORE_NAME = "video-transcripts";
 export const TRANSCRIPT_PROVIDER = "gemini";
 export const TRANSCRIPT_MODEL = "gemini-3.5-flash";
 export const MAX_TRANSCRIBE_SECONDS = 1200;      // the first 20 minutes of a video
+// HEARINGS. A member may not speak until their turn an hour into a hearing.
+// For a queued hearing whose first 20-minute window holds fewer than
+// HEARING_MIN_OWN_SEGMENTS of the member's own segments, the next 20-minute
+// window is transcribed too (up to HEARING_EXTRA_WINDOWS more), as long as the
+// video is still running at the end of the last window read. Every other
+// video keeps the single first-20-minutes read.
+export const HEARING_EXTRA_WINDOWS = 2;          // up to the first 60 minutes of a hearing
+export const HEARING_MIN_OWN_SEGMENTS = 6;
 export const TRANSCRIBE_PER_RUN = 4;             // videos per background run (kept small for Gemini rate limits)
 export const TRANSCRIBE_CONCURRENCY = 1;         // one Gemini call at a time …
 // … with a pause between calls, to stay under the 429 limit. A 20-minute video
@@ -78,6 +86,7 @@ export function transcriptPrompt(name) {
     "Split the transcript into segments of one or two sentences, in order.",
     "For each segment give `start` (its start time from the beginning of the video as a clock string: \"M:SS\" or \"MM:SS\" under an hour, \"H:MM:SS\" after — e.g. \"0:07\", \"11:47\", \"1:02:05\"), `text` (the exact words), and",
     `\`speaker_is_politician\`: true only when the person speaking is ${name || "the politician who owns this channel"}; false for anyone else (a host, moderator, opponent, narrator, voice-over or crowd).`,
+    "Optionally give `speaker_confidence`: \"low\" when you cannot tell from the video who is speaking that segment, else \"high\".",
     "Leave out music, sound effects and on-screen text that nobody says. If nobody speaks, return an empty list of segments.",
   ].join("\n");
 }
@@ -91,7 +100,7 @@ const RESPONSE_SCHEMA = {
         type: "OBJECT",
         // A clock string ("11:47", "1:02:05"). As a NUMBER the model wrote the
         // clock digits as one number (11:47 → 1147), not seconds.
-        properties: { start: { type: "STRING" }, text: { type: "STRING" }, speaker_is_politician: { type: "BOOLEAN" } },
+        properties: { start: { type: "STRING" }, text: { type: "STRING" }, speaker_is_politician: { type: "BOOLEAN" }, speaker_confidence: { type: "STRING", enum: ["high", "low"] } },
         required: ["start", "text", "speaker_is_politician"],
       },
     },
@@ -103,7 +112,7 @@ const RESPONSE_SCHEMA = {
  * Default provider call: Gemini via the Netlify AI Gateway. Returns the
  * model's parsed JSON ({ segments: [...] }). Throws on a provider error.
  */
-export async function geminiGenerate({ videoId, name, model = TRANSCRIPT_MODEL, maxSeconds = MAX_TRANSCRIBE_SECONDS }) {
+export async function geminiGenerate({ videoId, name, model = TRANSCRIPT_MODEL, maxSeconds = MAX_TRANSCRIBE_SECONDS, startSeconds = 0 }) {
   const { GoogleGenAI } = await import("@google/genai");
   const ai = new GoogleGenAI({
     apiKey: process.env.NETLIFY_AI_GATEWAY_KEY,
@@ -114,7 +123,7 @@ export async function geminiGenerate({ videoId, name, model = TRANSCRIPT_MODEL, 
     contents: [{
       role: "user",
       parts: [
-        { fileData: { fileUri: watchUrl(videoId), mimeType: "video/*" }, videoMetadata: { startOffset: "0s", endOffset: `${maxSeconds}s` } },
+        { fileData: { fileUri: watchUrl(videoId), mimeType: "video/*" }, videoMetadata: { startOffset: `${startSeconds}s`, endOffset: `${startSeconds + maxSeconds}s` } },
         { text: transcriptPrompt(name) },
       ],
     }],
@@ -136,6 +145,32 @@ export async function geminiGenerate({ videoId, name, model = TRANSCRIPT_MODEL, 
 // `time_format`; segmentSeconds decodes them on read (looksLikeClockDigits), so
 // already-cached data resolves to the right second without a re-transcription.
 export const TIME_FORMAT = "seconds";
+
+// ── Transcript versions ─────────────────────────────────────────────────────
+// Every cached doc written from now on carries the prompt and the segment
+// schema it was made with. Older docs carry neither; transcriptVersionOf
+// infers theirs (v1 = clock digits as numbers, v2 = clock strings, no
+// speaker confidence). A doc older than the current versions is only
+// re-transcribed when someone asks for it (requestRetranscribe) — never
+// automatically.
+//   prompt v1 · `start` as a NUMBER (read back as clock digits)
+//   prompt v2 · `start` as a clock string ("11:47")
+//   prompt v3 · v2 + optional `speaker_confidence` ("low" | "high")
+//   schema v1 · segments [{ t (clock digits), text, own }]
+//   schema v2 · segments [{ t (seconds), text, own }], time_format "seconds"
+//   schema v3 · v2 + optional `low: true` on a segment whose speaker is uncertain
+export const TRANSCRIPT_PROMPT_VERSION = "transcript-prompt-v3";
+export const TRANSCRIPT_SCHEMA_VERSION = "transcript-schema-v3";
+
+/** { prompt_version, schema_version, stamped, current } of a cached doc (inferred for older docs). */
+export function transcriptVersionOf(doc) {
+  if (!doc || typeof doc !== "object") return { prompt_version: null, schema_version: null, stamped: false, current: false };
+  const stamped = !!(doc.prompt_version || doc.schema_version);
+  const seconds = doc.time_format === TIME_FORMAT;
+  const prompt_version = doc.prompt_version || (seconds ? "transcript-prompt-v2" : "transcript-prompt-v1");
+  const schema_version = doc.schema_version || (seconds ? "transcript-schema-v2" : "transcript-schema-v1");
+  return { prompt_version, schema_version, stamped, current: prompt_version === TRANSCRIPT_PROMPT_VERSION && schema_version === TRANSCRIPT_SCHEMA_VERSION };
+}
 
 /** "M:SS" / "MM:SS" / "H:MM:SS" → seconds; null when the value is not a clock string. */
 export function parseClock(v) {
@@ -189,11 +224,11 @@ export function normaliseSegments(json) {
   const rows = list.map((s) => {
     const v = s?.start ?? s?.t;
     const clock = parseClock(v);
-    return { clock, num: clock === null ? Math.max(0, Math.floor(Number(v) || 0)) : null, text: oneLine(s?.text), own: s?.speaker_is_politician !== false };
+    return { clock, num: clock === null ? Math.max(0, Math.floor(Number(v) || 0)) : null, text: oneLine(s?.text), own: s?.speaker_is_politician !== false, low: String(s?.speaker_confidence || "").toLowerCase() === "low" };
   });
   const digits = looksLikeClockDigits(rows.filter((r) => r.clock === null).map((r) => r.num));
   return rows
-    .map((r) => ({ t: r.clock !== null ? r.clock : digits ? clockDigitsToSeconds(r.num) : r.num, text: r.text, own: r.own }))
+    .map((r) => ({ t: r.clock !== null ? r.clock : digits ? clockDigitsToSeconds(r.num) : r.num, text: r.text, own: r.own, ...(r.low ? { low: true } : {}) }))
     .filter((s) => s.text)
     .sort((a, b) => a.t - b.t);
 }
@@ -203,13 +238,35 @@ export function normaliseSegments(json) {
  *   { ok: true, segments, text }   (text = every segment, whoever speaks)
  *   { ok: false, error }
  */
-export async function transcribeVideo(videoId, { name, generate = geminiGenerate, model = TRANSCRIPT_MODEL } = {}) {
+export async function transcribeVideo(videoId, { name, generate = geminiGenerate, model = TRANSCRIPT_MODEL, startSeconds = 0, maxSeconds = MAX_TRANSCRIBE_SECONDS } = {}) {
   try {
-    const segments = normaliseSegments(await generate({ videoId, name, model }));
+    const raw = normaliseSegments(await generate(startSeconds ? { videoId, name, model, startSeconds, maxSeconds } : { videoId, name, model }));
+    const segments = startSeconds ? windowToVideoSeconds(raw, startSeconds) : raw;
     return { ok: true, segments, text: segments.map((s) => s.text).join(" ") };
   } catch (e) {
     return { ok: false, error: oneLine(e?.message || e).slice(0, 300) || "transcription failed" };
   }
+}
+
+/**
+ * Segments of a later window, in seconds from the start of the VIDEO. The
+ * model may count from the start of the clip it was given; those times sit
+ * below the window start, and are shifted by it.
+ */
+export function windowToVideoSeconds(segments, startSeconds) {
+  const list = segments || [];
+  if (!list.length || !startSeconds) return list;
+  const ts = list.map((s) => s.t).sort((a, b) => a - b);
+  const median = ts[Math.floor(ts.length / 2)];
+  return median < startSeconds ? list.map((s) => ({ ...s, t: s.t + startSeconds })) : list;
+}
+
+/** Is this queue entry a hearing (kind, else its title)? Floor speeches are not. */
+export function isHearingEntry(entry) {
+  const kind = String(entry?.src?.speech_kind || entry?.speech_kind || "");
+  if (kind) return kind === "hearing";
+  return entry?.src?.source_class === "hearing_transcript"
+    || /\b(?:hearings?|committee|subcommittee|markup|testif\w*)\b/i.test(String(entry?.title || ""));
 }
 
 // ── Cache + queue ───────────────────────────────────────────────────────────
@@ -264,6 +321,51 @@ export async function enqueueTranscript(store, src, { videoId, title = "", chann
     const r = await store.setJSON(queueKey(videoId), entry, { onlyIfNew: true });
     return !(r && r.modified === false);
   } catch { return false; }
+}
+
+/**
+ * Ask for one video to be transcribed again with the current prompt. Safe:
+ *   · only this video is queued (nothing re-runs automatically);
+ *   · a cached doc already at the current versions is skipped unless `force`;
+ *   · a re-transcription that fails keeps the old transcript (never replaced
+ *     by a "failed" doc);
+ *   · the new record's Locker items go through the video rescore (move to the
+ *     corrected key, never a second copy).
+ * `src` is the queue source ({ politician_id, topic, source_type, source_class,
+ * source_id?, speech_kind?, url }) — e.g. retranscribeSrcFromRecord(rawRecord).
+ * Returns { queued, reason }.
+ */
+export async function requestRetranscribe(store, { videoId, src, title = "", name = "", channel = "", published = "", reason = "", force = false, at = new Date().toISOString() } = {}) {
+  if (!store || !/^[A-Za-z0-9_-]{11}$/.test(String(videoId || ""))) return { queued: false, reason: "no video id" };
+  if (!src?.politician_id || !src?.url) return { queued: false, reason: "no source (politician / url) for the video" };
+  const doc = await readTranscript(store, videoId);
+  const v = transcriptVersionOf(doc);
+  if (doc && v.current && !force) return { queued: false, reason: `already at ${v.prompt_version} / ${v.schema_version}` };
+  const existing = await getJSON(store, queueKey(videoId));
+  const entry = {
+    ...(existing || {}),
+    video_id: videoId,
+    queued_at: existing?.queued_at || at,
+    attempts: 0,
+    title: oneLine(title || existing?.title || ""),
+    ...(channel || existing?.channel ? { channel: channel || existing.channel } : {}),
+    ...(published || existing?.published ? { published: String(published || existing.published).slice(0, 10) } : {}),
+    ...(name || existing?.name ? { name: name || existing.name } : {}),
+    retranscribe: { requested_at: at, reason: oneLine(reason) || null, force: !!force, from: doc ? { prompt_version: v.prompt_version, schema_version: v.schema_version } : null },
+    src: { ...(existing?.src || {}), ...src, source_tier: 2 },
+  };
+  try { await store.setJSON(queueKey(videoId), entry); return { queued: true, reason: doc ? `re-transcribe ${v.prompt_version} → ${TRANSCRIPT_PROMPT_VERSION}` : "not cached yet: transcribe" }; }
+  catch (e) { return { queued: false, reason: oneLine(e?.message || e) }; }
+}
+
+/** The queue source for a stored raw video record (to re-transcribe it). */
+export function retranscribeSrcFromRecord(rec) {
+  if (!rec?.politician_id || !rec?.video_id) return null;
+  return {
+    politician_id: rec.politician_id, topic: rec.topic, source_type: rec.source_type, source_class: "youtube_video",
+    ...(rec.source_id ? { source_id: rec.source_id } : {}), ...(rec.speech_kind ? { speech_kind: rec.speech_kind } : {}),
+    url: rec.url || watchUrl(rec.video_id),
+  };
 }
 
 // ── Queue order ─────────────────────────────────────────────────────────────
@@ -336,7 +438,7 @@ export function buildVideoRecord({ src, videoId, title = "", doc, fetchedAt, pub
   for (const s of own) {
     if (body.length >= MAX_VIDEO_BODY_CHARS) break;
     if (segments.length && !/\s$/.test(body)) body += " ";
-    segments.push({ t: s.t, at: body.length });
+    segments.push({ t: s.t, at: body.length, ...(s.low ? { low: true } : {}) });
     body += s.text;
   }
   body = body.slice(0, MAX_VIDEO_BODY_CHARS);
@@ -361,15 +463,17 @@ export function buildVideoRecord({ src, videoId, title = "", doc, fetchedAt, pub
     ...(channel ? { channel } : {}),
     segments,
     time_format: TIME_FORMAT,
-    transcript: { provider: doc.provider || TRANSCRIPT_PROVIDER, model: doc.model || TRANSCRIPT_MODEL, transcribed_at: doc.transcribed_at || null, own_segments: own.length, all_segments: (doc.segments || []).length },
+    transcript: { provider: doc.provider || TRANSCRIPT_PROVIDER, model: doc.model || TRANSCRIPT_MODEL, transcribed_at: doc.transcribed_at || null, own_segments: own.length, all_segments: (doc.segments || []).length, ...versionFields(doc), ...(own.some((s) => s.low) ? { low_confidence_segments: own.filter((s) => s.low).length } : {}) },
   };
 }
 
 // ── Timestamped video links ────────────────────────────────────────────────
 const foldText = (s) => String(s || "").replace(/[‘’]/g, "'").replace(/[“”]/g, '"').replace(/\s+/g, " ").toLowerCase();
 
-/** The start second of the segment the excerpt is in, or null. */
-export function videoExcerptSecond(raw, excerpt) {
+const versionFields = (doc) => { const v = transcriptVersionOf(doc); return { prompt_version: v.prompt_version, schema_version: v.schema_version }; };
+
+/** The segment ({ t, at, low? }) of a timed record the excerpt is in, or null. */
+export function videoExcerptSegment(raw, excerpt) {
   // A raw record stored before time_format existed may carry clock digits.
   const segs = segmentSeconds(raw);
   if (!segs.length || !excerpt) return null;
@@ -388,6 +492,12 @@ export function videoExcerptSecond(raw, excerpt) {
   }
   let hit = null;
   for (const s of segs) if (Number(s.at) <= at) hit = s; else break;
+  return hit;
+}
+
+/** The start second of the segment the excerpt is in, or null. */
+export function videoExcerptSecond(raw, excerpt) {
+  const hit = videoExcerptSegment(raw, excerpt);
   return hit ? Math.max(0, Math.floor(Number(hit.t) || 0)) : null;
 }
 
@@ -414,26 +524,233 @@ export function lockerRawFor(candidate, rec) {
   return link && link !== rec.final_url ? Object.freeze({ ...rec, final_url: link }) : rec;
 }
 
+// ── Long videos: scored in time windows ────────────────────────────────────
+// A long official speech or hearing is many answers on many subjects. Read as
+// one page, a clear position in one answer was cancelled by an aside or a
+// passing counter-note twenty minutes later (R5 outliers → mixed, R16 needs
+// it uncontested, R15 needs no conflicting lean anywhere on the page). A long
+// video (≥ LONG_VIDEO_MIN_SEGMENTS own segments, or own speech spanning
+// ≥ LONG_VIDEO_MIN_SECONDS) is therefore split into time windows of the
+// politician's own segments — a new window after SCORE_WINDOW_SECONDS, or
+// when someone else speaks for more than ANSWER_GAP_SECONDS (a new answer
+// block) — and each window is scored on its own by the unchanged scorer.
+// Per issue key:
+//   · windows that read a clear side vote by window — windows with an explicit
+//     statement first; a window read from implications only (a passing
+//     counter-note) votes only when no window is explicit. The side more
+//     windows read wins and its strongest window is the candidate; each window
+//     on the other side costs WEIGHTS.outlierPenalty (R5's per-outlier cost)
+//     but no longer flips it. An even split falls back to the whole-video read;
+//   · with no clear window, the whole-video read is used, exactly as before
+//     (so corroboration spread across windows still counts).
+// Topic: the page topic still comes from the title. When the title names no
+// issue (a generic "Full Committee Hearing"), a window whose own words clearly
+// centre on one issue (WINDOW_TOPIC_MIN_HITS mentions, more than any other)
+// is scored under that issue. Short videos are scored exactly as before.
+export const LONG_VIDEO_MIN_SEGMENTS = 40;
+export const LONG_VIDEO_MIN_SECONDS = 900;          // 15 minutes of own speech …
+export const LONG_VIDEO_DURATION_MIN_SEGMENTS = 12; // … over at least this many segments
+export const SCORE_WINDOW_SECONDS = 150;            // ~2.5 minutes per window
+export const ANSWER_GAP_SECONDS = 45;               // silence (someone else talking) that closes an answer block
+export const WINDOW_TOPIC_MIN_HITS = 3;
+
+const CLEAR = (c) => c?.position === "support" || c?.position === "oppose";
+/** Explicit (clear) statements a window candidate holds for its own side. */
+const explicitFor = (c) => (c?.sources?.[0]?.statements || []).filter((s) => s.kind === "clear" && s.side === c.position).length;
+const clockOf = (s) => { const n = Math.max(0, Math.floor(Number(s) || 0)), h = Math.floor(n / 3600), m = Math.floor((n % 3600) / 60), x = String(n % 60).padStart(2, "0"); return h ? `${h}:${String(m).padStart(2, "0")}:${x}` : `${m}:${x}`; };
+
+/** Is this a video transcript record long enough to be scored in windows? */
+export function isLongVideoRecord(rec) {
+  if (rec?.type !== "video" || !Array.isArray(rec?.segments) || !rec.segments.length) return false;
+  const segs = segmentSeconds(rec);
+  if (segs.length >= LONG_VIDEO_MIN_SEGMENTS) return true;
+  const span = Number(segs[segs.length - 1]?.t) - Number(segs[0]?.t);
+  return segs.length >= LONG_VIDEO_DURATION_MIN_SEGMENTS && span >= LONG_VIDEO_MIN_SECONDS;
+}
+
+/**
+ * The politician's own words split into time windows:
+ * [{ index, start, end, body, segments: [{ t, at }] }] — `at` relative to the
+ * window body, `t` seconds from the start of the video.
+ */
+export function videoWindows(rec, { windowSeconds = SCORE_WINDOW_SECONDS, gapSeconds = ANSWER_GAP_SECONDS } = {}) {
+  const segs = segmentSeconds(rec);
+  const body = String(rec?.body || "");
+  const pieces = segs.map((s, i) => ({ t: Math.max(0, Math.floor(Number(s.t) || 0)), text: body.slice(Number(s.at) || 0, i + 1 < segs.length ? Number(segs[i + 1].at) || body.length : body.length).trim() }))
+    .filter((p) => p.text);
+  const out = [];
+  let cur = null, prevT = null;
+  for (const p of pieces) {
+    if (!cur || p.t - cur.start >= windowSeconds || (prevT !== null && p.t - prevT > gapSeconds)) {
+      if (cur) out.push(cur);
+      cur = { index: out.length, start: p.t, end: p.t, body: "", segments: [] };
+    }
+    if (cur.body) cur.body += " ";
+    cur.segments.push({ t: p.t, at: cur.body.length });
+    cur.body += p.text;
+    cur.end = p.t;
+    prevT = p.t;
+  }
+  if (cur) out.push(cur);
+  return out;
+}
+
+/** Issue key a window's own words clearly centre on (rules-backed, no-pole keys excluded), else null. */
+export function windowTopic(text) {
+  const s = String(text || "");
+  const hits = [];
+  for (const t of SCORED_TOPICS) {
+    if (!hasRulesFor(t) || NO_POLE_TOPICS.has(t)) continue;
+    const re = TOPIC_RULES[t].mention;
+    if (!re) continue;
+    const n = (s.match(new RegExp(re.source, re.flags.includes("g") ? re.flags : re.flags + "g")) || []).length;
+    if (n) hits.push([t, n]);
+  }
+  hits.sort((a, b) => b[1] - a[1]);
+  return hits[0] && hits[0][1] >= WINDOW_TOPIC_MIN_HITS && (!hits[1] || hits[1][1] < hits[0][1]) ? hits[0][0] : null;
+}
+
+/** Does the title name an issue the scorer has rules for? */
+function titleNamesTopic(title) {
+  const s = String(title || "");
+  return !!s && SCORED_TOPICS.some((t) => hasRulesFor(t) && TOPIC_RULES[t].mention && new RegExp(TOPIC_RULES[t].mention.source, TOPIC_RULES[t].mention.flags.replace("g", "")).test(s));
+}
+
+/** The page-shaped record for one window (same source, link and metadata; the window's words only). */
+export function windowRecord(rec, w, of, topic = rec.topic) {
+  return Object.freeze({
+    ...rec,
+    topic,
+    body: w.body,
+    body_chars: w.body.length,
+    segments: w.segments,
+    time_format: TIME_FORMAT,
+    window: { index: w.index, of, start: w.start, end: w.end },
+  });
+}
+
+/**
+ * Score one record into Locker candidates: [{ candidate, raw }], `raw` being
+ * the record to hand the Locker writer for it. Short videos and every other
+ * record: logCandidateStances on the whole record, unchanged. Long videos:
+ * scored in time windows (see above).
+ */
+export function scoreRecordCandidates(rec, { log = console.log } = {}) {
+  return scoreWholeOrWindows(rec, { log }).map((x) => uncertainSpeaker(x, rec, { log }));
+}
+
+// ── Speaker confidence ─────────────────────────────────────────────────────
+// A mixed video (others speak too) whose clear read rests on words the model
+// could not attribute with confidence (`low` segments) is read as a mention,
+// not a stance: when the cited segment is low, or at least
+// LOW_SPEAKER_SHARE of the politician's segments are. Videos without
+// speaker confidence (every older transcript) are unaffected.
+export const LOW_SPEAKER_SHARE = 0.5;
+function uncertainSpeaker(x, rec, { log }) {
+  const c = x.candidate;
+  if (!CLEAR(c) || rec?.type !== "video") return x;
+  const t = rec.transcript || {};
+  const mixed = Number(t.all_segments) > Number(t.own_segments);
+  const segs = Array.isArray(rec.segments) ? rec.segments : [];
+  const lows = segs.filter((s) => s.low).length;
+  if (!mixed || !lows) return x;
+  const cited = videoExcerptSegment(x.raw, c.sources?.[0]?.excerpt);
+  const share = lows / segs.length;
+  if (!cited?.low && share < LOW_SPEAKER_SHARE) return x;
+  const why = cited?.low ? "the cited words are in a segment whose speaker the transcriber marked uncertain" : `${lows} of ${segs.length} of the politician's segments have an uncertain speaker`;
+  log(`stance-score: SPEAKER UNCERTAIN ${rec.politician_id}|${c.topic}${rec.source_id ? "|" + rec.source_id : ""} — ${c.position} ${c.confidence} read as a mention: ${why} in a video with other speakers`);
+  const candidate = {
+    ...c,
+    position: "no clear position",
+    confidence: WEIGHTS.mentionOnlyConfidence,
+    confidence_reason: `${c.confidence_reason}; read as a mention: ${why} in a video with other speakers`,
+    speaker_uncertain: { was: c.position, confidence: c.confidence },
+  };
+  delete candidate.stated_position;
+  delete candidate.primary_kind;
+  return { ...x, candidate };
+}
+
+function scoreWholeOrWindows(rec, { log }) {
+  if (!isLongVideoRecord(rec)) return logCandidateStances(rec, { log }).map((candidate) => ({ candidate, raw: rec }));
+  const id = `${rec?.politician_id}${rec?.source_id ? "|" + rec.source_id : ""}`;
+  const whole = logCandidateStances(rec, { log });
+  const windows = videoWindows(rec);
+  const generic = !titleNamesTopic(rec.title);
+  const silent = () => {};
+  const byTopic = new Map(); // topic → [{ candidate, raw, w }]
+  for (const w of windows) {
+    const wt = generic ? windowTopic(w.body) : null;
+    const topic = wt && hasRulesFor(wt) ? wt : rec.topic;
+    const wr = windowRecord(rec, w, windows.length, topic);
+    for (const c of logCandidateStances(wr, { log: silent })) {
+      if (!CLEAR(c)) continue;
+      if (!byTopic.has(c.topic)) byTopic.set(c.topic, []);
+      byTopic.get(c.topic).push({ candidate: c, raw: wr, w });
+    }
+  }
+  const out = [];
+  const used = new Set();
+  for (const [topic, list] of byTopic) {
+    // Windows with an explicit statement for their side vote first; windows
+    // read from implications only are notes, and vote only when no window is explicit.
+    const explicitList = list.filter((x) => explicitFor(x.candidate) > 0);
+    const voters = explicitList.length ? explicitList : list;
+    const n = { support: 0, oppose: 0 };
+    for (const x of voters) n[x.candidate.position]++;
+    if (n.support === n.oppose) {
+      log(`stance-score: WINDOWS ${id}|${topic} — ${n.support} ${explicitList.length ? "explicit " : ""}window(s) read support, ${n.oppose} oppose: even split, the whole-video read stands`);
+      continue;
+    }
+    const side = n.support > n.oppose ? "support" : "oppose";
+    const counter = list.filter((x) => x.candidate.position !== side).length;
+    n[side] = list.filter((x) => x.candidate.position === side).length;
+    const best = voters.filter((x) => x.candidate.position === side)
+      .sort((a, b) => (b.candidate.confidence - a.candidate.confidence) || (a.w.index - b.w.index))[0];
+    const c = best.candidate;
+    const confidence = Math.round(Math.max(0, c.confidence - WEIGHTS.outlierPenalty * counter) * 100) / 100;
+    const note = `scored in time window ${best.w.index + 1}/${windows.length} (${clockOf(best.w.start)}–${clockOf(best.w.end)}) of a long video; ${n[side]} window(s) read ${side}${counter ? `, ${counter} read the other side (−${WEIGHTS.outlierPenalty} each, R5)` : ", none the other side"}`;
+    const candidate = {
+      ...c,
+      confidence,
+      confidence_reason: `${c.confidence_reason}; ${note}`,
+      sources: [{ ...c.sources[0], window: { index: best.w.index, of: windows.length, start: best.w.start, end: best.w.end }, windows_for: n[side], windows_against: counter }],
+      ...(topic !== rec.topic ? { page_topic: rec.topic } : {}),
+      windowed: true,
+    };
+    const wasWhole = whole.find((x) => x.topic === topic);
+    log(`stance-score: WINDOWS ${id}|${topic} → ${side.toUpperCase()} ${confidence} — ${note}${wasWhole ? ` (whole video read ${wasWhole.position} ${wasWhole.confidence})` : " (whole video gave no candidate)"}`);
+    out.push({ candidate, raw: best.raw });
+    used.add(topic);
+  }
+  for (const c of whole) if (!used.has(c.topic)) out.push({ candidate: c, raw: rec });
+  // The page's own topic first, as logCandidateStances orders them.
+  out.sort((a, b) => (a.candidate.topic === rec.topic ? 0 : 1) - (b.candidate.topic === rec.topic ? 0 : 1));
+  log(`stance-score: ${id} long video — ${windows.length} time window(s) scored separately; ${used.size} issue(s) read from a window${generic ? " (generic title: a window may set its own issue)" : ""}`);
+  return out;
+}
+
 // ── Scoring hook (same path as campaign pages) ─────────────────────────────
 
 /**
  * Score a stored record and hand every candidate to the Locker writer —
  * logCandidateStances + maybeWriteLockerItem, exactly what the raw-ingest
- * cron does for a page. Returns the writes.
+ * cron does for a page (long videos: per time window, scoreRecordCandidates).
+ * Returns the writes.
  */
 export async function scoreIntoLocker(rec, { lockerStore, gt = null, flags = null, log = console.log } = {}) {
-  const candidates = logCandidateStances(rec, { log });
+  const scored = scoreRecordCandidates(rec, { log });
   const writes = [];
-  if (!lockerStore) return { candidates: candidates.length, writes };
-  if (!candidates.length) {
+  if (!lockerStore) return { candidates: scored.length, writes };
+  if (!scored.length) {
     log(`evidence-locker: SKIP ${rec?.politician_id}|${rec?.topic}${rec?.source_id ? "|" + rec.source_id : ""} — no scored candidate`);
     return { candidates: 0, writes };
   }
-  for (const c of candidates) {
-    const w = await maybeWriteLockerItem(c, lockerRawFor(c, rec), { store: lockerStore, gt, log, flags });
+  for (const { candidate: c, raw } of scored) {
+    const w = await maybeWriteLockerItem(c, lockerRawFor(c, raw), { store: lockerStore, gt, log, flags });
     if (w.written) writes.push({ key: w.key, politician_id: c.politician_id, topic: c.topic, strength: w.item?.strength, link: w.item?.link });
   }
-  return { candidates: candidates.length, writes };
+  return { candidates: scored.length, writes };
 }
 
 // ── The background worker ───────────────────────────────────────────────────
@@ -488,6 +805,7 @@ export async function processTranscriptQueue({
     // call, so they never wait; the first call of a run starts at once.
     let callsMade = 0;
     let gate = Promise.resolve();
+    summary.retranscribed = 0;
     const throttled = (f) => {
       const run = gate.then(async () => {
         if (callsMade++ > 0 && callDelayMs > 0) await sleep(callDelayMs);
@@ -501,10 +819,44 @@ export async function processTranscriptQueue({
       if (!videoId || !entry?.src?.politician_id) { try { await store.delete(key); } catch {} return; }
       const pid = entry.src.politician_id;
       let doc = await readTranscript(store, videoId);
+      // Re-transcription (requestRetranscribe): the cached doc is set aside —
+      // unless it is already at the current versions and no force was asked.
+      let previous = null;
+      if (doc && entry.retranscribe) {
+        const v = transcriptVersionOf(doc);
+        if (v.current && !entry.retranscribe.force) log(`video-transcribe: RE-TRANSCRIBE SKIP ${pid} ${watchUrl(videoId)} — already at ${v.prompt_version} / ${v.schema_version}`);
+        else {
+          previous = { prompt_version: v.prompt_version, schema_version: v.schema_version, status: doc.status || null, transcribed_at: doc.transcribed_at || null, segments: (doc.segments || []).length, reason: entry.retranscribe.reason || null };
+          log(`video-transcribe: RE-TRANSCRIBE ${pid} ${watchUrl(videoId)} — ${v.prompt_version} / ${v.schema_version} → ${TRANSCRIPT_PROMPT_VERSION} / ${TRANSCRIPT_SCHEMA_VERSION}${entry.retranscribe.reason ? ` (${entry.retranscribe.reason})` : ""}`);
+          doc = null;
+        }
+      }
       if (doc) summary.cache_hits++;
       else {
         const name = entry.name || nameOf(pid);
         const tr = await throttled(() => transcribeVideo(videoId, { name, generate }));
+        let readTo = MAX_TRANSCRIBE_SECONDS, windowsRead = 1;
+        // Hearings: little of the member in the first window → read the next ones.
+        if (tr.ok && isHearingEntry(entry)) {
+          while (windowsRead <= HEARING_EXTRA_WINDOWS && tr.segments.length) {
+            const own = tr.segments.filter((s) => s.own).length;
+            const last = tr.segments[tr.segments.length - 1].t;
+            if (own >= HEARING_MIN_OWN_SEGMENTS) break;
+            if (last < readTo - 120) { log(`video-transcribe: HEARING ${pid} ${watchUrl(videoId)} — ${own} own segment(s), the video ends before ${Math.round(readTo / 60)} min; no further window`); break; }
+            if (Date.now() - started > budgetMs) { log(`video-transcribe: HEARING ${pid} ${watchUrl(videoId)} — time budget reached; no further window`); break; }
+            const startSeconds = readTo;
+            const more = await throttled(() => transcribeVideo(videoId, { name, generate, startSeconds, maxSeconds: MAX_TRANSCRIBE_SECONDS }));
+            if (!more.ok) { log(`video-transcribe: HEARING ${pid} ${watchUrl(videoId)} — window ${Math.round(startSeconds / 60)}–${Math.round((startSeconds + MAX_TRANSCRIBE_SECONDS) / 60)} min failed (${more.error}); keeping what was read`); break; }
+            windowsRead++;
+            readTo = startSeconds + MAX_TRANSCRIBE_SECONDS;
+            const seen = new Set(tr.segments.map((s) => `${s.t}|${s.text}`));
+            const added = more.segments.filter((s) => s.t >= startSeconds - 5 && !seen.has(`${s.t}|${s.text}`));
+            log(`video-transcribe: HEARING ${pid} ${watchUrl(videoId)} — ${own} own segment(s) in the first ${Math.round(startSeconds / 60)} min; read ${Math.round(startSeconds / 60)}–${Math.round(readTo / 60)} min: ${added.length} segment(s), ${added.filter((s) => s.own).length} by ${name}`);
+            if (!added.length) break;
+            tr.segments = [...tr.segments, ...added].sort((a, b) => a.t - b.t);
+            tr.text = tr.segments.map((s) => s.text).join(" ");
+          }
+        }
         if (!tr.ok) {
           const attempts = (Number(entry.attempts) || 0) + 1;
           if (attempts < MAX_ATTEMPTS) {
@@ -514,12 +866,20 @@ export async function processTranscriptQueue({
             return;
           }
           summary.failed++;
-          doc = { video_id: videoId, status: "failed", error: tr.error, attempts, provider: TRANSCRIPT_PROVIDER, model: TRANSCRIPT_MODEL, transcribed_at: now().toISOString() };
+          if (previous) {
+            // A re-transcription that keeps failing never replaces a good transcript.
+            log(`video-transcribe: RE-TRANSCRIBE GAVE UP ${pid} ${watchUrl(videoId)} — ${tr.error} after ${attempts} attempts; the ${previous.prompt_version} transcript is kept`);
+            try { await store.delete(key); } catch {}
+            return;
+          }
+          doc = { video_id: videoId, status: "failed", error: tr.error, attempts, provider: TRANSCRIPT_PROVIDER, model: TRANSCRIPT_MODEL, prompt_version: TRANSCRIPT_PROMPT_VERSION, schema_version: TRANSCRIPT_SCHEMA_VERSION, transcribed_at: now().toISOString() };
           log(`video-transcribe: GAVE UP ${pid} ${watchUrl(videoId)} — ${tr.error} after ${attempts} attempts`);
         } else {
           summary.transcribed++;
+          if (previous) summary.retranscribed++;
           const own = tr.segments.filter((s) => s.own).length;
-          doc = { video_id: videoId, status: tr.segments.length ? "ok" : "empty", provider: TRANSCRIPT_PROVIDER, model: TRANSCRIPT_MODEL, transcribed_at: now().toISOString(), speaker: name, max_seconds: MAX_TRANSCRIBE_SECONDS, time_format: TIME_FORMAT, segments: tr.segments };
+          doc = { video_id: videoId, status: tr.segments.length ? "ok" : "empty", provider: TRANSCRIPT_PROVIDER, model: TRANSCRIPT_MODEL, prompt_version: TRANSCRIPT_PROMPT_VERSION, schema_version: TRANSCRIPT_SCHEMA_VERSION, transcribed_at: now().toISOString(), speaker: name, max_seconds: readTo, ...(windowsRead > 1 ? { windows_read: windowsRead } : {}), time_format: TIME_FORMAT, segments: tr.segments,
+            ...(previous ? { previous } : {}) };
           log(`video-transcribe: OK ${pid} ${watchUrl(videoId)} — ${tr.segments.length} segment(s), ${own} by ${name}`);
         }
         try { await store.setJSON(cacheKey(videoId), doc); } catch (e) { log(`video-transcribe: cache write failed for ${videoId} — ${e?.message || e}`); }
@@ -533,7 +893,7 @@ export async function processTranscriptQueue({
           summary.records.push(rk);
           log(`video-transcribe: RECORD ${pid} ${watchUrl(videoId)} → raw-ingest/${rk} (${rec.body_chars} chars, ${rec.segments.length} timed segment(s), tier 2)`);
           if (onRecord) {
-            try { await onRecord(Object.freeze({ ...rec, key: rk })); }
+            try { await onRecord(Object.freeze({ ...rec, key: rk, ...(previous ? { retranscribed: previous } : {}) })); }
             catch (e) { log(`video-transcribe: hook error for ${rk} — ${e?.message || e}`); }
           }
         } catch (e) { log(`video-transcribe: raw record not written for ${videoId} — ${e?.message || e}`); return; }

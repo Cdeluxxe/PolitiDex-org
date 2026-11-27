@@ -115,6 +115,12 @@ export function isCampaignOrOfficial(sourceType, link) {
   }
 }
 
+/** Channel named by a committee / conference video source type ("House Judiciary Committee"), else null. */
+export function institutionalChannelOf(sourceType) {
+  const m = /^official (?:House|Senate) (?:committee|party conference) video \(([^)]+)\)/i.exec(String(sourceType || ""));
+  return m ? m[1] : null;
+}
+
 /** "Source: campaign page" style attribution line from the source type + link. */
 export function attributionFor(sourceType, link) {
   const st = String(sourceType || "").toLowerCase();
@@ -122,6 +128,9 @@ export function attributionFor(sourceType, link) {
   try { host = new URL(link).hostname.toLowerCase(); } catch {}
   // A C-SPAN clip of the politician is named as C-SPAN, not as their channel.
   if (/\bc-span\b/.test(st)) return "Source: C-SPAN video";
+  // A committee / party conference channel video is named for that channel.
+  const inst = institutionalChannelOf(sourceType);
+  if (inst) return `Source: ${inst} video`;
   // A cited video from the politician's own channel (tier 2) is named as one.
   if (/(?:^|\.)(?:youtube\.com|youtu\.be)$/.test(host)) return `Source: ${/\bcampaign\b/.test(st) ? "campaign" : "official"} YouTube channel`;
   if (/\bofficial\b/.test(st) || /\.(gov|mil)$/.test(host)) {
@@ -506,7 +515,8 @@ export function toSpotlightEntry(item, { key = null, review = null } = {}) {
   // C-SPAN clip is a C-SPAN video, never the politician's campaign page.
   const cspan = isCspanItem(item);
   const page = KIND_LABELS[item.primary_kind] || (/YouTube channel/.test(item.attribution) ? "own YouTube channel" : /official/i.test(item.attribution) ? "official page" : "campaign page");
-  const where = cspan ? "In a C-SPAN video" : `${KIND_LABELS[item.primary_kind] ? "In" : "On"} ${who}'s ${page}`;
+  const inst = cspan ? null : institutionalChannelOf(item.source_type);
+  const where = cspan ? "In a C-SPAN video" : inst ? `In a ${inst} video` : `${KIND_LABELS[item.primary_kind] ? "In" : "On"} ${who}'s ${page}`;
   const media = videoMediaFor(item);
   return {
     // The page type rides in the headline so two pages on one topic stay two
