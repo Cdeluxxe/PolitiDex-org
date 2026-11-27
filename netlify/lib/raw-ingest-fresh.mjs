@@ -123,7 +123,9 @@ const ASSET = /\.(?:pdf|jpe?g|png|gif|svg|webp|mp4|mp3|mov|zip|docx?|xlsx?|pptx?
 const EXCLUDE_SEG = /^(?:tags?|category|categories|author|authors|search|feed|rss|contact|contact-us|donate|volunteer|events?|calendar|photos?|gallery|galleries|videos?|subscribe|newsletter|privacy|privacy-policy|accessibility|sitemap|login|log-in|signup|sign-up|shop|store|careers|jobs|internships?|services|casework|tours?|flags?|grants?|forms?|help|faq|about|biography|bio|offices?|wp-admin|wp-content|wp-json|cdn-cgi|page|archive|archives|espanol|es|map|maps|share|print|email)$/i;
 const EXCLUDE_QUERY = /(?:^|[?&])(?:page|sort|filter|start|offset|year|month|tag|cat|category|s|q|search)=/i;
 const STATEMENT_RE = /(?:^|[\/_-])(?:statements?|remarks|speech(?:es)?|op-?eds?|opinion|column|columns|testimony|floor-?speech|letters?)(?:[\/_-]|$)/i;
-const PRESS_SEG = /\/(?:press-releases?|press|news|newsroom|news-releases?|media|media-center|releases?|blog|updates?)\//i;
+const PRESS_SEG = /\/(?:press[-_]releases?|press|news|newsroom|news[-_]releases?|media|media-center|releases?|blog|updates?)\//i;
+// Dated release paths (/2026/11/slug, /2026/11/19/slug) used by many member sites.
+const DATED_SEG = /^\/(?:19|20)\d{2}\/\d{1,2}(?:\/\d{1,2})?\/[^/]+/;
 const DOCUMENT_ID = /[?&](?:documentid|id|newsid|releaseid)=\d+/i;
 const ISSUE_SEG = /\/(?:issues?|priorit(?:y|ies)|platform|agenda|polic(?:y|ies)|plans?|vision|key-issues|legislation|on-the-issues)\/[^/]+/i;
 const POLICY_WORDS = /\b(?:introduc\w*|bill|act|legislation|vote[sd]?|oppos\w*|support\w*|calls?|urg\w*|demand\w*|fight\w*|protect\w*|ban\w*|cut\w*|lower\w*|plan|statement|condemn\w*|blast\w*|slam\w*|reject\w*|push\w*|block\w*|repeal\w*|expand\w*|reform\w*|secure\w*|defend\w*|stop\w*|end\w*|rais\w*|reduc\w*|cap)\b/i;
@@ -140,7 +142,7 @@ const lastSegment = (u) => { try { return new URL(u).pathname.replace(/\/+$/, ""
  * worth pulling. `official` = the politician's page is an official (.gov or
  * "official") page; otherwise campaign.
  */
-export function classifyLink(url, text, { official = false } = {}) {
+export function classifyLink(url, text, { official = false, pressIndex = false } = {}) {
   let x;
   try { x = new URL(url); } catch { return null; }
   if (!/^https?:$/.test(x.protocol)) return null;
@@ -156,7 +158,10 @@ export function classifyLink(url, text, { official = false } = {}) {
   // A content page has a slug of a few words or a document id.
   const hasSlug = words >= 3 || DOCUMENT_ID.test(x.search);
   if (STATEMENT_RE.test(path) && hasSlug) return { kind: "fresh_statement", source_type: `${side} statement`, base: 5 };
-  if ((PRESS_SEG.test(full + "/") || DOCUMENT_ID.test(x.search)) && hasSlug) return { kind: "fresh_press_release", source_type: `${side} press release`, base: 3 };
+  if ((PRESS_SEG.test(full + "/") || DATED_SEG.test(path) || DOCUMENT_ID.test(x.search)) && hasSlug) return { kind: "fresh_press_release", source_type: `${side} press release`, base: 3 };
+  // On a member's own press-release index (priority newsrooms), a top-level
+  // slug of several words is a release (sites that file releases at /slug/).
+  if (pressIndex && path.split("/").filter(Boolean).length === 1 && words >= 5) return { kind: "fresh_press_release", source_type: `${side} press release`, base: 3 };
   if (ISSUE_SEG.test(path) && last && !/^(?:issues?|priorit(?:y|ies)|platform|agenda|polic(?:y|ies)|plans?)$/i.test(last)) {
     return { kind: "fresh_issue_page", source_type: /priorit/i.test(path) ? `${side} priority page` : `${side} issue page`, base: 4 };
   }
@@ -280,7 +285,7 @@ export function harvestLinks(src, body, { known = new Set(), seen = new Set(), c
     if (n === self || n === selfReq || known.has(n) || seen.has(n) || byUrl.has(n)) return;
     // Parent pages of the page itself (its section index) are not content.
     if (self.startsWith(n + "/")) return;
-    const c = classifyLink(l.url, l.text, { official });
+    const c = classifyLink(l.url, l.text, { official, pressIndex: Boolean(src.priority_newsroom) });
     if (!c) return;
     // Frontier quality filter: obvious low-signal pages never enter the frontier.
     const low = lowSignalReason(l.url, l.text);
@@ -411,7 +416,7 @@ export const FRESH_SKIP_LOG_LIMIT = 20;
  * per swap, one "discovery: frontier SKIP …" per passed-over candidate (up to
  * FRESH_SKIP_LOG_LIMIT) and a "discovery: frontier —" summary line.
  */
-export function addFreshSources(sources, state, { politicians, max, perPolitician, per = FRESH_PER_POLITICIAN, protect = new Set(), skipHosts = new Set(), spare = 0, log = console.log, wordGaps = null } = {}) {
+export function addFreshSources(sources, state, { politicians, max, perPolitician, per = FRESH_PER_POLITICIAN, protect = new Set(), skipHosts = new Set(), spare = 0, log = console.log, wordGaps = null, priority = [] } = {}) {
   const out = [...sources];
   const known = new Set(out.map((s) => normUrl(s.url)));
   const added = [], displaced = [], skipped = [];
@@ -467,9 +472,12 @@ export function addFreshSources(sources, state, { politicians, max, perPoliticia
   for (const pid of planned) take(pid, { spareSlot: false });
   const plannedSet = new Set(planned);
   if (spare > 0) {
+    // Priority newsroom members with no evidence yet (planRun's priority lane)
+    // go first, so pages harvested from their newsrooms are pulled soonest.
+    const prio = new Set(priority || []);
     const others = Object.keys(state.frontier)
       .filter((pid) => !plannedSet.has(pid) && state.frontier[pid]?.length)
-      .sort((a, b) => (Number(state.frontier[b][0]?.rank) || 0) - (Number(state.frontier[a][0]?.rank) || 0) || a.localeCompare(b));
+      .sort((a, b) => (Number(prio.has(b)) - Number(prio.has(a))) || (Number(state.frontier[b][0]?.rank) || 0) - (Number(state.frontier[a][0]?.rank) || 0) || a.localeCompare(b));
     for (const pid of others) {
       if (spareAdded >= spare || out.length >= max) break;
       take(pid, { spareSlot: true });
