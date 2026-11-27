@@ -140,6 +140,36 @@ function chamberFromUrls(row) {
 }
 
 /**
+ * "house" | "senate" | null for one roster row: the member map's chamber for a
+ * sitting member, else the official .house.gov / .senate.gov host on the row.
+ */
+export function chamberForRow(row, member = null) {
+  return member && member.serving119 !== false && /^(house|senate)$/.test(String(member.chamber || "")) ? member.chamber : chamberFromUrls(row);
+}
+
+/**
+ * Source type of a C-SPAN clip, named for the member's chamber (it was
+ * hard-coded "House proceedings", also for senators and governors).
+ */
+export function cspanSourceType(chamber, kind = "") {
+  const base = chamber === "senate" ? "official Senate proceedings video (C-SPAN)"
+    : chamber === "house" ? "official House proceedings video (C-SPAN)"
+    : "official C-SPAN video";
+  return kind ? `${base} — ${kind}` : base;
+}
+
+/** A C-SPAN source type that still carries the old hard-coded chamber. */
+export const LEGACY_CSPAN_TYPE = /^official House proceedings video \(C-SPAN\)/;
+
+/** The C-SPAN source type for `chamber`, keeping the old label's "— kind" suffix; null when unchanged. */
+export function relabelCspanSourceType(sourceType, chamber) {
+  const st = String(sourceType || "");
+  if (!LEGACY_CSPAN_TYPE.test(st) || chamber === "house") return null;
+  const kind = (/ — (.+)$/.exec(st) || [])[1] || "";
+  return cspanSourceType(chamber, kind);
+}
+
+/**
  * Video / speech configuration for one roster politician that has no
  * hand-written entry. `member` (optional) is their member-map row
  * ({ name, chamber, serving119 }). Null when nothing can be searched for.
@@ -152,7 +182,7 @@ export function videoSpeechConfigFromRoster(row, { member = null } = {}) {
   const name = oneLine(member?.name || row.name || "");
   const np = nameParts(display) || nameParts(name);
   const firsts = [...new Set([nameParts(display)?.first, nameParts(name)?.first].filter(Boolean))];
-  const chamber = member && member.serving119 !== false && /^(house|senate)$/.test(String(member.chamber || "")) ? member.chamber : chamberFromUrls(row);
+  const chamber = chamberForRow(row, member);
   const channels = [];
   for (const s of [row.official, ...(row.sources || [])]) {
     const id = String(s?.channel_id || "");
@@ -367,7 +397,7 @@ export async function discoverVideoSpeech({
       }) }))),
       ...cfg.search_channels.map((ch) => searchChannelVideos(ch, { fetch, youtubeKey }).then((r) => ({ r, source: `YouTube ${ch.label} search "${ch.query}"`, make: (v) => entry(pid, cfg, {
         url: youtubeWatchUrl(v.video_id), source_class: "youtube_video",
-        source_type: `official House proceedings video (${ch.label}) — ${speechKindOf(v.title)}`,
+        source_type: cspanSourceType(cfg.chamber, speechKindOf(v.title)),
         title: v.title, published: v.published, found_from: `youtube:${ch.channel_id}?q=${ch.query}`, kind: speechKindOf(v.title), rank: 6, now: at,
       }) }))),
       ...(cfg.govinfo?.collections || []).map((c) => govinfoSearch(c, cfg, { fetch, govinfoKey }).then((r) => ({ r, source: `GovInfo ${c === "CREC" ? "Congressional Record" : "hearing transcripts"}`, make: (v) => entry(pid, cfg, {
@@ -428,6 +458,9 @@ export function addVideoSpeechSources(sources, fresh, { politicians = [], max, p
       const mine = out.filter((s) => s.politician_id === pid).length;
       if (n >= per || mine >= perPolitician || out.length >= max) { waiting++; continue; }
       const { rank, found_from, found_at, attempts, ...src } = cand;
+      // Queued before the chamber fix: name the C-SPAN clip for this member's chamber.
+      const relabel = relabelCspanSourceType(src.source_type, videoSpeechConfigFor(pid, configs)?.chamber ?? null);
+      if (relabel) src.source_type = relabel;
       out.push(src);
       known.add(u);
       added.push({ ...src, found_from });

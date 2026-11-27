@@ -76,7 +76,7 @@ export function transcriptPrompt(name) {
   return [
     "Transcribe the spoken words in this video VERBATIM — exactly as spoken. Do not summarise, paraphrase, correct or add anything.",
     "Split the transcript into segments of one or two sentences, in order.",
-    "For each segment give `start` (its start time in whole seconds from the beginning of the video), `text` (the exact words), and",
+    "For each segment give `start` (its start time from the beginning of the video as a clock string: \"M:SS\" or \"MM:SS\" under an hour, \"H:MM:SS\" after — e.g. \"0:07\", \"11:47\", \"1:02:05\"), `text` (the exact words), and",
     `\`speaker_is_politician\`: true only when the person speaking is ${name || "the politician who owns this channel"}; false for anyone else (a host, moderator, opponent, narrator, voice-over or crowd).`,
     "Leave out music, sound effects and on-screen text that nobody says. If nobody speaks, return an empty list of segments.",
   ].join("\n");
@@ -89,7 +89,9 @@ const RESPONSE_SCHEMA = {
       type: "ARRAY",
       items: {
         type: "OBJECT",
-        properties: { start: { type: "NUMBER" }, text: { type: "STRING" }, speaker_is_politician: { type: "BOOLEAN" } },
+        // A clock string ("11:47", "1:02:05"). As a NUMBER the model wrote the
+        // clock digits as one number (11:47 → 1147), not seconds.
+        properties: { start: { type: "STRING" }, text: { type: "STRING" }, speaker_is_politician: { type: "BOOLEAN" } },
         required: ["start", "text", "speaker_is_politician"],
       },
     },
@@ -126,11 +128,72 @@ export async function geminiGenerate({ videoId, name, model = TRANSCRIPT_MODEL, 
   return JSON.parse(String(response.text || "{}"));
 }
 
-/** Clean the provider's segments: [{ t, text, own }], in time order, empty text dropped. */
+// ── Segment times ───────────────────────────────────────────────────────────
+// Every `t` this module writes from now on is SECONDS from the start of the
+// video (TIME_FORMAT, stamped as `time_format` on the cache doc and the raw
+// record). Transcripts cached before that asked Gemini for a NUMBER and got the
+// clock digits instead: 1:07 → 107, 19:57 → 1957. Those docs carry no
+// `time_format`; segmentSeconds decodes them on read (looksLikeClockDigits), so
+// already-cached data resolves to the right second without a re-transcription.
+export const TIME_FORMAT = "seconds";
+
+/** "M:SS" / "MM:SS" / "H:MM:SS" → seconds; null when the value is not a clock string. */
+export function parseClock(v) {
+  const m = /^\s*(?:(\d+):)?(\d{1,3}):(\d{1,2}(?:\.\d+)?)\s*$/.exec(String(v ?? ""));
+  if (!m) return null;
+  const h = Number(m[1] || 0), mi = Number(m[2]), se = Math.floor(Number(m[3]));
+  if (se >= 60 || (m[1] !== undefined && mi >= 60)) return null;
+  return h * 3600 + mi * 60 + se;
+}
+
+/** Clock digits written as one number (1147 = 11:47, 10507 = 1:05:07) → seconds. */
+export const clockDigitsToSeconds = (n) => {
+  const v = Math.max(0, Math.floor(Number(n) || 0));
+  return Math.floor(v / 10000) * 3600 + (Math.floor(v / 100) % 100) * 60 + (v % 100);
+};
+
+/**
+ * Do these numeric start values look like clock digits rather than seconds?
+ * Yes when some value is ≥ 100 and none has last two digits ≥ 60 (nor, past
+ * 9999, a minutes pair ≥ 60) — real seconds land on :60–:99 about 40% of the
+ * time, clock digits never do.
+ */
+export function looksLikeClockDigits(values) {
+  const v = (values || []).map((x) => Math.floor(Number(x))).filter((x) => Number.isFinite(x) && x >= 0);
+  if (!v.some((x) => x >= 100)) return false;
+  return v.every((x) => x % 100 < 60 && (x < 10000 || Math.floor(x / 100) % 100 < 60));
+}
+
+/**
+ * A cached doc's (or stored raw record's) segments with `t` in seconds. Docs
+ * stamped time_format "seconds" are returned as is; older ones are decoded
+ * when their times look like clock digits.
+ */
+export function segmentSeconds(docOrRecord) {
+  const segs = Array.isArray(docOrRecord?.segments) ? docOrRecord.segments : [];
+  if (docOrRecord?.time_format === TIME_FORMAT || !looksLikeClockDigits(segs.map((s) => s?.t))) return segs;
+  return segs.map((s) => ({ ...s, t: clockDigitsToSeconds(s.t) }));
+}
+
+/** Was this cached doc written with clock digits (needs decoding)? */
+export const hasClockDigitTimes = (doc) => !!doc && doc.time_format !== TIME_FORMAT && looksLikeClockDigits((doc.segments || []).map((s) => s?.t));
+
+/**
+ * Clean the provider's segments: [{ t, text, own }], t in seconds, in time
+ * order, empty text dropped. A clock string start is parsed; a bare number
+ * (an injected or older provider) is read as seconds unless the response's
+ * numbers look like clock digits, then they are decoded.
+ */
 export function normaliseSegments(json) {
   const list = Array.isArray(json?.segments) ? json.segments : [];
-  return list
-    .map((s) => ({ t: Math.max(0, Math.floor(Number(s?.start ?? s?.t) || 0)), text: oneLine(s?.text), own: s?.speaker_is_politician !== false }))
+  const rows = list.map((s) => {
+    const v = s?.start ?? s?.t;
+    const clock = parseClock(v);
+    return { clock, num: clock === null ? Math.max(0, Math.floor(Number(v) || 0)) : null, text: oneLine(s?.text), own: s?.speaker_is_politician !== false };
+  });
+  const digits = looksLikeClockDigits(rows.filter((r) => r.clock === null).map((r) => r.num));
+  return rows
+    .map((r) => ({ t: r.clock !== null ? r.clock : digits ? clockDigitsToSeconds(r.num) : r.num, text: r.text, own: r.own }))
     .filter((s) => s.text)
     .sort((a, b) => a.t - b.t);
 }
@@ -164,7 +227,7 @@ async function getJSON(store, key) {
 export const readTranscript = (store, videoId) => getJSON(store, cacheKey(videoId));
 
 /** The politician's own segments of a cached transcript doc. */
-export const ownSegments = (doc) => (doc?.segments || []).filter((s) => s.own !== false && s.text);
+export const ownSegments = (doc) => segmentSeconds(doc).filter((s) => s.own !== false && s.text);
 
 /** Does this cached doc carry words by the politician (scorable)? */
 export const hasOwnSpeech = (doc) => doc?.status === "ok" && ownSegments(doc).length > 0;
@@ -183,12 +246,16 @@ export async function enqueueTranscript(store, src, { videoId, title = "", chann
     ...(channel ? { channel } : {}),
     ...(published ? { published: String(published).slice(0, 10) } : {}),
     ...(name || src?.name ? { name: name || src.name } : {}),
+    // Queue order hints (queuePriority): the run's roster tier / band /
+    // evidence for this politician, when the cron knew them.
+    ...(src?.queue_priority && typeof src.queue_priority === "object" ? { priority: { ...src.queue_priority } } : {}),
     src: {
       politician_id: src.politician_id,
       topic: src.topic,
       source_type: src.source_type,
       source_class: src.source_class,
       ...(src.source_id ? { source_id: src.source_id } : {}),
+      ...(src.speech_kind ? { speech_kind: src.speech_kind } : {}),
       source_tier: 2,
       url: src.url,
     },
@@ -197,6 +264,54 @@ export async function enqueueTranscript(store, src, { videoId, title = "", chann
     const r = await store.setJSON(queueKey(videoId), entry, { onlyIfNew: true });
     return !(r && r.modified === false);
   } catch { return false; }
+}
+
+// ── Queue order ─────────────────────────────────────────────────────────────
+// The queue is worked in priority order, not blob-list (video id) order:
+//   1. what the video is — a hearing or floor speech, then a C-SPAN clip, then
+//      the member's official channel, then a campaign channel;
+//   2. the politician's roster tier (1 first);
+//   3. evidence need — no Locker evidence at all, then an open issue (band 0),
+//      then fully filled (band 1);
+//   4. newest first (published date, else when it was queued).
+// Ties fall back to the queue key, so the order is deterministic.
+const HEARING_OR_FLOOR = /\b(?:hearings?|committee|subcommittee|markup|testif\w*|floor (?:speech|remarks|debate)|on (?:the )?(?:house |senate )?floor|house floor|senate floor|speaks on floor)\b/i;
+
+/** 0 hearing / floor speech · 1 C-SPAN · 2 official channel · 3 campaign channel. */
+export function queueKindRank(entry) {
+  const src = entry?.src || {};
+  const kind = String(src.speech_kind || entry?.speech_kind || "");
+  if (/^(?:hearing|floor speech)$/.test(kind) || src.source_class === "floor_speech" || src.source_class === "hearing_transcript") return 0;
+  if (!kind && HEARING_OR_FLOOR.test(String(entry?.title || ""))) return 0;
+  const st = String(src.source_type || "");
+  if (/\bc-span\b/i.test(st)) return 1;
+  if (/\bcampaign\b/i.test(st)) return 3;
+  return 2;
+}
+
+/**
+ * Sort key for one queue entry (lower runs first). `tierOf(pid)` supplies a
+ * roster tier when the entry carries none.
+ */
+export function queuePriority(entry, { tierOf = null } = {}) {
+  const p = entry?.priority || {};
+  const pid = entry?.src?.politician_id;
+  const tier = Number(p.tier ?? (tierOf ? tierOf(pid) : null));
+  const need = p.no_evidence === true ? 0 : Number(p.band) === 1 ? 2 : 1;
+  return {
+    kind: queueKindRank(entry),
+    tier: Number.isFinite(tier) && tier > 0 ? tier : 9,
+    need,
+    when: String(entry?.published || entry?.queued_at || ""),
+  };
+}
+
+/** Queue entries ([{ key, entry }]) in processing order. */
+export function orderQueue(rows, { tierOf = null } = {}) {
+  return rows
+    .map((r) => ({ ...r, p: queuePriority(r.entry, { tierOf }) }))
+    .sort((a, b) => (a.p.kind - b.p.kind) || (a.p.tier - b.p.tier) || (a.p.need - b.p.need) || b.p.when.localeCompare(a.p.when) || String(a.key).localeCompare(String(b.key)))
+    .map(({ p, ...r }) => r);
 }
 
 // ── The page-shaped record ──────────────────────────────────────────────────
@@ -245,6 +360,7 @@ export function buildVideoRecord({ src, videoId, title = "", doc, fetchedAt, pub
     ...(oneLine(title) ? { title: oneLine(title) } : {}),
     ...(channel ? { channel } : {}),
     segments,
+    time_format: TIME_FORMAT,
     transcript: { provider: doc.provider || TRANSCRIPT_PROVIDER, model: doc.model || TRANSCRIPT_MODEL, transcribed_at: doc.transcribed_at || null, own_segments: own.length, all_segments: (doc.segments || []).length },
   };
 }
@@ -254,7 +370,8 @@ const foldText = (s) => String(s || "").replace(/[‘’]/g, "'").replace(/[“�
 
 /** The start second of the segment the excerpt is in, or null. */
 export function videoExcerptSecond(raw, excerpt) {
-  const segs = Array.isArray(raw?.segments) ? raw.segments : [];
+  // A raw record stored before time_format existed may carry clock digits.
+  const segs = segmentSeconds(raw);
   if (!segs.length || !excerpt) return null;
   const needle = foldText(String(excerpt).replace(/…\s*$/, "")).trim().slice(0, 60);
   if (needle.length < 8) return null;
@@ -321,7 +438,7 @@ export async function scoreIntoLocker(rec, { lockerStore, gt = null, flags = nul
 
 // ── The background worker ───────────────────────────────────────────────────
 
-async function acquireLock(store, nowMs, ttl = LOCK_TTL_MS) {
+export async function acquireLock(store, nowMs, ttl = LOCK_TTL_MS) {
   const doc = { until: nowMs + ttl, taken_at: new Date(nowMs).toISOString() };
   try {
     const r = await store.setJSON(LOCK_KEY, doc, { onlyIfNew: true });
@@ -334,7 +451,7 @@ async function acquireLock(store, nowMs, ttl = LOCK_TTL_MS) {
     return !(r2 && r2.modified === false);
   } catch { return false; }
 }
-async function releaseLock(store) { try { await store.delete(LOCK_KEY); } catch { /* expires on its own */ } }
+export async function releaseLock(store) { try { await store.delete(LOCK_KEY); } catch { /* expires on its own */ } }
 
 /**
  * Work the queue once. Never throws. Per queued video: use the cache if it is
@@ -343,7 +460,7 @@ async function releaseLock(store) { try { await store.delete(LOCK_KEY); } catch 
  * Returns a summary.
  */
 export async function processTranscriptQueue({
-  store, rawStore, onRecord, generate = geminiGenerate, nameOf = (pid) => nameFromId(pid),
+  store, rawStore, onRecord, generate = geminiGenerate, nameOf = (pid) => nameFromId(pid), tierOf = null,
   max = TRANSCRIBE_PER_RUN, concurrency = TRANSCRIBE_CONCURRENCY, budgetMs = TRANSCRIBE_BUDGET_MS,
   now = () => new Date(), log = console.log, lock = true,
   callDelayMs = TRANSCRIBE_CALL_DELAY_MS, sleep = (ms) => new Promise((r) => setTimeout(r, ms)),
@@ -359,8 +476,14 @@ export async function processTranscriptQueue({
   try {
     let keys = [];
     try { keys = ((await store.list({ prefix: "queue/" }))?.blobs || []).map((b) => b.key); } catch (e) { log(`video-transcribe: queue unreadable — ${e?.message || e}`); }
-    const batch = keys.slice(0, max);
+    // Read every queued entry and work the highest-priority ones first (orderQueue).
+    const rows = [];
+    for (let i = 0; i < keys.length; i += 16) {
+      rows.push(...await Promise.all(keys.slice(i, i + 16).map(async (key) => ({ key, entry: await getJSON(store, key) }))));
+    }
+    const batch = orderQueue(rows, { tierOf }).slice(0, max);
     summary.picked = batch.length;
+    if (batch.length) log(`video-transcribe: queue order — ${batch.map((r) => `${r.entry?.video_id || r.key} (${["hearing/floor", "C-SPAN", "official", "campaign"][queueKindRank(r.entry)]})`).join(", ")} first of ${keys.length}`);
     // Gemini rate limit: space the transcription calls out. Cache hits make no
     // call, so they never wait; the first call of a run starts at once.
     let callsMade = 0;
@@ -373,8 +496,7 @@ export async function processTranscriptQueue({
       gate = run.catch(() => {});
       return run;
     };
-    const one = async (key) => {
-      const entry = await getJSON(store, key);
+    const one = async ({ key, entry }) => {
       const videoId = entry?.video_id;
       if (!videoId || !entry?.src?.politician_id) { try { await store.delete(key); } catch {} return; }
       const pid = entry.src.politician_id;
@@ -397,7 +519,7 @@ export async function processTranscriptQueue({
         } else {
           summary.transcribed++;
           const own = tr.segments.filter((s) => s.own).length;
-          doc = { video_id: videoId, status: tr.segments.length ? "ok" : "empty", provider: TRANSCRIPT_PROVIDER, model: TRANSCRIPT_MODEL, transcribed_at: now().toISOString(), speaker: name, max_seconds: MAX_TRANSCRIBE_SECONDS, segments: tr.segments };
+          doc = { video_id: videoId, status: tr.segments.length ? "ok" : "empty", provider: TRANSCRIPT_PROVIDER, model: TRANSCRIPT_MODEL, transcribed_at: now().toISOString(), speaker: name, max_seconds: MAX_TRANSCRIBE_SECONDS, time_format: TIME_FORMAT, segments: tr.segments };
           log(`video-transcribe: OK ${pid} ${watchUrl(videoId)} — ${tr.segments.length} segment(s), ${own} by ${name}`);
         }
         try { await store.setJSON(cacheKey(videoId), doc); } catch (e) { log(`video-transcribe: cache write failed for ${videoId} — ${e?.message || e}`); }
@@ -423,7 +545,7 @@ export async function processTranscriptQueue({
     };
     for (let i = 0; i < batch.length; i += concurrency) {
       if (Date.now() - started > budgetMs) { log("video-transcribe: time budget reached — the rest waits for the next run"); break; }
-      await Promise.all(batch.slice(i, i + concurrency).map((k) => one(k).catch((e) => log(`video-transcribe: error on ${k} — ${e?.message || e}`))));
+      await Promise.all(batch.slice(i, i + concurrency).map((k) => one(k).catch((e) => log(`video-transcribe: error on ${k.key} — ${e?.message || e}`))));
     }
     try { summary.remaining = ((await store.list({ prefix: "queue/" }))?.blobs || []).length; } catch {}
     log(`video-transcribe: run — ${summary.picked} picked · ${summary.transcribed} transcribed · ${summary.cache_hits} from cache · ${summary.recorded} scored record(s) · ${summary.no_own_speech} without the politician's words · ${summary.retry_later} retry later · ${summary.failed} given up · ${summary.remaining} left in the queue`);
