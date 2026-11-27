@@ -37,13 +37,21 @@
 // citation point at the moment the words are spoken. The Locker writer itself
 // is unchanged.
 
-import { logCandidateStances } from "./stance-score-core.mjs";
+import { logCandidateStances, hasRulesFor, TOPIC_RULES, NO_POLE_TOPICS, SCORED_TOPICS, WEIGHTS } from "./stance-score-core.mjs";
 import { maybeWriteLockerItem, citationExcerpts } from "./evidence-locker-core.mjs";
 
 export const TRANSCRIPT_STORE_NAME = "video-transcripts";
 export const TRANSCRIPT_PROVIDER = "gemini";
 export const TRANSCRIPT_MODEL = "gemini-3.5-flash";
 export const MAX_TRANSCRIBE_SECONDS = 1200;      // the first 20 minutes of a video
+// HEARINGS. A member may not speak until their turn an hour into a hearing.
+// For a queued hearing whose first 20-minute window holds fewer than
+// HEARING_MIN_OWN_SEGMENTS of the member's own segments, the next 20-minute
+// window is transcribed too (up to HEARING_EXTRA_WINDOWS more), as long as the
+// video is still running at the end of the last window read. Every other
+// video keeps the single first-20-minutes read.
+export const HEARING_EXTRA_WINDOWS = 2;          // up to the first 60 minutes of a hearing
+export const HEARING_MIN_OWN_SEGMENTS = 6;
 export const TRANSCRIBE_PER_RUN = 4;             // videos per background run (kept small for Gemini rate limits)
 export const TRANSCRIBE_CONCURRENCY = 1;         // one Gemini call at a time …
 // … with a pause between calls, to stay under the 429 limit. A 20-minute video
@@ -103,7 +111,7 @@ const RESPONSE_SCHEMA = {
  * Default provider call: Gemini via the Netlify AI Gateway. Returns the
  * model's parsed JSON ({ segments: [...] }). Throws on a provider error.
  */
-export async function geminiGenerate({ videoId, name, model = TRANSCRIPT_MODEL, maxSeconds = MAX_TRANSCRIBE_SECONDS }) {
+export async function geminiGenerate({ videoId, name, model = TRANSCRIPT_MODEL, maxSeconds = MAX_TRANSCRIBE_SECONDS, startSeconds = 0 }) {
   const { GoogleGenAI } = await import("@google/genai");
   const ai = new GoogleGenAI({
     apiKey: process.env.NETLIFY_AI_GATEWAY_KEY,
@@ -114,7 +122,7 @@ export async function geminiGenerate({ videoId, name, model = TRANSCRIPT_MODEL, 
     contents: [{
       role: "user",
       parts: [
-        { fileData: { fileUri: watchUrl(videoId), mimeType: "video/*" }, videoMetadata: { startOffset: "0s", endOffset: `${maxSeconds}s` } },
+        { fileData: { fileUri: watchUrl(videoId), mimeType: "video/*" }, videoMetadata: { startOffset: `${startSeconds}s`, endOffset: `${startSeconds + maxSeconds}s` } },
         { text: transcriptPrompt(name) },
       ],
     }],
@@ -203,13 +211,35 @@ export function normaliseSegments(json) {
  *   { ok: true, segments, text }   (text = every segment, whoever speaks)
  *   { ok: false, error }
  */
-export async function transcribeVideo(videoId, { name, generate = geminiGenerate, model = TRANSCRIPT_MODEL } = {}) {
+export async function transcribeVideo(videoId, { name, generate = geminiGenerate, model = TRANSCRIPT_MODEL, startSeconds = 0, maxSeconds = MAX_TRANSCRIBE_SECONDS } = {}) {
   try {
-    const segments = normaliseSegments(await generate({ videoId, name, model }));
+    const raw = normaliseSegments(await generate(startSeconds ? { videoId, name, model, startSeconds, maxSeconds } : { videoId, name, model }));
+    const segments = startSeconds ? windowToVideoSeconds(raw, startSeconds) : raw;
     return { ok: true, segments, text: segments.map((s) => s.text).join(" ") };
   } catch (e) {
     return { ok: false, error: oneLine(e?.message || e).slice(0, 300) || "transcription failed" };
   }
+}
+
+/**
+ * Segments of a later window, in seconds from the start of the VIDEO. The
+ * model may count from the start of the clip it was given; those times sit
+ * below the window start, and are shifted by it.
+ */
+export function windowToVideoSeconds(segments, startSeconds) {
+  const list = segments || [];
+  if (!list.length || !startSeconds) return list;
+  const ts = list.map((s) => s.t).sort((a, b) => a - b);
+  const median = ts[Math.floor(ts.length / 2)];
+  return median < startSeconds ? list.map((s) => ({ ...s, t: s.t + startSeconds })) : list;
+}
+
+/** Is this queue entry a hearing (kind, else its title)? Floor speeches are not. */
+export function isHearingEntry(entry) {
+  const kind = String(entry?.src?.speech_kind || entry?.speech_kind || "");
+  if (kind) return kind === "hearing";
+  return entry?.src?.source_class === "hearing_transcript"
+    || /\b(?:hearings?|committee|subcommittee|markup|testif\w*)\b/i.test(String(entry?.title || ""));
 }
 
 // ── Cache + queue ───────────────────────────────────────────────────────────
@@ -414,26 +444,197 @@ export function lockerRawFor(candidate, rec) {
   return link && link !== rec.final_url ? Object.freeze({ ...rec, final_url: link }) : rec;
 }
 
+// ── Long videos: scored in time windows ────────────────────────────────────
+// A long official speech or hearing is many answers on many subjects. Read as
+// one page, a clear position in one answer was cancelled by an aside or a
+// passing counter-note twenty minutes later (R5 outliers → mixed, R16 needs
+// it uncontested, R15 needs no conflicting lean anywhere on the page). A long
+// video (≥ LONG_VIDEO_MIN_SEGMENTS own segments, or own speech spanning
+// ≥ LONG_VIDEO_MIN_SECONDS) is therefore split into time windows of the
+// politician's own segments — a new window after SCORE_WINDOW_SECONDS, or
+// when someone else speaks for more than ANSWER_GAP_SECONDS (a new answer
+// block) — and each window is scored on its own by the unchanged scorer.
+// Per issue key:
+//   · windows that read a clear side vote by window — windows with an explicit
+//     statement first; a window read from implications only (a passing
+//     counter-note) votes only when no window is explicit. The side more
+//     windows read wins and its strongest window is the candidate; each window
+//     on the other side costs WEIGHTS.outlierPenalty (R5's per-outlier cost)
+//     but no longer flips it. An even split falls back to the whole-video read;
+//   · with no clear window, the whole-video read is used, exactly as before
+//     (so corroboration spread across windows still counts).
+// Topic: the page topic still comes from the title. When the title names no
+// issue (a generic "Full Committee Hearing"), a window whose own words clearly
+// centre on one issue (WINDOW_TOPIC_MIN_HITS mentions, more than any other)
+// is scored under that issue. Short videos are scored exactly as before.
+export const LONG_VIDEO_MIN_SEGMENTS = 40;
+export const LONG_VIDEO_MIN_SECONDS = 900;          // 15 minutes of own speech …
+export const LONG_VIDEO_DURATION_MIN_SEGMENTS = 12; // … over at least this many segments
+export const SCORE_WINDOW_SECONDS = 150;            // ~2.5 minutes per window
+export const ANSWER_GAP_SECONDS = 45;               // silence (someone else talking) that closes an answer block
+export const WINDOW_TOPIC_MIN_HITS = 3;
+
+const CLEAR = (c) => c?.position === "support" || c?.position === "oppose";
+/** Explicit (clear) statements a window candidate holds for its own side. */
+const explicitFor = (c) => (c?.sources?.[0]?.statements || []).filter((s) => s.kind === "clear" && s.side === c.position).length;
+const clockOf = (s) => { const n = Math.max(0, Math.floor(Number(s) || 0)), h = Math.floor(n / 3600), m = Math.floor((n % 3600) / 60), x = String(n % 60).padStart(2, "0"); return h ? `${h}:${String(m).padStart(2, "0")}:${x}` : `${m}:${x}`; };
+
+/** Is this a video transcript record long enough to be scored in windows? */
+export function isLongVideoRecord(rec) {
+  if (rec?.type !== "video" || !Array.isArray(rec?.segments) || !rec.segments.length) return false;
+  const segs = segmentSeconds(rec);
+  if (segs.length >= LONG_VIDEO_MIN_SEGMENTS) return true;
+  const span = Number(segs[segs.length - 1]?.t) - Number(segs[0]?.t);
+  return segs.length >= LONG_VIDEO_DURATION_MIN_SEGMENTS && span >= LONG_VIDEO_MIN_SECONDS;
+}
+
+/**
+ * The politician's own words split into time windows:
+ * [{ index, start, end, body, segments: [{ t, at }] }] — `at` relative to the
+ * window body, `t` seconds from the start of the video.
+ */
+export function videoWindows(rec, { windowSeconds = SCORE_WINDOW_SECONDS, gapSeconds = ANSWER_GAP_SECONDS } = {}) {
+  const segs = segmentSeconds(rec);
+  const body = String(rec?.body || "");
+  const pieces = segs.map((s, i) => ({ t: Math.max(0, Math.floor(Number(s.t) || 0)), text: body.slice(Number(s.at) || 0, i + 1 < segs.length ? Number(segs[i + 1].at) || body.length : body.length).trim() }))
+    .filter((p) => p.text);
+  const out = [];
+  let cur = null, prevT = null;
+  for (const p of pieces) {
+    if (!cur || p.t - cur.start >= windowSeconds || (prevT !== null && p.t - prevT > gapSeconds)) {
+      if (cur) out.push(cur);
+      cur = { index: out.length, start: p.t, end: p.t, body: "", segments: [] };
+    }
+    if (cur.body) cur.body += " ";
+    cur.segments.push({ t: p.t, at: cur.body.length });
+    cur.body += p.text;
+    cur.end = p.t;
+    prevT = p.t;
+  }
+  if (cur) out.push(cur);
+  return out;
+}
+
+/** Issue key a window's own words clearly centre on (rules-backed, no-pole keys excluded), else null. */
+export function windowTopic(text) {
+  const s = String(text || "");
+  const hits = [];
+  for (const t of SCORED_TOPICS) {
+    if (!hasRulesFor(t) || NO_POLE_TOPICS.has(t)) continue;
+    const re = TOPIC_RULES[t].mention;
+    if (!re) continue;
+    const n = (s.match(new RegExp(re.source, re.flags.includes("g") ? re.flags : re.flags + "g")) || []).length;
+    if (n) hits.push([t, n]);
+  }
+  hits.sort((a, b) => b[1] - a[1]);
+  return hits[0] && hits[0][1] >= WINDOW_TOPIC_MIN_HITS && (!hits[1] || hits[1][1] < hits[0][1]) ? hits[0][0] : null;
+}
+
+/** Does the title name an issue the scorer has rules for? */
+function titleNamesTopic(title) {
+  const s = String(title || "");
+  return !!s && SCORED_TOPICS.some((t) => hasRulesFor(t) && TOPIC_RULES[t].mention && new RegExp(TOPIC_RULES[t].mention.source, TOPIC_RULES[t].mention.flags.replace("g", "")).test(s));
+}
+
+/** The page-shaped record for one window (same source, link and metadata; the window's words only). */
+export function windowRecord(rec, w, of, topic = rec.topic) {
+  return Object.freeze({
+    ...rec,
+    topic,
+    body: w.body,
+    body_chars: w.body.length,
+    segments: w.segments,
+    time_format: TIME_FORMAT,
+    window: { index: w.index, of, start: w.start, end: w.end },
+  });
+}
+
+/**
+ * Score one record into Locker candidates: [{ candidate, raw }], `raw` being
+ * the record to hand the Locker writer for it. Short videos and every other
+ * record: logCandidateStances on the whole record, unchanged. Long videos:
+ * scored in time windows (see above).
+ */
+export function scoreRecordCandidates(rec, { log = console.log } = {}) {
+  if (!isLongVideoRecord(rec)) return logCandidateStances(rec, { log }).map((candidate) => ({ candidate, raw: rec }));
+  const id = `${rec?.politician_id}${rec?.source_id ? "|" + rec.source_id : ""}`;
+  const whole = logCandidateStances(rec, { log });
+  const windows = videoWindows(rec);
+  const generic = !titleNamesTopic(rec.title);
+  const silent = () => {};
+  const byTopic = new Map(); // topic → [{ candidate, raw, w }]
+  for (const w of windows) {
+    const wt = generic ? windowTopic(w.body) : null;
+    const topic = wt && hasRulesFor(wt) ? wt : rec.topic;
+    const wr = windowRecord(rec, w, windows.length, topic);
+    for (const c of logCandidateStances(wr, { log: silent })) {
+      if (!CLEAR(c)) continue;
+      if (!byTopic.has(c.topic)) byTopic.set(c.topic, []);
+      byTopic.get(c.topic).push({ candidate: c, raw: wr, w });
+    }
+  }
+  const out = [];
+  const used = new Set();
+  for (const [topic, list] of byTopic) {
+    // Windows with an explicit statement for their side vote first; windows
+    // read from implications only are notes, and vote only when no window is explicit.
+    const explicitList = list.filter((x) => explicitFor(x.candidate) > 0);
+    const voters = explicitList.length ? explicitList : list;
+    const n = { support: 0, oppose: 0 };
+    for (const x of voters) n[x.candidate.position]++;
+    if (n.support === n.oppose) {
+      log(`stance-score: WINDOWS ${id}|${topic} — ${n.support} ${explicitList.length ? "explicit " : ""}window(s) read support, ${n.oppose} oppose: even split, the whole-video read stands`);
+      continue;
+    }
+    const side = n.support > n.oppose ? "support" : "oppose";
+    const counter = list.filter((x) => x.candidate.position !== side).length;
+    n[side] = list.filter((x) => x.candidate.position === side).length;
+    const best = voters.filter((x) => x.candidate.position === side)
+      .sort((a, b) => (b.candidate.confidence - a.candidate.confidence) || (a.w.index - b.w.index))[0];
+    const c = best.candidate;
+    const confidence = Math.round(Math.max(0, c.confidence - WEIGHTS.outlierPenalty * counter) * 100) / 100;
+    const note = `scored in time window ${best.w.index + 1}/${windows.length} (${clockOf(best.w.start)}–${clockOf(best.w.end)}) of a long video; ${n[side]} window(s) read ${side}${counter ? `, ${counter} read the other side (−${WEIGHTS.outlierPenalty} each, R5)` : ", none the other side"}`;
+    const candidate = {
+      ...c,
+      confidence,
+      confidence_reason: `${c.confidence_reason}; ${note}`,
+      sources: [{ ...c.sources[0], window: { index: best.w.index, of: windows.length, start: best.w.start, end: best.w.end }, windows_for: n[side], windows_against: counter }],
+      ...(topic !== rec.topic ? { page_topic: rec.topic } : {}),
+      windowed: true,
+    };
+    const wasWhole = whole.find((x) => x.topic === topic);
+    log(`stance-score: WINDOWS ${id}|${topic} → ${side.toUpperCase()} ${confidence} — ${note}${wasWhole ? ` (whole video read ${wasWhole.position} ${wasWhole.confidence})` : " (whole video gave no candidate)"}`);
+    out.push({ candidate, raw: best.raw });
+    used.add(topic);
+  }
+  for (const c of whole) if (!used.has(c.topic)) out.push({ candidate: c, raw: rec });
+  // The page's own topic first, as logCandidateStances orders them.
+  out.sort((a, b) => (a.candidate.topic === rec.topic ? 0 : 1) - (b.candidate.topic === rec.topic ? 0 : 1));
+  log(`stance-score: ${id} long video — ${windows.length} time window(s) scored separately; ${used.size} issue(s) read from a window${generic ? " (generic title: a window may set its own issue)" : ""}`);
+  return out;
+}
+
 // ── Scoring hook (same path as campaign pages) ─────────────────────────────
 
 /**
  * Score a stored record and hand every candidate to the Locker writer —
  * logCandidateStances + maybeWriteLockerItem, exactly what the raw-ingest
- * cron does for a page. Returns the writes.
+ * cron does for a page (long videos: per time window, scoreRecordCandidates).
+ * Returns the writes.
  */
 export async function scoreIntoLocker(rec, { lockerStore, gt = null, flags = null, log = console.log } = {}) {
-  const candidates = logCandidateStances(rec, { log });
+  const scored = scoreRecordCandidates(rec, { log });
   const writes = [];
-  if (!lockerStore) return { candidates: candidates.length, writes };
-  if (!candidates.length) {
+  if (!lockerStore) return { candidates: scored.length, writes };
+  if (!scored.length) {
     log(`evidence-locker: SKIP ${rec?.politician_id}|${rec?.topic}${rec?.source_id ? "|" + rec.source_id : ""} — no scored candidate`);
     return { candidates: 0, writes };
   }
-  for (const c of candidates) {
-    const w = await maybeWriteLockerItem(c, lockerRawFor(c, rec), { store: lockerStore, gt, log, flags });
+  for (const { candidate: c, raw } of scored) {
+    const w = await maybeWriteLockerItem(c, lockerRawFor(c, raw), { store: lockerStore, gt, log, flags });
     if (w.written) writes.push({ key: w.key, politician_id: c.politician_id, topic: c.topic, strength: w.item?.strength, link: w.item?.link });
   }
-  return { candidates: candidates.length, writes };
+  return { candidates: scored.length, writes };
 }
 
 // ── The background worker ───────────────────────────────────────────────────
@@ -505,6 +706,28 @@ export async function processTranscriptQueue({
       else {
         const name = entry.name || nameOf(pid);
         const tr = await throttled(() => transcribeVideo(videoId, { name, generate }));
+        let readTo = MAX_TRANSCRIBE_SECONDS, windowsRead = 1;
+        // Hearings: little of the member in the first window → read the next ones.
+        if (tr.ok && isHearingEntry(entry)) {
+          while (windowsRead <= HEARING_EXTRA_WINDOWS && tr.segments.length) {
+            const own = tr.segments.filter((s) => s.own).length;
+            const last = tr.segments[tr.segments.length - 1].t;
+            if (own >= HEARING_MIN_OWN_SEGMENTS) break;
+            if (last < readTo - 120) { log(`video-transcribe: HEARING ${pid} ${watchUrl(videoId)} — ${own} own segment(s), the video ends before ${Math.round(readTo / 60)} min; no further window`); break; }
+            if (Date.now() - started > budgetMs) { log(`video-transcribe: HEARING ${pid} ${watchUrl(videoId)} — time budget reached; no further window`); break; }
+            const startSeconds = readTo;
+            const more = await throttled(() => transcribeVideo(videoId, { name, generate, startSeconds, maxSeconds: MAX_TRANSCRIBE_SECONDS }));
+            if (!more.ok) { log(`video-transcribe: HEARING ${pid} ${watchUrl(videoId)} — window ${Math.round(startSeconds / 60)}–${Math.round((startSeconds + MAX_TRANSCRIBE_SECONDS) / 60)} min failed (${more.error}); keeping what was read`); break; }
+            windowsRead++;
+            readTo = startSeconds + MAX_TRANSCRIBE_SECONDS;
+            const seen = new Set(tr.segments.map((s) => `${s.t}|${s.text}`));
+            const added = more.segments.filter((s) => s.t >= startSeconds - 5 && !seen.has(`${s.t}|${s.text}`));
+            log(`video-transcribe: HEARING ${pid} ${watchUrl(videoId)} — ${own} own segment(s) in the first ${Math.round(startSeconds / 60)} min; read ${Math.round(startSeconds / 60)}–${Math.round(readTo / 60)} min: ${added.length} segment(s), ${added.filter((s) => s.own).length} by ${name}`);
+            if (!added.length) break;
+            tr.segments = [...tr.segments, ...added].sort((a, b) => a.t - b.t);
+            tr.text = tr.segments.map((s) => s.text).join(" ");
+          }
+        }
         if (!tr.ok) {
           const attempts = (Number(entry.attempts) || 0) + 1;
           if (attempts < MAX_ATTEMPTS) {
@@ -519,7 +742,7 @@ export async function processTranscriptQueue({
         } else {
           summary.transcribed++;
           const own = tr.segments.filter((s) => s.own).length;
-          doc = { video_id: videoId, status: tr.segments.length ? "ok" : "empty", provider: TRANSCRIPT_PROVIDER, model: TRANSCRIPT_MODEL, transcribed_at: now().toISOString(), speaker: name, max_seconds: MAX_TRANSCRIBE_SECONDS, time_format: TIME_FORMAT, segments: tr.segments };
+          doc = { video_id: videoId, status: tr.segments.length ? "ok" : "empty", provider: TRANSCRIPT_PROVIDER, model: TRANSCRIPT_MODEL, transcribed_at: now().toISOString(), speaker: name, max_seconds: readTo, ...(windowsRead > 1 ? { windows_read: windowsRead } : {}), time_format: TIME_FORMAT, segments: tr.segments };
           log(`video-transcribe: OK ${pid} ${watchUrl(videoId)} — ${tr.segments.length} segment(s), ${own} by ${name}`);
         }
         try { await store.setJSON(cacheKey(videoId), doc); } catch (e) { log(`video-transcribe: cache write failed for ${videoId} — ${e?.message || e}`); }
