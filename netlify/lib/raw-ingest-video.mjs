@@ -652,6 +652,120 @@ export function addVideoSpeechSources(sources, fresh, { politicians = [], max, p
   return { sources: out, added };
 }
 
+// ── Video priority lane ────────────────────────────────────────────────────
+// Parallel to the priority-newsroom lane (raw-ingest-core.mjs, planRun): up to
+// VIDEO_LANE_PER_RUN slots of every run are RESERVED for video / speech
+// frontier entries of high-value members — tier 1, or no Locker evidence at
+// all — whether or not the rotation planned them this run. The cron plans the
+// rest of the run under the cap minus the reserved slots, so leftover-slot
+// behaviour (addVideoSpeechSources, then fresh pages) is unchanged for
+// everyone else.
+//   · Candidates: lane members with an unfetched video / speech entry in their
+//     frontier (committee, C-SPAN, official or campaign video, floor speech,
+//     hearing transcript), not already in the pull list, not waiting in the
+//     transcript queue (a queued video would only re-occupy the slot).
+//   · Order: no evidence first, then members holding a hearing / floor item,
+//     then tier, then roster order; one member per slot, in a lap
+//     (`lap_done`, reset when everyone with an entry had a turn). Inside a
+//     member: hearing / floor first, then C-SPAN / committee, official,
+//     campaign; newest first. A spare slot goes to a picked member's next entry.
+//   · Coverage: each lane slot given is counted per member (`given`); after
+//     VIDEO_LANE_COVERED slots a member drops out of the lane and is served by
+//     the normal leftover slots, like a newsroom member once they have evidence.
+// State: VIDEO_LANE_STATE_KEY in the rotation store ({ lap_done, given }).
+export const VIDEO_LANE_PER_RUN = 2;
+export const VIDEO_LANE_COVERED = 3;
+export const VIDEO_LANE_STATE_KEY = "video-lane.json";
+
+/** 0 hearing / floor · 1 C-SPAN or committee / conference · 2 official · 3 campaign. */
+export function videoEntryRank(e) {
+  const kind = String(e?.speech_kind || "");
+  if (e?.source_class === "floor_speech" || e?.source_class === "hearing_transcript" || kind === "hearing" || kind === "floor speech") return 0;
+  const st = String(e?.source_type || "");
+  if (/\bc-span\b/i.test(st) || /\b(?:committee|party conference) video\b/i.test(st)) return 1;
+  if (/\bcampaign\b/i.test(st)) return 3;
+  return 2;
+}
+
+/** A stored lane state, normalised. */
+export function normaliseVideoLaneState(doc) {
+  const given = {};
+  for (const [k, v] of Object.entries(doc?.given || {})) if (Number(v) > 0) given[k] = Math.trunc(Number(v));
+  return { lap_done: Array.isArray(doc?.lap_done) ? doc.lap_done.map(String) : [], given };
+}
+
+const evidenceIn = (counts, pid) => {
+  const pre = `${pid}|`;
+  for (const [k, c] of Object.entries(counts || {})) if (k.startsWith(pre) && ((Number(c?.strong) || 0) + (Number(c?.weak) || 0)) > 0) return true;
+  return false;
+};
+
+/** Lane members: tier-1 or zero-evidence roster politicians not yet covered → [{ politician_id, tier, no_evidence, i }]. */
+export function videoLaneMembers(roster = [], { counts = {}, state = null, covered = VIDEO_LANE_COVERED } = {}) {
+  const st = normaliseVideoLaneState(state);
+  const out = [], seen = new Set();
+  (roster || []).forEach((r, i) => {
+    const pid = String(r?.politician_id || "");
+    if (!pid || seen.has(pid)) return;
+    seen.add(pid);
+    const tier = Number(r.tier);
+    const no_evidence = !evidenceIn(counts, pid);
+    if (!(tier === 1 || no_evidence)) return;
+    if ((st.given[pid] || 0) >= covered) return;
+    out.push({ politician_id: pid, tier: Number.isFinite(tier) && tier > 0 ? tier : 9, no_evidence, i });
+  });
+  return out;
+}
+
+/**
+ * Plan this run's video lane. Never throws. Returns { picks, reserved,
+ * members, eligible, covered, state } — `picks` are pull-list sources (each
+ * marked video_lane: true), `state` the lane state to persist.
+ * `known` (normalised URLs already in the pull list) and `pendingVideoIds`
+ * (ids waiting in the transcript queue) are skipped.
+ */
+export function planVideoLane(fresh, {
+  roster = [], counts = {}, state = null, perRun = VIDEO_LANE_PER_RUN, covered = VIDEO_LANE_COVERED,
+  known = new Set(), pendingVideoIds = new Set(), configs = null, log = console.log,
+} = {}) {
+  const st = normaliseVideoLaneState(state);
+  const out = { picks: [], reserved: 0, members: [], eligible: [], covered: Object.keys(st.given).filter((p) => st.given[p] >= covered).sort(), state: st };
+  if (!fresh?.frontier || !(perRun > 0)) return out;
+  const vid = (u) => (/[?&]v=([A-Za-z0-9_-]{11})/.exec(String(u || "")) || [])[1] || null;
+  const candidates = [];
+  for (const m of videoLaneMembers(roster, { counts, state: st, covered })) {
+    const entries = (fresh.frontier[m.politician_id] || []).filter((e) => isVideoSpeechEntry(e))
+      .filter((e) => { const u = normUrl(e.url); const id = vid(e.url); return !known.has(u) && !fresh.seen?.[u] && !(id && pendingVideoIds.has(id)); })
+      .sort((a, b) => (videoEntryRank(a) - videoEntryRank(b)) || String(b.published || b.found_at || "").localeCompare(String(a.published || a.found_at || "")));
+    if (entries.length) candidates.push({ ...m, entries, hearing: videoEntryRank(entries[0]) === 0 });
+  }
+  out.eligible = candidates.map((c) => c.politician_id);
+  if (!candidates.length) return out;
+  candidates.sort((a, b) => (Number(b.no_evidence) - Number(a.no_evidence)) || (Number(b.hearing) - Number(a.hearing)) || (a.tier - b.tier) || (a.i - b.i));
+  let lap = new Set(st.lap_done.filter((p) => out.eligible.includes(p)));
+  if (candidates.every((c) => lap.has(c.politician_id))) lap = new Set();
+  const turn = [...candidates.filter((c) => !lap.has(c.politician_id)), ...candidates.filter((c) => lap.has(c.politician_id))];
+  const chosen = turn.slice(0, perRun);
+  const take = (c, e) => {
+    const { rank, found_from, found_at, attempts, ...src } = e;
+    const relabel = relabelCspanSourceType(src.source_type, videoSpeechConfigFor(c.politician_id, configs)?.chamber ?? null);
+    if (relabel) src.source_type = relabel;
+    out.picks.push({ ...src, video_lane: true });
+  };
+  for (const c of chosen) take(c, c.entries.shift());
+  // A spare slot (fewer members than slots) goes to a chosen member's next entry.
+  for (const c of chosen) if (out.picks.length < perRun && c.entries.length) take(c, c.entries.shift());
+  out.reserved = out.picks.length;
+  out.members = [...new Set(out.picks.map((p) => p.politician_id))];
+  const given = { ...st.given };
+  for (const p of out.picks) given[p.politician_id] = (given[p.politician_id] || 0) + 1;
+  for (const p of out.members) lap.add(p);
+  out.state = { lap_done: [...lap].sort(), given };
+  for (const p of out.picks) log(`video-lane: SLOT ${p.politician_id}|${p.topic} ${p.url} (${p.source_class} · ${p.speech_kind || "video/speech"} · ${p.source_type}) — reserved video slot`);
+  log(`video-lane: ${out.reserved} of ${perRun} reserved slot(s) used · ${out.eligible.length} high-value member(s) with video waiting · ${out.covered.length} covered (left the lane after ${covered} slots)`);
+  return out;
+}
+
 // ── Speech transcript pull (floor_speech / hearing_transcript) ─────────────
 
 const SPEAKER_LINE = /^\s{2,}((?:(?:Mr|Ms|Mrs|Miss|Dr)\.\s+[A-Z][A-Za-z'’-]+(?:\s+of\s+[A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)?)|(?:The\s+(?:SPEAKER|CHAIR|CHAIRMAN|CHAIRWOMAN|PRESIDING OFFICER|ACTING PRESIDENT|CLERK|VICE PRESIDENT|PRESIDENT)(?:\s+pro\s+tempore)?(?:\s+\([^)]*\))?)|(?:(?:Chairman|Chairwoman|Chair|Ranking Member|Senator|Representative|Secretary|Director|General|Judge|Attorney General)\s+[A-Z][A-Za-z'’-]+))\.\s+/;

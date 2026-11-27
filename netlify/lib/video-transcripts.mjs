@@ -86,6 +86,7 @@ export function transcriptPrompt(name) {
     "Split the transcript into segments of one or two sentences, in order.",
     "For each segment give `start` (its start time from the beginning of the video as a clock string: \"M:SS\" or \"MM:SS\" under an hour, \"H:MM:SS\" after — e.g. \"0:07\", \"11:47\", \"1:02:05\"), `text` (the exact words), and",
     `\`speaker_is_politician\`: true only when the person speaking is ${name || "the politician who owns this channel"}; false for anyone else (a host, moderator, opponent, narrator, voice-over or crowd).`,
+    "Optionally give `speaker_confidence`: \"low\" when you cannot tell from the video who is speaking that segment, else \"high\".",
     "Leave out music, sound effects and on-screen text that nobody says. If nobody speaks, return an empty list of segments.",
   ].join("\n");
 }
@@ -99,7 +100,7 @@ const RESPONSE_SCHEMA = {
         type: "OBJECT",
         // A clock string ("11:47", "1:02:05"). As a NUMBER the model wrote the
         // clock digits as one number (11:47 → 1147), not seconds.
-        properties: { start: { type: "STRING" }, text: { type: "STRING" }, speaker_is_politician: { type: "BOOLEAN" } },
+        properties: { start: { type: "STRING" }, text: { type: "STRING" }, speaker_is_politician: { type: "BOOLEAN" }, speaker_confidence: { type: "STRING", enum: ["high", "low"] } },
         required: ["start", "text", "speaker_is_politician"],
       },
     },
@@ -144,6 +145,32 @@ export async function geminiGenerate({ videoId, name, model = TRANSCRIPT_MODEL, 
 // `time_format`; segmentSeconds decodes them on read (looksLikeClockDigits), so
 // already-cached data resolves to the right second without a re-transcription.
 export const TIME_FORMAT = "seconds";
+
+// ── Transcript versions ─────────────────────────────────────────────────────
+// Every cached doc written from now on carries the prompt and the segment
+// schema it was made with. Older docs carry neither; transcriptVersionOf
+// infers theirs (v1 = clock digits as numbers, v2 = clock strings, no
+// speaker confidence). A doc older than the current versions is only
+// re-transcribed when someone asks for it (requestRetranscribe) — never
+// automatically.
+//   prompt v1 · `start` as a NUMBER (read back as clock digits)
+//   prompt v2 · `start` as a clock string ("11:47")
+//   prompt v3 · v2 + optional `speaker_confidence` ("low" | "high")
+//   schema v1 · segments [{ t (clock digits), text, own }]
+//   schema v2 · segments [{ t (seconds), text, own }], time_format "seconds"
+//   schema v3 · v2 + optional `low: true` on a segment whose speaker is uncertain
+export const TRANSCRIPT_PROMPT_VERSION = "transcript-prompt-v3";
+export const TRANSCRIPT_SCHEMA_VERSION = "transcript-schema-v3";
+
+/** { prompt_version, schema_version, stamped, current } of a cached doc (inferred for older docs). */
+export function transcriptVersionOf(doc) {
+  if (!doc || typeof doc !== "object") return { prompt_version: null, schema_version: null, stamped: false, current: false };
+  const stamped = !!(doc.prompt_version || doc.schema_version);
+  const seconds = doc.time_format === TIME_FORMAT;
+  const prompt_version = doc.prompt_version || (seconds ? "transcript-prompt-v2" : "transcript-prompt-v1");
+  const schema_version = doc.schema_version || (seconds ? "transcript-schema-v2" : "transcript-schema-v1");
+  return { prompt_version, schema_version, stamped, current: prompt_version === TRANSCRIPT_PROMPT_VERSION && schema_version === TRANSCRIPT_SCHEMA_VERSION };
+}
 
 /** "M:SS" / "MM:SS" / "H:MM:SS" → seconds; null when the value is not a clock string. */
 export function parseClock(v) {
@@ -197,11 +224,11 @@ export function normaliseSegments(json) {
   const rows = list.map((s) => {
     const v = s?.start ?? s?.t;
     const clock = parseClock(v);
-    return { clock, num: clock === null ? Math.max(0, Math.floor(Number(v) || 0)) : null, text: oneLine(s?.text), own: s?.speaker_is_politician !== false };
+    return { clock, num: clock === null ? Math.max(0, Math.floor(Number(v) || 0)) : null, text: oneLine(s?.text), own: s?.speaker_is_politician !== false, low: String(s?.speaker_confidence || "").toLowerCase() === "low" };
   });
   const digits = looksLikeClockDigits(rows.filter((r) => r.clock === null).map((r) => r.num));
   return rows
-    .map((r) => ({ t: r.clock !== null ? r.clock : digits ? clockDigitsToSeconds(r.num) : r.num, text: r.text, own: r.own }))
+    .map((r) => ({ t: r.clock !== null ? r.clock : digits ? clockDigitsToSeconds(r.num) : r.num, text: r.text, own: r.own, ...(r.low ? { low: true } : {}) }))
     .filter((s) => s.text)
     .sort((a, b) => a.t - b.t);
 }
@@ -296,6 +323,51 @@ export async function enqueueTranscript(store, src, { videoId, title = "", chann
   } catch { return false; }
 }
 
+/**
+ * Ask for one video to be transcribed again with the current prompt. Safe:
+ *   · only this video is queued (nothing re-runs automatically);
+ *   · a cached doc already at the current versions is skipped unless `force`;
+ *   · a re-transcription that fails keeps the old transcript (never replaced
+ *     by a "failed" doc);
+ *   · the new record's Locker items go through the video rescore (move to the
+ *     corrected key, never a second copy).
+ * `src` is the queue source ({ politician_id, topic, source_type, source_class,
+ * source_id?, speech_kind?, url }) — e.g. retranscribeSrcFromRecord(rawRecord).
+ * Returns { queued, reason }.
+ */
+export async function requestRetranscribe(store, { videoId, src, title = "", name = "", channel = "", published = "", reason = "", force = false, at = new Date().toISOString() } = {}) {
+  if (!store || !/^[A-Za-z0-9_-]{11}$/.test(String(videoId || ""))) return { queued: false, reason: "no video id" };
+  if (!src?.politician_id || !src?.url) return { queued: false, reason: "no source (politician / url) for the video" };
+  const doc = await readTranscript(store, videoId);
+  const v = transcriptVersionOf(doc);
+  if (doc && v.current && !force) return { queued: false, reason: `already at ${v.prompt_version} / ${v.schema_version}` };
+  const existing = await getJSON(store, queueKey(videoId));
+  const entry = {
+    ...(existing || {}),
+    video_id: videoId,
+    queued_at: existing?.queued_at || at,
+    attempts: 0,
+    title: oneLine(title || existing?.title || ""),
+    ...(channel || existing?.channel ? { channel: channel || existing.channel } : {}),
+    ...(published || existing?.published ? { published: String(published || existing.published).slice(0, 10) } : {}),
+    ...(name || existing?.name ? { name: name || existing.name } : {}),
+    retranscribe: { requested_at: at, reason: oneLine(reason) || null, force: !!force, from: doc ? { prompt_version: v.prompt_version, schema_version: v.schema_version } : null },
+    src: { ...(existing?.src || {}), ...src, source_tier: 2 },
+  };
+  try { await store.setJSON(queueKey(videoId), entry); return { queued: true, reason: doc ? `re-transcribe ${v.prompt_version} → ${TRANSCRIPT_PROMPT_VERSION}` : "not cached yet: transcribe" }; }
+  catch (e) { return { queued: false, reason: oneLine(e?.message || e) }; }
+}
+
+/** The queue source for a stored raw video record (to re-transcribe it). */
+export function retranscribeSrcFromRecord(rec) {
+  if (!rec?.politician_id || !rec?.video_id) return null;
+  return {
+    politician_id: rec.politician_id, topic: rec.topic, source_type: rec.source_type, source_class: "youtube_video",
+    ...(rec.source_id ? { source_id: rec.source_id } : {}), ...(rec.speech_kind ? { speech_kind: rec.speech_kind } : {}),
+    url: rec.url || watchUrl(rec.video_id),
+  };
+}
+
 // ── Queue order ─────────────────────────────────────────────────────────────
 // The queue is worked in priority order, not blob-list (video id) order:
 //   1. what the video is — a hearing or floor speech, then a C-SPAN clip, then
@@ -366,7 +438,7 @@ export function buildVideoRecord({ src, videoId, title = "", doc, fetchedAt, pub
   for (const s of own) {
     if (body.length >= MAX_VIDEO_BODY_CHARS) break;
     if (segments.length && !/\s$/.test(body)) body += " ";
-    segments.push({ t: s.t, at: body.length });
+    segments.push({ t: s.t, at: body.length, ...(s.low ? { low: true } : {}) });
     body += s.text;
   }
   body = body.slice(0, MAX_VIDEO_BODY_CHARS);
@@ -391,15 +463,17 @@ export function buildVideoRecord({ src, videoId, title = "", doc, fetchedAt, pub
     ...(channel ? { channel } : {}),
     segments,
     time_format: TIME_FORMAT,
-    transcript: { provider: doc.provider || TRANSCRIPT_PROVIDER, model: doc.model || TRANSCRIPT_MODEL, transcribed_at: doc.transcribed_at || null, own_segments: own.length, all_segments: (doc.segments || []).length },
+    transcript: { provider: doc.provider || TRANSCRIPT_PROVIDER, model: doc.model || TRANSCRIPT_MODEL, transcribed_at: doc.transcribed_at || null, own_segments: own.length, all_segments: (doc.segments || []).length, ...versionFields(doc), ...(own.some((s) => s.low) ? { low_confidence_segments: own.filter((s) => s.low).length } : {}) },
   };
 }
 
 // ── Timestamped video links ────────────────────────────────────────────────
 const foldText = (s) => String(s || "").replace(/[‘’]/g, "'").replace(/[“”]/g, '"').replace(/\s+/g, " ").toLowerCase();
 
-/** The start second of the segment the excerpt is in, or null. */
-export function videoExcerptSecond(raw, excerpt) {
+const versionFields = (doc) => { const v = transcriptVersionOf(doc); return { prompt_version: v.prompt_version, schema_version: v.schema_version }; };
+
+/** The segment ({ t, at, low? }) of a timed record the excerpt is in, or null. */
+export function videoExcerptSegment(raw, excerpt) {
   // A raw record stored before time_format existed may carry clock digits.
   const segs = segmentSeconds(raw);
   if (!segs.length || !excerpt) return null;
@@ -418,6 +492,12 @@ export function videoExcerptSecond(raw, excerpt) {
   }
   let hit = null;
   for (const s of segs) if (Number(s.at) <= at) hit = s; else break;
+  return hit;
+}
+
+/** The start second of the segment the excerpt is in, or null. */
+export function videoExcerptSecond(raw, excerpt) {
+  const hit = videoExcerptSegment(raw, excerpt);
   return hit ? Math.max(0, Math.floor(Number(hit.t) || 0)) : null;
 }
 
@@ -556,6 +636,42 @@ export function windowRecord(rec, w, of, topic = rec.topic) {
  * scored in time windows (see above).
  */
 export function scoreRecordCandidates(rec, { log = console.log } = {}) {
+  return scoreWholeOrWindows(rec, { log }).map((x) => uncertainSpeaker(x, rec, { log }));
+}
+
+// ── Speaker confidence ─────────────────────────────────────────────────────
+// A mixed video (others speak too) whose clear read rests on words the model
+// could not attribute with confidence (`low` segments) is read as a mention,
+// not a stance: when the cited segment is low, or at least
+// LOW_SPEAKER_SHARE of the politician's segments are. Videos without
+// speaker confidence (every older transcript) are unaffected.
+export const LOW_SPEAKER_SHARE = 0.5;
+function uncertainSpeaker(x, rec, { log }) {
+  const c = x.candidate;
+  if (!CLEAR(c) || rec?.type !== "video") return x;
+  const t = rec.transcript || {};
+  const mixed = Number(t.all_segments) > Number(t.own_segments);
+  const segs = Array.isArray(rec.segments) ? rec.segments : [];
+  const lows = segs.filter((s) => s.low).length;
+  if (!mixed || !lows) return x;
+  const cited = videoExcerptSegment(x.raw, c.sources?.[0]?.excerpt);
+  const share = lows / segs.length;
+  if (!cited?.low && share < LOW_SPEAKER_SHARE) return x;
+  const why = cited?.low ? "the cited words are in a segment whose speaker the transcriber marked uncertain" : `${lows} of ${segs.length} of the politician's segments have an uncertain speaker`;
+  log(`stance-score: SPEAKER UNCERTAIN ${rec.politician_id}|${c.topic}${rec.source_id ? "|" + rec.source_id : ""} — ${c.position} ${c.confidence} read as a mention: ${why} in a video with other speakers`);
+  const candidate = {
+    ...c,
+    position: "no clear position",
+    confidence: WEIGHTS.mentionOnlyConfidence,
+    confidence_reason: `${c.confidence_reason}; read as a mention: ${why} in a video with other speakers`,
+    speaker_uncertain: { was: c.position, confidence: c.confidence },
+  };
+  delete candidate.stated_position;
+  delete candidate.primary_kind;
+  return { ...x, candidate };
+}
+
+function scoreWholeOrWindows(rec, { log }) {
   if (!isLongVideoRecord(rec)) return logCandidateStances(rec, { log }).map((candidate) => ({ candidate, raw: rec }));
   const id = `${rec?.politician_id}${rec?.source_id ? "|" + rec.source_id : ""}`;
   const whole = logCandidateStances(rec, { log });
@@ -689,6 +805,7 @@ export async function processTranscriptQueue({
     // call, so they never wait; the first call of a run starts at once.
     let callsMade = 0;
     let gate = Promise.resolve();
+    summary.retranscribed = 0;
     const throttled = (f) => {
       const run = gate.then(async () => {
         if (callsMade++ > 0 && callDelayMs > 0) await sleep(callDelayMs);
@@ -702,6 +819,18 @@ export async function processTranscriptQueue({
       if (!videoId || !entry?.src?.politician_id) { try { await store.delete(key); } catch {} return; }
       const pid = entry.src.politician_id;
       let doc = await readTranscript(store, videoId);
+      // Re-transcription (requestRetranscribe): the cached doc is set aside —
+      // unless it is already at the current versions and no force was asked.
+      let previous = null;
+      if (doc && entry.retranscribe) {
+        const v = transcriptVersionOf(doc);
+        if (v.current && !entry.retranscribe.force) log(`video-transcribe: RE-TRANSCRIBE SKIP ${pid} ${watchUrl(videoId)} — already at ${v.prompt_version} / ${v.schema_version}`);
+        else {
+          previous = { prompt_version: v.prompt_version, schema_version: v.schema_version, status: doc.status || null, transcribed_at: doc.transcribed_at || null, segments: (doc.segments || []).length, reason: entry.retranscribe.reason || null };
+          log(`video-transcribe: RE-TRANSCRIBE ${pid} ${watchUrl(videoId)} — ${v.prompt_version} / ${v.schema_version} → ${TRANSCRIPT_PROMPT_VERSION} / ${TRANSCRIPT_SCHEMA_VERSION}${entry.retranscribe.reason ? ` (${entry.retranscribe.reason})` : ""}`);
+          doc = null;
+        }
+      }
       if (doc) summary.cache_hits++;
       else {
         const name = entry.name || nameOf(pid);
@@ -737,12 +866,20 @@ export async function processTranscriptQueue({
             return;
           }
           summary.failed++;
-          doc = { video_id: videoId, status: "failed", error: tr.error, attempts, provider: TRANSCRIPT_PROVIDER, model: TRANSCRIPT_MODEL, transcribed_at: now().toISOString() };
+          if (previous) {
+            // A re-transcription that keeps failing never replaces a good transcript.
+            log(`video-transcribe: RE-TRANSCRIBE GAVE UP ${pid} ${watchUrl(videoId)} — ${tr.error} after ${attempts} attempts; the ${previous.prompt_version} transcript is kept`);
+            try { await store.delete(key); } catch {}
+            return;
+          }
+          doc = { video_id: videoId, status: "failed", error: tr.error, attempts, provider: TRANSCRIPT_PROVIDER, model: TRANSCRIPT_MODEL, prompt_version: TRANSCRIPT_PROMPT_VERSION, schema_version: TRANSCRIPT_SCHEMA_VERSION, transcribed_at: now().toISOString() };
           log(`video-transcribe: GAVE UP ${pid} ${watchUrl(videoId)} — ${tr.error} after ${attempts} attempts`);
         } else {
           summary.transcribed++;
+          if (previous) summary.retranscribed++;
           const own = tr.segments.filter((s) => s.own).length;
-          doc = { video_id: videoId, status: tr.segments.length ? "ok" : "empty", provider: TRANSCRIPT_PROVIDER, model: TRANSCRIPT_MODEL, transcribed_at: now().toISOString(), speaker: name, max_seconds: readTo, ...(windowsRead > 1 ? { windows_read: windowsRead } : {}), time_format: TIME_FORMAT, segments: tr.segments };
+          doc = { video_id: videoId, status: tr.segments.length ? "ok" : "empty", provider: TRANSCRIPT_PROVIDER, model: TRANSCRIPT_MODEL, prompt_version: TRANSCRIPT_PROMPT_VERSION, schema_version: TRANSCRIPT_SCHEMA_VERSION, transcribed_at: now().toISOString(), speaker: name, max_seconds: readTo, ...(windowsRead > 1 ? { windows_read: windowsRead } : {}), time_format: TIME_FORMAT, segments: tr.segments,
+            ...(previous ? { previous } : {}) };
           log(`video-transcribe: OK ${pid} ${watchUrl(videoId)} — ${tr.segments.length} segment(s), ${own} by ${name}`);
         }
         try { await store.setJSON(cacheKey(videoId), doc); } catch (e) { log(`video-transcribe: cache write failed for ${videoId} — ${e?.message || e}`); }
@@ -756,7 +893,7 @@ export async function processTranscriptQueue({
           summary.records.push(rk);
           log(`video-transcribe: RECORD ${pid} ${watchUrl(videoId)} → raw-ingest/${rk} (${rec.body_chars} chars, ${rec.segments.length} timed segment(s), tier 2)`);
           if (onRecord) {
-            try { await onRecord(Object.freeze({ ...rec, key: rk })); }
+            try { await onRecord(Object.freeze({ ...rec, key: rk, ...(previous ? { retranscribed: previous } : {}) })); }
             catch (e) { log(`video-transcribe: hook error for ${rk} — ${e?.message || e}`); }
           }
         } catch (e) { log(`video-transcribe: raw record not written for ${videoId} — ${e?.message || e}`); return; }

@@ -1,0 +1,4 @@
+{
+  "_comment": "On-demand video re-processing, worked once per request id by the background transcriber (netlify/lib/video-reprocess.mjs). action: \"retranscribe\" (re-run the transcript with the current prompt; add \"force\": true to re-run one already at the current versions) or \"rescore\" (re-read the politician's Locker items from that video — or all their video items, without video_id — under the current rules). Example: { \"id\": \"2026-11-28-example\", \"action\": \"retranscribe\", \"politician_id\": \"adelita_grijalva\", \"video_id\": \"G1xkgCCvPvY\", \"reason\": \"pre-v3 prompt\" }",
+  "requests": []
+}

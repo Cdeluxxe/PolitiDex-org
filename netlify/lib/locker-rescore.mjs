@@ -19,7 +19,19 @@
 //
 // Never touched: items an editor flagged (reviewed / needs_edit / hidden — the
 // editor's call stands), items already at the current rules version, mentions,
-// and own-channel YouTube / video items (the video pipeline is out of scope).
+// and video items that are not YouTube links (no stored transcript record).
+//
+// VIDEO ITEMS (YouTube watch links). Re-read from the stored page-shaped video
+// record (type "video", timed segments) exactly as the video pipeline scores
+// it — scoreRecordCandidates (long videos per time window, uncertain speakers
+// as mentions) and lockerRawFor (the link at the second the cited words are
+// spoken). A Locker key hashes the link, so when today's read cites another
+// second the item is MOVED to the key of its new link (written there, old key
+// deleted) — or, when that key already holds an item, the old one is dropped
+// in its favour — so a rescore never leaves two items for one video and
+// issue. Flagged items are never touched. rescoreVideoItems re-reads the
+// video items of one politician (optionally one video) on demand, whatever
+// their rules version.
 // An item whose page has no stored capture is left as it is and counted.
 //
 // Scoring is exactly the cron's: scoreAllTopics on the stored page — under the
@@ -52,7 +64,8 @@
 // including the next RULES_VERSION bump — behave exactly as before.
 
 import { RULES_VERSION, scoreAllTopics } from "./stance-score-core.mjs";
-import { lockerDecision, buildLockerItem, storedStrength, reviewFor, withRescore, ownEvidenceRows, collapseRestatedItems, regradeStatedPosition } from "./evidence-locker-core.mjs";
+import { scoreRecordCandidates, lockerRawFor } from "./video-transcripts.mjs";
+import { lockerKey, lockerDecision, buildLockerItem, storedStrength, reviewFor, withRescore, ownEvidenceRows, collapseRestatedItems, regradeStatedPosition } from "./evidence-locker-core.mjs";
 import { itemOwnership, OWNERSHIP_VERSION } from "./page-ownership.mjs";
 import { readLockerDocs, mapLimit } from "./locker-read.mjs";
 
@@ -69,6 +82,10 @@ export const CATCH_UP = Object.freeze({ id: "phase9-v2-gap-1", rules_version: "p
 const catchUpApplies = (rulesVersion = RULES_VERSION) => rulesVersion === CATCH_UP.rules_version;
 
 const isVideoItem = (doc) => /(?:youtube\.com|youtu\.be)\//i.test(String(doc?.link || "")) || /\b(?:youtube|video)\b/i.test(String(doc?.source_type || ""));
+/** Video id of a YouTube watch link (with or without &t=NNs), else null. */
+export const videoIdOfLink = (link) => (/^https?:\/\/(?:www\.|m\.)?youtube\.com\/watch\?v=([A-Za-z0-9_-]{11})/i.exec(String(link || "")) || /^https?:\/\/youtu\.be\/([A-Za-z0-9_-]{11})/i.exec(String(link || "")) || [])[1] || null;
+/** A stored page-shaped video transcript record (what a video item is re-read from). */
+export const isVideoRecord = (raw) => raw?.type === "video" && Array.isArray(raw?.segments) && raw.segments.length > 0 && typeof raw.body === "string";
 
 /** Why an item is not re-scored, or null when it is. */
 export function skipReason(doc, key, { flags = null, rulesVersion = RULES_VERSION } = {}) {
@@ -77,7 +94,8 @@ export function skipReason(doc, key, { flags = null, rulesVersion = RULES_VERSIO
   const st = storedStrength(doc);
   if (st !== "strong" && st !== "weak") return "mention";
   if (String(doc.rules_version || "") === rulesVersion) return "current";
-  if (isVideoItem(doc)) return "video";
+  // YouTube items are re-read from their stored transcript record; other video items are not.
+  if (isVideoItem(doc) && !videoIdOfLink(doc.link)) return "video";
   return null;
 }
 
@@ -90,6 +108,7 @@ export const pageTopicOf = (doc) => doc.page_topic || doc.topic;
  * `scored` caches scoreAllTopics per page topic for this raw record.
  */
 export function rescoreItem(doc, raw, { gt = null, scored = new Map(), at = new Date().toISOString() } = {}) {
+  if (videoIdOfLink(doc?.link) && isVideoRecord(raw)) return rescoreVideoItem(doc, raw, { gt, scored, at });
   const pt = pageTopicOf(doc);
   let cands = scored.get(pt);
   if (!cands) { cands = scoreAllTopics({ ...raw, topic: pt }); scored.set(pt, cands); }
@@ -104,6 +123,115 @@ export function rescoreItem(doc, raw, { gt = null, scored = new Map(), at = new 
   const to = { position: item.position, strength: item.strength, confidence: item.confidence ?? null, rules_version: item.rules_version };
   const changed = to.position !== from.position || to.strength !== from.strength || to.confidence !== from.confidence;
   return { action: "rewrite", next: item, reason: d.reason, changed, from, to };
+}
+
+/**
+ * Today's read of a YouTube Locker item from its stored video record — the
+ * video pipeline's own scoring (scoreRecordCandidates + lockerRawFor). The
+ * new item's link is the second today's read cites; `next.link` may differ
+ * from the stored one (the caller moves the item, see moveOrRewrite).
+ */
+export function rescoreVideoItem(doc, raw, { gt = null, scored = new Map(), at = new Date().toISOString() } = {}) {
+  const pt = pageTopicOf(doc);
+  const ck = `video:${pt}`;
+  let cands = scored.get(ck);
+  if (!cands) { cands = scoreRecordCandidates({ ...raw, topic: pt }, { log: () => {} }); scored.set(ck, cands); }
+  const hit = cands.find((x) => x.candidate.topic === doc.topic);
+  const from = { position: doc.position, strength: storedStrength(doc), confidence: doc.confidence ?? null, rules_version: doc.rules_version ?? null };
+  if (!hit) return { action: "retire", reason: doc.page_topic ? `the ${doc.page_topic} video no longer reads a position on ${doc.topic} (cross-topic rules)` : "the video no longer yields a candidate on its topic", changed: true, from, to: null };
+  const forLocker = lockerRawFor(hit.candidate, hit.raw);
+  const d = lockerDecision(hit.candidate, forLocker, gt);
+  if (!d.write) return { action: "retire", reason: `today's read is not admissible: ${d.reason}`, changed: true, from, to: { position: hit.candidate.position, confidence: hit.candidate.confidence } };
+  const item = withRescore(buildLockerItem(hit.candidate, forLocker, d.strength), doc, at);
+  const to = { position: item.position, strength: item.strength, confidence: item.confidence ?? null, rules_version: item.rules_version, link: item.link };
+  const changed = to.position !== from.position || to.strength !== from.strength || to.confidence !== from.confidence || item.link !== doc.link;
+  return { action: "rewrite", next: item, reason: d.reason, changed, from, to, video: true };
+}
+
+/**
+ * Store a rewritten item. Same key → in place. A video item whose link moved:
+ * written at its new key (onlyIfNew) and the old key deleted; when the new
+ * key is already taken (the pipeline wrote it), the old item is dropped in
+ * its favour — never two items for one video and issue. Returns
+ * "in_place" | "moved" | "merged".
+ */
+export async function moveOrRewrite(lockerStore, key, next, { flags = null } = {}) {
+  const target = lockerKey(next);
+  if (target === key) { await lockerStore.setJSON(key, next); return "in_place"; }
+  const r = await lockerStore.setJSON(target, next, { onlyIfNew: true });
+  if (r && r.modified === false) {
+    // The new key is taken: today's read replaces it unless it is flagged or already current.
+    const held = await lockerStore.get(target, { type: "json" }).catch(() => null);
+    if (held && !reviewFor(held, target, flags) && String(held.rules_version || "") !== String(next.rules_version || "")) await lockerStore.setJSON(target, next);
+  }
+  await lockerStore.delete(key);
+  return r && r.modified === false ? "merged" : "moved";
+}
+
+/**
+ * Raw record of a video item. Video records are keyed
+ * <pid>/<topic>/<source_id>/<video id>.json (one per video, many per channel
+ * directory), so the item's own key is tried first, then any key of that
+ * video id under the politician.
+ */
+async function videoRawFor(rawStore, idx, doc) {
+  const id = videoIdOfLink(doc.link);
+  const tryKey = async (k) => { const r = await rawStore.get(k, { type: "json" }).catch(() => null); return isVideoRecord(r) && (r.video_id === id || videoIdOfLink(r.link) === id) ? r : null; };
+  if (doc.source_id) for (const t of [...new Set([doc.topic, doc.page_topic].filter(Boolean))]) {
+    const r = await tryKey(`${doc.politician_id}/${t}/${doc.source_id}/${id}.json`);
+    if (r) return r;
+  }
+  if (!idx.all) { const { blobs = [] } = (await rawStore.list({ prefix: `${doc.politician_id}/` })) || {}; idx.all = blobs.map((b) => b.key); }
+  for (const k of idx.all.filter((k) => k.endsWith(`/${id}.json`)).sort().reverse()) {
+    const r = await tryKey(k);
+    if (r) return r;
+  }
+  return null;
+}
+
+/**
+ * On demand: re-read one politician's YouTube Locker items (all, or one
+ * `videoId`) from their stored video records, whatever their rules version.
+ * deps: { lockerStore, rawStore, retiredStore?, flags, gt, log, now, dry }.
+ * Returns { examined, rescored, moved, merged, retired, flagged, no_raw, items: [...] }.
+ */
+export async function rescoreVideoItems(pid, { videoId = null } = {}, deps = {}) {
+  const { lockerStore, rawStore, retiredStore = null, flags = null, gt = null, log = console.log, dry = false } = deps;
+  const now = deps.now || (() => new Date());
+  const out = { examined: 0, rescored: 0, moved: 0, merged: 0, retired: 0, flagged: 0, no_raw: 0, items: [] };
+  if (!lockerStore || !rawStore || !pid) return out;
+  const { blobs = [] } = (await lockerStore.list({ prefix: `${pid}/` })) || {};
+  const rows = await readLockerDocs(lockerStore, blobs.map((b) => b.key).sort());
+  let idx = null;
+  const scoredBy = new Map();
+  for (const { key, doc } of rows) {
+    const id = videoIdOfLink(doc?.link);
+    if (!id || (videoId && id !== videoId)) continue;
+    out.examined++;
+    if (reviewFor(doc, key, flags)) { out.flagged++; continue; }
+    const st = storedStrength(doc);
+    if (st !== "strong" && st !== "weak") continue;
+    idx = idx || (await rawIndexFor(rawStore, pid));
+    const raw = await videoRawFor(rawStore, idx, doc);
+    if (!raw) { out.no_raw++; log(`locker-rescore: NO VIDEO RECORD ${key} — ${doc.link} left as it is`); continue; }
+    if (!scoredBy.has(id)) scoredBy.set(id, new Map());
+    const r = rescoreVideoItem(doc, raw, { gt, scored: scoredBy.get(id), at: now().toISOString() });
+    const kind = changeKind(r);
+    log(`locker-rescore: VIDEO ${kind.toUpperCase()} ${key} — ${r.from.position}/${r.from.strength}@${r.from.confidence} (${r.from.rules_version || "unversioned"}) → ${r.to ? `${r.to.position}/${r.to.strength || "-"}@${r.to.confidence}${r.to.link && r.to.link !== doc.link ? ` at ${r.to.link}` : ""}` : "retired"} — ${r.reason}`);
+    out.items.push({ key, kind, from: r.from, to: r.to });
+    if (dry) continue;
+    if (r.action === "rewrite") {
+      const how = await moveOrRewrite(lockerStore, key, r.next, { flags });
+      out.rescored++;
+      if (how === "moved") out.moved++;
+      if (how === "merged") out.merged++;
+    } else {
+      if (retiredStore) await retiredStore.setJSON(key, { ...doc, retired: { at: now().toISOString(), reason: r.reason, rules_version: RULES_VERSION } });
+      await lockerStore.delete(key);
+      out.retired++;
+    }
+  }
+  return out;
 }
 
 /** Kind of change, for the tallies. */
@@ -257,8 +385,9 @@ export async function rescoreStep(state, deps) {
       idx = idx || (await rawIndexFor(rawStore, pid));
       const first = group[0].doc;
       let raw = null;
-      if (first.source_id && idx.bySource[first.source_id]) raw = await rawStore.get(idx.bySource[first.source_id], { type: "json" }).catch(() => null);
-      if (!raw) {
+      if (videoIdOfLink(first.link)) raw = await videoRawFor(rawStore, idx, first);
+      else if (first.source_id && idx.bySource[first.source_id]) raw = await rawStore.get(idx.bySource[first.source_id], { type: "json" }).catch(() => null);
+      if (!raw && !videoIdOfLink(first.link)) {
         // Older items carry no source_id: find the page by its address.
         const found = await mapLimit(idx.dirs.slice(0, 60), RAW_READ_CONCURRENCY, async (k) => {
           const r = await rawStore.get(k, { type: "json" }).catch(() => null);
@@ -282,8 +411,10 @@ export async function rescoreStep(state, deps) {
         bump(T.outcomes[was], kind);
         if (kind !== "unchanged") log(`locker-rescore: ${kind.toUpperCase()} ${key} — ${r.from.position}/${r.from.strength}@${r.from.confidence} (${r.from.rules_version || "unversioned"}) → ${r.to ? `${r.to.position}/${r.to.strength || "-"}@${r.to.confidence}` : "retired"} — ${r.reason}`);
         if (dry) continue;
-        if (r.action === "rewrite") await lockerStore.setJSON(key, r.next);
-        else {
+        if (r.action === "rewrite") {
+          if (r.video) { const how = await moveOrRewrite(lockerStore, key, r.next, { flags }); if (how !== "in_place") { bump(T, `video_${how}`); log(`locker-rescore: VIDEO ${how.toUpperCase()} ${key} → ${lockerKey(r.next)}`); } }
+          else await lockerStore.setJSON(key, r.next);
+        } else {
           if (retiredStore) await retiredStore.setJSON(key, { ...doc, retired: { at: now().toISOString(), reason: r.reason, rules_version: RULES_VERSION } });
           await lockerStore.delete(key);
         }
