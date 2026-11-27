@@ -226,6 +226,46 @@ export const EXTRA_SOURCES = [
   ...CONGRESS_GOV.map((s) => ({ ...s, source_class: "congress_gov" })),
 ];
 
+// ── Own-site newsroom indexes (priority newsrooms, 2026-11-27) ──
+// Each member's OWN senate.gov / house.gov press-release or news index (never
+// a caucus, party or shared-leadership host), added on request so members with
+// no evidence yet get a page that changes every week. They are index pages:
+// the fresh pass harvests the member's individual releases from them into the
+// frontier, which is where promotable pages come from. Checked 2026-11-27:
+// every URL answered 200 with HTML except Graham's, which refused the check
+// (403 to automated fetches); it stays in, and host health skips it for the
+// cycle if it keeps refusing. Rick Scott's newsroom is /newsroom (his homepage
+// links to it).
+//
+// Merged into ROSTER by raw-ingest-core.mjs (a URL the row already has is
+// flagged in place rather than added twice). Flagged `priority_newsroom`: the
+// page is never "filled" by the per-issue baseline (an index keeps changing),
+// and while its member has no Locker evidence yet the planner reserves
+// PRIORITY_NEWSROOMS_PER_RUN politician slots per run for them (planRun).
+const senateIndex = "official Senate press releases page";
+export const OWN_SITE_NEWSROOMS = [
+  { politician_id: "andy_kim", url: "https://www.kim.senate.gov/press-releases/" },
+  { politician_id: "blackburn", url: "https://www.blackburn.senate.gov/press-releases" },
+  { politician_id: "booker", url: "https://www.booker.senate.gov/news/press" },
+  { politician_id: "daines", url: "https://www.daines.senate.gov/news/press-releases/" },
+  { politician_id: "graham", url: "https://www.lgraham.senate.gov/public/index.cfm?p=press-releases" },
+  { politician_id: "jon_husted", url: "https://www.husted.senate.gov/media/press-releases/" },
+  { politician_id: "hyde_smith", url: "https://www.hydesmith.senate.gov/news-releases" },
+  { politician_id: "ron_johnson", url: "https://www.ronjohnson.senate.gov/category/press-releases/" },
+  { politician_id: "kaine", url: "https://www.kaine.senate.gov/news" },
+  { politician_id: "murray", url: "https://www.murray.senate.gov/category/press-releases/" },
+  { politician_id: "rosen", url: "https://www.rosen.senate.gov/category/press_release/" },
+  { politician_id: "schumer", url: "https://www.schumer.senate.gov/newsroom/press-releases" },
+  { politician_id: "rick_scott", url: "https://www.rickscott.senate.gov/newsroom" },
+  { politician_id: "tillis", url: "https://www.tillis.senate.gov/press-releases" },
+  { politician_id: "welch", url: "https://www.welch.senate.gov/category/press-releases/" },
+  { politician_id: "jeffries", url: "https://jeffries.house.gov/category/press-release/", source_type: "official House press releases page" },
+].map((s) => ({
+  politician_id: s.politician_id, topic: "cost_living", source_type: s.source_type || senateIndex,
+  source_class: "congress_member", source_id: "official-own-newsroom", url: s.url,
+  priority_newsroom: true, known_from: "requested 2026-11-27 (member's own official site)",
+}));
+
 // ── Official social sources (raw-ingest-social.mjs) — YouTube only for now ──
 // A channel is used only when the site already cites one of its videos and
 // labels it the politician's OWN official / campaign channel (`known_video`,

@@ -1,6 +1,6 @@
 import { REQUESTED_POLITICIANS } from "./raw-ingest-expansion.mjs";
 import { describeFetchError, pullProbeFirst } from "./raw-ingest-hosts.mjs";
-import { EXTRA_SOURCES, NEW_STATE_LEGISLATORS, SOURCE_CLASSES, NEW_SOCIAL_ROSTER, SOCIAL_SOURCES } from "./raw-ingest-source-types.mjs";
+import { EXTRA_SOURCES, NEW_STATE_LEGISLATORS, SOURCE_CLASSES, NEW_SOCIAL_ROSTER, SOCIAL_SOURCES, OWN_SITE_NEWSROOMS } from "./raw-ingest-source-types.mjs";
 import { pullYouTube, pullYouTubeVideo, isSocial, SOCIAL_CLASSES } from "./raw-ingest-social.mjs";
 import { pullSpeechTranscript } from "./raw-ingest-video.mjs";
 import { preferWordGaps } from "./raw-ingest-word-gap.mjs";
@@ -15,7 +15,7 @@ import MEMBER_MAP from "../../db/vr-member-map.json" with { type: "json" };
 import { RETIRED_SOURCES } from "./raw-ingest-retired.mjs";
 import { resolveRoster } from "./raw-ingest-resolve.mjs";
 
-export { EXTRA_SOURCES, SOURCE_CLASSES, SOCIAL_SOURCES, SOCIAL_CLASSES, isSocial };
+export { EXTRA_SOURCES, SOURCE_CLASSES, SOCIAL_SOURCES, SOCIAL_CLASSES, OWN_SITE_NEWSROOMS, isSocial };
 
 // ─────────────────────────────────────────────────────────────────────────────
 // raw-ingest-core.mjs — Phase 3 ingestion pipeline, RAW STORE ONLY
@@ -588,6 +588,24 @@ if (FULL_ROSTER_APPLIED) {
   }
 }
 
+// Own-site newsroom indexes (OWN_SITE_NEWSROOMS, raw-ingest-source-types.mjs):
+// each listed member's own press-release / news index joins their row, flagged
+// `priority_newsroom` (see isPriorityNewsroom / planRun). A URL the row already
+// carries is flagged in place instead of being added twice. Applied after the
+// pool expansion and full roster so every listed member's row exists.
+export const OWN_SITE_NEWSROOMS_APPLIED = !(typeof process !== "undefined" && process.env?.PDX_RAW_INGEST_NO_OWN_NEWSROOMS);
+export const OWN_SITE_NEWSROOMS_MISSING = [];
+if (OWN_SITE_NEWSROOMS_APPLIED) {
+  for (const nr of OWN_SITE_NEWSROOMS) {
+    const row = ROSTER.find((r) => r.politician_id === nr.politician_id);
+    if (!row) { OWN_SITE_NEWSROOMS_MISSING.push(nr.politician_id); continue; }
+    const { known_from, ...page } = nr;
+    const have = (row.sources || []).find((s) => normUrl(s.url) === normUrl(page.url));
+    if (have) { have.priority_newsroom = true; continue; }
+    (row.sources ||= []).push({ ...page });
+  }
+}
+
 // Official URL resolution (raw-ingest-resolve.mjs): a TIER-3 row with no pages
 // (or only weak ones) gets official pages the engine resolves itself from data
 // the repo already trusts — first its Congress.gov member page (name + state +
@@ -680,7 +698,28 @@ export function isFilled(counts, pid, topic) {
  */
 export const pageTopics = (s) => [s.topic, ...(s.issue_pairs || [])];
 /** Is every politician + issue pair this page works on filled? */
-export const pageFilled = (counts, pid, s) => pageTopics(s).every((t) => isFilled(counts, pid, t));
+export const pageFilled = (counts, pid, s) => !isPriorityNewsroom(s) && pageTopics(s).every((t) => isFilled(counts, pid, t));
+
+// ── Priority newsrooms (OWN_SITE_NEWSROOMS) ──────────────────────────────────
+// A member's own newsroom index keeps changing, so it is never "filled" by the
+// baseline (pageFilled). While a member holding one has NO Locker evidence at
+// all (no strong or weak item on any issue), they are a priority politician:
+// planRun fills up to PRIORITY_NEWSROOMS_PER_RUN of its politician slots from
+// them first, in their own lap (`priority_done` in the rotation state), before
+// the normal rotation takes the rest. A lap of 16 members takes 8 runs (~40
+// minutes at the 5-minute schedule). Once a member has any evidence they drop
+// back to the normal rotation, newsroom page included.
+export const PRIORITY_NEWSROOMS_PER_RUN = 2;
+export const isPriorityNewsroom = (s) => Boolean(s && s.priority_newsroom);
+export function hasAnyEvidence(counts, pid) {
+  const pre = `${pid}|`;
+  for (const [k, c] of Object.entries(counts || {})) if (k.startsWith(pre) && pairWeight(c) > 0) return true;
+  return false;
+}
+/** Roster ids holding a priority newsroom page whose politician has no Locker evidence yet. */
+export function priorityNewsroomPids(roster = ROSTER, counts = {}) {
+  return roster.filter((r) => (r.sources || []).some(isPriorityNewsroom) && !hasAnyEvidence(counts, r.politician_id)).map((r) => r.politician_id);
+}
 
 export function splitByBaseline(r, counts = {}) {
   const all = [...(r.sources || []).map((s) => ({ s, official: false })), ...(r.official ? [{ s: r.official, official: true }] : [])];
@@ -720,6 +759,7 @@ export function normaliseRotationState(doc) {
   return {
     cycle: Number.isFinite(cycle) && cycle >= 0 ? Math.trunc(cycle) : 0,
     done: Array.isArray(doc?.done) ? doc.done.map(String) : [],
+    ...(Array.isArray(doc?.priority_done) ? { priority_done: doc.priority_done.map(String) } : {}),
   };
 }
 
@@ -758,7 +798,7 @@ export function orderPagesForRun(pages, cap, cycle = 0) {
  * remaining_in_cycle, state, size }; `state` is what to persist for next run.
  * Never returns more than `max` sources even after every pattern is added.
  */
-export function planRun(state = {}, { roster = ROSTER, max = MAX_SOURCES_PER_RUN, counts = {}, every = DEPRIORITISED_EVERY_CYCLES, maxPoliticians = MAX_POLITICIANS_PER_RUN, perPolitician = MAX_SOURCES_PER_POLITICIAN, wordGaps = null } = {}) {
+export function planRun(state = {}, { roster = ROSTER, max = MAX_SOURCES_PER_RUN, counts = {}, every = DEPRIORITISED_EVERY_CYCLES, maxPoliticians = MAX_POLITICIANS_PER_RUN, perPolitician = MAX_SOURCES_PER_POLITICIAN, wordGaps = null, priorityPerRun = PRIORITY_NEWSROOMS_PER_RUN } = {}) {
   const st = normaliseRotationState(state);
   const ids = new Set(roster.map((r) => r.politician_id));
   const order = priorityOrder(roster, counts).filter((x) => x.open.length || x.filled.length);
@@ -769,6 +809,20 @@ export function planRun(state = {}, { roster = ROSTER, max = MAX_SOURCES_PER_RUN
   for (let guard = 0; !pending.length && order.length && guard <= Math.max(1, every); guard++) {
     cycle += 1; done = new Set();
     pending = eligibleIn(cycle);
+  }
+  // Priority newsroom lane (see priorityNewsroomPids): up to `priorityPerRun`
+  // zero-evidence members with an own-site newsroom go first, in their own lap,
+  // whether or not the normal cycle has reached them yet.
+  const prioIds = priorityNewsroomPids(roster, counts).filter((p) => ids.has(p));
+  const prioSet = new Set(prioIds);
+  let prioDone = new Set((st.priority_done || []).filter((p) => prioSet.has(p)));
+  let prioPicks = [];
+  if (prioIds.length && priorityPerRun > 0) {
+    if (prioIds.every((p) => prioDone.has(p))) prioDone = new Set();
+    const want = prioIds.filter((p) => !prioDone.has(p)).slice(0, priorityPerRun);
+    prioPicks = want.map((p) => order.find((x) => x.r.politician_id === p)).filter(Boolean);
+    const picked = new Set(prioPicks.map((x) => x.r.politician_id));
+    pending = [...prioPicks, ...pending.filter((x) => !picked.has(x.r.politician_id))];
   }
   const sources = [], patterns = [], politicians = [], deprioritised = [], skipped = [];
   const seen = new Set();
@@ -785,7 +839,10 @@ export function planRun(state = {}, { roster = ROSTER, max = MAX_SOURCES_PER_RUN
     // Word vs Action gaps (raw-ingest-word-gap.mjs): pages on an issue with a
     // formal record but no stated position go first; pages only on issues that
     // already have one go last. Stable, so the rotation order breaks ties.
-    const pages = preferWordGaps(orderPagesForRun(take.filter((y) => !y.official && !isSocial(y.s) && !seen.has(normUrl(y.s.url))).map((y) => y.s), pageCap, cycle), wordGaps).slice(0, Math.max(0, pageCap));
+    // A priority newsroom index always keeps its slot (it is where the member's
+    // new releases are harvested from).
+    const ordered = preferWordGaps(orderPagesForRun(take.filter((y) => !y.official && !isSocial(y.s) && !seen.has(normUrl(y.s.url))).map((y) => y.s), pageCap, cycle), wordGaps);
+    const pages = [...ordered.filter(isPriorityNewsroom), ...ordered.filter((s) => !isPriorityNewsroom(s))].slice(0, Math.max(0, pageCap));
     const off = offRow && per >= 1 && !seen.has(normUrl(offRow.s.url)) && !pages.some((s) => normUrl(s.url) === normUrl(offRow.s.url)) ? offRow.s : null;
     const cost = pages.length + (off ? 1 : 0);
     if (cost && used + cost > max) {
@@ -801,6 +858,7 @@ export function planRun(state = {}, { roster = ROSTER, max = MAX_SOURCES_PER_RUN
       used += cost;
     }
     politicians.push(r.politician_id);
+    if (prioSet.has(r.politician_id)) prioDone.add(r.politician_id);
     planned.push({ pid: r.politician_id, take });
     if (x.band === 1) deprioritised.push(r.politician_id);
     else for (const y of x.filled) skipped.push({ politician_id: r.politician_id, topic: y.s.topic, url: y.s.url });
@@ -824,7 +882,8 @@ export function planRun(state = {}, { roster = ROSTER, max = MAX_SOURCES_PER_RUN
   return {
     sources, patterns, politicians, deprioritised, skipped, cycle, classes,
     remaining_in_cycle: pending.filter((x) => !done.has(x.r.politician_id)).map((x) => x.r.politician_id),
-    state: { cycle, done: [...done] },
+    priority: { pids: prioIds, planned: politicians.filter((p) => prioSet.has(p)), remaining_in_lap: prioIds.filter((p) => !prioDone.has(p)) },
+    state: { cycle, done: [...done], ...(prioIds.length || st.priority_done ? { priority_done: [...prioDone] } : {}) },
     size: sources.length + patterns.length,
   };
 }

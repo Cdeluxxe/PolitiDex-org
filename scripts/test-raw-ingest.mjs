@@ -43,11 +43,11 @@ const normUrl = (u) => String(u || "").trim().replace(/\/+$/, "").toLowerCase();
 const NOW = () => new Date('2026-11-07T08:00:00.000Z');
 const HTML = '<html><body><h1>Taxes &amp; Cost of Living</h1></body></html>';
 
-await t('function and core exist; function is scheduled every minute and uses the core', () => {
+await t('function and core exist; function is scheduled every 5 minutes and uses the core', () => {
   assert.ok(existsSync(fnPath), 'missing ' + fnPath);
   assert.ok(existsSync(corePath), 'missing ' + corePath);
   const src = readFileSync(fnPath, 'utf8');
-  assert.match(src, /schedule:\s*"\* \* \* \* \*"/, 'every minute');
+  assert.match(src, /schedule:\s*"\*\/5 \* \* \* \*"/, 'every 5 minutes');
   assert.doesNotMatch(src, /schedule:\s*"0 \*\/4/, 'the old 4-hour schedule is gone');
   assert.match(src, /raw-ingest-core\.mjs/);
   assert.match(src, /export default/);
@@ -573,7 +573,8 @@ await t('roster: priority flags are true to the data, and prioritised people com
     if (!o && POOL.has(r.politician_id)) {
       // Tier 1 = curated first-party pages; tier 2 (pool v2) = official
       // government sources and own-channel YouTube videos, tagged as such.
-      assert.ok(r.sources.length && r.sources.every((s) => (s.source_class === 'curated_page' && s.source_tier === 1)
+      // Own-site priority newsrooms (OWN_SITE_NEWSROOMS) join pool rows as official pages.
+      assert.ok(r.sources.length && r.sources.every((s) => core.isPriorityNewsroom(s) || (s.source_class === 'curated_page' && s.source_tier === 1)
         || (['congress_gov', 'official_gov', 'youtube_video'].includes(s.source_class) && s.source_tier === 2)), `${r.politician_id}: pool rows carry curated (tier 1) or official (tier 2) pages`);
       continue;
     }
@@ -607,7 +608,7 @@ await t('roster expansion: beyond the previous 13, with priority order respected
   const rot = memStore(); const visited = []; const lines = [];
   for (let i = 0; i < core.ROSTER.length; i++) {
     const { value: res, lines: l } = await quiet(() => fn.run({ fetch: fakeFetch(200, LONG_HTML), store: fakeStore(), now: NOW,
-      rotate: { counts: {} }, rotationStore: rot, log: (x) => lines.push(x) }));
+      rotate: { counts: {}, priorityPerRun: 0 }, rotationStore: rot, log: (x) => lines.push(x) }));
     const r = await res.json();
     lines.push(...l);
     if (r.plan.cycle !== 0) break;
@@ -617,7 +618,7 @@ await t('roster expansion: beyond the previous 13, with priority order respected
   assert.deepEqual(visited, core.priorityOrder(ACTIVE_ROSTER, {}).map((x) => x.r.politician_id), 'a cycle visits everyone once, in priority order');
   const tiers = visited.map((p) => core.ROSTER.find((r) => r.politician_id === p).tier);
   assert.deepEqual(tiers, [...tiers].sort((a, b) => a - b), 'tier 1 before tier 2 before tier 3');
-  const first = core.planRun({}, { counts: {} });
+  const first = core.planRun({}, { counts: {}, priorityPerRun: 0 });
   assert.ok(first.politicians.every((p) => core.ROSTER.find((r) => r.politician_id === p).tier === 1), 'the first run is all tier 1');
   // Run log: roster size, who was included, and the baseline line.
   assert.ok(lines.some((l) => l.startsWith(`raw-ingest: roster — ${core.ROSTER.length} politician(s)`)), 'roster size logged');
@@ -685,7 +686,7 @@ await t('per-issue baseline: a filled politician + issue is not chased on later 
   const c1p = core.planRun({ cycle: 1 }, { counts });
   assert.ok(!c1p.politicians.includes(top.r.politician_id) && !c1p.remaining_in_cycle.includes(top.r.politician_id), 'skips cycles that are not its turn');
   const others = core.ROSTER.map((x) => x.politician_id).filter((p) => p !== top.r.politician_id);
-  assert.deepEqual(core.planRun({ cycle: 3, done: others }, { counts }).politicians, [top.r.politician_id], 'back in on its cycle');
+  assert.deepEqual(core.planRun({ cycle: 3, done: others }, { counts, priorityPerRun: 0 }).politicians, [top.r.politician_id], 'back in on its cycle');
   // A filled issue can still take anything new the run happens to find.
   const cornynSrc = core.SOURCES.find((s) => s.url === CORNYN_URL);
   const ls2 = lockerFakeStore();
@@ -923,7 +924,8 @@ await t('requested national expansion: all 212 unique names, known URLs or expli
       // A retired page leaves whatever other (non-failing) sources the row has.
       if (retired) assert.ok(![...row.sources, row.official].some((s) => s && retired.has(s.url)), `${person.name}: retired page is gone`);
       // Only the offline discovery step (resolver step 5) may give such a row pages.
-      else assert.ok(row.sources.every((s) => s.resolved_by === "discovered"), `${person.name}: no page but discovered ones`);
+      // …or an own-site newsroom index added on request (OWN_SITE_NEWSROOMS).
+      else assert.ok(row.sources.every((s) => s.resolved_by === "discovered" || core.isPriorityNewsroom(s)), `${person.name}: no page but discovered ones or an own-site newsroom`);
     }
   }
   const noSourceIds = core.ROSTER.filter((r) => !r.sources.length && !r.official).map((r) => r.politician_id);

@@ -240,6 +240,20 @@
 //   · RUN LOG — "raw-ingest: url resolution — …" after the roster line; the
 //     report carries the same under `url_resolution`.
 
+// Five-minute schedule + priority newsrooms pass:
+//   · SCHEDULE — every 5 minutes ("*/5 * * * *") instead of every minute, to
+//     cut pure re-reads of already-seen pages. Caps, the seen ledger and the
+//     already-read displacement rule are unchanged.
+//   · OWN-SITE NEWSROOMS — 16 members' own senate.gov / house.gov press-release
+//     indexes join the roster (OWN_SITE_NEWSROOMS, raw-ingest-source-types.mjs).
+//   · PRIORITY LANE — while such a member has no Locker evidence, up to
+//     PRIORITY_NEWSROOMS_PER_RUN of them are planned first each run, in their
+//     own lap, and their harvested frontier pages win the spare run slots.
+//     "raw-ingest: priority newsrooms — …" logs the lane each run.
+//   · HARVEST — release links in dated paths (/2026/11/slug), press_release
+//     sections, and (on these indexes) top-level multi-word slugs are now
+//     recognised as press releases.
+
 // Video / speech pass (raw-ingest-video.mjs; opt-in through `videoSpeech`,
 // which the scheduled entry point turns on):
 //   · DISCOVERY — for every planned, in-scope politician (the whole roster
@@ -340,7 +354,7 @@ export async function run(deps: {
   // persists the rotation state between runs.
   // `state` overrides the stored rotation state and `counts` the Locker
   // per-issue baseline counts ("pid|topic" → { strong, weak }) (tests).
-  rotate?: boolean | { roster?: any[]; max?: number; state?: any; counts?: Record<string, { strong?: number; weak?: number }> };
+  rotate?: boolean | { roster?: any[]; max?: number; state?: any; counts?: Record<string, { strong?: number; weak?: number }>; priorityPerRun?: number };
   rotationStore?: any;
   reviewFlags?: any;
   // Promoted stances: the pdx_stated_positions adapter (stated-positions-core
@@ -459,7 +473,7 @@ export async function run(deps: {
         log(`raw-ingest: word gap — unavailable, pull order unchanged (${e?.message || e})`);
       }
     }
-    plan = planRun(state, { roster, max, counts, maxPoliticians: MAX_POLITICIANS_PER_RUN, perPolitician: MAX_SOURCES_PER_POLITICIAN, wordGaps });
+    plan = planRun(state, { roster, max, counts, maxPoliticians: MAX_POLITICIANS_PER_RUN, perPolitician: MAX_SOURCES_PER_POLITICIAN, wordGaps, ...(ro.priorityPerRun !== undefined ? { priorityPerRun: ro.priorityPerRun } : {}) });
     const rs = rosterSummary(roster, counts);
     const tierOf = new Map(roster.map((r: any) => [r.politician_id, r.tier]));
     log(`raw-ingest: roster — ${rs.size} politician(s) (${Object.entries(rs.tiers).map(([t, n]) => `tier ${t}: ${n}`).join(", ")}) · ${rs.reached.length} politician + issue pair(s) filled`);
@@ -469,6 +483,7 @@ export async function run(deps: {
     const who = plan.politicians.map((p: string) => `${p} (t${tierOf.get(p)}${dep.has(p) ? ", deprioritised: every issue filled" : ""})`);
     const skip = plan.skipped.length ? ` · not chased (filled): ${plan.skipped.map((x: any) => `${x.politician_id}|${x.topic}`).join(", ")}` : "";
     console.log(`raw-ingest: run plan — cycle ${plan.cycle} · ${plan.politicians.length} politician(s): ${who.join(", ")} · ${plan.sources.length} page(s) + ${plan.patterns.length} official pattern(s) (cap ${max}) · ${plan.remaining_in_cycle.length} left this cycle${skip}`);
+    if (plan.priority?.pids?.length) log(`raw-ingest: priority newsrooms — ${plan.priority.pids.length} member(s) with no evidence yet · this run: ${plan.priority.planned.length ? plan.priority.planned.join(", ") : "none"} · ${plan.priority.remaining_in_lap.length} left this lap`);
     // Hosts that failed at host level earlier this cycle: their pages, patterns
     // and frontier pages are left out before any slot is spent on them.
     hostHealth = deps.hostHealth ? normaliseHostHealth({ ...deps.hostHealth, cycle: plan.cycle }, plan.cycle) : await readHostHealth(deps.rotationStore, plan.cycle, log);
@@ -504,7 +519,7 @@ export async function run(deps: {
       videoSpeech = { checked: vd.checked, queued: vd.added, discovery: vd.sources, added: va.added.length };
     }
     if (fresh) {
-      const f = addFreshSources(sources, fresh, { politicians: plan.politicians, max, perPolitician: MAX_SOURCES_PER_POLITICIAN, per: fo.per ?? FRESH_PER_POLITICIAN, protect, skipHosts: new Set(skipHosts.keys()), spare: fo.spare ?? FRESH_SPARE_PER_RUN, log, wordGaps });
+      const f = addFreshSources(sources, fresh, { politicians: plan.politicians, max, perPolitician: MAX_SOURCES_PER_POLITICIAN, per: fo.per ?? FRESH_PER_POLITICIAN, protect, skipHosts: new Set(skipHosts.keys()), spare: fo.spare ?? FRESH_SPARE_PER_RUN, log, wordGaps, priority: plan.priority?.pids || [] });
       sources = f.sources;
       discovered = [...discovered, ...f.added];
       (freshTally as any).added = f.added.length;
@@ -857,8 +872,11 @@ async function productionStatedDb(log: (l: string) => void): Promise<any> {
 
 export default async (): Promise<Response> => scheduled();
 
-// Every minute. Each run is sized (caps + fetch ceilings in raw-ingest-core)
-// to finish inside RUN_BUDGET_MS (~25 s), under the 30 s function limit.
+// Every 5 minutes (was every minute): most every-minute runs only re-read
+// pages already in the seen ledger. Each run is still sized (caps + fetch
+// ceilings in raw-ingest-core) to finish inside RUN_BUDGET_MS (~25 s), under
+// the 30 s function limit; the priority newsroom lane (planRun) keeps
+// discovery pointed at members with no evidence yet.
 export const config: Config = {
-  schedule: "* * * * *",
+  schedule: "*/5 * * * *",
 };
