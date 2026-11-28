@@ -1,0 +1,224 @@
+{
+  "_note": "Locked ground-truth stance records, all labeled oppose: the second oppose batch, added 2026-11-28 to check the stance scorer against more real oppose language on the four keys the first batch (db/oppose-ground-truth-2026-11.json) exercised: cut_spending (Murray, Schumer on the 2025 rescissions package), wealth_inequality_tax_fairness (Crapo, Arrington), gov_regulation (Lieu, Raskin on the REINS Act) and safety_net_work_requirements (Angie Craig on SNAP, Debbie Dingell on Medicaid). No politician-and-key pair repeats one in either locked set. Every excerpt is quoted verbatim from a page the politician or the committee office they lead controls; fragments are separated by \" ... \". A source that argues the point without stating a position is marked takes_clear_position: false. Same record shape as db/stance-ground-truth-talarico-cost-of-living.json. Labels only: no rule was changed for these records. Test coverage only: no live code reads this file (it is outside the stance-ground-truth-* name pattern), it is not used to tune any rule, and it is scored by scripts/rescore-oppose-ground-truth-wave2-2026-11.mjs.",
+  "records": [
+    {
+      "stance_id": "murray|cut_spending|gt-307",
+      "politician_id": "murray",
+      "topic": "cut_spending",
+      "position": "oppose",
+      "position_on": "the Rescissions Act of 2025 (H.R. 4), a partisan package rescinding enacted funding for public broadcasting and foreign aid",
+      "confidence": 0.75,
+      "confidence_reason": "She urges a no vote on the rescissions package in two floor speeches on consecutive days and says it should be rejected outright; held at 0.75 because she says she is open to targeted rescissions in a bipartisan spending bill, so part of her objection is to the partisan process rather than to cutting spending as such.",
+      "sources": [
+        {
+          "type": "floor speech (official committee release)",
+          "date": "2025-07-15",
+          "link": "https://www.appropriations.senate.gov/news/minority/murray-urges-colleagues-to-vote-down-rescissions-package-in-its-entirety",
+          "excerpt": "\"Saving a couple pennies is not worth losing our credibility or causing millions of deaths across the globe.\" ... \"And if my colleagues agree, which I believe many of you do, then the course we must take is clear. We have to reject this package outright.\" ... \"I urge my colleagues to protect that trust, and join me in voting no.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-28. Her Senate floor remarks as published by the Appropriations Committee minority office she leads as Vice Chair. Date from the page.",
+          "takes_clear_position": true
+        },
+        {
+          "type": "floor speech (official committee release)",
+          "date": "2025-07-16",
+          "link": "https://www.appropriations.senate.gov/news/minority/murray-slams-republicans-rescissions-package-on-senate-floor",
+          "excerpt": "\"We have never, never before seen bipartisan investments, slashed through a partisan rescissions package. Do not start now.\" ... \"I urge my colleagues to join me in voting NO.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-28. Her floor remarks the next day, ahead of final passage, from the same office. Same package; not independent of the first source.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-28",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-28"
+    },
+    {
+      "stance_id": "schumer|cut_spending|gt-308",
+      "politician_id": "schumer",
+      "topic": "cut_spending",
+      "position": "oppose",
+      "position_on": "the Rescissions Act of 2025 (H.R. 4) and further rescissions packages",
+      "confidence": 0.8,
+      "confidence_reason": "On the Senate floor he calls the rescissions package bad news, warns that more rescissions would cut health care, housing and food for kids, and says Democrats will fiercely oppose it; one source, so held at 0.8.",
+      "sources": [
+        {
+          "type": "floor speech (official press release)",
+          "date": "2025-07-16",
+          "link": "https://www.democrats.senate.gov/news/press-releases/leader-schumer-floor-remarks-denouncing-senate-republicans-rescissions-bill-ahead-of-todays-vote-a-rama",
+          "excerpt": "\"Now, Republicans know all this. They know this rescissions package is bad, bad news, even though most of them still choose to support it.\" ... \"If Republicans get away with passing this bill now, we will likely be back here in the very near future with other rescissions that cut things like health care, like housing, like food for kids.\" ... \"Democrats will continue to fiercely oppose this package.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-28. His Senate floor remarks as published by the Senate Democrats' office he leads. Date from the page.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-28",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-28"
+    },
+    {
+      "stance_id": "crapo|wealth_inequality_tax_fairness|gt-309",
+      "politician_id": "crapo",
+      "topic": "wealth_inequality_tax_fairness",
+      "position": "oppose",
+      "position_on": "higher taxes on the wealthiest and on corporations (the billionaire minimum tax on unrealized gains, a 28 percent corporate rate, a 39.6 percent top rate)",
+      "confidence": 0.75,
+      "confidence_reason": "His March 2024 statement objects to the President's new tax on wealth, the 28 percent corporate rate and the higher top individual rate; his 2023 hearing remarks argue against the 'fairness' framing but state no position, so they are marked not clear. Held at 0.75 because the clear source lists the objections in the office's bullet points rather than in his quoted remarks.",
+      "sources": [
+        {
+          "type": "official committee press release (Finance, Ranking Member statement)",
+          "date": "2024-03-11",
+          "link": "https://www.finance.senate.gov/ranking-members-news/crapo-statement-on-biden-budget",
+          "excerpt": "\"President Biden is proposing the same menu of tax hikes that not even a Democrat-controlled Congress could support, while promising even more government subsidies to counter the inflation that has run rampant under this Administration.\" ... \"A tax on America’s job creators: The President’s budget calls for increasing the income tax rate on incorporated businesses to 28 percent.\" ... \"A new tax on wealth: The President’s budget calls for a new 25 percent minimum income tax on “billionaires,” even though the tax is not limited to incomes of that amount and it applies to more than income – including unrealized asset gains. The President continues his attempt to tax unrealized capital gains, even though it would hurt taxpayers and the economy.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-28. His statement on the FY2025 budget, from the Finance Committee office he led as Ranking Member. The first fragment is his quoted statement; the other two are the release's bullet points. Date from the page.",
+          "takes_clear_position": true
+        },
+        {
+          "type": "hearing statement (official committee release)",
+          "date": "2023-11-09",
+          "link": "https://www.finance.senate.gov/ranking-members-news/crapo-statement-at-hearing-on-how-the-tax-code-affects-high-income-individuals",
+          "excerpt": "\"But framing this issue through the subjective lens of ‘fairness’ often ignores the facts and turns a blind eye to favored incentives.\" ... \"Higher income taxes serve as disincentives to work, save and invest.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-28. His opening remarks at a Finance hearing on high-income taxpayers. An argument against higher taxes on high earners, but no proposal or vote is named, so it does not take a clear position on its own.",
+          "takes_clear_position": false
+        }
+      ],
+      "last_updated": "2026-11-28",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-28"
+    },
+    {
+      "stance_id": "arrington|wealth_inequality_tax_fairness|gt-310",
+      "politician_id": "arrington",
+      "topic": "wealth_inequality_tax_fairness",
+      "position": "oppose",
+      "position_on": "the President's FY2024 budget tax increases, including a 28 percent corporate rate",
+      "confidence": 0.7,
+      "confidence_reason": "His Tax Day statement attacks the budget's plan to tax American job creators, and the release lists the corporate rate hike to 28 percent among the tax increases it opposes; held at 0.7 because his own quoted words are about taxes in general, not taxes on the wealthy or on corporations specifically.",
+      "sources": [
+        {
+          "type": "official committee press release (Budget, Chairman statement)",
+          "date": "2023-04-18",
+          "link": "https://budget.house.gov/press-release/every-day-is-tax-day-in-bidens-america",
+          "excerpt": "\"Biden’s FY24 budget is a window into The Left’s plan to tax American job creators, workers, and families into oblivion to finance their bloated bureaucracy and woke agenda.\" ... \"Reduces wages and increases costs for workers and families. For example, workers bear 70% or more of the burden of corporate taxes , and higher business costs will be passed on to consumers.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-28. His statement as House Budget Committee Chairman, from the committee office he leads. The first fragment is his quoted statement; the second is the release's bullet point. Date from the page.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-28",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-28"
+    },
+    {
+      "stance_id": "ted_lieu|gov_regulation|gt-311",
+      "politician_id": "ted_lieu",
+      "topic": "gov_regulation",
+      "position": "oppose",
+      "position_on": "the REINS Act (H.R. 427, 2015), which would require congressional approval of every major agency rule",
+      "confidence": 0.8,
+      "confidence_reason": "He says in his own statement that he strongly opposes the REINS Act because it would block agency rules that protect the environment; one source from 2015, so held at 0.8.",
+      "sources": [
+        {
+          "type": "official press release",
+          "date": "2015-07-28",
+          "link": "https://lieu.house.gov/media-center/press-releases/congressman-lieu-statement-house-republicans-radical-reins-act",
+          "excerpt": "\"I strongly oppose H.R. 427, the so-called Regulations from the Executive in Need of Scrutiny (REINS) Act of 2015. This bill is a blatant attempt by House Republicans to create another hurdle for the Administration to protect the environment and to act boldly on a foremost issue of our time – combating climate change.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-28. His statement on his official House site. Date from the page.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-28",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-28"
+    },
+    {
+      "stance_id": "raskin|gov_regulation|gt-312",
+      "politician_id": "raskin",
+      "topic": "gov_regulation",
+      "position": "oppose",
+      "position_on": "the REINS Act and Midnight Rules Relief Act provisions in the 2025 reconciliation bill",
+      "confidence": 0.7,
+      "confidence_reason": "In his opening remarks he says the provisions would handcuff the agencies that keep food, drugs, air and water safe and would hide the most destructive deregulatory votes; held at 0.7 because he condemns the provisions without saying in words that he opposes them, and the remarks are about the whole reconciliation bill.",
+      "sources": [
+        {
+          "type": "committee markup statement (official committee release)",
+          "date": "2025-04-30",
+          "link": "https://democrats-judiciary.house.gov/media-center/press-releases/ranking-member-raskin-s-opening-statement-at-markup-of-gop-s-funding-bill-a-blank-check-for-donald-trump-s-authoritarian-crusade",
+          "excerpt": "\"And while they hamstring our police, House Republicans are also trying to handcuff the agencies that work to make sure our food and drugs are safe, and our air and water are clean.\" ... \"The supercharged REINS Act is buried in this bill. It would prevent the government from enforcing our civil rights, protecting workplace safety, and guarding against misconduct by banks and financial institutions.\" ... \"This tactic would, of course, only be used to hide the most destructive deregulatory votes among dozens of others.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-28. His opening remarks at the House Judiciary markup, published by the Judiciary Democrats' office he leads as Ranking Member. Date from the page.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-28",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-28"
+    },
+    {
+      "stance_id": "angie_craig|safety_net_work_requirements|gt-313",
+      "politician_id": "angie_craig",
+      "topic": "safety_net_work_requirements",
+      "position": "oppose",
+      "position_on": "the new SNAP work and paperwork requirements in the 2025 reconciliation bill, including ending the exemptions for veterans, homeless people and former foster youth",
+      "confidence": 0.8,
+      "confidence_reason": "In her own words she rejects the claim that SNAP discourages work, says the new paperwork requirements would take food from at least 3 million people, and calls removing the exemptions cruel; two sources a month apart, held at 0.8 because the first is mainly about the size of the SNAP cuts.",
+      "sources": [
+        {
+          "type": "committee markup statement (official committee release)",
+          "date": "2025-05-13",
+          "link": "https://democrats-agriculture.house.gov/news/documentsingle.aspx?DocumentID=2952",
+          "excerpt": "\"So, let’s dispel the myth that SNAP discourages work. That’s simply false. Adults on SNAP are already required to work or actively looking for work.\" ... \"The Congressional Budget Office estimates that the new paperwork requirements alone will take food assistance away from at least 3 million people.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-28. Her opening statement at the House Agriculture markup, published by the committee Democrats' office she leads as Ranking Member. Date from the page.",
+          "takes_clear_position": true
+        },
+        {
+          "type": "official committee press release (Agriculture, Ranking Member statement)",
+          "date": "2025-06-27",
+          "link": "https://democrats-agriculture.house.gov/news/documentsingle.aspx?DocumentID=2980",
+          "excerpt": "\"Taking food assistance away from our veterans, vulnerable young people and those experiencing homelessness is cruel. These exemptions were agreed to for a reason: these vulnerable populations face unique barriers that make it more challenging for them to jump through the bureaucratic hoops and navigate the Republican red tape of paperwork requirements.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-28. Only the paragraph the release attributes to her ('said Ranking Member Craig'); the stakeholder quotes on the same page are not used. Date from the page.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-28",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-28"
+    },
+    {
+      "stance_id": "debbie_dingell|safety_net_work_requirements|gt-314",
+      "politician_id": "debbie_dingell",
+      "topic": "safety_net_work_requirements",
+      "position": "oppose",
+      "position_on": "the Medicaid work requirements enacted in H.R. 1 (2025)",
+      "confidence": 0.8,
+      "confidence_reason": "In a joint letter and statement she says work requirements have failed where tried, force vulnerable people into impossible positions and rest on a false narrative that Medicaid recipients refuse to work; one source, written jointly with Rep. McDonald Rivet, so held at 0.8.",
+      "sources": [
+        {
+          "type": "official press release (joint letter)",
+          "date": "2026-03-27",
+          "link": "https://debbiedingell.house.gov/news/documentsingle.aspx?DocumentID=6731",
+          "excerpt": "\"Imposing work requirements on beneficiaries without offering any additional support also fails to acknowledge structural barriers to employment that may have kept them from seeking employment in the first place, such as childcare and transportation. It is a misrepresentation of reality to say that Americans are “refusing to work”. Work requirements will force vulnerable populations into employment despite not addressing the full range of barriers these communities face to employment, potentially putting them in impossible positions,” the lawmakers said.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-28. Her official House site; the quoted words are hers and Rep. Kristen McDonald Rivet's jointly ('the lawmakers said'). Date from the page.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-28",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-28"
+    }
+  ]
+}

@@ -1118,9 +1118,17 @@ const polarityVeto = (r, side, sentence) => !!(side === "support" ? r.vetoSuppor
  * (phase8-v3, R10) turns on the campaign-claim patterns — set for campaign
  * pages, official issue pages and the candidate's own speeches.
  */
-export function classify(sentence, topic, politicianId = null, { claims = false, inSpan = false, reportedVoice = false } = {}) {
-  const r = TOPIC_RULES[topic];
+// LINKED OPPOSE (oppose-gt-rules, 2026-11-28): sentences either side of one
+// that names the specific thing opposed. Only keys whose spec defines
+// linkedCon / linkedObj read it (gov_regulation, wealth_inequality_tax_fairness).
+export const LINKED_WINDOW = 2;
+
+export function classify(sentence, topic, politicianId = null, { claims = false, inSpan = false, reportedVoice = false, linked = false } = {}) {
+  let r = TOPIC_RULES[topic];
   if (!r) throw new Error(`no scoring rules for topic ${topic}`);
+  // LINKED OPPOSE: a sentence near one naming the specific thing opposed also
+  // reads the key's linked oppose fragments ("I oppose this legislation").
+  if (linked && r.linkedOppose) r = { ...r, oppose: new RegExp(`(?:${r.oppose.source})|(?:${r.linkedOppose.source})`, "i") };
   const reversal = REVERSAL.test(sentence);
   // Subject spans: a sentence inside a span on this topic's subject is ABOUT
   // the subject even when it does not name it again (see subjectSpans).
@@ -2059,12 +2067,17 @@ export function scoreRawRecord(raw, topic = raw?.topic, sentences = null, opts =
   const spans = subject ? subjectSpans(list, raw.body, { scope: spanScope }) : null;
   // R18 page context: the main headline, another member's voice, long lists, outside voices.
   const ctx = opts.context || pageContext(raw, list);
+  // LINKED OPPOSE (keys that define it only): which sentences sit within
+  // LINKED_WINDOW of one naming the specific thing opposed.
+  const lo = TOPIC_RULES[topic]?.linkedObject;
+  const named = lo ? list.map((t) => lo.test(t)) : null;
+  const linkedAt = named ? list.map((_, i) => named.slice(Math.max(0, i - LINKED_WINDOW), i + LINKED_WINDOW + 1).some(Boolean)) : null;
   for (let i = 0; i < list.length; i++) {
     const text = list[i];
     const sp = spans && spans[i].subject === subject ? spans[i] : null;
     // Israel split keys: a sentence another facet claims is not read here.
     if (sp && facetExcludes(topic, sp.facet)) continue;
-    let c = classify(text, topic, raw.politician_id, { claims, inSpan: !!sp, reportedVoice: newsRepost && !HAS_QUOTE.test(text) && !FIRST_PERSON_VOICE.test(text) });
+    let c = classify(text, topic, raw.politician_id, { claims, inSpan: !!sp, linked: linkedAt ? linkedAt[i] : false, reportedVoice: newsRepost && !HAS_QUOTE.test(text) && !FIRST_PERSON_VOICE.test(text) });
     if (!c.kind) continue;
     if (c.kind !== "mention") c = readInContext(c, text, i, speakers, ctx, raw.politician_id);
     at.set(i, statements.length);
