@@ -212,8 +212,9 @@ export const ISSUE_TOPIC_VOCAB = {
     up: [String.raw`government efficiency`],
     problems: [String.raw`waste,? fraud,? and abuse`, String.raw`wasteful (?:government |federal )?spending`, String.raw`improper payments`],
     outcome: String.raw`(?:billions|millions) (?:of dollars )?(?:in|of) (?:waste|wasteful spending|improper payments)|misuse of taxpayer (?:dollars|money)|looting of the (?:federal )?treasury|fleecing of (?:the )?taxpayers` },
+  // oppose-gt-vocab (2026-11-28): mention terms only, from db/oppose-ground-truth-2026-11.json; the side lists are unchanged.
   gov_regulation: { label: "Cut Federal Red Tape", pos: "Cut the number and cost of federal regulations",
-    terms: String.raw`red tape|regulations?|regulatory|bureaucra\w+|REINS`,
+    terms: String.raw`red tape|regulations?|regulatory|bureaucra\w+|REINS|(?:energy )?efficiency standards?|laundry[- ]machine (?:efficiency )?standards?`,
     down: [String.raw`(?:federal |job-killing |burdensome |unnecessary )?(?:red tape|regulations|regulatory burdens?)`, String.raw`(?:the )?regulatory state`],
     up: [String.raw`(?:the )?REINS Act`, String.raw`regulatory (?:relief|reform)`],
     upCon: [String.raw`(?:new |stronger )?(?:federal )?(?:regulations|consumer protections) on`],
@@ -542,8 +543,9 @@ export const ISSUE_TOPIC_VOCAB = {
   enviro_balance: { label: "Practical Stewardship", pos: "Protect clean air and water while keeping responsible jobs in farming and energy",
     terms: String.raw`stewardship|clean air|clean water|all-of-the-above|responsible development`,
     pro: [String.raw`\b(?:clean (?:air|water)|environment)\b[^.!?]{0,60}\b(?:and|while|without)\b[^.!?]{0,40}\b(?:jobs|economy|farming|energy|livelihoods)\b`, String.raw`\bresponsible stewardship\b`, String.raw`\bcommon[- ]sense (?:environmental|conservation)\b`] },
+  // oppose-gt-vocab (2026-11-28): mention terms only, from db/oppose-ground-truth-2026-11.json; the side lists are unchanged.
   climate_action: { label: "Climate Action & Clean Energy", pos: "Act on climate and invest in clean energy",
-    terms: String.raw`climate(?: change| crisis)?|clean energy|renewables?|solar|wind (?:power|energy)|emissions|carbon|green new deal`,
+    terms: String.raw`climate(?: change| crisis)?|clean energy|renewables?|solar|wind (?:power|energy)|emissions|carbon|green new deal|clean power plan(?: 2\.0)?|power plant (?:carbon |emissions? |greenhouse gas )?(?:rules?|regulations?)|EPA(?:['’]s)? carbon (?:rules?|regulations?)`,
     up: [String.raw`clean (?:energy|power)(?: jobs)?`, String.raw`(?:solar|wind|renewable)(?: and wind| and solar)? (?:energy|power)`, String.raw`renewables`, String.raw`(?:the )?green new deal`, String.raw`climate (?:action|resilience|goals)`, String.raw`(?:the )?paris (?:climate )?(?:agreement|accord)`, String.raw`electric vehicles`],
     pro: [String.raw`\b(?:act\w{0,3} on|tackl\w{0,3}|fight\w{0,3}|address\w{0,3}|combat\w{0,3}|confront\w{0,3})\b${GAP}\bclimate(?: change| crisis)?\b`],
     down: [String.raw`(?:carbon |greenhouse(?: gas)? )?emissions`, String.raw`carbon pollution`],
@@ -862,8 +864,9 @@ export const ISSUE_TOPIC_VOCAB = {
     pro: [String.raw`\baudit\w{0,3}\b${GAP}\b(?:the )?(?:fed|federal reserve|pentagon|federal agencies|every agency|spending)\b`],
     up: [String.raw`(?:inspectors? general|independent audits|(?:the )?GAO)`],
     problems: [String.raw`(?:failed|unaccounted) (?:pentagon )?audits`, String.raw`unaccounted(?:-for)? (?:spending|funds|dollars)`] },
+  // oppose-gt-vocab (2026-11-28): mention terms only, from db/oppose-ground-truth-2026-11.json; the side lists are unchanged.
   cut_spending: { label: "Cut Federal Spending & Reduce Debt", pos: "Slash federal spending and the national debt by shrinking government",
-    terms: String.raw`(?:federal |government |reckless )?spending|size of government|big government|omnibus`,
+    terms: String.raw`(?:federal |government |reckless )?spending|size of government|big government|omnibus|rescissions? (?:bills?|packages?|act|requests?)|pocket rescissions?`,
     down: [String.raw`(?:federal |government |wasteful |reckless |out-of-control |discretionary )?spending`, String.raw`(?:the )?size of (?:the federal )?government`, String.raw`big government`, String.raw`(?:bloated )?(?:federal )?bureaucracy`, String.raw`(?:the )?omnibus`],
     pro: [String.raw`\bshrink\w{0,3}\b${GAP}\b(?:the )?(?:federal )?government\b`],
     upCon: [String.raw`(?:federal )?spending (?:on|for)`],
@@ -902,8 +905,9 @@ export const ISSUE_TOPIC_VOCAB = {
   // The family & economic fairness keys pass (Nov 2026): two keys added to the
   // register, no position seeded. Terms are kept narrow so the neighbouring keys'
   // reads (tax_middle_class, edu_college_cost) do not move.
+  // oppose-gt-vocab (2026-11-28): mention terms only, from db/oppose-ground-truth-2026-11.json; the side lists are unchanged.
   wealth_inequality_tax_fairness: { label: "Wealth Inequality & Tax Fairness", pos: "Make the wealthiest households and largest corporations pay a fairer share of taxes",
-    terms: String.raw`wealth inequality|tax fairness|wealth tax|billionaire(?:s'?)? (?:minimum )?tax`,
+    terms: String.raw`wealth inequality|tax fairness|wealth tax|billionaire(?:s'?)? (?:minimum )?tax|corporate (?:income )?tax (?:rates?|increases?|hikes?)|(?:from )?21 (?:percent|%) to 28 (?:percent|%)`,
     up: [String.raw`(?:a )?wealth tax`, String.raw`(?:a )?billionaire(?:s'?)? (?:minimum )?tax`, String.raw`tax fairness`],
     pro: [String.raw`\b(?:enact|impos|implement|pass)\w{0,3}\b${GAP}\b(?:a |an )?(?:annual )?wealth tax\b`],
     down: [String.raw`wealth inequality`],
@@ -942,8 +946,9 @@ export const ISSUE_TOPIC_VOCAB = {
       String.raw`\b(?:restor\w{0,3}|limit\w{0,3}|narrow\w{0,3})\b[^.!?;]{0,20}?\bthe scope of birthright citizenship\b`,
       String.raw`\brestor\w{0,3}\b[^.!?;]{0,40}?\b(?:fourteenth|14th) amendment\b[^.!?;]{0,30}?\boriginal (?:intent|meaning|understanding)`,
     ] },
+  // oppose-gt-vocab (2026-11-28): mention terms only, from db/oppose-ground-truth-2026-11.json; the side lists are unchanged.
   safety_net_work_requirements: { label: "Medicaid & SNAP Work Requirements", pos: "Require adults who are able to work to work, train or volunteer to keep Medicaid or SNAP benefits",
-    terms: String.raw`(?:medicaid|snap|food stamp) work requirements?|work requirements? (?:for|on|in) (?:medicaid|snap|food stamps)|community engagement requirements?`,
+    terms: String.raw`(?:medicaid|snap|food stamp) work requirements?|work requirements? (?:for|on|in) (?:medicaid|snap|food stamps)|community engagement requirements?|medicaid (?:paperwork|work reporting) requirements?|paperwork\b[^.!?;]{0,40}?\b(?:health care|health insurance)|(?:health care|health insurance)\b[^.!?;]{0,40}?\bpaperwork`,
     up: [String.raw`(?:medicaid|snap|food stamp) work requirements?`, String.raw`work requirements? (?:for|on|in) (?:medicaid|snap|food stamps)`],
     downCon: [String.raw`(?:medicaid|snap|food stamp) work requirements?`, String.raw`work requirements? (?:for|on|in) (?:medicaid|snap|food stamps)`] },
   fed_independence: { label: "Federal Reserve Independence", pos: "Keep the Federal Reserve independent, so presidents cannot fire its governors or dictate interest rates",

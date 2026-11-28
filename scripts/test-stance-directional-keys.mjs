@@ -259,7 +259,12 @@ t('spans: only directional keys read spans; register topics read exactly as befo
 // (identical before and after both). It was b42ae144… over 119 keys before the
 // fixes A–N pass; the keys left after excluding its 13 keys are unchanged
 // by it (verified against the prior commit when the pin moved).
-const UNTOUCHED_FINGERPRINT = 'fb16b9185b7a74c24ae8a76f8e2478c88a4d02582ff7037a482a894a7e036bff';
+// It was fb16b9185b7a74c24ae8a76f8e2478c88a4d02582ff7037a482a894a7e036bff over 108
+// keys before the oppose ground-truth vocabulary pass (2026-11-28); the 105 keys
+// left after excluding its keys give the same fingerprint before and after it
+// (verified against the prior commit when the pin moved).
+const UNTOUCHED_FINGERPRINT = 'a9d5c5e60a2e9b0ba7ff976d375a854ca8260f19215e6cd6b72ed52964703c11';
+const OPPOSE_GT_VOCAB_KEYS = ['wealth_inequality_tax_fairness', 'cut_spending', 'gov_regulation', 'climate_action', 'safety_net_work_requirements'];
 const FIX_AN_KEYS = ['term_limits', 'scotus_reform', 'wealth_inequality_tax_fairness', 'social_security', 'edu_parental', 'school_choice',
   'medical_freedom', 'gov_transparency', 'tariffs_authority', 'checks_balances', 'econ_corp_account', 'econ_trade', 'gov_waste'];
 // R21c (2026-11-26) adds objSupport / objOppose to every key: both are built from
@@ -298,9 +303,14 @@ t('the register sweep and every existing key\'s rules are unchanged', () => {
   // frame shared by gun_safety (frameOppose) and gun_rights (frameSupport): a
   // negated harm on the right, and limit / curtail / impinge on law-abiding
   // owners' rights. No other key changed.
-  assert.equal(fingerprint(S.TOPIC_RULES, existing), '2d3659405bf263bb0223d3b26ca72e8e8d2d3826bdf3bc6d9b258fb5ad88ddef');
+  // It was 2d3659405bf263bb0223d3b26ca72e8e8d2d3826bdf3bc6d9b258fb5ad88ddef after
+  // R21d; the oppose ground-truth vocabulary pass (2026-11-28) added mention
+  // terms on purpose to cut_spending, gov_regulation and climate_action (and to
+  // wealth_inequality_tax_fairness and safety_net_work_requirements, which are
+  // outside this set or the untouched set). Mention terms only; no side list changed.
+  assert.equal(fingerprint(S.TOPIC_RULES, existing), '330e5470e6e6518d7dca30192e3e95c853fc3b42f1c970094b0c5156015d2297');
   const POLARITY_KEYS = ['deportations', 'birthright_citizenship', 'pro_life', 'pro_choice', 'gun_safety', 'gun_rights'];
-  const untouched = existing.filter((k) => !POLARITY_KEYS.includes(k) && !FIX_AN_KEYS.includes(k));
+  const untouched = existing.filter((k) => !POLARITY_KEYS.includes(k) && !FIX_AN_KEYS.includes(k) && !OPPOSE_GT_VOCAB_KEYS.includes(k));
   assert.equal(fingerprint(S.TOPIC_RULES, untouched), UNTOUCHED_FINGERPRINT);
   assert.equal(S.RULES_VERSION, 'phase9-v3');
   assert.equal(S.VOCAB_VERSION, 'issue-vocab-v1');

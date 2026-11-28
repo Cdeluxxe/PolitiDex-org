@@ -13,7 +13,9 @@
 //     a verbatim excerpt and a takes_clear_position flag;
 //   · the scorer, run on those excerpts, calls oppose with a confidence within
 //     tolerance of the label, except for the misses listed in KNOWN_MISSES,
-//     which are logged (with the scorer's reason) for a later rules pass.
+//     which are logged (with the scorer's reason) for a later rules pass;
+//     every record is recognized as its labeled issue, and Babin's read is as
+//     it was before the vocabulary pass;
 //     A new miss fails; so does a known miss that starts passing (take it off
 //     the list). The scorer may never call support on an oppose label;
 //   · the re-score report (scripts/rescore-oppose-ground-truth-2026-11.mjs) is
@@ -44,18 +46,23 @@ const before = Object.fromEntries(gtFiles.map((f) => [f, sha(path.join(root, 'db
 const file = JSON.parse(readFileSync(RS.GT_PATH, 'utf8'));
 const recs = file.records;
 
-// Misses under rules phase9-v3 when the set was added (2026-11-28). All five
-// are "topic not found in source": the key's mention vocabulary does not see
-// the words the politician uses (rescissions, corporate tax rate, efficiency
-// standards, paperwork requirements, Clean Power Plan), so the read never gets
-// as far as polarity. Shrink this list when a rules pass fixes one; never add
-// to it to pass.
+// Misses under rules phase9-v3. When the set was added (2026-11-28) five
+// records read "topic not found in source": the key's mention vocabulary did
+// not see the politician's words. The oppose-gt-vocab pass (same day) added
+// those words to the five keys' mention terms only (rescissions bill,
+// corporate tax rate, efficiency standards, Medicaid paperwork, Clean Power
+// Plan), so every record is now recognized as its labeled issue. Capito now
+// reads oppose within tolerance and left the list. The four below are
+// recognized but read "topic mention(s), none states a clear position (R3)":
+// the key's side lists have no object for what they oppose (a rescissions
+// bill, a corporate rate increase, a standards rollback, paperwork
+// requirements), so the oppose verb has nothing to act on. That is for a later
+// rules pass. Shrink this list when one is fixed; never add to it to pass.
 export const KNOWN_MISSES = {
   'jason_smith|wealth_inequality_tax_fairness|gt-301': 'no clear position',
   'delauro|cut_spending|gt-302': 'no clear position',
   'pallone|gov_regulation|gt-303': 'no clear position',
   'wyden|safety_net_work_requirements|gt-304': 'no clear position',
-  'capito|climate_action|gt-306': 'no clear position',
 };
 
 const RECORD_FIELDS = ['stance_id', 'politician_id', 'topic', 'position', 'confidence', 'confidence_reason', 'sources', 'last_updated', 'status', 'locked', 'locked_on'];
@@ -139,6 +146,17 @@ await t('outside the logged misses, the scorer calls oppose with confidence with
       `${r.stance_id}: confidence ${r.scorer.confidence} vs label ${r.human.confidence}`);
     assert.ok(r.scorer.confidence >= 0.5 && r.scorer.confidence <= 0.95, `${r.stance_id}: confidence ${r.scorer.confidence} out of range`);
   }
+});
+await t('every record is recognized as its labeled issue (no "topic not found in source")', () => {
+  for (const r of rows) {
+    assert.ok(!/topic not found/.test(r.scorer.reason), `${r.stance_id}: ${r.scorer.reason}`);
+    assert.ok(r.scorer.confidence > 0, `${r.stance_id}: pooled read found no mention`);
+  }
+});
+await t('the Babin record reads as it did before the vocabulary pass (oppose, 0.8)', () => {
+  const r = rows.find((x) => x.stance_id === 'brian_babin|birthright_citizenship|gt-305');
+  assert.equal(r.scorer.position, 'oppose');
+  assert.equal(r.scorer.confidence, 0.8);
 });
 await t('every logged miss is still a miss, as recorded (shrink KNOWN_MISSES when one is fixed)', () => {
   for (const [id, pos] of Object.entries(KNOWN_MISSES)) {
