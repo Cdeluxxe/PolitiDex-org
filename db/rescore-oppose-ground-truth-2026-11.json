@@ -55,10 +55,12 @@
           "type": "op-ed on official House site",
           "date": "2024-08-16",
           "link": "https://jasonsmith.house.gov/2024/08/16/the-fight-to-protect-families-from-the-lefts-7-trillion-tax-hike/",
-          "position": "no clear position",
-          "confidence": 0,
-          "reason": "topic not found in source",
-          "statements": []
+          "position": "oppose",
+          "confidence": 0.8,
+          "reason": "1 clear medium-weight statement(s) for oppose; 0 implication(s) for oppose at medium weight (R6); explicit claim on a primary source reads as a stated position (R8)",
+          "statements": [
+            "oppose (clear): As Chairman of the Ways and Means Committee, I will continue working around the clock to stop the $7 trillion Biden-Harris tax hike."
+          ]
         }
       ]
     },
@@ -151,8 +153,9 @@
       "scorer": {
         "position": "oppose",
         "confidence": 0.8,
-        "reason": "1 clear high-weight statement(s) for oppose; 0 implication(s) for oppose at medium weight (R6); 1 mention(s) recorded at zero weight (R3)",
+        "reason": "2 clear high-weight statement(s) for oppose; 0 implication(s) for oppose at medium weight (R6)",
         "statements": [
+          "oppose (clear): This rule is the dark heart of the Republican plan to kick millions of working Americans and their children off their health insurance by placing a mountain of paperwork in front of them.",
           "oppose (clear): This ruling is a victory for working families that were being crushed by mountains of burdensome and unnecessary paperwork designed to take away their health care."
         ]
       },
@@ -164,10 +167,12 @@
           "type": "official committee press release (Finance, Ranking Member statement)",
           "date": "2026-06-01",
           "link": "https://www.finance.senate.gov/ranking-members-news/wyden-slams-trump-plan-for-medicaid-paperwork-requirements",
-          "position": "no clear position",
-          "confidence": 0.3,
-          "reason": "1 topic mention(s), none states a clear position (R3)",
-          "statements": []
+          "position": "oppose",
+          "confidence": 0.8,
+          "reason": "1 clear high-weight statement(s) for oppose; 0 implication(s) for oppose at medium weight (R6)",
+          "statements": [
+            "oppose (clear): This rule is the dark heart of the Republican plan to kick millions of working Americans and their children off their health insurance by placing a mountain of paperwork in front of them."
+          ]
         },
         {
           "type": "official committee press release (Finance, Ranking Member statement)",

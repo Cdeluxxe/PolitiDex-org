@@ -222,11 +222,11 @@ export const ISSUE_TOPIC_VOCAB = {
     terms: String.raw`red tape|regulations?|regulatory|bureaucra\w+|REINS|(?:energy )?efficiency standards?|laundry[- ]machine (?:efficiency )?standards?`,
     down: [String.raw`(?:federal |job-killing |burdensome |unnecessary )?(?:red tape|regulations|regulatory burdens?)`, String.raw`(?:the )?regulatory state`],
     up: [String.raw`(?:the )?REINS Act`, String.raw`regulatory (?:relief|reform)`],
-    upCon: [String.raw`(?:new |stronger )?(?:federal )?(?:regulations|consumer protections) on`],
+    upCon: [String.raw`(?:new |stronger )?(?:federal )?(?:regulations|consumer protections) on`, String.raw`(?:the |these |our )?(?:(?:popular|appliance|energy|laundry[- ]machine) ){0,3}efficiency standards`],
     // oppose-gt-rules (2026-11-28): "I oppose this legislation" reads oppose when
     // a sentence within LINKED_WINDOW names the rollback of efficiency standards
     // the legislation would make (see LINKED OPPOSE).
-    linkedCon: [String.raw`\boppos(?:e|es|ed|ing)\b${GAP}\b(?:this|that|the) (?:legislation|bill|measure)\b`],
+    linkedCon: [String.raw`\boppos(?:e|es|ed|ing)\b${GAP}\b(?:this|that|the) (?:legislation|bill|measure)\b`, String.raw`\b(?:urg|ask)\w{0,3} (?:all )?(?:of )?my colleagues to vote no\b`, String.raw`\bvot(?:e|ed|ing) no on (?:this|the|that) (?:bill|legislation|measure)\b`],
     linkedObj: [String.raw`\b(?:gut(?:s|ted|ting)?|roll(?:s|ed|ing)? back|rollbacks? of|repeal\w{0,3}|weaken\w{0,3}|eliminat\w{0,3}|scrap(?:s|ped|ping)?)\b${GAP}\b(?:(?:popular|appliance|energy|laundry[- ]machine) ){0,3}efficiency standards?\b`],
     problems: [String.raw`(?:job-killing |burdensome |costly )?(?:red tape|regulations)`, String.raw`regulatory overreach`],
     outcome: String.raw`(?:drowning|buried|strangled) in (?:red tape|regulations)` },
@@ -882,8 +882,11 @@ export const ISSUE_TOPIC_VOCAB = {
     upCon: [String.raw`(?:federal )?spending (?:on|for)`],
     // oppose-gt-rules (2026-11-28): opposing / blocking a rescissions bill is
     // against the spending cut it makes.
-    downCon: [String.raw`(?:this |that |the |these |any )?rescissions? (?:bills?|packages?|act|requests?)`],
+    downCon: [String.raw`(?:this |that |the |these |any )?rescissions? (?:bills?|packages?|act|requests?)`, String.raw`(?:this |that |the |any |an? )?(?:illegal |unlawful )?pocket rescissions?`],
     con: [String.raw`\bvot\w{0,3} for\b${GAP}\b(?:the )?omnibus\b`],
+    // oppose-gt-expansion (2026-11-28): opposing spending cuts is the oppose side
+    // (a frame, so "oppose … spending" in the support list no longer wins).
+    frameOppose: [String.raw`\b(?:oppos(?:e|es|ed|ing)|reject\w{0,3}|fight(?:s|ing)? (?:back )?against|fought (?:back )?against|vot(?:e|es|ed|ing) against|stand(?:s|ing)? against|block\w{0,3}|stop(?:s|ped|ping)?)\s+(?:these |those |the |this |any |such )?(?:(?:devastating|draconian|cruel|reckless|harmful|deep|drastic|proposed|partisan) ){0,2}(?:federal |budget )?spending cuts\b`],
     problems: [String.raw`(?:reckless|runaway|out-of-control|wasteful) spending`, String.raw`(?:bloated )?bureaucracy`],
     outcome: String.raw`(?:spending|government) (?:is )?out of control|(?:reckless|runaway) spending` },
   stock_trading_ban: { label: "Ban Congressional Stock Trading", pos: "Ban members of Congress from trading individual stocks while in office",
@@ -924,11 +927,18 @@ export const ISSUE_TOPIC_VOCAB = {
     up: [String.raw`(?:a )?wealth tax`, String.raw`(?:a )?billionaire(?:s'?)? (?:minimum )?tax`, String.raw`tax fairness`],
     pro: [String.raw`\b(?:enact|impos|implement|pass)\w{0,3}\b${GAP}\b(?:a |an )?(?:annual )?wealth tax\b`],
     down: [String.raw`wealth inequality`],
+    // oppose-gt-expansion (2026-11-28): keeping / protecting the 21% corporate rate.
+    upCon: [String.raw`(?:the |our )?21(?: percent|%) corporate (?:income )?(?:tax )?rate`, String.raw`(?:the )?corporate (?:income )?(?:tax )?rate at 21(?: percent|%)`],
     downCon: [String.raw`(?:a )?wealth tax`, String.raw`(?:any |an? |the )?(?:increases?|hikes?) (?:in|to|of) (?:the )?corporate (?:income )?tax rate`, String.raw`(?:any |an? |the )?corporate (?:income )?tax (?:rate )?(?:increases?|hikes?)`, String.raw`(?:rais|increas|hik)(?:e|es|ed|ing) (?:the )?corporate (?:income )?tax rate`],
     // oppose-gt-rules (2026-11-28): "these tax increases … are dead on arrival" /
     // "stop the … tax hike" reads oppose when a sentence within LINKED_WINDOW
     // names a corporate tax rate increase (see LINKED OPPOSE).
     linkedCon: [String.raw`\b(?:this|that|these|those) (?:proposed )?tax (?:increases?|hikes?)\b[^.!?;]{0,40}?\bdead on arrival\b`, String.raw`\b(?:stop|block|oppos(?:e|es|ed|ing)|reject\w{0,3}|defeat\w{0,3})\b${GAP}\b(?:the|this|these|that) (?:[$\w.-]+ ){0,3}?tax (?:increases?|hikes?)\b`],
+    // oppose-gt-attribution (2026-11-28): stopping the "$7 trillion Biden-Harris
+    // tax hike" (the administration's corporate / top-rate package) reads oppose
+    // on its own. Needs the dollar figure AND the named proposal, so a generic
+    // "stop the tax hike" or a TCJA-expiry "tax hike on families" does not.
+    con: [String.raw`\b(?:stop|block|oppos(?:e|es|ed|ing)|reject\w{0,3}|defeat\w{0,3}|fight(?:s|ing)? against|vot(?:e|ed|ing) against)\b${GAP}\b(?:the |this |that )?(?:unprecedented |massive |proposed )?\$\d+(?:\.\d+)? trillion (?:Biden|Harris|Biden-Harris|Harris-Biden|Biden administration['’]s|Harris administration['’]s)(?:['’]s)? tax (?:hikes?|increases?)\b`],
     linkedObj: [String.raw`\b(?:increas|rais|hik)(?:e|es|ed|ing) (?:the )?corporate (?:income )?tax rate\b`, String.raw`\bcorporate (?:income )?tax (?:rate )?(?:increases?|hikes?)\b`, String.raw`\b21 (?:percent|%) to 28 (?:percent|%)`],
     problems: [String.raw`wealth inequality`] },
   student_debt_college_access: { label: "Student Debt & College Access", pos: "Relieve student debt and widen access to college for students who could not otherwise attend",
@@ -968,13 +978,17 @@ export const ISSUE_TOPIC_VOCAB = {
   safety_net_work_requirements: { label: "Medicaid & SNAP Work Requirements", pos: "Require adults who are able to work to work, train or volunteer to keep Medicaid or SNAP benefits",
     terms: String.raw`(?:medicaid|snap|food stamp) work requirements?|work requirements? (?:for|on|in) (?:medicaid|snap|food stamps)|community engagement requirements?|medicaid (?:paperwork|work reporting) requirements?|paperwork\b[^.!?;]{0,40}?\b(?:health care|health insurance)|(?:health care|health insurance)\b[^.!?;]{0,40}?\bpaperwork`,
     up: [String.raw`(?:medicaid|snap|food stamp) work requirements?`, String.raw`work requirements? (?:for|on|in) (?:medicaid|snap|food stamps)`],
-    downCon: [String.raw`(?:medicaid|snap|food stamp) work requirements?`, String.raw`work requirements? (?:for|on|in) (?:medicaid|snap|food stamps)`, String.raw`(?:the |these |this )?(?:medicaid )?work reporting requirements?`],
+    downCon: [String.raw`(?:medicaid|snap|food stamp) work requirements?`, String.raw`work requirements? (?:for|on|in) (?:medicaid|snap|food stamps)`, String.raw`(?:the |these |this )?(?:medicaid )?work reporting requirements?`, String.raw`(?:these |those |the |any |such )(?:(?:cruel|harsh|punitive|burdensome|onerous|new|proposed) ){1,2}work requirements?`],
     // oppose-gt-rules (2026-11-28): paperwork named as the way coverage is taken
     // away ("kick … off their health insurance by placing a mountain of
     // paperwork", "paperwork designed to take away their health care"). A frame,
     // so the generic BURDEN flip (removing paperwork helps the program) does not
     // turn it around.
-    frameOppose: [String.raw`\bkick(?:s|ed|ing)?\b[^.!?;]{0,60}?\boff (?:of )?(?:their |the )?(?:health insurance|health care|health coverage|coverage|medicaid)\b[^.!?;]{0,40}?\bpaperwork\b`, String.raw`\b(?:burdensome|unnecessary|mountains? of)\b[^.!?;]{0,40}?\bpaperwork\b[^.!?;]{0,30}?\b(?:designed|meant|intended) to (?:take away|strip)\b[^.!?;]{0,20}?\b(?:health care|health insurance|health coverage|coverage|medicaid)\b`] },
+    // oppose-gt-attribution (2026-11-28): "the dark heart of the Republican plan
+    // to kick … off their health insurance … paperwork" — the speaker condemns
+    // the plan; the frame opens on the condemnation, so the plan's author is what
+    // is opposed, not the actor of the sentence.
+    frameOppose: [String.raw`\b(?:(?:dark )?heart|centerpiece|cornerstone|core) of (?:the |this |their )?(?:[\w'’-]+ ){0,3}?(?:plan|scheme|agenda|bill|law|proposal)s? to kick\b[^.!?;]{0,60}?\boff (?:of )?(?:their |the )?(?:health insurance|health care|health coverage|coverage|medicaid)\b[^.!?;]{0,40}?\bpaperwork\b`, String.raw`\bkick(?:s|ed|ing)?\b[^.!?;]{0,60}?\boff (?:of )?(?:their |the )?(?:health insurance|health care|health coverage|coverage|medicaid)\b[^.!?;]{0,40}?\bpaperwork\b`, String.raw`\b(?:burdensome|unnecessary|mountains? of)\b[^.!?;]{0,40}?\bpaperwork\b[^.!?;]{0,30}?\b(?:designed|meant|intended) to (?:take away|strip)\b[^.!?;]{0,20}?\b(?:health care|health insurance|health coverage|coverage|medicaid)\b`] },
   fed_independence: { label: "Federal Reserve Independence", pos: "Keep the Federal Reserve independent, so presidents cannot fire its governors or dictate interest rates",
     terms: String.raw`(?:fed|federal reserve)(?:'s)? independence|independence of the (?:fed|federal reserve)|independent (?:fed|federal reserve)`,
     up: [String.raw`(?:the )?(?:fed|federal reserve)(?:'s)? independence`, String.raw`(?:the )?independence of the (?:fed|federal reserve)`, String.raw`(?:an )?independent (?:fed|federal reserve)`],

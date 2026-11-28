@@ -164,6 +164,23 @@ await t('the four records fixed by the oppose rules pass read oppose within tole
     assert.ok(Math.abs(r.scorer.confidence - r.human.confidence) <= S.CONFIDENCE_TOLERANCE + 1e-9, `${id}: ${r.scorer.confidence} vs ${r.human.confidence}`);
   }
 });
+// oppose-gt-attribution (2026-11-28): Smith's "stop the $7 trillion Biden-Harris
+// tax hike" source and Wyden's "dark heart of the Republican plan to kick …"
+// source read no clear position alone (no corporate-rate sentence to link to;
+// the plan read as the actor). Both now read oppose on their own, and the
+// pooled read is unchanged.
+await t('every Smith and Wyden source reads oppose on its own, as the pooled read does', () => {
+  for (const id of ['jason_smith|wealth_inequality_tax_fairness|gt-301', 'wyden|safety_net_work_requirements|gt-304']) {
+    const r = rows.find((x) => x.stance_id === id);
+    assert.equal(r.per_source.length, 2, `${id}: sources`);
+    for (const src of r.per_source) {
+      assert.equal(src.position, 'oppose', `${id} ${src.link}: ${src.reason}`);
+      assert.ok(Math.abs(src.confidence - r.human.confidence) <= S.CONFIDENCE_TOLERANCE + 1e-9, `${id} ${src.link}: ${src.confidence}`);
+    }
+    assert.equal(r.scorer.position, 'oppose');
+    assert.equal(r.scorer.confidence, 0.8, `${id}: pooled read moved`);
+  }
+});
 await t('every logged miss is still a miss, as recorded (shrink KNOWN_MISSES when one is fixed)', () => {
   for (const [id, pos] of Object.entries(KNOWN_MISSES)) {
     const r = rows.find((x) => x.stance_id === id);

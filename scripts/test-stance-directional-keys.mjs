@@ -316,7 +316,16 @@ t('the register sweep and every existing key\'s rules are unchanged', () => {
   // safety_net_work_requirements (work reporting requirements, paperwork frames).
   // Excluding those four, every compiled key (139) fingerprints the same before
   // and after (verified against the prior commit when the pin moved).
-  assert.equal(fingerprint(S.TOPIC_RULES, existing), '53a76b8a4ad2c5cfbe1315783681146a876f97c83965ab68462e2f5725c6cc3a');
+  // It was 53a76b8a4ad2c5cfbe1315783681146a876f97c83965ab68462e2f5725c6cc3a after
+  // that pass; the oppose attribution + expansion pass (2026-11-28) changed the
+  // same four keys on purpose: a "dark heart of the … plan to kick …" frame
+  // (safety_net_work_requirements, plus determiner + adjective work requirements),
+  // a named $N trillion Biden / Harris tax hike and the 21% corporate rate
+  // (wealth_inequality_tax_fairness), opposing spending cuts and pocket
+  // rescissions (cut_spending), protecting efficiency standards and "vote no on
+  // this bill" (gov_regulation). The other 139 keys fingerprint the same before
+  // and after (verified against the prior commit when the pin moved).
+  assert.equal(fingerprint(S.TOPIC_RULES, existing), 'b37137656cfe9c63e2040a09cf6d1d39aae2e412717b1ca2274e5e91d8786363');
   const POLARITY_KEYS = ['deportations', 'birthright_citizenship', 'pro_life', 'pro_choice', 'gun_safety', 'gun_rights'];
   const untouched = existing.filter((k) => !POLARITY_KEYS.includes(k) && !FIX_AN_KEYS.includes(k) && !OPPOSE_GT_VOCAB_KEYS.includes(k));
   assert.equal(fingerprint(S.TOPIC_RULES, untouched), UNTOUCHED_FINGERPRINT);
