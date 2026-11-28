@@ -1,0 +1,194 @@
+{
+  "_note": "Locked ground-truth stance records, all labeled oppose, added 2026-11-28 to give the stance scorer more clear oppose cases: a tax increase (Jason Smith), a spending bill (DeLauro on the 2025 rescissions package), a specific regulation rollback (Pallone), Medicaid work requirements (Wyden), birthright citizenship (Babin) and a specific EPA rule (Capito). No politician-and-key pair here repeats one locked in a db/stance-ground-truth-*.json file. Every excerpt is quoted verbatim from a page the politician or the committee office they lead controls; fragments are separated by \" ... \". Same record shape as db/stance-ground-truth-talarico-cost-of-living.json. Test coverage only: no live code reads this file (it is deliberately outside the stance-ground-truth-* name pattern the ingest-time locked-label index loads), it is not used to tune any rule, and it is scored by scripts/rescore-oppose-ground-truth-2026-11.mjs.",
+  "records": [
+    {
+      "stance_id": "jason_smith|wealth_inequality_tax_fairness|gt-301",
+      "politician_id": "jason_smith",
+      "topic": "wealth_inequality_tax_fairness",
+      "position": "oppose",
+      "position_on": "raising taxes on corporations and higher earners (the proposed 21% to 28% corporate rate increase and the broader Democratic tax-hike plans)",
+      "confidence": 0.8,
+      "confidence_reason": "Two of his own releases call the proposed tax increases dead on arrival and pledge to stop them, and the committee release names the corporate rate increase as the target; held at 0.8 because his framing is about taxes on everyone, so the link to the fairer-share key is through the corporate-rate proposal rather than a statement about the wealthy specifically.",
+      "sources": [
+        {
+          "type": "official committee press release (Ways and Means, chairman's statement)",
+          "date": "2024-03-08",
+          "link": "https://waysandmeans.house.gov/2024/03/08/chairman-smith-americans-cant-afford-the-tax-hikes-planned-for-tonights-state-of-the-union-speech/",
+          "excerpt": "\"President Biden tonight plans to make clear he’s on the side of higher taxes and more corporate giveaways. These proposals will kill jobs, hurt families and small businesses, and put America at a disadvantage to Communist China. As we have said every time he has proposed these tax increases before, they are dead on arrival.\" ... \"President Biden has frequently called to repeal the 2017 tax reform, including increasing the corporate tax rate from 21 percent to 28 percent\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-28. Released by the committee he chairs; the first fragment is his quoted statement, the second is the release's own background text naming the corporate rate increase. Published date from the page metadata.",
+          "takes_clear_position": true
+        },
+        {
+          "type": "op-ed on official House site",
+          "date": "2024-08-16",
+          "link": "https://jasonsmith.house.gov/2024/08/16/the-fight-to-protect-families-from-the-lefts-7-trillion-tax-hike/",
+          "excerpt": "\"The last thing working-class Americans need is an unprecedented $7 trillion tax hike.\" ... \"As Chairman of the Ways and Means Committee, I will continue working around the clock to stop the $7 trillion Biden-Harris tax hike.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-28. First-person piece on his own House site, dated on the page. The same piece says the top 1 percent's share of taxes went up under the 2017 law; that line is his framing and is not quoted here.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-28",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-28"
+    },
+    {
+      "stance_id": "delauro|cut_spending|gt-302",
+      "politician_id": "delauro",
+      "topic": "cut_spending",
+      "position": "oppose",
+      "position_on": "rescinding already-enacted federal funding (the Rescissions Act of 2025, H.R. 4: foreign aid and public broadcasting)",
+      "confidence": 0.8,
+      "confidence_reason": "She says in two sets of her own remarks on the same day that she strongly opposes the rescissions bill and urges a no vote; held at 0.8 because both sources are about one rescissions package on one day, and her stated objection is partly about Congress's power of the purse rather than spending levels as such.",
+      "sources": [
+        {
+          "type": "floor speech (official committee release)",
+          "date": "2025-07-17",
+          "link": "https://democrats-appropriations.house.gov/news/statements/ranking-member-delauro-floor-remarks-republicans-rescissions-package-0",
+          "excerpt": "\"I remain strongly opposed to this rescissions bill which is a rubberstamp on the Trump Administration’s stealing from the American people.\" ... \"This bill will shut down rural television and radio stations—cutting off coverage of local news, eliminating emergency information like severe weather alerts, jeopardizing access to PBS KIDS children’s programming, like Sesame Street.\" ... \"I strongly oppose this bill. It forfeits our global leadership, undermines national security, and steals from the American people, and I urge my colleagues to vote no.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-28. Her House floor remarks as published by the Appropriations Democrats' press office she leads as Ranking Member. Date from page metadata.",
+          "takes_clear_position": true
+        },
+        {
+          "type": "committee testimony (official committee release)",
+          "date": "2025-07-17",
+          "link": "https://democrats-appropriations.house.gov/news/press-releases/delauro-statement-house-rules-committee-opposing-republican-rubberstamp",
+          "excerpt": "\"As in June, I remain strongly opposed to this rescissions bill which is a rubberstamp on the Trump Administration’s stealing from the American people.\" ... \"This bill abandons the people of Ukraine while they resist Putin’s tyranny. This bill puts America last.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-28. Her remarks to the House Rules Committee the same day; 'As in June' places the position across both House votes on the package. Not independent of the floor remarks.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-28",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-28"
+    },
+    {
+      "stance_id": "pallone|gov_regulation|gt-303",
+      "politician_id": "pallone",
+      "topic": "gov_regulation",
+      "position": "oppose",
+      "position_on": "rolling back a specific federal regulation (H.R. 7673, which would void DOE's laundry-machine energy efficiency standard and bar standards that raise upfront cost)",
+      "confidence": 0.75,
+      "confidence_reason": "His own floor remarks say he opposes the bill and urge colleagues to oppose it, and defend DOE's standard-setting process; held at 0.75 because the source is one floor statement on one appliance standard, not a statement on federal regulation in general.",
+      "sources": [
+        {
+          "type": "floor speech (official committee release)",
+          "date": "2024-12-10",
+          "link": "https://democrats-energycommerce.house.gov/media/press-releases/pallone-leads-opposition-republicans-bill-gutting-energy-efficiency-standards",
+          "excerpt": "\"H.R. 7673 guts popular energy efficiency standards for laundry machines – standards that save Americans money on their utility bills and reduce dangerous greenhouse gas pollution at the same time.\" ... \"That’s why this bill conveniently ignores the efficiency standards-setting process that already exists at the Department of Energy (DOE), which already requires that these standards result in significant savings, be technologically feasible, and economically justifiable.\" ... \"So I oppose this legislation because it will increase energy costs for American families and undermine our ongoing efforts to combat the worsening climate crisis.\" ... \"I urge all my colleagues to oppose this bill, and I reserve the balance of my time.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-28. House floor remarks published by the Energy and Commerce Democrats' press office he leads as Ranking Member. Date from page metadata.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-28",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-28"
+    },
+    {
+      "stance_id": "wyden|safety_net_work_requirements|gt-304",
+      "politician_id": "wyden",
+      "topic": "safety_net_work_requirements",
+      "position": "oppose",
+      "position_on": "work (\"paperwork\") reporting requirements as a condition of Medicaid coverage — the 2025 H.R. 1 requirements and the 2018–19 state waivers",
+      "confidence": 0.9,
+      "confidence_reason": "Two of his own statements seven years apart call Medicaid work requirements a scheme to take away health care; held at 0.9 because he speaks only to Medicaid, not SNAP, which the key also covers.",
+      "sources": [
+        {
+          "type": "official committee press release (Finance, Ranking Member statement)",
+          "date": "2026-06-01",
+          "link": "https://www.finance.senate.gov/ranking-members-news/wyden-slams-trump-plan-for-medicaid-paperwork-requirements",
+          "excerpt": "\"This rule is the dark heart of the Republican plan to kick millions of working Americans and their children off their health insurance by placing a mountain of paperwork in front of them.\" ... \"When these requirements go into effect at the beginning of next year, it’s going to be a complete train wreck for America\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-28. Statement on the CMS interim final rule implementing the H.R. 1 requirements, from the Finance Committee minority office he leads. Date from page metadata.",
+          "takes_clear_position": true
+        },
+        {
+          "type": "official committee press release (Finance, Ranking Member statement)",
+          "date": "2019-03-27",
+          "link": "https://www.finance.senate.gov/ranking-members-news/wyden-statement-on-decision-striking-down-medicaid-work-requirements",
+          "excerpt": "\"This ruling is a victory for working families that were being crushed by mountains of burdensome and unnecessary paperwork designed to take away their health care,\" ... \"now it is clear that this cruel scheme is on the wrong side of the law.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-28. Statement on the court ruling against Kentucky's and Arkansas's Medicaid work requirements. Shows the position held since 2019.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-28",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-28"
+    },
+    {
+      "stance_id": "brian_babin|birthright_citizenship|gt-305",
+      "politician_id": "brian_babin",
+      "topic": "birthright_citizenship",
+      "position": "oppose",
+      "position_on": "keeping automatic citizenship for every child born on U.S. soil; he sponsors the Birthright Citizenship Act to limit it to children with a citizen, permanent-resident or military-immigrant parent",
+      "confidence": 0.9,
+      "confidence_reason": "He is the author and sponsor of the bill that would end automatic birthright citizenship for most children of non-citizens, and says so in two of his own releases eighteen months apart; held at 0.9 because neither source is a vote.",
+      "sources": [
+        {
+          "type": "official press release",
+          "date": "2025-01-21",
+          "link": "https://babin.house.gov/news/documentsingle.aspx?DocumentID=14088",
+          "excerpt": "\"Congressman Brian Babin (R-TX), Chairman of the House Science, Space, and Technology Committee introduced The Birthright Citizenship Act to restore the 14th Amendment to its original purpose and end the misuse of birthright citizenship.\" ... \"This common-sense legislation corrects decades of misuse and closes the loophole that incentivizes illegal immigration and exploits U.S. citizenship through birth tourism.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-28. First-party release from his House office on introducing H.R. 569 (119th Congress). The first fragment is the release's own third-person text; the second is his quote. Date from page metadata.",
+          "takes_clear_position": true
+        },
+        {
+          "type": "official press release (op-ed excerpt)",
+          "date": "2026-07-16",
+          "link": "https://babin.house.gov/news/documentsingle.aspx?DocumentID=14377",
+          "excerpt": "\"The Birthright Citizenship Act gives Congress the opportunity to restore integrity to our citizenship laws, eliminate incentives for illegal immigration, and reaffirm that American citizenship is a precious privilege—not an automatic entitlement available to anyone who crosses our borders,\" ... \"The time for debate alone has passed. The time for action is now.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-28. His office's release quoting his own Fox News op-ed. Only his quoted words are used.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-28",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-28"
+    },
+    {
+      "stance_id": "capito|climate_action|gt-306",
+      "politician_id": "capito",
+      "topic": "climate_action",
+      "position": "oppose",
+      "position_on": "EPA's 2024 power plant carbon rule (\"Clean Power Plan 2.0\") and similar emissions mandates on coal and gas plants",
+      "confidence": 0.85,
+      "confidence_reason": "In her own statements she says she has long opposed the rule, announces a resolution to overturn it, and welcomes its repeal; held at 0.85 because both sources are about one rule, which is one part of what the climate key covers.",
+      "sources": [
+        {
+          "type": "official committee press release (EPW, Ranking Member statement)",
+          "date": "2024-04-25",
+          "link": "https://www.epw.senate.gov/public/index.cfm/2024/4/capito-to-lead-effort-overturning-biden-s-illegal-attempt-to-close-american-power-plants",
+          "excerpt": "\"With the latest iteration of the illegal Clean Power Plan 2.0 announced today, President Biden has inexplicably doubled down on his plans to shut down the backbone of America’s electric grid through unachievable regulatory mandates.\" ... \"To protect millions of Americans, including energy workers, against executive overreach that has already been tried and rejected by the Supreme Court, I will be introducing a Congressional Review Act resolution of disapproval to overturn the EPA’s job-killing regulations announced today.\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-28. Her statement on the day EPA finalized the rule, from the EPW committee office she then led as Ranking Member. Date from page metadata.",
+          "takes_clear_position": true
+        },
+        {
+          "type": "official committee press release (EPW, Chairman statement)",
+          "date": "2026-09-14",
+          "link": "https://www.epw.senate.gov/public/index.cfm/2026/9/chairman-capito-applauds-trump-epa-repeal-of-clean-power-plan-2",
+          "excerpt": "\"Finally, under President Trump’s leadership, we are ending the Biden-era Clean Power Plan 2.0, which was designed to eliminate coal and natural gas power generation, drastically increasing Americans’ electric bills. I have long opposed this rule and warned of the devastating economic impacts it would have in West Virginia\"",
+          "weight": "strong",
+          "note": "Read directly on 2026-11-28. Her statement on EPA's repeal, from the EPW committee office she now chairs. Date from page metadata.",
+          "takes_clear_position": true
+        }
+      ],
+      "last_updated": "2026-11-28",
+      "status": "active",
+      "locked": true,
+      "locked_on": "2026-11-28"
+    }
+  ]
+}

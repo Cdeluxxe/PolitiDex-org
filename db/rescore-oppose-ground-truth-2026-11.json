@@ -1,0 +1,338 @@
+{
+  "_note": "Offline score of the hand-labeled oppose ground-truth records with the current stance scorer, compared with each human label. Diagnostic only: no ground-truth label, rule or site file changes, and a miss is logged as it is for a later rules pass.",
+  "rules_version": "phase9-v3",
+  "vocab_version": "issue-vocab-v2-directional",
+  "confidence_tolerance": 0.1,
+  "summary": {
+    "records": 6,
+    "scorer_calls_oppose": 1,
+    "within_confidence_tolerance": 1,
+    "abstains": 5,
+    "wrong_position": 0,
+    "verdicts": {
+      "jason_smith|wealth_inequality_tax_fairness|gt-301": "oppose → no clear position (disagrees)",
+      "delauro|cut_spending|gt-302": "oppose → no clear position (disagrees)",
+      "pallone|gov_regulation|gt-303": "oppose → no clear position (disagrees)",
+      "wyden|safety_net_work_requirements|gt-304": "oppose → no clear position (disagrees)",
+      "brian_babin|birthright_citizenship|gt-305": "oppose → oppose (agrees)",
+      "capito|climate_action|gt-306": "oppose → no clear position (disagrees)"
+    }
+  },
+  "records": [
+    {
+      "stance_id": "jason_smith|wealth_inequality_tax_fairness|gt-301",
+      "politician_id": "jason_smith",
+      "topic": "wealth_inequality_tax_fairness",
+      "human": {
+        "position": "oppose",
+        "confidence": 0.8
+      },
+      "scorer": {
+        "position": "no clear position",
+        "confidence": 0,
+        "reason": "topic not found in source",
+        "statements": []
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: jason_smith|wealth_inequality_tax_fairness position MISMATCH (candidate no clear position, ground truth oppose); confidence 0 vs 0.8, Δ=-0.80 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "official committee press release (Ways and Means, chairman's statement)",
+          "date": "2024-03-08",
+          "link": "https://waysandmeans.house.gov/2024/03/08/chairman-smith-americans-cant-afford-the-tax-hikes-planned-for-tonights-state-of-the-union-speech/",
+          "position": "no clear position",
+          "confidence": 0,
+          "reason": "topic not found in source",
+          "statements": []
+        },
+        {
+          "type": "op-ed on official House site",
+          "date": "2024-08-16",
+          "link": "https://jasonsmith.house.gov/2024/08/16/the-fight-to-protect-families-from-the-lefts-7-trillion-tax-hike/",
+          "position": "no clear position",
+          "confidence": 0,
+          "reason": "topic not found in source",
+          "statements": []
+        }
+      ]
+    },
+    {
+      "stance_id": "delauro|cut_spending|gt-302",
+      "politician_id": "delauro",
+      "topic": "cut_spending",
+      "human": {
+        "position": "oppose",
+        "confidence": 0.8
+      },
+      "scorer": {
+        "position": "no clear position",
+        "confidence": 0,
+        "reason": "topic not found in source",
+        "statements": []
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: delauro|cut_spending position MISMATCH (candidate no clear position, ground truth oppose); confidence 0 vs 0.8, Δ=-0.80 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "floor speech (official committee release)",
+          "date": "2025-07-17",
+          "link": "https://democrats-appropriations.house.gov/news/statements/ranking-member-delauro-floor-remarks-republicans-rescissions-package-0",
+          "position": "no clear position",
+          "confidence": 0,
+          "reason": "topic not found in source",
+          "statements": []
+        },
+        {
+          "type": "committee testimony (official committee release)",
+          "date": "2025-07-17",
+          "link": "https://democrats-appropriations.house.gov/news/press-releases/delauro-statement-house-rules-committee-opposing-republican-rubberstamp",
+          "position": "no clear position",
+          "confidence": 0,
+          "reason": "topic not found in source",
+          "statements": []
+        }
+      ]
+    },
+    {
+      "stance_id": "pallone|gov_regulation|gt-303",
+      "politician_id": "pallone",
+      "topic": "gov_regulation",
+      "human": {
+        "position": "oppose",
+        "confidence": 0.75
+      },
+      "scorer": {
+        "position": "no clear position",
+        "confidence": 0,
+        "reason": "topic not found in source",
+        "statements": []
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: pallone|gov_regulation position MISMATCH (candidate no clear position, ground truth oppose); confidence 0 vs 0.75, Δ=-0.75 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "floor speech (official committee release)",
+          "date": "2024-12-10",
+          "link": "https://democrats-energycommerce.house.gov/media/press-releases/pallone-leads-opposition-republicans-bill-gutting-energy-efficiency-standards",
+          "position": "no clear position",
+          "confidence": 0,
+          "reason": "topic not found in source",
+          "statements": []
+        }
+      ]
+    },
+    {
+      "stance_id": "wyden|safety_net_work_requirements|gt-304",
+      "politician_id": "wyden",
+      "topic": "safety_net_work_requirements",
+      "human": {
+        "position": "oppose",
+        "confidence": 0.9
+      },
+      "scorer": {
+        "position": "no clear position",
+        "confidence": 0,
+        "reason": "topic not found in source",
+        "statements": []
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: wyden|safety_net_work_requirements position MISMATCH (candidate no clear position, ground truth oppose); confidence 0 vs 0.9, Δ=-0.90 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "official committee press release (Finance, Ranking Member statement)",
+          "date": "2026-06-01",
+          "link": "https://www.finance.senate.gov/ranking-members-news/wyden-slams-trump-plan-for-medicaid-paperwork-requirements",
+          "position": "no clear position",
+          "confidence": 0,
+          "reason": "topic not found in source",
+          "statements": []
+        },
+        {
+          "type": "official committee press release (Finance, Ranking Member statement)",
+          "date": "2019-03-27",
+          "link": "https://www.finance.senate.gov/ranking-members-news/wyden-statement-on-decision-striking-down-medicaid-work-requirements",
+          "position": "no clear position",
+          "confidence": 0,
+          "reason": "topic not found in source",
+          "statements": []
+        }
+      ]
+    },
+    {
+      "stance_id": "brian_babin|birthright_citizenship|gt-305",
+      "politician_id": "brian_babin",
+      "topic": "birthright_citizenship",
+      "human": {
+        "position": "oppose",
+        "confidence": 0.9
+      },
+      "scorer": {
+        "position": "oppose",
+        "confidence": 0.8,
+        "reason": "1 clear high-weight statement(s) for oppose; 0 implication(s) for oppose at medium weight (R6); 1 mention(s) recorded at zero weight (R3)",
+        "statements": [
+          "oppose (clear): Congressman Brian Babin (R-TX), Chairman of the House Science, Space, and Technology Committee introduced The Birthright Citizenship Act to restore the 14th Amendment to its original purpose and end the misuse of birthright citizenship."
+        ]
+      },
+      "verdict": "agrees",
+      "scorer_agrees": true,
+      "note": "stance-score: brian_babin|birthright_citizenship position MATCH (candidate oppose, ground truth oppose); confidence 0.8 vs 0.9, Δ=-0.10 within 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2025-01-21",
+          "link": "https://babin.house.gov/news/documentsingle.aspx?DocumentID=14088",
+          "position": "oppose",
+          "confidence": 0.8,
+          "reason": "1 clear high-weight statement(s) for oppose; 0 implication(s) for oppose at medium weight (R6)",
+          "statements": [
+            "oppose (clear): Congressman Brian Babin (R-TX), Chairman of the House Science, Space, and Technology Committee introduced The Birthright Citizenship Act to restore the 14th Amendment to its original purpose and end the misuse of birthright citizenship."
+          ]
+        },
+        {
+          "type": "official press release (op-ed excerpt)",
+          "date": "2026-07-16",
+          "link": "https://babin.house.gov/news/documentsingle.aspx?DocumentID=14377",
+          "position": "no clear position",
+          "confidence": 0.3,
+          "reason": "1 topic mention(s), none states a clear position (R3)",
+          "statements": []
+        }
+      ]
+    },
+    {
+      "stance_id": "capito|climate_action|gt-306",
+      "politician_id": "capito",
+      "topic": "climate_action",
+      "human": {
+        "position": "oppose",
+        "confidence": 0.85
+      },
+      "scorer": {
+        "position": "no clear position",
+        "confidence": 0,
+        "reason": "topic not found in source",
+        "statements": []
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: capito|climate_action position MISMATCH (candidate no clear position, ground truth oppose); confidence 0 vs 0.85, Δ=-0.85 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "official committee press release (EPW, Ranking Member statement)",
+          "date": "2024-04-25",
+          "link": "https://www.epw.senate.gov/public/index.cfm/2024/4/capito-to-lead-effort-overturning-biden-s-illegal-attempt-to-close-american-power-plants",
+          "position": "no clear position",
+          "confidence": 0,
+          "reason": "topic not found in source",
+          "statements": []
+        },
+        {
+          "type": "official committee press release (EPW, Chairman statement)",
+          "date": "2026-09-14",
+          "link": "https://www.epw.senate.gov/public/index.cfm/2026/9/chairman-capito-applauds-trump-epa-repeal-of-clean-power-plan-2",
+          "position": "no clear position",
+          "confidence": 0,
+          "reason": "topic not found in source",
+          "statements": []
+        }
+      ]
+    }
+  ],
+  "oppose_misses": [
+    {
+      "stance_id": "jason_smith|wealth_inequality_tax_fairness|gt-301",
+      "miss": "called no clear position",
+      "human_confidence": 0.8,
+      "scorer_confidence": 0,
+      "scorer_reason": "topic not found in source",
+      "sources_not_read_as_oppose": [
+        {
+          "link": "https://waysandmeans.house.gov/2024/03/08/chairman-smith-americans-cant-afford-the-tax-hikes-planned-for-tonights-state-of-the-union-speech/",
+          "position": "no clear position",
+          "reason": "topic not found in source"
+        },
+        {
+          "link": "https://jasonsmith.house.gov/2024/08/16/the-fight-to-protect-families-from-the-lefts-7-trillion-tax-hike/",
+          "position": "no clear position",
+          "reason": "topic not found in source"
+        }
+      ]
+    },
+    {
+      "stance_id": "delauro|cut_spending|gt-302",
+      "miss": "called no clear position",
+      "human_confidence": 0.8,
+      "scorer_confidence": 0,
+      "scorer_reason": "topic not found in source",
+      "sources_not_read_as_oppose": [
+        {
+          "link": "https://democrats-appropriations.house.gov/news/statements/ranking-member-delauro-floor-remarks-republicans-rescissions-package-0",
+          "position": "no clear position",
+          "reason": "topic not found in source"
+        },
+        {
+          "link": "https://democrats-appropriations.house.gov/news/press-releases/delauro-statement-house-rules-committee-opposing-republican-rubberstamp",
+          "position": "no clear position",
+          "reason": "topic not found in source"
+        }
+      ]
+    },
+    {
+      "stance_id": "pallone|gov_regulation|gt-303",
+      "miss": "called no clear position",
+      "human_confidence": 0.75,
+      "scorer_confidence": 0,
+      "scorer_reason": "topic not found in source",
+      "sources_not_read_as_oppose": [
+        {
+          "link": "https://democrats-energycommerce.house.gov/media/press-releases/pallone-leads-opposition-republicans-bill-gutting-energy-efficiency-standards",
+          "position": "no clear position",
+          "reason": "topic not found in source"
+        }
+      ]
+    },
+    {
+      "stance_id": "wyden|safety_net_work_requirements|gt-304",
+      "miss": "called no clear position",
+      "human_confidence": 0.9,
+      "scorer_confidence": 0,
+      "scorer_reason": "topic not found in source",
+      "sources_not_read_as_oppose": [
+        {
+          "link": "https://www.finance.senate.gov/ranking-members-news/wyden-slams-trump-plan-for-medicaid-paperwork-requirements",
+          "position": "no clear position",
+          "reason": "topic not found in source"
+        },
+        {
+          "link": "https://www.finance.senate.gov/ranking-members-news/wyden-statement-on-decision-striking-down-medicaid-work-requirements",
+          "position": "no clear position",
+          "reason": "topic not found in source"
+        }
+      ]
+    },
+    {
+      "stance_id": "capito|climate_action|gt-306",
+      "miss": "called no clear position",
+      "human_confidence": 0.85,
+      "scorer_confidence": 0,
+      "scorer_reason": "topic not found in source",
+      "sources_not_read_as_oppose": [
+        {
+          "link": "https://www.epw.senate.gov/public/index.cfm/2024/4/capito-to-lead-effort-overturning-biden-s-illegal-attempt-to-close-american-power-plants",
+          "position": "no clear position",
+          "reason": "topic not found in source"
+        },
+        {
+          "link": "https://www.epw.senate.gov/public/index.cfm/2026/9/chairman-capito-applauds-trump-epa-repeal-of-clean-power-plan-2",
+          "position": "no clear position",
+          "reason": "topic not found in source"
+        }
+      ]
+    }
+  ]
+}
