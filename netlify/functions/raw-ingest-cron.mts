@@ -284,6 +284,22 @@
 //     outcome) and a summary; report.video_speech. A failed transcription or
 //     fetch is logged and skipped and never blocks the rest of the run.
 
+// High-profile sources pass (raw-ingest-high-profile.mjs; opt-in through
+// `highProfile`, which the scheduled entry point turns on):
+//   · db/high-profile-sources.json lists politician id → source URLs (official
+//     issue / priority pages, press pages, campaign issue pages) for
+//     high-profile members the crawler misses. Every run, AFTER the crawler's
+//     own pull, every listed URL is pulled with the same pullOne — same
+//     "raw-ingest" store, same record shape (source_id "hp-<slug>").
+//   · Each stored page is scored with the existing scorer and the candidates
+//     are LOGGED only: no Locker, stated-position or ground-truth writes.
+//   · Not a discovery source: the crawler's planning, caps, frontier, seen
+//     ledger and host health never see these URLs (kept out of report.results;
+//     reported under report.high_profile). A URL the crawler already pulled
+//     this run is not fetched twice. A failed URL never stops the run.
+//   · RUN LOG — one "high-profile: OK / FAIL / SKIP …" line per URL and a
+//     "high-profile: N source(s) …" summary.
+
 import type { Config } from "@netlify/functions";
 import { getStore } from "@netlify/blobs";
 import {
@@ -294,6 +310,7 @@ import {
   RESOLUTION, hasAnyEvidence,
 } from "../lib/raw-ingest-core.mjs";
 import { resolutionLine } from "../lib/raw-ingest-resolve.mjs";
+import { runHighProfile, HIGH_PROFILE_TIMEOUT_MS, HIGH_PROFILE_MIN_TIMEOUT_MS } from "../lib/raw-ingest-high-profile.mjs";
 import { SCORED_TOPICS } from "../lib/stance-score-core.mjs";
 import { maybeWriteLockerItem, loadReviewFlags, lockerBaselineCounts, cachedBaselineCounts, bumpBaselineCounts, LOCKER_STORE_NAME } from "../lib/evidence-locker-core.mjs";
 import { appendRunSuggestions, SUGGESTIONS_STORE_NAME } from "../lib/raw-ingest-suggestions.mjs";
@@ -406,6 +423,12 @@ export async function run(deps: {
   // Baseline counts cache (cachedBaselineCounts), kept in rotationStore. Omitted
   // → the whole-Locker read every run (the earlier behaviour; tests).
   baselineCache?: boolean;
+  // High-profile sources (raw-ingest-high-profile.mjs): after the crawler's
+  // pull, every URL in db/high-profile-sources.json is pulled and stored as a
+  // raw record, scored log-only. `sources` / `timeoutMs` override the config
+  // and the fetch ceiling (tests). Omitted → off; the scheduled entry point
+  // turns it on, so every scheduled run pulls the list.
+  highProfile?: boolean | { sources?: any[]; config?: any; timeoutMs?: number };
 }) {
   const log = deps.log ?? ((l: string) => console.log(l));
   const startedAt = Date.now();
@@ -691,6 +714,25 @@ export async function run(deps: {
     }
   };
   const report: any = await runRawIngest({ ...deps, onRecord, log, probeHosts: plan ? true : (deps as any).probeHosts }, sources);
+  // High-profile sources: after the crawler's own sources, every URL in the
+  // explicit list (db/high-profile-sources.json) — stored like any raw record,
+  // scored log-only, kept out of report.results so the crawler's host health,
+  // frontier and seen ledger are untouched. Never stops the run.
+  if (deps.highProfile) {
+    const ho: any = typeof deps.highProfile === "object" ? deps.highProfile : {};
+    try {
+      const left = RUN_BUDGET_MS - (Date.now() - startedAt);
+      const timeoutMs = ho.timeoutMs ?? Math.max(HIGH_PROFILE_MIN_TIMEOUT_MS, Math.min(HIGH_PROFILE_TIMEOUT_MS, left - 3_000));
+      const hp = await runHighProfile({
+        fetch: deps.fetch, store: deps.store, now: deps.now, log, timeoutMs, scope,
+        ...(ho.sources ? { sources: ho.sources } : {}), ...(ho.config ? { config: ho.config } : {}),
+        alreadyPulled: report.results.filter((r: any) => r.ok).map((r: any) => r.url),
+      });
+      report.high_profile = hp;
+    } catch (e: any) {
+      log(`high-profile: pass failed — ${e?.message || e}; the rest of the run continues`);
+    }
+  }
   if (scope) {
     const pulledOutside = report.results.filter((r: any) => !inScope(scope, r?.politician_id ?? (srcByUrl.get(r?.url) as any)?.politician_id)).length;
     report.scope = { allow_list: [...scope].sort(), pulled_outside: pulledOutside };
@@ -909,6 +951,9 @@ export async function scheduled(deps: { run?: typeof run; suggestionsStore?: any
     // Video / speech discovery + transcription (raw-ingest-video.mjs) for every
     // planned politician (inside the allow-list, which is off by default).
     videoSpeech: true,
+    // Explicit high-profile source list (db/high-profile-sources.json), pulled
+    // on every run after the crawler's own sources.
+    highProfile: true,
     // Baseline counts from the cached doc in the rotation store, refreshed from
     // the Locker at most every 30 minutes (evidence-locker-core.mjs).
     baselineCache: true,

@@ -1,0 +1,63 @@
+{
+  "_note": "Explicit high-profile source list. Every URL here is fetched on EVERY raw-ingest run (netlify/functions/raw-ingest-cron.mts → netlify/lib/raw-ingest-high-profile.mjs), after the normal crawler sources, whether or not the crawler ever finds it. Pages are stored as ordinary raw records in the raw-ingest Blobs store and scored log-only (no Evidence Locker, stated-positions or ground-truth writes). Add a person by adding entries with the same shape; politician_id must be the site id (db/share-index.json people). topic is optional (default cost_living) and only names the raw record's key folder and the page's home topic — every page is still scored against every issue key.",
+  "version": 1,
+  "sources": [
+    { "politician_id": "booker", "source_type": "official Senate issues page", "topic": "healthcare_costs",
+      "url": "https://www.booker.senate.gov/about/issues",
+      "note": "Issues index on the official Senate site; the crawler only reaches his press-release index." },
+    { "politician_id": "booker", "source_type": "official Senate legislation page", "topic": "cost_living",
+      "url": "https://www.booker.senate.gov/about/legislation",
+      "note": "Sponsored-legislation priorities, linked from the Senate homepage." },
+
+    { "politician_id": "schumer", "source_type": "official Senate legislation page", "topic": "cost_living",
+      "url": "https://www.schumer.senate.gov/about/legislation",
+      "note": "His Senate site has no /issues section; the legislation page is where his priorities are listed." },
+    { "politician_id": "schumer", "source_type": "official press page", "topic": "cost_living",
+      "url": "https://www.schumer.senate.gov/newsroom/press-releases",
+      "note": "Own press-release index (statements, remarks)." },
+
+    { "politician_id": "trump", "source_type": "official White House priorities page", "topic": "cost_living",
+      "url": "https://www.whitehouse.gov/priorities/",
+      "note": "Administration priorities index; no campaign issue page is live (donaldjtrump.com/platform and /agenda47 return 404)." },
+    { "politician_id": "trump", "source_type": "official White House priority page", "topic": "econ_growth",
+      "url": "https://www.whitehouse.gov/priorities/economy/",
+      "note": "Economy priority page." },
+    { "politician_id": "trump", "source_type": "official White House priority page", "topic": "border_security",
+      "url": "https://www.whitehouse.gov/priorities/border-immigration/",
+      "note": "Border and immigration priority page." },
+
+    { "politician_id": "sanders", "source_type": "official Senate issues page", "topic": "healthcare_costs",
+      "url": "https://www.sanders.senate.gov/issues/" },
+
+    { "politician_id": "warren", "source_type": "campaign issue page", "topic": "cost_living",
+      "url": "https://elizabethwarren.com/plans",
+      "note": "Campaign plans index (issue positions)." },
+    { "politician_id": "warren", "source_type": "official Senate legislation page", "topic": "cost_living",
+      "url": "https://www.warren.senate.gov/about/legislation/" },
+
+    { "politician_id": "cruz", "source_type": "official Senate issues page", "topic": "border_security",
+      "url": "https://www.cruz.senate.gov/about/issues" },
+
+    { "politician_id": "thune", "source_type": "official Senate priority page", "topic": "healthcare_costs",
+      "url": "https://www.thune.senate.gov/policy-solutions/priorities/healthcare/",
+      "note": "Senate Majority Leader." },
+    { "politician_id": "thune", "source_type": "official Senate priority page", "topic": "lower_taxes",
+      "url": "https://www.thune.senate.gov/policy-solutions/priorities/jobs-taxes-and-economic-growth/" },
+
+    { "politician_id": "mike_johnson", "source_type": "official Speaker priorities page", "topic": "border_security",
+      "url": "https://www.speaker.gov/priorities/",
+      "note": "Speaker of the House priorities index." },
+
+    { "politician_id": "jeffries", "source_type": "official House legislation page", "topic": "cost_living",
+      "url": "https://jeffries.house.gov/legislation/" },
+
+    { "politician_id": "aoc", "source_type": "official House issue page", "topic": "cost_living",
+      "url": "https://ocasio-cortez.house.gov/legislation/economy" },
+
+    { "politician_id": "klobuchar", "source_type": "official Senate issues page", "topic": "healthcare_costs",
+      "url": "https://www.klobuchar.senate.gov/public/index.cfm/issues" },
+
+    { "politician_id": "mcconnell", "source_type": "official Senate issues page", "topic": "strong_defense",
+      "url": "https://www.mcconnell.senate.gov/public/index.cfm/issues" }
+  ]
+}

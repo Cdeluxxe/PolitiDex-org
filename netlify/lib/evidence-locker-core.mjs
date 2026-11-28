@@ -76,6 +76,7 @@ import { statedSourceRule, namesBillOrOutcome, quotedSpeakerOf, KIND_LABELS, WEI
 import { readLockerDocs } from "./locker-read.mjs";
 import { pageOwnership, itemOwnership } from "./page-ownership.mjs";
 import { lockedLabelFor } from "./locked-ground-truth.mjs";
+import { statementDateFor, statementDateLine, ownWordsCheck } from "./evidence-statement.mjs";
 
 export const LOCKER_STORE_NAME = "evidence-locker";
 export const LOCKER_MIN_CONFIDENCE = 0.8;
@@ -432,6 +433,10 @@ export function buildLockerItem(candidate, raw, strength = lockerStrength(candid
     captured_at: raw?.fetched_at ?? null,
     // When the page says it was published (statementDateOf), if it says.
     ...(statementDateOf(raw) ? { stated_date: statementDateOf(raw) } : {}),
+    // When the statement was made (evidence-statement.mjs statementDateFor):
+    // source metadata, else an explicit date on the page, else (last resort)
+    // the fetch time — `statement_date_source` says which.
+    ...statementDateFields(raw),
     ...(raw?.source_id ? { source_id: raw.source_id } : {}),
     // Evidence tier of the page the item came from (pool v2): 1 = first-party
     // campaign / official page (every untagged page), 2 = official government
@@ -444,6 +449,13 @@ export function buildLockerItem(candidate, raw, strength = lockerStrength(candid
     // Mentions ("no clear position" / "mixed" / low confidence) do not.
     ...(isClear(candidate.position) ? citationFields(candidate, raw, { link, source_type, date }) : {}),
   };
+}
+
+/** statement_date / statement_date_source / statement_date_via for a raw record ({} when none). */
+export function statementDateFields(raw) {
+  if (!raw) return {};
+  const d = statementDateFor(raw);
+  return d.date ? { statement_date: d.date, statement_date_source: d.source, statement_date_via: d.via } : {};
 }
 
 /**
@@ -463,6 +475,7 @@ function citationFields(candidate, raw, { link, source_type, date }) {
       confidence: candidate.confidence,
       source_type,
       source_date: date,
+      ...(statementDateFields(raw).statement_date ? { statement_date: statementDateFields(raw).statement_date, statement_date_source: statementDateFields(raw).statement_date_source } : {}),
       url: link,
       excerpts: citationExcerpts(candidate),
       attribution: `${attributionFor(source_type, link)} — the politician's own page`,
@@ -524,6 +537,9 @@ export function toSpotlightEntry(item, { key = null, review = null } = {}) {
     headline: `${who} ${headlinePhrase(item.topic, item.position)} (${item.source_type})`,
     facts: `${where}, ${who} stated: “${item.excerpt}” ${item.attribution}. Captured ${displayDate(item.date)}.`,
     date: displayDate(item.date),
+    // When it was said (only when the page / source metadata dates it; a
+    // fetch-time fallback is not shown as a statement date).
+    ...(item.statement_date && item.statement_date_source && item.statement_date_source !== "fetch_time" ? { statementDate: displayDate(item.statement_date) } : {}),
     issueKey: item.topic,
     impact: "neutral",
     category: "statement",
@@ -550,6 +566,7 @@ export function toSpotlightEntry(item, { key = null, review = null } = {}) {
       ...(item.regraded_from ? { regraded_from: item.regraded_from } : {}),
       ...(item.page_topic && item.page_topic !== item.topic ? { page_topic: item.page_topic } : {}),
       ...(item.stated_date ? { stated_date: item.stated_date } : {}),
+      ...(item.statement_date ? { statement_date: item.statement_date, statement_date_source: item.statement_date_source || null } : {}),
       ...(item.rescored ? { rescored: item.rescored } : {}),
       ...(item.implication_count ? { implication_count: item.implication_count } : {}),
       source_tier: sourceTierOf(item),
@@ -572,6 +589,14 @@ export async function maybeWriteLockerItem(candidate, raw, { store, gt = null, l
       log(`evidence-locker: SKIP ${id} — ${d.reason}`);
       return { written: false, reason: d.reason };
     }
+    // Own-words filter (evidence-statement.mjs): after scoring, a clear-position
+    // read must rest on the politician's own words — not a reporter's
+    // paraphrase, someone else's quote, a third-party description or boilerplate.
+    const own = ownWordsCheck(candidate, raw, { ownPage: isOwnPage(candidate, raw) });
+    if (!own.ok) {
+      log(`evidence-locker: FILTERED ${id} — not the politician's own words (${own.code}): ${own.reason}; not written`);
+      return { written: false, reason: `not own words (${own.code}): ${own.reason}`, filtered: own.code };
+    }
     const item = buildLockerItem(candidate, raw, d.strength);
     const key = lockerKey(item);
     const existing = await store.get(key, { type: "json" });
@@ -588,12 +613,14 @@ export async function maybeWriteLockerItem(candidate, raw, { store, gt = null, l
       log(`evidence-locker: HELD ${id} → ${LOCKER_STORE_NAME}/${key} — ${why}; not written`);
       return { written: false, key, reason: why, held: conflict.key };
     }
+    const logDate = () => { const sd = statementDateFor(raw); log(statementDateLine(id, sd)); };
     const fields = () => JSON.stringify({ strength: item.strength, position: item.position, confidence: item.confidence, ...(item.implication_count ? { implication_count: item.implication_count } : {}), link: item.link, attribution: item.attribution, source_tier: item.source_tier, reason: d.reason });
     if (existing && isOlderRules(existing, item)) {
       // W4 (phase9-v1): a read under older rules is replaced by today's read.
       const next = withRescore(item, existing);
       await store.setJSON(key, next);
       log(`evidence-locker: RESCORE ${id} → ${LOCKER_STORE_NAME}/${key} (${existing.rules_version || "unversioned"} ${storedStrength(existing)} ${existing.position} → ${item.rules_version} ${item.strength} ${item.position}) ${fields()}`);
+      logDate();
       return { written: true, key, item: next, reason: d.reason, rescored_from: next.rescored };
     }
     if (existing) {
@@ -606,6 +633,7 @@ export async function maybeWriteLockerItem(candidate, raw, { store, gt = null, l
       // item never reaches here.
       await store.setJSON(key, item);
       log(`evidence-locker: WRITE ${id} → ${LOCKER_STORE_NAME}/${key} (upgrade ${was} → ${item.strength}) ${fields()}`);
+      logDate();
       return { written: true, key, item, reason: d.reason, upgraded_from: was };
     }
     // onlyIfNew guards the get→set race between overlapping runs.
@@ -615,6 +643,7 @@ export async function maybeWriteLockerItem(candidate, raw, { store, gt = null, l
       return { written: false, key, reason: "already in locker" };
     }
     log(`evidence-locker: WRITE ${id} → ${LOCKER_STORE_NAME}/${key} ${fields()}`);
+    logDate();
     return { written: true, key, item, reason: d.reason };
   } catch (e) {
     log(`evidence-locker: ERROR ${id} — ${e?.message || e}`);
