@@ -20,6 +20,8 @@ import HIGH_PROFILE_FILE from "../../db/high-profile-sources.json" with { type: 
 import { pullOne } from "./raw-ingest-core.mjs";
 import { scoreRecordCandidates } from "./video-transcripts.mjs";
 import { filterToScope } from "./raw-ingest-scope.mjs";
+import { statementDateFor, statementDateLine, ownWordsCheck } from "./evidence-statement.mjs";
+import { isOwnPage } from "./evidence-locker-core.mjs";
 
 export const HIGH_PROFILE_DEFAULT_TOPIC = "cost_living";
 // Per-URL fetch ceiling. The cron passes min(this, what is left of the run
@@ -121,9 +123,14 @@ export async function runHighProfile(deps = {}) {
       // The scorer's own lines are prefixed so nothing downstream that reads
       // "stance-score: …" lines (the suggestions log) mistakes them for crawler finds.
       const scored = scoreRecordCandidates(rec, { log: (l) => log(`high-profile: ${l}`) });
-      for (const { candidate: c } of scored) {
-        candidates.push({ topic: c.topic, position: c.position, confidence: c.confidence, takes_clear_position: !!c.takes_clear_position });
-        log(`high-profile: CANDIDATE ${rec.politician_id}|${c.topic}|${rec.source_id} — ${c.position} (confidence ${c.confidence}) · log-only, not written`);
+      // Statement date (page vs. fetch-time fallback), once per stored page.
+      const sd = statementDateFor(rec);
+      if (scored.length) log(`high-profile: ${statementDateLine(`${rec.politician_id}|${rec.source_id}`, sd)}`);
+      for (const { candidate: c, raw } of scored) {
+        // The same own-words filter the Locker writer applies, reported here.
+        const own = ownWordsCheck(c, raw, { ownPage: isOwnPage(c, raw) });
+        candidates.push({ topic: c.topic, position: c.position, confidence: c.confidence, takes_clear_position: !!c.takes_clear_position, statement_date: sd.date, statement_date_source: sd.source, own_words: own.ok, ...(own.ok ? {} : { filtered: own.code, filter_reason: own.reason }) });
+        log(`high-profile: CANDIDATE ${rec.politician_id}|${c.topic}|${rec.source_id} — ${c.position} (confidence ${c.confidence}) · statement date ${sd.date} (${sd.source}) · ${own.ok ? "own words" : `FILTERED (${own.code}): ${own.reason}`} · log-only, not written`);
       }
     };
     let r;
