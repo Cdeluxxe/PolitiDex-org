@@ -1,0 +1,398 @@
+{
+  "_note": "Offline score of the second batch of hand-labeled oppose ground-truth records with the current stance scorer, compared with each human label. Diagnostic only: labels were added without changing any rule, and every miss is logged for a later rules pass.",
+  "rules_version": "phase9-v3",
+  "vocab_version": "issue-vocab-v2-directional",
+  "confidence_tolerance": 0.1,
+  "summary": {
+    "records": 8,
+    "scorer_calls_oppose": 1,
+    "within_confidence_tolerance": 1,
+    "abstains": 7,
+    "wrong_position": 0,
+    "verdicts": {
+      "murray|cut_spending|gt-307": "oppose → oppose (agrees)",
+      "schumer|cut_spending|gt-308": "oppose → no clear position (disagrees)",
+      "crapo|wealth_inequality_tax_fairness|gt-309": "oppose → no clear position (disagrees)",
+      "arrington|wealth_inequality_tax_fairness|gt-310": "oppose → no clear position (disagrees)",
+      "ted_lieu|gov_regulation|gt-311": "oppose → no clear position (disagrees)",
+      "raskin|gov_regulation|gt-312": "oppose → no clear position (disagrees)",
+      "angie_craig|safety_net_work_requirements|gt-313": "oppose → no clear position (disagrees)",
+      "debbie_dingell|safety_net_work_requirements|gt-314": "oppose → no clear position (disagrees)"
+    }
+  },
+  "records": [
+    {
+      "stance_id": "murray|cut_spending|gt-307",
+      "politician_id": "murray",
+      "topic": "cut_spending",
+      "human": {
+        "position": "oppose",
+        "confidence": 0.75
+      },
+      "scorer": {
+        "position": "oppose",
+        "confidence": 0.8,
+        "reason": "1 clear high-weight statement(s) for oppose; 0 implication(s) for oppose at medium weight (R6)",
+        "statements": [
+          "oppose (clear): We have never, never before seen bipartisan investments, slashed through a partisan rescissions package."
+        ]
+      },
+      "verdict": "agrees",
+      "scorer_agrees": true,
+      "note": "stance-score: murray|cut_spending position MATCH (candidate oppose, ground truth oppose); confidence 0.8 vs 0.75, Δ=+0.05 within 0.1",
+      "per_source": [
+        {
+          "type": "floor speech (official committee release)",
+          "date": "2025-07-15",
+          "link": "https://www.appropriations.senate.gov/news/minority/murray-urges-colleagues-to-vote-down-rescissions-package-in-its-entirety",
+          "position": "no clear position",
+          "confidence": 0,
+          "reason": "topic not found in source",
+          "statements": []
+        },
+        {
+          "type": "floor speech (official committee release)",
+          "date": "2025-07-16",
+          "link": "https://www.appropriations.senate.gov/news/minority/murray-slams-republicans-rescissions-package-on-senate-floor",
+          "position": "oppose",
+          "confidence": 0.8,
+          "reason": "1 clear high-weight statement(s) for oppose; 0 implication(s) for oppose at medium weight (R6)",
+          "statements": [
+            "oppose (clear): We have never, never before seen bipartisan investments, slashed through a partisan rescissions package."
+          ]
+        }
+      ]
+    },
+    {
+      "stance_id": "schumer|cut_spending|gt-308",
+      "politician_id": "schumer",
+      "topic": "cut_spending",
+      "human": {
+        "position": "oppose",
+        "confidence": 0.8
+      },
+      "scorer": {
+        "position": "no clear position",
+        "confidence": 0.3,
+        "reason": "1 topic mention(s), none states a clear position (R3)",
+        "statements": []
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: schumer|cut_spending position MISMATCH (candidate no clear position, ground truth oppose); confidence 0.3 vs 0.8, Δ=-0.50 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "floor speech (official press release)",
+          "date": "2025-07-16",
+          "link": "https://www.democrats.senate.gov/news/press-releases/leader-schumer-floor-remarks-denouncing-senate-republicans-rescissions-bill-ahead-of-todays-vote-a-rama",
+          "position": "no clear position",
+          "confidence": 0.3,
+          "reason": "1 topic mention(s), none states a clear position (R3)",
+          "statements": []
+        }
+      ]
+    },
+    {
+      "stance_id": "crapo|wealth_inequality_tax_fairness|gt-309",
+      "politician_id": "crapo",
+      "topic": "wealth_inequality_tax_fairness",
+      "human": {
+        "position": "oppose",
+        "confidence": 0.75
+      },
+      "scorer": {
+        "position": "no clear position",
+        "confidence": 0,
+        "reason": "topic not found in source",
+        "statements": []
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: crapo|wealth_inequality_tax_fairness position MISMATCH (candidate no clear position, ground truth oppose); confidence 0 vs 0.75, Δ=-0.75 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "official committee press release (Finance, Ranking Member statement)",
+          "date": "2024-03-11",
+          "link": "https://www.finance.senate.gov/ranking-members-news/crapo-statement-on-biden-budget",
+          "position": "no clear position",
+          "confidence": 0,
+          "reason": "topic not found in source",
+          "statements": []
+        },
+        {
+          "type": "hearing statement (official committee release)",
+          "date": "2023-11-09",
+          "link": "https://www.finance.senate.gov/ranking-members-news/crapo-statement-at-hearing-on-how-the-tax-code-affects-high-income-individuals",
+          "position": "no clear position",
+          "confidence": 0,
+          "reason": "topic not found in source",
+          "statements": []
+        }
+      ]
+    },
+    {
+      "stance_id": "arrington|wealth_inequality_tax_fairness|gt-310",
+      "politician_id": "arrington",
+      "topic": "wealth_inequality_tax_fairness",
+      "human": {
+        "position": "oppose",
+        "confidence": 0.7
+      },
+      "scorer": {
+        "position": "no clear position",
+        "confidence": 0,
+        "reason": "topic not found in source",
+        "statements": []
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: arrington|wealth_inequality_tax_fairness position MISMATCH (candidate no clear position, ground truth oppose); confidence 0 vs 0.7, Δ=-0.70 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "official committee press release (Budget, Chairman statement)",
+          "date": "2023-04-18",
+          "link": "https://budget.house.gov/press-release/every-day-is-tax-day-in-bidens-america",
+          "position": "no clear position",
+          "confidence": 0,
+          "reason": "topic not found in source",
+          "statements": []
+        }
+      ]
+    },
+    {
+      "stance_id": "ted_lieu|gov_regulation|gt-311",
+      "politician_id": "ted_lieu",
+      "topic": "gov_regulation",
+      "human": {
+        "position": "oppose",
+        "confidence": 0.8
+      },
+      "scorer": {
+        "position": "no clear position",
+        "confidence": 0.3,
+        "reason": "1 topic mention(s), none states a clear position (R3)",
+        "statements": []
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: ted_lieu|gov_regulation position MISMATCH (candidate no clear position, ground truth oppose); confidence 0.3 vs 0.8, Δ=-0.50 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "official press release",
+          "date": "2015-07-28",
+          "link": "https://lieu.house.gov/media-center/press-releases/congressman-lieu-statement-house-republicans-radical-reins-act",
+          "position": "no clear position",
+          "confidence": 0.3,
+          "reason": "1 topic mention(s), none states a clear position (R3)",
+          "statements": []
+        }
+      ]
+    },
+    {
+      "stance_id": "raskin|gov_regulation|gt-312",
+      "politician_id": "raskin",
+      "topic": "gov_regulation",
+      "human": {
+        "position": "oppose",
+        "confidence": 0.7
+      },
+      "scorer": {
+        "position": "no clear position",
+        "confidence": 0.3,
+        "reason": "1 topic mention(s), none states a clear position (R3)",
+        "statements": []
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: raskin|gov_regulation position MISMATCH (candidate no clear position, ground truth oppose); confidence 0.3 vs 0.7, Δ=-0.40 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "committee markup statement (official committee release)",
+          "date": "2025-04-30",
+          "link": "https://democrats-judiciary.house.gov/media-center/press-releases/ranking-member-raskin-s-opening-statement-at-markup-of-gop-s-funding-bill-a-blank-check-for-donald-trump-s-authoritarian-crusade",
+          "position": "no clear position",
+          "confidence": 0.3,
+          "reason": "1 topic mention(s), none states a clear position (R3)",
+          "statements": []
+        }
+      ]
+    },
+    {
+      "stance_id": "angie_craig|safety_net_work_requirements|gt-313",
+      "politician_id": "angie_craig",
+      "topic": "safety_net_work_requirements",
+      "human": {
+        "position": "oppose",
+        "confidence": 0.8
+      },
+      "scorer": {
+        "position": "no clear position",
+        "confidence": 0,
+        "reason": "topic not found in source",
+        "statements": []
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: angie_craig|safety_net_work_requirements position MISMATCH (candidate no clear position, ground truth oppose); confidence 0 vs 0.8, Δ=-0.80 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "committee markup statement (official committee release)",
+          "date": "2025-05-13",
+          "link": "https://democrats-agriculture.house.gov/news/documentsingle.aspx?DocumentID=2952",
+          "position": "no clear position",
+          "confidence": 0,
+          "reason": "topic not found in source",
+          "statements": []
+        },
+        {
+          "type": "official committee press release (Agriculture, Ranking Member statement)",
+          "date": "2025-06-27",
+          "link": "https://democrats-agriculture.house.gov/news/documentsingle.aspx?DocumentID=2980",
+          "position": "no clear position",
+          "confidence": 0,
+          "reason": "topic not found in source",
+          "statements": []
+        }
+      ]
+    },
+    {
+      "stance_id": "debbie_dingell|safety_net_work_requirements|gt-314",
+      "politician_id": "debbie_dingell",
+      "topic": "safety_net_work_requirements",
+      "human": {
+        "position": "oppose",
+        "confidence": 0.8
+      },
+      "scorer": {
+        "position": "no clear position",
+        "confidence": 0,
+        "reason": "topic not found in source",
+        "statements": []
+      },
+      "verdict": "disagrees",
+      "scorer_agrees": false,
+      "note": "stance-score: debbie_dingell|safety_net_work_requirements position MISMATCH (candidate no clear position, ground truth oppose); confidence 0 vs 0.8, Δ=-0.80 OUTSIDE 0.1",
+      "per_source": [
+        {
+          "type": "official press release (joint letter)",
+          "date": "2026-03-27",
+          "link": "https://debbiedingell.house.gov/news/documentsingle.aspx?DocumentID=6731",
+          "position": "no clear position",
+          "confidence": 0,
+          "reason": "topic not found in source",
+          "statements": []
+        }
+      ]
+    }
+  ],
+  "oppose_misses": [
+    {
+      "stance_id": "schumer|cut_spending|gt-308",
+      "miss": "called no clear position",
+      "human_confidence": 0.8,
+      "scorer_confidence": 0.3,
+      "scorer_reason": "1 topic mention(s), none states a clear position (R3)",
+      "sources_not_read_as_oppose": [
+        {
+          "link": "https://www.democrats.senate.gov/news/press-releases/leader-schumer-floor-remarks-denouncing-senate-republicans-rescissions-bill-ahead-of-todays-vote-a-rama",
+          "position": "no clear position",
+          "reason": "1 topic mention(s), none states a clear position (R3)"
+        }
+      ]
+    },
+    {
+      "stance_id": "crapo|wealth_inequality_tax_fairness|gt-309",
+      "miss": "called no clear position",
+      "human_confidence": 0.75,
+      "scorer_confidence": 0,
+      "scorer_reason": "topic not found in source",
+      "sources_not_read_as_oppose": [
+        {
+          "link": "https://www.finance.senate.gov/ranking-members-news/crapo-statement-on-biden-budget",
+          "position": "no clear position",
+          "reason": "topic not found in source"
+        },
+        {
+          "link": "https://www.finance.senate.gov/ranking-members-news/crapo-statement-at-hearing-on-how-the-tax-code-affects-high-income-individuals",
+          "position": "no clear position",
+          "reason": "topic not found in source"
+        }
+      ]
+    },
+    {
+      "stance_id": "arrington|wealth_inequality_tax_fairness|gt-310",
+      "miss": "called no clear position",
+      "human_confidence": 0.7,
+      "scorer_confidence": 0,
+      "scorer_reason": "topic not found in source",
+      "sources_not_read_as_oppose": [
+        {
+          "link": "https://budget.house.gov/press-release/every-day-is-tax-day-in-bidens-america",
+          "position": "no clear position",
+          "reason": "topic not found in source"
+        }
+      ]
+    },
+    {
+      "stance_id": "ted_lieu|gov_regulation|gt-311",
+      "miss": "called no clear position",
+      "human_confidence": 0.8,
+      "scorer_confidence": 0.3,
+      "scorer_reason": "1 topic mention(s), none states a clear position (R3)",
+      "sources_not_read_as_oppose": [
+        {
+          "link": "https://lieu.house.gov/media-center/press-releases/congressman-lieu-statement-house-republicans-radical-reins-act",
+          "position": "no clear position",
+          "reason": "1 topic mention(s), none states a clear position (R3)"
+        }
+      ]
+    },
+    {
+      "stance_id": "raskin|gov_regulation|gt-312",
+      "miss": "called no clear position",
+      "human_confidence": 0.7,
+      "scorer_confidence": 0.3,
+      "scorer_reason": "1 topic mention(s), none states a clear position (R3)",
+      "sources_not_read_as_oppose": [
+        {
+          "link": "https://democrats-judiciary.house.gov/media-center/press-releases/ranking-member-raskin-s-opening-statement-at-markup-of-gop-s-funding-bill-a-blank-check-for-donald-trump-s-authoritarian-crusade",
+          "position": "no clear position",
+          "reason": "1 topic mention(s), none states a clear position (R3)"
+        }
+      ]
+    },
+    {
+      "stance_id": "angie_craig|safety_net_work_requirements|gt-313",
+      "miss": "called no clear position",
+      "human_confidence": 0.8,
+      "scorer_confidence": 0,
+      "scorer_reason": "topic not found in source",
+      "sources_not_read_as_oppose": [
+        {
+          "link": "https://democrats-agriculture.house.gov/news/documentsingle.aspx?DocumentID=2952",
+          "position": "no clear position",
+          "reason": "topic not found in source"
+        },
+        {
+          "link": "https://democrats-agriculture.house.gov/news/documentsingle.aspx?DocumentID=2980",
+          "position": "no clear position",
+          "reason": "topic not found in source"
+        }
+      ]
+    },
+    {
+      "stance_id": "debbie_dingell|safety_net_work_requirements|gt-314",
+      "miss": "called no clear position",
+      "human_confidence": 0.8,
+      "scorer_confidence": 0,
+      "scorer_reason": "topic not found in source",
+      "sources_not_read_as_oppose": [
+        {
+          "link": "https://debbiedingell.house.gov/news/documentsingle.aspx?DocumentID=6731",
+          "position": "no clear position",
+          "reason": "topic not found in source"
+        }
+      ]
+    }
+  ]
+}
