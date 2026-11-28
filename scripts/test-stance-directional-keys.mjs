@@ -308,7 +308,15 @@ t('the register sweep and every existing key\'s rules are unchanged', () => {
   // terms on purpose to cut_spending, gov_regulation and climate_action (and to
   // wealth_inequality_tax_fairness and safety_net_work_requirements, which are
   // outside this set or the untouched set). Mention terms only; no side list changed.
-  assert.equal(fingerprint(S.TOPIC_RULES, existing), '330e5470e6e6518d7dca30192e3e95c853fc3b42f1c970094b0c5156015d2297');
+  // It was 330e5470e6e6518d7dca30192e3e95c853fc3b42f1c970094b0c5156015d2297 after
+  // that pass; the oppose ground-truth rules pass (2026-11-28) added oppose-side
+  // objects on purpose to cut_spending (rescissions bill), gov_regulation (LINKED
+  // OPPOSE: "this legislation" beside a rollback of efficiency standards),
+  // wealth_inequality_tax_fairness (corporate tax rate increase, LINKED OPPOSE) and
+  // safety_net_work_requirements (work reporting requirements, paperwork frames).
+  // Excluding those four, every compiled key (139) fingerprints the same before
+  // and after (verified against the prior commit when the pin moved).
+  assert.equal(fingerprint(S.TOPIC_RULES, existing), '53a76b8a4ad2c5cfbe1315783681146a876f97c83965ab68462e2f5725c6cc3a');
   const POLARITY_KEYS = ['deportations', 'birthright_citizenship', 'pro_life', 'pro_choice', 'gun_safety', 'gun_rights'];
   const untouched = existing.filter((k) => !POLARITY_KEYS.includes(k) && !FIX_AN_KEYS.includes(k) && !OPPOSE_GT_VOCAB_KEYS.includes(k));
   assert.equal(fingerprint(S.TOPIC_RULES, untouched), UNTOUCHED_FINGERPRINT);

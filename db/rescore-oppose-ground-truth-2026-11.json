@@ -5,15 +5,15 @@
   "confidence_tolerance": 0.1,
   "summary": {
     "records": 6,
-    "scorer_calls_oppose": 2,
-    "within_confidence_tolerance": 2,
-    "abstains": 4,
+    "scorer_calls_oppose": 6,
+    "within_confidence_tolerance": 6,
+    "abstains": 0,
     "wrong_position": 0,
     "verdicts": {
-      "jason_smith|wealth_inequality_tax_fairness|gt-301": "oppose → no clear position (disagrees)",
-      "delauro|cut_spending|gt-302": "oppose → no clear position (disagrees)",
-      "pallone|gov_regulation|gt-303": "oppose → no clear position (disagrees)",
-      "wyden|safety_net_work_requirements|gt-304": "oppose → no clear position (disagrees)",
+      "jason_smith|wealth_inequality_tax_fairness|gt-301": "oppose → oppose (agrees)",
+      "delauro|cut_spending|gt-302": "oppose → oppose (agrees)",
+      "pallone|gov_regulation|gt-303": "oppose → oppose (agrees)",
+      "wyden|safety_net_work_requirements|gt-304": "oppose → oppose (agrees)",
       "brian_babin|birthright_citizenship|gt-305": "oppose → oppose (agrees)",
       "capito|climate_action|gt-306": "oppose → oppose (agrees)"
     }
@@ -28,23 +28,28 @@
         "confidence": 0.8
       },
       "scorer": {
-        "position": "no clear position",
-        "confidence": 0.3,
-        "reason": "1 topic mention(s), none states a clear position (R3)",
-        "statements": []
+        "position": "oppose",
+        "confidence": 0.8,
+        "reason": "2 clear high-weight statement(s) for oppose; 0 implication(s) for oppose at medium weight (R6); 1 mention(s) recorded at zero weight (R3)",
+        "statements": [
+          "oppose (clear): As we have said every time he has proposed these tax increases before, they are dead on arrival.",
+          "oppose (clear): As Chairman of the Ways and Means Committee, I will continue working around the clock to stop the $7 trillion Biden-Harris tax hike."
+        ]
       },
-      "verdict": "disagrees",
-      "scorer_agrees": false,
-      "note": "stance-score: jason_smith|wealth_inequality_tax_fairness position MISMATCH (candidate no clear position, ground truth oppose); confidence 0.3 vs 0.8, Δ=-0.50 OUTSIDE 0.1",
+      "verdict": "agrees",
+      "scorer_agrees": true,
+      "note": "stance-score: jason_smith|wealth_inequality_tax_fairness position MATCH (candidate oppose, ground truth oppose); confidence 0.8 vs 0.8, Δ=+0.00 within 0.1",
       "per_source": [
         {
           "type": "official committee press release (Ways and Means, chairman's statement)",
           "date": "2024-03-08",
           "link": "https://waysandmeans.house.gov/2024/03/08/chairman-smith-americans-cant-afford-the-tax-hikes-planned-for-tonights-state-of-the-union-speech/",
-          "position": "no clear position",
-          "confidence": 0.3,
-          "reason": "1 topic mention(s), none states a clear position (R3)",
-          "statements": []
+          "position": "oppose",
+          "confidence": 0.8,
+          "reason": "1 clear high-weight statement(s) for oppose; 0 implication(s) for oppose at medium weight (R6); 1 mention(s) recorded at zero weight (R3)",
+          "statements": [
+            "oppose (clear): As we have said every time he has proposed these tax increases before, they are dead on arrival."
+          ]
         },
         {
           "type": "op-ed on official House site",
@@ -66,32 +71,39 @@
         "confidence": 0.8
       },
       "scorer": {
-        "position": "no clear position",
-        "confidence": 0.3,
-        "reason": "2 topic mention(s), none states a clear position (R3)",
-        "statements": []
+        "position": "oppose",
+        "confidence": 0.8,
+        "reason": "2 clear high-weight statement(s) for oppose; 0 implication(s) for oppose at medium weight (R6)",
+        "statements": [
+          "oppose (clear): I remain strongly opposed to this rescissions bill which is a rubberstamp on the Trump Administration’s stealing from the American people.",
+          "oppose (clear): As in June, I remain strongly opposed to this rescissions bill which is a rubberstamp on the Trump Administration’s stealing from the American people."
+        ]
       },
-      "verdict": "disagrees",
-      "scorer_agrees": false,
-      "note": "stance-score: delauro|cut_spending position MISMATCH (candidate no clear position, ground truth oppose); confidence 0.3 vs 0.8, Δ=-0.50 OUTSIDE 0.1",
+      "verdict": "agrees",
+      "scorer_agrees": true,
+      "note": "stance-score: delauro|cut_spending position MATCH (candidate oppose, ground truth oppose); confidence 0.8 vs 0.8, Δ=+0.00 within 0.1",
       "per_source": [
         {
           "type": "floor speech (official committee release)",
           "date": "2025-07-17",
           "link": "https://democrats-appropriations.house.gov/news/statements/ranking-member-delauro-floor-remarks-republicans-rescissions-package-0",
-          "position": "no clear position",
-          "confidence": 0.3,
-          "reason": "1 topic mention(s), none states a clear position (R3)",
-          "statements": []
+          "position": "oppose",
+          "confidence": 0.8,
+          "reason": "1 clear high-weight statement(s) for oppose; 0 implication(s) for oppose at medium weight (R6)",
+          "statements": [
+            "oppose (clear): I remain strongly opposed to this rescissions bill which is a rubberstamp on the Trump Administration’s stealing from the American people."
+          ]
         },
         {
           "type": "committee testimony (official committee release)",
           "date": "2025-07-17",
           "link": "https://democrats-appropriations.house.gov/news/press-releases/delauro-statement-house-rules-committee-opposing-republican-rubberstamp",
-          "position": "no clear position",
-          "confidence": 0.3,
-          "reason": "1 topic mention(s), none states a clear position (R3)",
-          "statements": []
+          "position": "oppose",
+          "confidence": 0.8,
+          "reason": "1 clear medium-weight statement(s) for oppose; 0 implication(s) for oppose at medium weight (R6); explicit claim on a primary source reads as a stated position (R8)",
+          "statements": [
+            "oppose (clear): As in June, I remain strongly opposed to this rescissions bill which is a rubberstamp on the Trump Administration’s stealing from the American people."
+          ]
         }
       ]
     },
@@ -104,23 +116,27 @@
         "confidence": 0.75
       },
       "scorer": {
-        "position": "no clear position",
-        "confidence": 0.3,
-        "reason": "2 topic mention(s), none states a clear position (R3)",
-        "statements": []
+        "position": "oppose",
+        "confidence": 0.8,
+        "reason": "1 clear high-weight statement(s) for oppose; 0 implication(s) for oppose at medium weight (R6); 2 mention(s) recorded at zero weight (R3)",
+        "statements": [
+          "oppose (clear): So I oppose this legislation because it will increase energy costs for American families and undermine our ongoing efforts to combat the worsening climate crisis."
+        ]
       },
-      "verdict": "disagrees",
-      "scorer_agrees": false,
-      "note": "stance-score: pallone|gov_regulation position MISMATCH (candidate no clear position, ground truth oppose); confidence 0.3 vs 0.75, Δ=-0.45 OUTSIDE 0.1",
+      "verdict": "agrees",
+      "scorer_agrees": true,
+      "note": "stance-score: pallone|gov_regulation position MATCH (candidate oppose, ground truth oppose); confidence 0.8 vs 0.75, Δ=+0.05 within 0.1",
       "per_source": [
         {
           "type": "floor speech (official committee release)",
           "date": "2024-12-10",
           "link": "https://democrats-energycommerce.house.gov/media/press-releases/pallone-leads-opposition-republicans-bill-gutting-energy-efficiency-standards",
-          "position": "no clear position",
-          "confidence": 0.3,
-          "reason": "2 topic mention(s), none states a clear position (R3)",
-          "statements": []
+          "position": "oppose",
+          "confidence": 0.8,
+          "reason": "1 clear high-weight statement(s) for oppose; 0 implication(s) for oppose at medium weight (R6); 2 mention(s) recorded at zero weight (R3)",
+          "statements": [
+            "oppose (clear): So I oppose this legislation because it will increase energy costs for American families and undermine our ongoing efforts to combat the worsening climate crisis."
+          ]
         }
       ]
     },
@@ -133,14 +149,16 @@
         "confidence": 0.9
       },
       "scorer": {
-        "position": "no clear position",
-        "confidence": 0.3,
-        "reason": "2 topic mention(s), none states a clear position (R3)",
-        "statements": []
+        "position": "oppose",
+        "confidence": 0.8,
+        "reason": "1 clear high-weight statement(s) for oppose; 0 implication(s) for oppose at medium weight (R6); 1 mention(s) recorded at zero weight (R3)",
+        "statements": [
+          "oppose (clear): This ruling is a victory for working families that were being crushed by mountains of burdensome and unnecessary paperwork designed to take away their health care."
+        ]
       },
-      "verdict": "disagrees",
-      "scorer_agrees": false,
-      "note": "stance-score: wyden|safety_net_work_requirements position MISMATCH (candidate no clear position, ground truth oppose); confidence 0.3 vs 0.9, Δ=-0.60 OUTSIDE 0.1",
+      "verdict": "agrees",
+      "scorer_agrees": true,
+      "note": "stance-score: wyden|safety_net_work_requirements position MATCH (candidate oppose, ground truth oppose); confidence 0.8 vs 0.9, Δ=-0.10 within 0.1",
       "per_source": [
         {
           "type": "official committee press release (Finance, Ranking Member statement)",
@@ -155,10 +173,12 @@
           "type": "official committee press release (Finance, Ranking Member statement)",
           "date": "2019-03-27",
           "link": "https://www.finance.senate.gov/ranking-members-news/wyden-statement-on-decision-striking-down-medicaid-work-requirements",
-          "position": "no clear position",
-          "confidence": 0.3,
-          "reason": "1 topic mention(s), none states a clear position (R3)",
-          "statements": []
+          "position": "oppose",
+          "confidence": 0.8,
+          "reason": "1 clear high-weight statement(s) for oppose; 0 implication(s) for oppose at medium weight (R6)",
+          "statements": [
+            "oppose (clear): This ruling is a victory for working families that were being crushed by mountains of burdensome and unnecessary paperwork designed to take away their health care."
+          ]
         }
       ]
     },
@@ -247,77 +267,5 @@
       ]
     }
   ],
-  "oppose_misses": [
-    {
-      "stance_id": "jason_smith|wealth_inequality_tax_fairness|gt-301",
-      "miss": "called no clear position",
-      "human_confidence": 0.8,
-      "scorer_confidence": 0.3,
-      "scorer_reason": "1 topic mention(s), none states a clear position (R3)",
-      "sources_not_read_as_oppose": [
-        {
-          "link": "https://waysandmeans.house.gov/2024/03/08/chairman-smith-americans-cant-afford-the-tax-hikes-planned-for-tonights-state-of-the-union-speech/",
-          "position": "no clear position",
-          "reason": "1 topic mention(s), none states a clear position (R3)"
-        },
-        {
-          "link": "https://jasonsmith.house.gov/2024/08/16/the-fight-to-protect-families-from-the-lefts-7-trillion-tax-hike/",
-          "position": "no clear position",
-          "reason": "topic not found in source"
-        }
-      ]
-    },
-    {
-      "stance_id": "delauro|cut_spending|gt-302",
-      "miss": "called no clear position",
-      "human_confidence": 0.8,
-      "scorer_confidence": 0.3,
-      "scorer_reason": "2 topic mention(s), none states a clear position (R3)",
-      "sources_not_read_as_oppose": [
-        {
-          "link": "https://democrats-appropriations.house.gov/news/statements/ranking-member-delauro-floor-remarks-republicans-rescissions-package-0",
-          "position": "no clear position",
-          "reason": "1 topic mention(s), none states a clear position (R3)"
-        },
-        {
-          "link": "https://democrats-appropriations.house.gov/news/press-releases/delauro-statement-house-rules-committee-opposing-republican-rubberstamp",
-          "position": "no clear position",
-          "reason": "1 topic mention(s), none states a clear position (R3)"
-        }
-      ]
-    },
-    {
-      "stance_id": "pallone|gov_regulation|gt-303",
-      "miss": "called no clear position",
-      "human_confidence": 0.75,
-      "scorer_confidence": 0.3,
-      "scorer_reason": "2 topic mention(s), none states a clear position (R3)",
-      "sources_not_read_as_oppose": [
-        {
-          "link": "https://democrats-energycommerce.house.gov/media/press-releases/pallone-leads-opposition-republicans-bill-gutting-energy-efficiency-standards",
-          "position": "no clear position",
-          "reason": "2 topic mention(s), none states a clear position (R3)"
-        }
-      ]
-    },
-    {
-      "stance_id": "wyden|safety_net_work_requirements|gt-304",
-      "miss": "called no clear position",
-      "human_confidence": 0.9,
-      "scorer_confidence": 0.3,
-      "scorer_reason": "2 topic mention(s), none states a clear position (R3)",
-      "sources_not_read_as_oppose": [
-        {
-          "link": "https://www.finance.senate.gov/ranking-members-news/wyden-slams-trump-plan-for-medicaid-paperwork-requirements",
-          "position": "no clear position",
-          "reason": "1 topic mention(s), none states a clear position (R3)"
-        },
-        {
-          "link": "https://www.finance.senate.gov/ranking-members-news/wyden-statement-on-decision-striking-down-medicaid-work-requirements",
-          "position": "no clear position",
-          "reason": "1 topic mention(s), none states a clear position (R3)"
-        }
-      ]
-    }
-  ]
+  "oppose_misses": []
 }

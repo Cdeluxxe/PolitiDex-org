@@ -12,8 +12,9 @@
 //     cost-of-living record, and every source has type, date, direct link,
 //     a verbatim excerpt and a takes_clear_position flag;
 //   · the scorer, run on those excerpts, calls oppose with a confidence within
-//     tolerance of the label, except for the misses listed in KNOWN_MISSES,
-//     which are logged (with the scorer's reason) for a later rules pass;
+//     tolerance of the label, except for the misses listed in KNOWN_MISSES
+//     (none since the oppose rules pass), which are logged (with the scorer's
+//     reason) for a later rules pass;
 //     every record is recognized as its labeled issue, and Babin's read is as
 //     it was before the vocabulary pass;
 //     A new miss fails; so does a known miss that starts passing (take it off
@@ -49,21 +50,18 @@ const recs = file.records;
 // Misses under rules phase9-v3. When the set was added (2026-11-28) five
 // records read "topic not found in source": the key's mention vocabulary did
 // not see the politician's words. The oppose-gt-vocab pass (same day) added
-// those words to the five keys' mention terms only (rescissions bill,
-// corporate tax rate, efficiency standards, Medicaid paperwork, Clean Power
-// Plan), so every record is now recognized as its labeled issue. Capito now
-// reads oppose within tolerance and left the list. The four below are
-// recognized but read "topic mention(s), none states a clear position (R3)":
-// the key's side lists have no object for what they oppose (a rescissions
-// bill, a corporate rate increase, a standards rollback, paperwork
-// requirements), so the oppose verb has nothing to act on. That is for a later
-// rules pass. Shrink this list when one is fixed; never add to it to pass.
-export const KNOWN_MISSES = {
-  'jason_smith|wealth_inequality_tax_fairness|gt-301': 'no clear position',
-  'delauro|cut_spending|gt-302': 'no clear position',
-  'pallone|gov_regulation|gt-303': 'no clear position',
-  'wyden|safety_net_work_requirements|gt-304': 'no clear position',
-};
+// those words to the five keys' mention terms only, so every record became
+// recognized as its labeled issue and Capito read oppose. Four then read
+// "topic mention(s), none states a clear position (R3)": the key's side lists
+// had no object for what they oppose. The oppose-gt-rules pass (same day)
+// added those objects to the four keys' oppose side only: a rescissions bill
+// (cut_spending), a corporate tax rate increase and the LINKED OPPOSE rule for
+// "these tax increases … dead on arrival" (wealth_inequality_tax_fairness), the
+// LINKED OPPOSE rule for "I oppose this legislation" beside a rollback of
+// efficiency standards (gov_regulation), and paperwork framed as taking away
+// health coverage (safety_net_work_requirements). All six now read oppose
+// within tolerance, so the list is empty. Never add to it to pass.
+export const KNOWN_MISSES = {};
 
 const RECORD_FIELDS = ['stance_id', 'politician_id', 'topic', 'position', 'confidence', 'confidence_reason', 'sources', 'last_updated', 'status', 'locked', 'locked_on'];
 const SOURCE_FIELDS = ['type', 'date', 'link', 'excerpt', 'weight', 'note', 'takes_clear_position'];
@@ -157,6 +155,14 @@ await t('the Babin record reads as it did before the vocabulary pass (oppose, 0.
   const r = rows.find((x) => x.stance_id === 'brian_babin|birthright_citizenship|gt-305');
   assert.equal(r.scorer.position, 'oppose');
   assert.equal(r.scorer.confidence, 0.8);
+});
+await t('the four records fixed by the oppose rules pass read oppose within tolerance', () => {
+  for (const id of ['jason_smith|wealth_inequality_tax_fairness|gt-301', 'delauro|cut_spending|gt-302', 'pallone|gov_regulation|gt-303', 'wyden|safety_net_work_requirements|gt-304']) {
+    const r = rows.find((x) => x.stance_id === id);
+    assert.ok(r, `${id} is not in the file`);
+    assert.equal(r.scorer.position, 'oppose', `${id}: ${r.scorer.reason}`);
+    assert.ok(Math.abs(r.scorer.confidence - r.human.confidence) <= S.CONFIDENCE_TOLERANCE + 1e-9, `${id}: ${r.scorer.confidence} vs ${r.human.confidence}`);
+  }
 });
 await t('every logged miss is still a miss, as recorded (shrink KNOWN_MISSES when one is fixed)', () => {
   for (const [id, pos] of Object.entries(KNOWN_MISSES)) {
